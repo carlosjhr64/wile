@@ -1,0 +1,128 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'test/unit'
+require 'colorize'
+
+README      = 'README.md'
+ROCKET      = /\s*#=>\s*/
+MATCH       = /\s*#~>\s*/
+DECLARATION = /\s*#!>\s*/
+BINDING     = binding
+
+class TestReadmeRocketTest < Test::Unit::TestCase
+  def test_readme_rocket_test
+    return unless File.exist? README
+
+    step_thru_readme do |expected, actual, message|
+      if expected.is_a?(Regexp)
+        assert_match(expected, actual, message)
+      else
+        assert_equal(expected, actual, message)
+      end
+    end
+  rescue StandardError => e
+    flunk e.message
+  end
+
+  private
+
+  def init
+    @lines = File.readlines(README)
+    @ruby = false
+    @script = String.new
+    @line_number = 0
+    @line = nil
+    @actual = nil
+    @expected = nil
+  end
+
+  def step_thru_readme
+    init
+    step_thru_script do
+      yield(@expected, @actual, "#{@line_number}: #{@line}")
+    end
+    completes_successfully unless @script.empty?
+  end
+
+  def ruby_code?
+    # Are we ruby yet?
+    case @line
+    when /^```ruby\b/
+      @ruby = true
+      return false
+    when /^```$/
+      @ruby = false
+    end
+    @ruby
+  end
+
+  def declaration_break?
+    if DECLARATION.match? @line
+      declaration = @line.split(DECLARATION, 2).last.chomp
+      puts "Rocket line number #{@line_number}:".colorize(:yellow)
+      puts declaration.colorize(:yellow)
+      return true if /^TODO/.match? declaration
+    end
+    false
+  end
+
+  def script_ready?
+    # Build up script
+    @script << @line unless @line.match?(/^\s*#/)
+    # Ready to do something?
+    ROCKET.match?(@line) || MATCH.match?(@line)
+  end
+
+  def step_thru_script
+    while (@line = @lines.shift)
+      @line_number += 1
+      next unless ruby_code?
+      break if declaration_break?
+      next unless script_ready?
+
+      # OK, do it!
+      eval_script
+      reset_expected_actual
+      # Report it
+      yield
+    end
+  end
+
+  def eval_script
+    @actual = BINDING.eval(@script)
+  rescue StandardError => e
+    @actual = e.message.red
+  ensure
+    @script.clear
+  end
+
+  def reset_expected_actual
+    reset_expected
+    reset_actual
+  end
+
+  def reset_expected
+    case @line
+    when ROCKET
+      @expected = @line.split(ROCKET, 2).last.chomp
+    when MATCH
+      @expected = Regexp.new @line.split(MATCH, 2).last.chomp
+    end
+  end
+
+  def reset_actual(str = @actual.to_s)
+    @actual = case @expected
+              when Regexp
+                @expected.match?(str) ? str : @actual.inspect
+              else
+                @expected == str ? str : @actual.inspect
+              end
+  end
+
+  def completes_successfully
+    BINDING.eval(@script)
+  ensure
+    @script.clear
+  end
+end

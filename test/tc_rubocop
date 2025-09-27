@@ -1,0 +1,28 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'test/unit'
+require 'colorize'
+# Also:
+# require 'rubocop'
+
+class TestRuboCop < Test::Unit::TestCase
+  RUBOCOP = 'rubocop --format quiet --config .rubocop.yml'
+  def test_rubycop
+    files = `git ls-files`
+            .lines.map(&:chomp)
+            .select { /\.rb$/.match?(it) || _bang_ruby?(it) }
+            .join(' ')
+    flunk 'Busted by Rubocop!'.red unless system("#{RUBOCOP} #{files}")
+  end
+
+  private
+
+  def _bang_ruby?(filename)
+    return false if /\.\w*$/.match?(filename) ||
+                    File.directory?(filename) ||
+                    !File.executable?(filename)
+
+    /^#!.*\bruby$/.match? File.read(filename, 80).lines[0].rstrip
+  end
+end

@@ -1,0 +1,12 @@
+#!/usr/bin/env ruby
+require 'help_parser'
+require '<%=@project%>'
+
+HelpParser[<%=@module%>::VERSION, <<~HELP]
+  ## <%=@module%> ##
+  Usage:
+    <%=@project%> [:options+]
+  Options:
+    -h --help
+    -v --version
+HELP

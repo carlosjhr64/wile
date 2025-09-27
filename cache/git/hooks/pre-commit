@@ -1,0 +1,42 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'find'
+
+# ruby -c
+Find.find('./lib') do |fn|
+  next unless fn =~ /\.rb$/
+
+  unless system "ruby -c #{fn} >/dev/null"
+    puts "Sintax: #{fn}"
+    exit 1
+  end
+end
+
+# VERSION
+_, MAJOR, MINOR, BUILD =
+  `egrep "VERSION\\s*=\\s*'[0-9]+\\.[0-9]+\\.[0-9]+'" lib/*.rb`.split(/\D+/)
+unless MAJOR && MINOR && BUILD
+  puts 'Could not get VERSION.'
+  exit 1
+end
+
+# BUILD
+dirs = File.exist?('bin') ? 'bin lib' : 'lib'
+build = if `git status --porcelain #{dirs}`.strip.empty?
+          `git log -1 --pretty='%as' #{dirs}`.strip.gsub('-', '')[2..]
+        else
+          Time.now.strftime('%y%m%d')
+        end
+unless BUILD.start_with? build
+  puts "Unexpected BUILD(#{BUILD}) !start_with?(#{build})"
+  exit 1
+end
+
+# Copyright
+year = Time.now.year
+author = `git config --get user.name`.strip
+unless system("egrep -i 'Copyright.*#{year}.*#{author}' README.md >/dev/null")
+  puts "Check README's copyright year and author."
+  exit 1
+end

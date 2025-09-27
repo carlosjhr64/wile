@@ -1,0 +1,51 @@
+#!/usr/bin/env ruby
+
+pane = ENV.fetch('TMUX_PANE', nil) or exit
+pane = pane[1..].to_i
+
+require 'colorize'
+
+def blue(string)
+  puts string.blue
+end
+
+def clear
+  system('clear')
+end
+
+clear
+case pane
+when 1
+  blue '# Git Diff:'
+  system('colora')
+when 2
+  blue '# Git Status:'
+  system('git status')
+when 3
+  blue '# Lexicon:'
+  system('wile lexicon --check')
+when 4
+  blue '# Dictionary:'
+  system('wile dictionary --check')
+when 5
+  blue '# Rubocop:'
+  system('rubocop bin lib')
+when 8
+  system('ncal -B 1 -A 2')
+when 9
+  system('wile nvim --list')
+when 10
+  system('wile todo')
+when 11
+  blue '# Git Log:'
+  n = -1
+  `git log --oneline --name-only -n 10`.each_line do |line|
+    if (mdt = /^([a-f0-9]{7})(.*)$/.match(line))
+      puts "#{n += 1}: ".bold + mdt[1].magenta + mdt[2].blue
+    else
+      puts line
+    end
+  end
+else
+  blue "##{pane}"
+end

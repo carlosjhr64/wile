@@ -1,0 +1,26 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'help_parser'
+require 'wile'
+
+Wile::Run.new(HelpParser[Wile::VERSION, <<~HELP])
+  ## wile ##
+  Usage:
+    wile [<task=WORD> [<args>+]] [:options+]
+  Options:
+    -h --help
+    -v --version
+    -c --check
+    --config=FILE
+    -d --dump
+    -f --force
+    -l --list
+    --name=WORD
+    -r --raw
+    -s --strict
+    -t --trace
+  Types:
+    WORD /^\\w+$/
+    FILE /^[\\w\\-\\.\\/]+$/
+HELP
