@@ -5,7 +5,7 @@ Gem::Specification.new do |s|
   s.homepage = 'https://github.com/carlosjhr64/wile'
   s.author   = 'CarlosJHR64'
   s.email    = 'carlosjhr64@gmail.com'
-  s.date     = '2025-09-21'
+  s.date     = '2025-10-18'
   s.licenses = ['MIT']
   ## DESCRIPTION ##
   s.summary  = <<~SUMMARY
@@ -128,10 +128,10 @@ Gem::Specification.new do |s|
     s.executables << 'wile'
   ## REQUIREMENTS ##
   s.add_runtime_dependency 'colorize', '~> 1.1', '>= 1.1.0'
-  s.add_runtime_dependency 'cucumber', '~> 10.1', '>= 10.1.0'
+  s.add_runtime_dependency 'cucumber', '~> 10.1', '>= 10.1.1'
   s.add_runtime_dependency 'help_parser', '~> 9.0', '>= 9.0.240926'
   s.add_runtime_dependency 'parser', '~> 3.3', '>= 3.3.9'
-  s.add_runtime_dependency 'rubocop', '~> 1.80', '>= 1.80.2'
+  s.add_runtime_dependency 'rubocop', '~> 1.81', '>= 1.81.1'
   s.add_runtime_dependency 'test-unit', '~> 3.7', '>= 3.7.0'
   s.requirements << 'cat: 9.1'
   s.requirements << 'clear: 6.4'
