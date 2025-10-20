@@ -28,7 +28,7 @@ module Wile
       return false if options.check?
 
       print 'Update lexicon(Yes/No)?: '
-      return false unless $stdin.gets&.[](0) == 'Y'
+      return false unless $stdin.gets&.include?('Yes')
 
       FileUtils.cp 'tmp/lexicon', '.lexicon'
       true

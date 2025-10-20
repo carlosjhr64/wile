@@ -29,7 +29,7 @@ module Wile
       return false if options.check? # Just checking
 
       print 'Update dictionary(Yes/No)?: '
-      return false unless $stdin.gets&.[](0) == 'Y'
+      return false unless $stdin.gets&.include?('Y')
 
       FileUtils.cp 'tmp/dictionary', '.dictionary'
       true
