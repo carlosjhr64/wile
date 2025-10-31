@@ -5,7 +5,7 @@ Gem::Specification.new do |s|
   s.homepage = 'https://github.com/carlosjhr64/wile'
   s.author   = 'CarlosJHR64'
   s.email    = 'carlosjhr64@gmail.com'
-  s.date     = '2025-10-20'
+  s.date     = '2025-10-31'
   s.licenses = ['MIT']
   ## DESCRIPTION ##
   s.summary  = <<~SUMMARY
@@ -129,16 +129,17 @@ Gem::Specification.new do |s|
   ## REQUIREMENTS ##
   s.add_runtime_dependency 'colorize', '~> 1.1', '>= 1.1.0'
   s.add_runtime_dependency 'cucumber', '~> 10.1', '>= 10.1.1'
+  s.add_runtime_dependency 'fileutils', '~> 1.8', '>= 1.8.0'
   s.add_runtime_dependency 'help_parser', '~> 9.0', '>= 9.0.240926'
-  s.add_runtime_dependency 'parser', '~> 3.3', '>= 3.3.9'
-  s.add_runtime_dependency 'rubocop', '~> 1.81', '>= 1.81.1'
+  s.add_runtime_dependency 'parser', '~> 3.3', '>= 3.3.10'
+  s.add_runtime_dependency 'rubocop', '~> 1.81', '>= 1.81.7'
   s.add_runtime_dependency 'test-unit', '~> 3.7', '>= 3.7.0'
   s.requirements << 'cat: 9.1'
   s.requirements << 'clear: 6.4'
   s.requirements << 'colora: 1.0'
   s.requirements << 'colordiff: 3.8'
   s.requirements << 'egrep: 3.8'
-  s.requirements << 'gem: 3.6'
+  s.requirements << 'gem: 3.7'
   s.requirements << 'git: 2.39'
   s.requirements << 'ls: 9.1'
   s.requirements << 'man: 2.11'
