@@ -6,6 +6,7 @@ require 'colorize'
 # Also:
 # require 'cucumber'
 
+# Cucumber Tests
 class TestCucumber < Test::Unit::TestCase
   def test_cucumber
     flunk 'Rotten cucumber!'.red unless system 'cucumber -f progress'
