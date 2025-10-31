@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module A
   class B
     C = ->(arg) { arg + 1 }
@@ -32,7 +34,7 @@ module X
     end
   end
 
-  R = []
+  R = [].freeze
 
   class Z
     def abc
