@@ -1,15 +1,16 @@
 ## runtime ##
 colorize     1.1.0
 cucumber     10.1.1
+fileutils    1.8.0
 help_parser  9.0.240926
-parser       3.3.9
-rubocop      1.81.1
+parser       3.3.10
+rubocop      1.81.7
 test-unit    3.7.0
 ## development ##
 colorize     1.1.0
 cucumber     10.1.1
-parser       3.3.9
-rubocop      1.81.1
+parser       3.3.10
+rubocop      1.81.7
 test-unit    3.7.0
 ## system-run ##
 cat          9.1
@@ -18,7 +19,7 @@ colora       1.0
 colordiff    3.8
 cucumber     10.1
 egrep        3.8
-gem          3.6
+gem          3.7
 git          2.39
 ls           9.1
 man          2.11
