@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 
 pane = ENV.fetch('TMUX_PANE', nil) or exit
 pane = pane[1..].to_i
