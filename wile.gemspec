@@ -147,7 +147,7 @@ Gem::Specification.new do |s|
   s.requirements << 'ncal: 2019'
   s.requirements << 'rbenv: 1.3'
   s.requirements << 'reek: 6.5'
-  s.required_ruby_version = '>= 4.0'
+  s.required_ruby_version = '>= 4.0.0-preview'
   s.requirements << 'ruby-parse: 3.3'
   s.requirements << 'tmux: 3.3'
   s.requirements << 'tput: 6.4'
