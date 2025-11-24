@@ -5,7 +5,7 @@ Gem::Specification.new do |s|
   s.homepage = 'https://github.com/carlosjhr64/wile'
   s.author   = 'CarlosJHR64'
   s.email    = 'carlosjhr64@gmail.com'
-  s.date     = '2025-10-31'
+  s.date     = '2025-11-24'
   s.licenses = ['MIT']
   ## DESCRIPTION ##
   s.summary  = <<~SUMMARY
@@ -133,13 +133,13 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency 'help_parser', '~> 9.0', '>= 9.0.240926'
   s.add_runtime_dependency 'parser', '~> 3.3', '>= 3.3.10'
   s.add_runtime_dependency 'rubocop', '~> 1.81', '>= 1.81.7'
-  s.add_runtime_dependency 'test-unit', '~> 3.7', '>= 3.7.0'
+  s.add_runtime_dependency 'test-unit', '~> 3.7', '>= 3.7.1'
   s.requirements << 'cat: 9.1'
   s.requirements << 'clear: 6.4'
   s.requirements << 'colora: 1.0'
   s.requirements << 'colordiff: 3.8'
   s.requirements << 'egrep: 3.8'
-  s.requirements << 'gem: 3.7'
+  s.requirements << 'gem: 4.0'
   s.requirements << 'git: 2.39'
   s.requirements << 'ls: 9.1'
   s.requirements << 'man: 2.11'
@@ -147,7 +147,7 @@ Gem::Specification.new do |s|
   s.requirements << 'ncal: 2019'
   s.requirements << 'rbenv: 1.3'
   s.requirements << 'reek: 6.5'
-  s.required_ruby_version = '>= 3.4'
+  s.required_ruby_version = '>= 4.0'
   s.requirements << 'ruby-parse: 3.3'
   s.requirements << 'tmux: 3.3'
   s.requirements << 'tput: 6.4'
