@@ -1,8 +1,11 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-pane = ENV.fetch('TMUX_PANE', nil) or exit
-pane = pane[1..].to_i
+pane = ARGV.shift&.to_i
+unless pane
+  pane_index = '"#{pane_index}"'
+  pane = `tmux display-message -p #{pane_index}`.to_i
+end
 
 require 'colorize'
 
@@ -16,28 +19,28 @@ end
 
 clear
 case pane
-when 1
+when 0
   blue '# Git Diff:'
   system('colora')
-when 2
+when 1
   blue '# Git Status:'
   system('git status')
-when 3
+when 2
   blue '# Lexicon:'
   system('wile lexicon --check')
-when 4
+when 3
   blue '# Dictionary:'
   system('wile dictionary --check')
-when 5
+when 4
   blue '# Rubocop:'
   system('rubocop bin lib')
-when 8
+when 7
   system('ncal -B 1 -A 1')
-when 9
+when 8
   system('wile nvim --list')
-when 10
+when 9
   system('wile todo')
-when 11
+when 10
   blue '# Git Log:'
   n = -1
   `git log --oneline --name-only -n 10`.each_line do |line|
