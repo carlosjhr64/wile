@@ -18,7 +18,7 @@ And many other tasks!
 ```console
 $ gem install wile
 ```
-* Required Ruby version: `>= 3.4`
+* Required Ruby version: `>= 4.0`
 
 ## HELP
 ```console
