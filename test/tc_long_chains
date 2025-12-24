@@ -1,0 +1,16 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'test/unit'
+require 'colorize'
+
+# Fail-less warnings of long.chaining.methods.too_much
+class TestLongChains < Test::Unit::TestCase
+  def test_long_chains
+    Dir.glob('lib/**/*.rb').each do |fn|
+      `egrep '\\w+[.]\\w+[.]\\w+[.]\w+' #{fn}`.lines.map(&:strip).each do |line|
+        puts "#{fn}: #{line.red}"
+      end
+    end
+  end
+end

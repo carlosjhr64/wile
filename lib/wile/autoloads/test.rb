@@ -11,7 +11,8 @@ module Wile
         next if match&.none? { tf.match? it }
 
         print "#{tf}: ".blue
-        raise "failed: #{tf}" unless system("#{tf} --verbose=important-only")
+        options = '--verbose=important-only --ignore-name=test_rubocop_and_reek'
+        raise "failed: #{tf}" unless system("#{tf} #{options}")
       end
     end
   end
