@@ -11,8 +11,8 @@ class TestRubySyntax < Test::Unit::TestCase
     `git ls-files`.lines.map(&:chomp)
                   .select { /\.rb$/.match?(it) || _bang_ruby?(it) }
                   .each do |filename|
-      msg = "\n#### SYNTAX: ####\n# #{filename}\n#################".red
-      assert system("ruby -c #{filename} >/dev/null"), msg
+                    msg = "# SYNTAX: #{filename}".red
+                    assert system("ruby -c #{filename} > /dev/null 2>&1"), msg
     end
   end
 

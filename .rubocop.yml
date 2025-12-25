@@ -1,5 +1,4 @@
 AllCops:
-  TargetRubyVersion: 3.5 # Remove on full 4.0 update
   NewCops: enable
 Layout/LineLength:
   Max: 80

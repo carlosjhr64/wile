@@ -1,5 +1,5 @@
 source 'https://rubygems.org'
-ruby '4.0.0-preview2'
+ruby '4.0.0'
 ## runtime ##
 gem 'colorize'
 gem 'cucumber'
