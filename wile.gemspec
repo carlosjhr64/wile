@@ -1,7 +1,7 @@
 Gem::Specification.new do |s|
   ## INFO ##
   s.name     = 'wile'
-  s.version  = '0.0.251225'
+  s.version  = '0.0.251226'
   s.homepage = 'https://github.com/carlosjhr64/wile'
   s.author   = 'CarlosJHR64'
   s.email    = 'carlosjhr64@gmail.com'

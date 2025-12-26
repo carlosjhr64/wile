@@ -10,7 +10,7 @@ module Wile
         next unless %r{/tc_\w+$}.match?(tf)
         next if match&.none? { tf.match? it }
 
-        print "#{tf}: ".blue
+        puts "#{tf}: ".blue
         options = '--verbose=important-only --ignore-name=test_rubocop_and_reek'
         raise "failed: #{tf}" unless system("#{tf} #{options}")
       end
