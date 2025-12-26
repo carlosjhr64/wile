@@ -4,3 +4,4 @@ pkg
 tags
 tmp
 .git-backup-*
+.solargraph
