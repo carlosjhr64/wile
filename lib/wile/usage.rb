@@ -21,9 +21,9 @@ module Wile
 
     def initialize(options, message, *validators)
       @args       = options.args
-      @opts       = options.to_h.keys.select { it.is_a? String }
-                                     .select { it.length > 1 }
-                                     .reject { %w[task args].include? it }
+      @opts       = options.to_h.keys.grep(String)
+                           .select { it.length > 1 }
+                           .reject { %w[task args].include? it }
       @message    = message
       @validators = validators
       validate!

@@ -518,7 +518,7 @@ project_rb
 project_ready
 protected
 public
-public_instance_methods
+public_method_defined
 public_methods
 publish
 publish_and_archive
