@@ -67,7 +67,7 @@ module Wile
 
     # :reek:FeatureEnvy lines
     def readme_help_insert(idx, lines)
-      help = String.new "$ #{@info.project} --help\n"
+      help = "$ #{@info.project} --help\n"
       help << `./bin/#{@info.project} --help`
       lines.insert(idx += 1, help)
       lines[idx] = nil until lines[idx += 1].start_with?('```')

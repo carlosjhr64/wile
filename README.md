@@ -1,6 +1,6 @@
 # Wile
 
-* [VERSION 0.0.251226](https://github.com/carlosjhr64/wile/releases)
+* [VERSION 0.0.260418](https://github.com/carlosjhr64/wile/releases)
 * [github](https://www.github.com/carlosjhr64/wile)
 * [rubygems](https://rubygems.org/wile)
 
@@ -68,7 +68,7 @@ Run `wile` by itself and you'll get `Wile's` man-page.
 
 ## LICENSE
 
-Copyright (c) 2025 CarlosJHR64
+Copyright (c) 2026 CarlosJHR64
 
 Permission is hereby granted, free of charge,
 to any person obtaining a copy of this software and

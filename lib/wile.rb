@@ -2,7 +2,7 @@
 
 # The Wile module is the main namespace for the Wile application.
 module Wile
-  VERSION = '0.0.251226'
+  VERSION = '0.0.260418'
   ROOT = File.expand_path('..', __dir__)
 
   def self.autoloads
@@ -46,7 +46,7 @@ module Wile
 
     def handle_usage_error
       warn @error.message.lines.map { it.chomp.blue }
-                 .tap { it[-1] = it[-1].chomp.red }.join("\n")
+                               .tap { it[-1] = it[-1].chomp.red }.join("\n")
       exit 64 # Usage
     end
 

@@ -136,7 +136,7 @@ module Wile
       return nil unless (type = constant_type(const))
       return :magenta unless (kls = TYPES[type])
 
-      color kls.public_instance_methods.include?(mth.to_sym) ? :green : nil
+      color kls.public_method_defined?(mth.to_sym) ? :green : nil
     end
 
     # :reek:ControlParameter

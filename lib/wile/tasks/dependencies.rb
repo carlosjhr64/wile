@@ -19,8 +19,7 @@ module Wile
       dpc = Dependencies.new
       run, dev, ros, dos = dpc.dependencies(token&.to_sym)
                               .as do |run, dev, ros, dos|
-                                [dpc.geminfo(run), dpc.geminfo(dev),
-                                 dpc.osinfo(ros), dpc.osinfo(dos)]
+        [dpc.geminfo(run), dpc.geminfo(dev), dpc.osinfo(ros), dpc.osinfo(dos)]
       end
       report_dependencies(run, dev, ros, dos)
     end
