@@ -2,6 +2,31 @@
 
 require 'test/unit'
 require 'colorize'
+require 'ostruct'
+
+module MissingCalls
+  def missing_calls = (@missing_calls ||= [])
+
+  # rubocop: disable Style/MissingRespondToMissing
+  def method_missing(*args)
+    missing_calls.push(args)
+    self
+  end
+  # rubocop: enable Style/MissingRespondToMissing
+end
+
+module MockUp
+  def self.create(mod, symbol)
+    klass = Class.new do
+      include MissingCalls
+
+      def initialize(*) = nil
+      def inspect = self.class.to_s
+    end
+    klass.extend MissingCalls
+    mod.const_set(symbol, klass)
+  end
+end
 
 # Test and warnings common to test files
 module TestModule
