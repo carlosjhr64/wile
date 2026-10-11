@@ -3,9 +3,10 @@
 ## Standard libraries:
 require 'English'
 require 'find'
-autoload :FileUtils, 'fileutils'
-autoload :JSON,      'json'
-autoload :ERB,       'erb'
+autoload :Shellwords, 'shellwords'
+autoload :FileUtils,  'fileutils'
+autoload :JSON,       'json'
+autoload :ERB,        'erb'
 ## Third-party gems:
 require 'colorize'
 autoload :Prism, 'prism'

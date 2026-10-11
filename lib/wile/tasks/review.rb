@@ -117,28 +117,28 @@ module Wile
       ok
     end
 
-    def content
+    def content(file = Shellwords.escape(@file))
       puts "\n# Content".blue
-      system("wile content #{@file}")
+      system("wile content #{file}")
     end
 
-    def order
+    def order(file = Shellwords.escape(@file))
       puts "\n# Order".blue
-      system("wile order #{@file}") && system("wile order #{@file} bprm")
+      system("wile order #{file}") && system("wile order #{file} bprm")
     end
 
-    def reek
+    def reek(file = Shellwords.escape(@file))
       puts "\n# Reek".blue
-      system("reek --no-documentation #{config('reek')} #{@file}")
+      system("reek --no-documentation #{config('reek')} #{file}")
     end
 
     def config(name)
       @strict ? "--config .#{name}-strict.yml" : ''
     end
 
-    def rubocop
+    def rubocop(file = Shellwords.escape(@file))
       puts "\n# Rubocop".blue
-      system("rubocop #{config('rubocop')} #{@file}")
+      system("rubocop #{config('rubocop')} #{file}")
     end
   end
 end

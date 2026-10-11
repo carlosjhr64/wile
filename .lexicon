@@ -216,6 +216,7 @@ erb_convert
 erb_cp
 erb_result
 error
+escape
 exec
 executable
 executables
@@ -626,6 +627,7 @@ set_project
 settings
 shared
 shared_methods
+Shellwords
 shift
 show
 singleton_class
