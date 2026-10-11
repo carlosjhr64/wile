@@ -82,7 +82,6 @@ clevel
 close_write
 CLRS
 cmd
-cmdver
 cmp
 code
 CodeContent
@@ -511,6 +510,7 @@ Prism
 private
 private_class_method
 private_constant
+probe
 Proc
 project
 Project
@@ -566,7 +566,6 @@ rename
 report_dependencies
 require
 requirements
-REQUIREMENTS
 REQUIREMENTS_USAGE
 require_relative
 RESERVED_WORDS

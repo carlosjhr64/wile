@@ -41,7 +41,7 @@ module Wile
       'tput' => ['tput -V', '6.4'],
       'tmuxinator' => ['tmuxinator -v', '3.4'],
       'todo.sh' => ['todo.sh -V', '2.12'],
-      'tr' => ['tr --version', '8.32'],
+      'tr' => ['tr --version', '9.1'],
       'which' => [:man, '2016'],
       'wile' => ['wile --version', '0.0'],
       'xdg-open' => ['xdg-open --version', '1.1'],
