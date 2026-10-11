@@ -87,7 +87,9 @@ module Wile
       cmp, out = show ? ['colordiff', ''] : ['diff -sq', '>/dev/null']
       if /\.erb$/.match?(cfile) then diff_erb(cfile, pfile, cmp, out)
       else
-        `#{cmp} #{cfile} #{pfile} #{out}`
+        cf = Shellwords.escape(cfile)
+        pf = Shellwords.escape(pfile)
+        `#{cmp} #{cf} #{pf} #{out}`
       end
     end
 
