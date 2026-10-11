@@ -44,7 +44,7 @@ module Wile
       'tr' => ['tr --version', '9.1'],
       'which' => [:man, '2016'],
       'wile' => ['wile --version', '0.0'],
-      'xdg-open' => ['xdg-open --version', '1.1'],
+      'xdg-open' => ['xdg-open --version', '1.1']
     }.freeze
 
     def self.each

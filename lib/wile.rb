@@ -46,7 +46,7 @@ module Wile
 
     def handle_usage_error
       warn @error.message.lines.map { it.chomp.blue }
-                               .tap { it[-1] = it[-1].chomp.red }.join("\n")
+                 .tap { it[-1] = it[-1].chomp.red }.join("\n")
       exit 64 # Usage
     end
 

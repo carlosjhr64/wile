@@ -6,7 +6,7 @@ require 'colorize'
 
 # Lib Files Tests
 class TestLibTests < Test::Unit::TestCase
-  # rubocop: disable Metrics
+  # rubocop: disable-next Metrics
   def test_lib_tests
     fns = Dir.glob('lib/**/*.rb').map do |fn|
       a = fn.split('/')
@@ -24,5 +24,4 @@ class TestLibTests < Test::Unit::TestCase
     end
     flunk "Missing #{count} lib tests".red if count.positive?
   end
-  # rubocop: enable Metrics
 end

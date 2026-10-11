@@ -10,7 +10,7 @@ module Wile
 
     TC_USAGE = ['tc: Takes no arguments.', 0, Set[]].freeze
 
-    # rubocop: disable Metrics
+    # rubocop: disable-next Metrics
     def tc(options)
       Usage.new(options, *TC_USAGE)
       cached = Cache.new.p2c_hash.keys.grep(%r{^test/tc_})
@@ -29,6 +29,5 @@ module Wile
         puts (ordered - custom).sort
       end
     end
-    # rubocop: enable Metrics
   end
 end

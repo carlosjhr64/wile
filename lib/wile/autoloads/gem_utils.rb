@@ -18,9 +18,8 @@ module Wile
     end
 
     def ready?(minutes = 5)
-      # rubocop:disable Style/ReturnNilInPredicateMethodDefinition
+      # rubocop:disable-next Style/ReturnNilInPredicateMethodDefinition
       return nil unless File.exist?(gemspec)
-      # rubocop:enable Style/ReturnNilInPredicateMethodDefinition
 
       # ensure an up-to-date gemspec
       Time.now - File.mtime("#{@info.project}.gemspec") < minutes * 60

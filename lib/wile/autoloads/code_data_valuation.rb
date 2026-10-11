@@ -43,9 +43,8 @@ module Wile
     def dependencies_sum(name, start, dependencies)
       dependencies.sum do |dependency|
         j = @order.index(dependency)
-        # rubocop:disable Style/ParallelAssignment
+        # rubocop:disable-next Style/ParallelAssignment
         (flipped = j < start) ? (i, j = j, start) : (i = start)
-        # rubocop:enable Style/ParallelAssignment
         d0 = flipped ? dflipped(name, dependency) : dinit(name, dependency)
         distance_squared(d0, i, j)
       end

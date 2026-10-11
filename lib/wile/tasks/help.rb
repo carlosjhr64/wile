@@ -11,7 +11,7 @@ module Wile
     def help(options)
       tasks = Usage.new(options, *HELP_USAGE).args&.map { find it }&.compact
       tasks ||= %i[help list]
-      raise UsageError, 'help: No tasks matched.' if tasks&.empty?
+      raise UsageError, 'help: No tasks matched.' if tasks && tasks.empty?
 
       display_help(tasks)
     end

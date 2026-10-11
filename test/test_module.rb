@@ -7,12 +7,11 @@ require 'ostruct'
 module MissingCalls
   def missing_calls = (@missing_calls ||= [])
 
-  # rubocop: disable Style/MissingRespondToMissing
+  # rubocop: disable-next Style/MissingRespondToMissing
   def method_missing(*args)
     missing_calls.push(args)
     self
   end
-  # rubocop: enable Style/MissingRespondToMissing
 end
 
 module MockUp
@@ -33,14 +32,13 @@ module TestModule
   # Checks for context.test_method for each klass.method
   class Coverage
     # Allow color changes.
-    # rubocop: disable Style/MutableConstant
+    # rubocop: disable-next Style/MutableConstant
     COLOR = {
       public: :red,
       protected: :light_red,
       private: :magenta,
       refinement: :cyan
     }
-    # rubocop: enable Style/MutableConstant
 
     def initialize(klass, context)
       @klass = klass

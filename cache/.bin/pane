@@ -3,9 +3,8 @@
 
 pane = ARGV.shift&.to_i
 unless pane
-  # rubocop: disable Lint/InterpolationCheck
+  # rubocop: disable-next Lint/InterpolationCheck
   pane_index = '"#{pane_index}"'
-  # rubocop: enable Lint/InterpolationCheck
   pane = `tmux display-message -p #{pane_index}`.to_i
 end
 
