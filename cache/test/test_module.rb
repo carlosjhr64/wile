@@ -121,11 +121,11 @@ module TestModule
 
   def rubocop(file)
     puts "Rubocop #{file}".blue
-    system("rubocop #{file}")
+    system('rubocop', file)
   end
 
   def reek(file)
     puts "Reek #{file}".blue
-    system("reek #{file}")
+    system('reek', file)
   end
 end
