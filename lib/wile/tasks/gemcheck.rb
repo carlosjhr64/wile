@@ -60,9 +60,9 @@ module Wile
 
     def gemcheck_install(missing)
       missing.each_pair do |name,|
-        next if system("gem list #{name} -i") # already installed
+        next if system('gem', 'list',  name, '-i') # already installed
 
-        system("gem install #{name}") || exit(1)
+        system('gem', 'install', name) || exit(1)
       end
     end
 
