@@ -2,6 +2,7 @@
 # frozen_string_literal: true
 
 require 'test/unit'
+require 'shellwords'
 require 'colorize'
 
 # Ruby Syntax Tests
@@ -12,7 +13,8 @@ class TestRubySyntax < Test::Unit::TestCase
                   .select { /\.rb$/.match?(it) || _bang_ruby?(it) }
                   .each do |filename|
       msg = "# SYNTAX: #{filename}".red
-      assert system("ruby -c #{filename} > /dev/null 2>&1"), msg
+      fn = Shellwords.escape(filename)
+      assert system("ruby -c #{fn} > /dev/null 2>&1"), msg
     end
   end
 
