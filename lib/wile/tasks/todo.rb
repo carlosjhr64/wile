@@ -29,7 +29,7 @@ module Wile
       Project.rbfiles.each do |fn|
         next if match.none? { fn.match? it }
 
-        string = `egrep '#\s+TODO' #{fn}`
+        string = `egrep '#\s+TODO' #{Shellwords.escape(fn)}`
         next if string.empty?
 
         puts fn.blue
