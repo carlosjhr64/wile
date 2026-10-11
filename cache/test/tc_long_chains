@@ -2,14 +2,16 @@
 # frozen_string_literal: true
 
 require 'test/unit'
+require 'shellwords'
 require 'colorize'
 
 # Fail-less warnings of long.chaining.methods.too_much
 class TestLongChains < Test::Unit::TestCase
   def test_long_chains
-    Dir.glob('lib/**/*.rb').each do |fn|
+    Dir.glob('lib/**/*.rb').each do |filename|
+      fn = Shellwords.escape(filename)
       `egrep '\\w+[.]\\w+[.]\\w+[.]\w+' #{fn}`.lines.map(&:strip).each do |line|
-        puts "#{fn}: #{line.red}"
+        puts "#{filename}: #{line.red}"
       end
     end
   end
