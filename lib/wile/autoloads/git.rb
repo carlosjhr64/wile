@@ -5,7 +5,7 @@ module Wile
   # Git module provides functions to interact with git.
   module Git
     def self.init!(directory)
-      raise 'git init failed' unless system("git init #{directory}")
+      raise 'git init failed' unless system('git', 'init', directory)
     end
 
     def self.clean?
@@ -17,7 +17,7 @@ module Wile
     end
 
     def self.diff(*files, options: '--minimal')
-      system "git diff #{options} #{files.join(' ')}"
+      system('git', 'diff', options, *files)
     end
 
     def self.files
@@ -25,7 +25,7 @@ module Wile
     end
 
     def self.tag!(version)
-      raise 'git tag failed' unless system("git tag '#{version}'")
+      raise 'git tag failed' unless system('git', 'tag', version)
     end
 
     def self.already_published!(version)
@@ -34,7 +34,9 @@ module Wile
     end
 
     def self.commit!(version)
-      raise 'git commit failed' unless system("git commit -a -m '#{version}'")
+      return if system('git', 'commit', '-a', '-m', version)
+
+      raise 'git commit failed'
     end
 
     def self.push!
