@@ -19,7 +19,7 @@ module Wile
       if options.list?
         puts files
       else
-        exec "nvim #{files.join(' ')}"
+        exec('nvim', *files)
       end
     end
   end
