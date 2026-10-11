@@ -1,11 +1,13 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+require 'shellwords'
+
 CMD = ARGV.shift
 list = *ARGV
 list = `tmux list-panes -F '#P'`.split if list.empty?
 list.each do |i|
   running = `tmux display -t ":.#{i}" -p '\#{pane_current_command}'`.chomp
-  cmd = CMD || "pane #{i}"
-  `tmux send-keys -t ":.#{i}" "#{cmd}" Enter` if running == 'fish'
+  cmd = Shellwords.escape(CMD || "pane #{i}")
+  `tmux send-keys -t ":.#{i}" #{cmd} Enter` if running == 'fish'
 end

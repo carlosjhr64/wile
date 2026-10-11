@@ -60,7 +60,8 @@ module Wile
     end
 
     def installed?(project = @info.project, version = @info.version)
-      `gem list #{project} --exact`.scan(/\d+\.\d+\.\d+/).any? { it == version }
+      p = Shellwords.escape(project)
+      `gem list #{p} --exact`.scan(/\d+\.\d+\.\d+/).any? { it == version }
     end
 
     def push!(pkg)

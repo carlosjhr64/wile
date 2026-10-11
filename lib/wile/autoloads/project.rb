@@ -9,7 +9,7 @@ module Wile
       File.rename pkg, "pkg/#{pkg}"
       File.open('History.txt', 'a') do |file|
         file.puts "# #{version} / #{Time.now}"
-        file.puts `md5sum pkg/#{pkg}`
+        file.puts `md5sum pkg/#{Shellwords.escape(pkg)}`
       end
     end
 
