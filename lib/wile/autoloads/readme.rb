@@ -30,7 +30,7 @@ module Wile
       lines = File.readlines(@info.readme)
       readme_version_check(lines)
       readme_copyright_check(lines)
-      readme_help_check(lines) if File.exist? "bin/#{@info.project}"
+      readme_console_check(lines) if File.exist? "bin/#{@info.project}"
       File.open(@info.readme, 'w') { it.puts lines }
     end
 
@@ -55,22 +55,33 @@ module Wile
       end
     end
 
-    # :reek:UncommunicativeVariableName i is an index
-    def readme_help_check(lines)
-      if (i = lines.index { /^#+\s*HELP/i.match? it }) &&
-         lines[i += 1].start_with?('```')
-        readme_help_insert(i, lines)
-      else
-        warn 'Warning: README does not have a HELP```console``` section'.cyan
+    # :reek:FeatureEnvy
+    # :reek:TooManyStatements
+    # rubocop: disable-next Metrics
+    def readme_console_check(lines)
+      flg = false
+      idx = -1
+      project = @info.project
+      while (line = lines[idx += 1]&.chomp)
+        next unless line == '```console'
+
+        line = lines[idx += 1]&.chomp
+        next unless line.start_with?("$ #{project} ") && line.end_with?(' #>>')
+
+        flg ||= true
+        cmd = line[2..-5]
+        readme_console_insert(cmd, idx, lines)
       end
+      return if flg
+
+      warn 'Warning: README does not have an active console output'.cyan
     end
 
-    # :reek:FeatureEnvy lines
-    def readme_help_insert(idx, lines)
-      project = @info.project
-      help = "$ #{project} --help\n"
-      help << `./bin/#{Shellwords.escape(project)} --help`
-      lines.insert(idx += 1, help)
+    # :reek:UtilityFunction
+    def readme_console_insert(cmd, idx, lines)
+      output = "$ #{cmd} #>>\n"
+      output << `./bin/#{cmd}`
+      lines.insert(idx, output)
       lines[idx] = nil until lines[idx += 1].start_with?('```')
       lines.compact!
     end

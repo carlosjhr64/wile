@@ -1,6 +1,6 @@
 # Wile
 
-* [VERSION 0.0.261011](https://github.com/carlosjhr64/wile/releases)
+* [VERSION 0.0.261012](https://github.com/carlosjhr64/wile/releases)
 * [github](https://www.github.com/carlosjhr64/wile)
 * [rubygems](https://rubygems.org/wile)
 
@@ -90,7 +90,7 @@ $ gem install wile
 
 ## HELP
 ```console
-$ wile --help
+$ wile --help #>>
 ## wile ##
 Usage:
   wile [<task=WORD> [<args>+]] [:options+]

@@ -244,6 +244,7 @@ first_truthy_value
 fish_plugin
 flag
 flatten
+flg
 flipped
 Float
 fn
@@ -474,6 +475,7 @@ osset
 os_which
 other
 out
+output
 output_gemfile
 p
 p2c
@@ -550,9 +552,9 @@ read
 readlines
 readme
 Readme
+readme_console_check
+readme_console_insert
 readme_copyright_check
-readme_help_check
-readme_help_insert
 readme_version_check
 read_rgx
 ready
