@@ -112,28 +112,52 @@ Types:
 ```
 ## TASKS
 
-Run `wile` by itself and you'll get `Wile's` man-page.
+Run `wile` by itself and you'll get `Wile's` help page.
+```console
+$ wile #>>
 
-+ build: build gem package
-+ compare: compare project to template
-+ cp: copy files from template to project
-+ dependencies: list project's dependencies
-+ dictionary: dictionary maintenance(helps catch typos overall)
-+ gemfile: outputs a `Gemfile`
-+ help: get usage on any particular task
-+ info: outputs information on current project
-+ lexicon: code lexicon maintenance(helps catch typos in code)
-+ list: lists available tasks
-+ mkdir: creates a new project directory populated with template
-+ note: scrapes project for `NOTE` comments
-+ nvim: opens project files in your editor
-+ order: suggests an order to your methods in a file
-+ requirements: list `Wile's` system requirements
-+ ruby: lists all ruby files in project
-+ test: runs project's tests
-+ todo: scrapes bullet lines in `TODO.md` or `TODO` comments in entire project
-+ update: maintains `gemspec` and `README.md`
+## wile help ##
+Usage:
+  wile help [<task>+] # show task's help
 
+## wile list ##
+Usage:
+  wile list [<match>+] [--list] # list tasks(by match)
+
+```
+Run `wile list` and you'll get the entire list of available tasks.
+```console
+$ wile list --list #>>
+
++ build: build gem pkg
++ bump: Bump the version number
++ compare: compares project with template
++ content: show file's contents
++ cp: copy template files into project
++ dependencies: list ruby dependencies
++ dictionary: view changes and update dictionary
++ gemcheck: Checks for missing gems
++ gemfile: list ruby gems as in Gemfile
++ help: show task's help
++ info: show project info
++ install: install current local project
++ lexicon: view changes and update lexicon
++ list: list tasks(by match)
++ mkdir: creates project dirname
++ note: scrape ruby files for note's
++ nvim: spawn nvim with(matching) files
++ order: suggest a methods order
++ publish: publish a new version
++ requirements: checks for missing system commands
++ review: runs review
++ ruby: lists all ruby files
++ smell: classify methods in your code
++ tc: lists custom unit tests in project
++ test: runs tests
++ todo: scrape file's TODO's
++ update: update README and gemspec
+
+```
 ## LICENSE
 
 Copyright (c) 2026 CarlosJHR64

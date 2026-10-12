@@ -2,12 +2,13 @@
 
 # ## wile list ##
 # Usage:
-#   wile list [<match>+] # list tasks(by match)
+#   wile list [<match>+] [--list] # list tasks(by match)
 module Wile
   # This file is loaded upon a :list task request.
   # :reek:InstanceVariableAssumption
   class Tasks
-    LIST_USAGE = ['list: Optionally takes one or more tasks.', Set[]].freeze
+    LIST_USAGE = ['list: Optionally takes one or more tasks.',
+                  Set['list']].freeze
 
     # :reek:NestedIterators :reek:TooManyStatements
     def list(options, tasks = @tasks)
@@ -17,11 +18,19 @@ module Wile
       raise 'No task matched' if tasks.empty?
 
       puts
-      tasks.each { puts_usage(it) }
+      tasks.each do |task|
+        options.list? ? puts_task(task) : puts_usage(task)
+      end
       puts
     end
 
     private
+
+    def puts_task(task)
+      usage, comment = Help.usage(task).split(/\s*#\s*/, 2)
+      _cmd, task, _args = usage.split(/\s+/, 3)
+      puts "+ #{task}: #{comment || '-'}"
+    end
 
     # :reek:TooManyStatements
     def puts_usage(task)

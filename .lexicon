@@ -12,6 +12,7 @@ already_published
 any
 archive
 arg
+_args
 args
 Array
 as
@@ -81,6 +82,7 @@ clear
 clevel
 close_write
 CLRS
+_cmd
 cmd
 cmp
 code
@@ -537,6 +539,7 @@ puts_gemspec_files
 puts_gemspec_runtime
 puts_info
 puts_readme
+puts_task
 puts_usage
 qc
 qc_circular
