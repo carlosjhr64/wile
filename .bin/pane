@@ -35,16 +35,16 @@ when 3
 when 4
   blue '# Rubocop:'
   system('rubocop bin lib')
+when 6
+  system('wile todo')
 when 7
   system('ncal -B 1 -A 1')
 when 8
   system('wile nvim --list')
 when 9
-  system('wile todo')
-when 10
   blue '# Git Log:'
   n = -1
-  `git log --oneline --name-only -n 10`.each_line do |line|
+  `git log --oneline --name-only -n 7`.each_line do |line|
     if (mdt = /^([a-f0-9]{7})(.*)$/.match(line))
       puts "#{n += 1}: ".bold + mdt[1].magenta + mdt[2].blue
     else
