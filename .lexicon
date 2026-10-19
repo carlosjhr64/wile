@@ -85,7 +85,6 @@ CLRS
 _cmd
 cmd
 cmp
-code
 CodeContent
 CodeData
 CodeDataFunction
@@ -229,6 +228,7 @@ exit
 exitstatus
 expand_path
 expected
+EXPECTED_CHANGES
 EXTENDED
 external
 fh
@@ -699,7 +699,6 @@ TODO_USAGE
 to_h
 to_i
 token
-TOLERATE_DIFFERENT
 to_s
 to_sym
 total

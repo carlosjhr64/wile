@@ -11,15 +11,13 @@ module Wile
 
     COMPARE_USAGE = ['compare: Takes one or more file matcher.', Set[]].freeze
 
-    # :reek:NilCheck :reek:TooManyStatements
+    # :reek:NilCheck
     def compare(options)
       match = Usage.new(options, *COMPARE_USAGE).args
       p2c, missing = p2c_and_missing
-      code = missing.empty? ? 0 : 1
-      display_missing(missing, '# Missing:'.red) unless code.zero?
+      display_missing(missing, '# Missing:'.red) unless missing.empty?
       check_p2c!(p2c, match)
-      show = !match.nil?
-      display_p2c(p2c, '# Found:'.blue, code:, show:)
+      display_p2c(p2c, '# Found:'.blue, show: !match.nil?)
     end
 
     private
@@ -63,16 +61,14 @@ module Wile
     end
 
     # :reek:LongParameterList :reek:BooleanParameter :reek:TooManyStatements
-    # :reek:UncommunicativeVariableName c
-    def display_p2c(p2c, heading, cache: Info.info.cache, code: 0, show: false)
+    def display_p2c(p2c, heading, cache: Info.info.cache, show: false)
       puts heading
       p2c.each do |pf, cf|
         cf = File.join(cache, cf)
         diff = diff(cf, pf, show)
-        c = colorized_puts(pf) and code = c
+        colorized_puts(pf)
         puts "    |#{diff.lines.join('    |')}" unless diff.empty?
       end
-      code
     end
 
     def colorized_puts(pfile)
@@ -82,7 +78,6 @@ module Wile
         puts pfile.blue
       else
         puts pfile.red
-        1
       end
     end
 
