@@ -42,7 +42,7 @@ module Wile
 
       def sub!(filename, regexp, sub)
         string = File.read(filename).sub!(regexp, sub)
-        File.open(filename, 'w') { it.puts string }
+        File.write(filename, string) if string
       end
     end
 
