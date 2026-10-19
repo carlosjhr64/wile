@@ -51,6 +51,8 @@ when 9
       puts line
     end
   end
+when 10
+  system('agy -c')
 else
   blue "##{pane}"
 end
