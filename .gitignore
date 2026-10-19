@@ -1,6 +1,6 @@
 TODO.*
 *.swp
-pkg
+pkg/*.gem
 tags
 tmp
 .git-backup-*
