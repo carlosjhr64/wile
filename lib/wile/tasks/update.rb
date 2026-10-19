@@ -1,10 +1,14 @@
 # frozen_string_literal: true
 
 # ## wile update ##
-# Will update README's HELP with current --help.
-# Will update gemspec.
+# Will update README's version, copyright, and active console blocks.
+# In ```console blocks, a first line matching:
+#   $ <project> [<args>] #>>
+# runs ./bin/<project> [<args>] and inserts its output into the block.
+# (Only when bin/<project> exists; only run on projects you trust.)
+# Will also update gemspec.
 # You can optionally specify which if not both.
-# git status must be clean.
+# Git status must be clean, unless forced.
 # Usage:
 #   wile update [README|gemspec] [-f|--force] # update README and gemspec
 module Wile
