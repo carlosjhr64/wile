@@ -2,7 +2,6 @@
 
 * [VERSION 0.0.261018](https://github.com/carlosjhr64/wile/releases)
 * [github](https://www.github.com/carlosjhr64/wile)
-* [rubygems](https://rubygems.org/wile)
 
 ## DESCRIPTION
 
@@ -83,8 +82,17 @@ Small tasks, composable with pipes. Fuzzy task matching (`wile upd` finds
 feel like it belongs next to `git` and `grep`, not like an app.
 
 ## INSTALL
+
+`Wile` is not published to RubyGems. Because project structure, template
+conventions, and environment expectations are hardcoded directly into
+the Ruby source and `cache/` template, the code itself *is* the configuration.
+
+To use `wile`, clone the repository from GitHub, review and customize the code
+and `cache/` templates to fit your own workflow, and install it locally:
 ```console
-$ gem install wile
+$ git clone https://github.com/carlosjhr64/wile.git
+$ cd wile
+$ wile install
 ```
 * Required Ruby version: `>= 4.0`
 
