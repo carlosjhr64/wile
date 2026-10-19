@@ -24,7 +24,11 @@ module Wile
 
     private
 
-    TOLERATE_DIFFERENT = [
+    # Files expected to be customized by the user (shown in blue when modified).
+    # Other modified files are shown in red as candidates to keep updated with
+    # the Wile template. Discrepancies are informational, not errors; it is up
+    # to the user to decide what to update, so the exit status remains zero.
+    EXPECTED_CHANGES = [
       /README.md/,
       /^(\.ruby-version|\.version|\.irbrc|\.config\.fish)/,
       %r{^(lib/|bin/|\.bin/|\.git/)},
@@ -33,7 +37,7 @@ module Wile
       /^(\.dictionary|\.lexicon)/,
       /^(\.rubocop.*\.yml|\.reek.*\.yml|cucumber\.yml)/
     ].freeze
-    private_constant :TOLERATE_DIFFERENT
+    private_constant :EXPECTED_CHANGES
 
     def display_missing(missing, heading)
       puts heading
@@ -74,7 +78,7 @@ module Wile
     def colorized_puts(pfile)
       if $CHILD_STATUS.exitstatus.zero?
         puts pfile.green
-      elsif TOLERATE_DIFFERENT.any? { it.match?(pfile) }
+      elsif EXPECTED_CHANGES.any? { it.match?(pfile) }
         puts pfile.blue
       else
         puts pfile.red
