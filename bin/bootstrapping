@@ -1,6 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+for f in .version .ruby-version; do
+  if [[ ! -s "${f}" ]]; then
+    echo "Error: ${f} not found — run this from a Wile project's root directory." >&2
+    exit 1
+  fi
+done
+
 for arg in "$@"; do
   if [[ "${arg}" == "--version" || "${arg}" == "-v" ]]; then
     cat .version
@@ -95,11 +102,6 @@ else
 fi
 
 echo "ruby-build found: $(rbenv install --version)"
-
-if [ ! -f .ruby-version ]; then
-  echo "Error: .ruby-version file not found in the current directory." >&2
-  exit 1
-fi
 
 RUBY_VERSION="$(tr -d '[:space:]' < .ruby-version)"
 
