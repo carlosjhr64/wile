@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+if [[ "$(uname -s)" != "Linux" ]]; then
+  echo "Error: Wile is meant to be run on Linux (detected: $(uname -s))." >&2
+  exit 1
+fi
+
 for f in .version .ruby-version; do
   if [[ ! -s "${f}" ]]; then
     echo "Error: ${f} not found — run this from a Wile project's root directory." >&2
@@ -55,9 +60,6 @@ How to install `rbenv` (and `ruby-build`):
   1. Clone `rbenv` and the `ruby-build` plugin from GitHub:
        git clone https://github.com/rbenv/rbenv.git ~/.rbenv
        git clone https://github.com/rbenv/ruby-build.git ~/.rbenv/plugins/ruby-build
-
-     (Alternatively, install via your system package manager if it provides
-     a recent version of `rbenv` and `ruby-build`, e.g. Homebrew on macOS/Linux.)
 
   2. Add `~/.rbenv/bin` to your PATH and initialize `rbenv` in your shell:
      - For fish (`~/.config/fish/config.fish`):

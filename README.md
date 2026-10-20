@@ -15,6 +15,7 @@ And many other tasks!
 
 ## INSTALL
 
+* Wile runs only on Linux
 * Required Ruby version: `>= 4.0`
 
 `Wile` is not published to RubyGems. Because project structure, template
