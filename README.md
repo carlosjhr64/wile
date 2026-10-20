@@ -15,6 +15,8 @@ And many other tasks!
 
 ## INSTALL
 
+* Required Ruby version: `>= 4.0`
+
 `Wile` is not published to RubyGems. Because project structure, template
 conventions, and environment expectations are hardcoded directly into
 the Ruby source and `cache/` template, the code itself *is* the configuration.
@@ -24,11 +26,13 @@ and `cache/` templates to fit your own workflow, and install it locally:
 ```console
 $ git clone https://github.com/carlosjhr64/wile.git
 $ cd wile
-$ wile install
+$ # And bootstraping problems to solve... TODO
 ```
-* Required Ruby version: `>= 4.0`
 
 ## HELP
+
+For more help, see the AI generated and maintained
+[wiki](https://github.com/carlosjhr64/wile/wiki).
 ```console
 $ wile --help #>>
 ## wile ##
