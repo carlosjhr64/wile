@@ -50,10 +50,12 @@ confirm() {
 }
 
 REQUIRED_PACKAGES=(
+  autoconf
   build-essential
   patch
   rustc
   libffi-dev
+  libgmp-dev
   libncurses-dev
   libreadline-dev
   libssl-dev

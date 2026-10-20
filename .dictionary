@@ -17,6 +17,7 @@ csv
 cswp
 devgems
 dpc
+dpkg
 euo
 flg
 fxq
@@ -31,6 +32,9 @@ jkab
 json
 jst
 kls
+libffi
+libncurses
+libssl
 mdt
 mkdir
 mlc
