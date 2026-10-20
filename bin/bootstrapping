@@ -35,6 +35,12 @@ EOF
   fi
 done
 
+if [[ $# -gt 0 ]]; then
+  echo "Error: Unknown argument(s): $*" >&2
+  echo "Usage: bootstrapping [-h|--help|-v|--version]" >&2
+  exit 64 # Usage
+fi
+
 confirm() {
   local prompt="$1"
   local reply
