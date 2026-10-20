@@ -1,0 +1,119 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+for arg in "$@"; do
+  if [[ "${arg}" == "--version" || "${arg}" == "-v" ]]; then
+    cat .version
+    exit 0
+  fi
+done
+
+for arg in "$@"; do
+  if [[ "${arg}" == "--help" || "${arg}" == "-h" ]]; then
+    cat <<'EOF'
+Usage:
+  bootstraping [-h|--help|-v|--version]
+
+Description:
+  Bootstraps the Ruby environment for Wile by verifying `rbenv` and its
+  `ruby-build` plugin, updating available Ruby definitions, and ensuring
+  the Ruby version in `.ruby-version` is installed.
+EOF
+    exit 0
+  fi
+done
+
+confirm() {
+  local prompt="$1"
+  local reply
+  read -r -p "${prompt} [y/N]: " reply
+  [[ "${reply}" =~ ^[Yy]([Ee][Ss])?$ ]]
+}
+
+if ! command -v rbenv >/dev/null 2>&1; then
+  cat >&2 <<'EOF'
+Error: `rbenv` is not installed (or not in your PATH).
+
+How Wile projects use `rbenv`:
+  - Each project defines its target Ruby version in `.ruby-version`, which
+    `rbenv` uses to automatically switch to the required Ruby (>= 4.0).
+  - `wile install` and `gem install` install gems into the user-managed
+    `rbenv` Ruby environment without requiring root (`sudo`) privileges.
+  - `wile gemcheck` inspects `~/.rbenv/versions` to compare installed gems
+    across your Ruby versions.
+  - `wile requirements` checks for `rbenv` (>= 1.3).
+
+How to install `rbenv` (and `ruby-build`):
+
+  1. Clone `rbenv` and the `ruby-build` plugin from GitHub:
+       git clone https://github.com/rbenv/rbenv.git ~/.rbenv
+       git clone https://github.com/rbenv/ruby-build.git ~/.rbenv/plugins/ruby-build
+
+     (Alternatively, install via your system package manager if it provides
+     a recent version of `rbenv` and `ruby-build`, e.g. Homebrew on macOS/Linux.)
+
+  2. Add `~/.rbenv/bin` to your PATH and initialize `rbenv` in your shell:
+     - For fish (`~/.config/fish/config.fish`):
+         fish_add_path ~/.rbenv/bin
+         status --is-interactive; and rbenv init - fish | source
+     - For bash (`~/.bashrc`):
+         export PATH="$HOME/.rbenv/bin:$PATH"
+         eval "$(rbenv init - bash)"
+
+  3. Restart your shell, then install the Ruby version specified in `.ruby-version`:
+       rbenv install
+
+See https://github.com/rbenv/rbenv for full installation details.
+EOF
+  exit 1
+fi
+
+echo "rbenv found: $(rbenv --version)"
+
+RUBY_BUILD_DIR="$(rbenv root)/plugins/ruby-build"
+
+if [ ! -d "${RUBY_BUILD_DIR}/.git" ]; then
+  cat >&2 <<EOF
+The \`ruby-build\` plugin was not found at ${RUBY_BUILD_DIR}.
+
+\`rbenv\` relies on the \`ruby-build\` plugin to provide \`rbenv install\`
+and keep the list of available Ruby versions up to date.
+EOF
+  if confirm "Clone https://github.com/rbenv/ruby-build.git into ${RUBY_BUILD_DIR}?"; then
+    git clone https://github.com/rbenv/ruby-build.git "${RUBY_BUILD_DIR}"
+  else
+    echo "Aborted. You can install it manually with:" >&2
+    echo "  git clone https://github.com/rbenv/ruby-build.git \"${RUBY_BUILD_DIR}\"" >&2
+    exit 1
+  fi
+else
+  if confirm "Pull latest Ruby version definitions in ${RUBY_BUILD_DIR}?"; then
+    git -C "${RUBY_BUILD_DIR}" pull
+  else
+    echo "Skipping ruby-build update."
+  fi
+fi
+
+echo "ruby-build found: $(rbenv install --version)"
+
+if [ ! -f .ruby-version ]; then
+  echo "Error: .ruby-version file not found in the current directory." >&2
+  exit 1
+fi
+
+RUBY_VERSION="$(tr -d '[:space:]' < .ruby-version)"
+
+if rbenv versions --bare | grep -Fxq "${RUBY_VERSION}"; then
+  echo "Ruby ${RUBY_VERSION} is already installed."
+else
+  echo "Ruby ${RUBY_VERSION} (specified in .ruby-version) is not installed."
+  if confirm "Install Ruby ${RUBY_VERSION} via rbenv now?"; then
+    rbenv install "${RUBY_VERSION}"
+    rbenv rehash
+  else
+    echo "Aborted. You can install it later with: rbenv install ${RUBY_VERSION}" >&2
+    exit 1
+  fi
+fi
+
+
