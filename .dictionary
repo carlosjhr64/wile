@@ -33,6 +33,7 @@ json
 jst
 kls
 libffi
+libgmp
 libncurses
 libssl
 mdt
