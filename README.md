@@ -27,7 +27,8 @@ and `cache/` templates to fit your own workflow, and install it locally:
 ```console
 $ git clone https://github.com/carlosjhr64/wile.git
 $ cd wile
-$ # And bootstraping problems to solve... TODO
+$ ./bin/bootstrap_ruby_rbenv
+$ # And more bootstraping problems to solve... TODO
 ```
 
 ## HELP

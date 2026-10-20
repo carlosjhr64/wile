@@ -24,7 +24,7 @@ for arg in "$@"; do
   if [[ "${arg}" == "--help" || "${arg}" == "-h" ]]; then
     cat <<'EOF'
 Usage:
-  bootstrapping [-h|--help|-v|--version]
+  bootstrap_ruby_rbenv [-h|--help|-v|--version]
 
 Description:
   Bootstraps the Ruby environment for Wile by verifying Ruby build
@@ -38,7 +38,7 @@ done
 
 if [[ $# -gt 0 ]]; then
   echo "Error: Unknown argument(s): $*" >&2
-  echo "Usage: bootstrapping [-h|--help|-v|--version]" >&2
+  echo "Usage: bootstrap_ruby_rbenv [-h|--help|-v|--version]" >&2
   exit 64 # Usage
 fi
 
