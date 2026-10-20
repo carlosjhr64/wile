@@ -12,7 +12,7 @@ for arg in "$@"; do
   if [[ "${arg}" == "--help" || "${arg}" == "-h" ]]; then
     cat <<'EOF'
 Usage:
-  bootstraping [-h|--help|-v|--version]
+  bootstrapping [-h|--help|-v|--version]
 
 Description:
   Bootstraps the Ruby environment for Wile by verifying `rbenv` and its
@@ -115,5 +115,23 @@ else
     exit 1
   fi
 fi
+
+ACTIVE_RUBY="$(ruby -e 'print RUBY_VERSION' 2>/dev/null || true)"
+if [[ "${ACTIVE_RUBY}" != "${RUBY_VERSION}" ]]; then
+  cat >&2 <<EOF
+Error: Ruby ${RUBY_VERSION} is installed in rbenv, but this shell's \`ruby\`
+resolves to '${ACTIVE_RUBY:-none}' ($(command -v ruby || echo 'not found')).
+
+Your shell likely hasn't initialized \`rbenv\` shims. Add \`rbenv init\` to your
+shell configuration, restart your shell, and re-run:
+  - fish (~/.config/fish/config.fish):
+      status --is-interactive; and rbenv init - fish | source
+  - bash (~/.bashrc):
+      eval "\$(rbenv init - bash)"
+EOF
+  exit 1
+fi
+
+echo "Ruby verified: $(ruby --version)"
 
 
