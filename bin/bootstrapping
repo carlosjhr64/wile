@@ -95,7 +95,7 @@ EOF
   fi
 else
   if confirm "Pull latest Ruby version definitions in ${RUBY_BUILD_DIR}?"; then
-    git -C "${RUBY_BUILD_DIR}" pull
+    git -C "${RUBY_BUILD_DIR}" pull || echo "Git pull failed, proceeding anyway..." >&2
   else
     echo "Skipping ruby-build update."
   fi
