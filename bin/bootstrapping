@@ -27,9 +27,10 @@ Usage:
   bootstrapping [-h|--help|-v|--version]
 
 Description:
-  Bootstraps the Ruby environment for Wile by verifying `rbenv` and its
-  `ruby-build` plugin, updating available Ruby definitions, and ensuring
-  the Ruby version in `.ruby-version` is installed.
+  Bootstraps the Ruby environment for Wile by verifying Ruby build
+  dependencies, `rbenv` and its `ruby-build` plugin, updating available
+  Ruby definitions, and ensuring the Ruby version in `.ruby-version` is
+  installed.
 EOF
     exit 0
   fi
@@ -47,6 +48,51 @@ confirm() {
   read -r -p "${prompt} [y/N]: " reply
   [[ "${reply}" =~ ^[Yy]([Ee][Ss])?$ ]]
 }
+
+REQUIRED_PACKAGES=(
+  build-essential
+  patch
+  rustc
+  libffi-dev
+  libncurses-dev
+  libreadline-dev
+  libssl-dev
+  libyaml-dev
+  zlib1g-dev
+)
+
+if command -v dpkg-query >/dev/null 2>&1 && command -v apt-get >/dev/null 2>&1; then
+  MISSING_PACKAGES=()
+  for pkg in "${REQUIRED_PACKAGES[@]}"; do
+    if [[ "$(dpkg-query -W -f='${db:Status-Status}' "${pkg}" 2>/dev/null || true)" != "installed" ]]; then
+      MISSING_PACKAGES+=("${pkg}")
+    fi
+  done
+
+  if [[ ${#MISSING_PACKAGES[@]} -gt 0 ]]; then
+    echo "Missing packages required to compile Ruby: ${MISSING_PACKAGES[*]}"
+    if confirm "Install missing packages with sudo apt-get?"; then
+      sudo apt-get update
+      sudo apt-get install -y "${MISSING_PACKAGES[@]}"
+    else
+      echo "Aborted. Install them manually with:" >&2
+      echo "  sudo apt-get update && sudo apt-get install ${MISSING_PACKAGES[*]}" >&2
+      exit 1
+    fi
+  fi
+  echo "Ruby build dependencies verified."
+else
+  cat >&2 <<EOF
+Notice: \`dpkg-query\` and \`apt-get\` were not found to verify Ruby build dependencies.
+Ensure your system has the equivalents of these Debian/Ubuntu packages installed
+so \`rbenv\` can compile Ruby from source:
+  ${REQUIRED_PACKAGES[*]}
+EOF
+  if ! confirm "Proceed assuming these Ruby build requirements are satisfied?"; then
+    echo "Aborted." >&2
+    exit 1
+  fi
+fi
 
 if ! command -v rbenv >/dev/null 2>&1; then
   cat >&2 <<'EOF'
