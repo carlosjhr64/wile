@@ -5,13 +5,14 @@
 
 ## DESCRIPTION
 
-`Wile` is a tasks dispatch manager
-for ruby gem projects that uses it's project template.
+`Wile` is a prescriptive task dispatcher for Ruby gem projects,
+built around a living project template.
 
-Generate a new project from scratch using it's template.
-Compare current project with template.
-Automate `gemspec` maintenance.
-And many other tasks!
+It scaffolds new projects from the template, keeps existing ones
+aligned with it, and automates the rest of the workflow — gemspec
+upkeep, testing, and release. There is no configuration file: your
+clone is the configuration, to take as-is or edit and install
+locally. It targets Linux, fish, and tmux.
 
 ## INSTALL
 
