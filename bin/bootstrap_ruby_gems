@@ -7,7 +7,7 @@ require 'rbconfig'
 
 # Bootstraps Ruby gems for Wile into the active rbenv Ruby version.
 class BootstrapRubyGems
-  ROOT_FILES = %w[.ruby-version Gemfile].freeze
+  ROOT_FILES = %w[.version .ruby-version Gemfile].freeze
 
   USAGE = <<~TEXT
     Usage:
