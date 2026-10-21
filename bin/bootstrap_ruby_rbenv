@@ -44,14 +44,25 @@ fi
 
 confirm() {
   local prompt="$1"
-  local reply
-  read -r -p "${prompt} [y/N]: " reply
+  local reply=""
+  read -r -p "${prompt} [y/N]: " reply || { echo; return 1; }
   [[ "${reply}" =~ ^[Yy]([Ee][Ss])?$ ]]
+}
+
+print_manual_rbenv_init() {
+  local rbenv_cmd="${1:-rbenv}"
+  cat >&2 <<EOF
+  - For fish (~/.config/fish/config.fish):
+      status --is-interactive; and ${rbenv_cmd} init - --no-rehash fish | source
+  - For bash (~/.bashrc):
+      eval "\$(${rbenv_cmd} init - --no-rehash bash)"
+EOF
 }
 
 REQUIRED_PACKAGES=(
   autoconf
   build-essential
+  git
   patch
   rustc
   libffi-dev
@@ -127,19 +138,24 @@ EOF
   USER_SHELL="${USER_SHELL##-}"
   case "${USER_SHELL}" in
     bash|fish|zsh|ksh) ;;
-    *) USER_SHELL="${SHELL##*/}" ;;
+    *) USER_SHELL="${SHELL:+${SHELL##*/}}" ;;
+  esac
+
+  case "${USER_SHELL}" in
+    bash|fish|zsh|ksh) ;;
+    *)
+      echo "Error: Could not detect a supported shell (found: '${USER_SHELL:-none}')." >&2
+      echo "Configure your shell for rbenv manually, then re-run:" >&2
+      print_manual_rbenv_init "~/.rbenv/bin/rbenv"
+      exit 1
+      ;;
   esac
 
   if confirm "Configure ${USER_SHELL} for rbenv via '${HOME}/.rbenv/bin/rbenv init ${USER_SHELL}'?"; then
     "${HOME}/.rbenv/bin/rbenv" init "${USER_SHELL}"
   else
-    cat >&2 <<'EOF'
-Aborted. Configure your shell manually:
-  - For fish (~/.config/fish/config.fish):
-      status --is-interactive; and ~/.rbenv/bin/rbenv init - --no-rehash fish | source
-  - For bash (~/.bashrc):
-      eval "$(~/.rbenv/bin/rbenv init - --no-rehash bash)"
-EOF
+    echo "Aborted. Configure your shell manually:" >&2
+    print_manual_rbenv_init "~/.rbenv/bin/rbenv"
     exit 1
   fi
 
@@ -153,7 +169,7 @@ echo "rbenv found: $(rbenv --version)"
 
 RUBY_BUILD_DIR="$(rbenv root)/plugins/ruby-build"
 
-if [ ! -d "${RUBY_BUILD_DIR}/.git" ]; then
+if [[ ! -d "${RUBY_BUILD_DIR}/.git" ]]; then
   cat >&2 <<EOF
 The \`ruby-build\` plugin was not found at ${RUBY_BUILD_DIR}.
 
@@ -200,11 +216,8 @@ resolves to '${ACTIVE_RUBY:-none}' ($(command -v ruby || echo 'not found')).
 
 Your shell likely hasn't initialized \`rbenv\` shims. Add \`rbenv init\` to your
 shell configuration, restart your shell, and re-run:
-  - fish (~/.config/fish/config.fish):
-      status --is-interactive; and rbenv init - fish | source
-  - bash (~/.bashrc):
-      eval "\$(rbenv init - bash)"
 EOF
+  print_manual_rbenv_init "rbenv"
   exit 1
 fi
 
