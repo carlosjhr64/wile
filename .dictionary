@@ -1,3 +1,4 @@
+argv
 bashrc
 bcmv
 bcswp
@@ -44,6 +45,7 @@ mtime
 nswp
 pkg
 prb
+rbconfig
 rbfile
 rbfiles
 regexp

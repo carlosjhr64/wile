@@ -18,6 +18,7 @@ archive
 arg
 _args
 args
+ARGV
 Array
 as
 ast
@@ -43,6 +44,7 @@ blue
 bnswp
 bold
 BootstrapFish
+BootstrapRubyGems
 bprm
 build
 BUILD_USAGE
@@ -241,6 +243,7 @@ exitstatus
 expand_path
 expected
 EXPECTED_CHANGES
+expected_prefix
 explain_fish
 EXTENDED
 external
@@ -353,8 +356,10 @@ inspect
 install
 installed
 install_fish
+install_gems
 INSTALL_USAGE
 Integer
+intersect
 invocation
 io
 IO
@@ -509,6 +514,7 @@ p2c_hash
 pad
 PAD
 padding
+parse_args
 parse_file
 Parser
 parts
@@ -573,8 +579,10 @@ raise
 Range
 ranks
 raw
+RbConfig
 rbenv
 RBENV_INIT_LINE
+rbenv_root
 rbfile
 rbfiles
 read
@@ -623,16 +631,19 @@ rm_pkg
 rm_r
 root
 ROOT
+ROOT_FILES
 ros
 rqs
 rstrip
 rubocop
 ruby
 Ruby33
+RUBY_DESCRIPTION
 RUBY_USAGE
 RUBY_VERSION
 run
 Run
+run_cmd
 rungems
 RuntimeError
 s
@@ -749,6 +760,7 @@ UPDATE_USAGE
 upto
 usage
 Usage
+USAGE
 UsageError
 username
 using
@@ -766,7 +778,9 @@ value
 ver
 verbose
 verify_linux
+verify_project_root
 verify_rbenv
+verify_ruby_version
 verify_version
 version
 Version
