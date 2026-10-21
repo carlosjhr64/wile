@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+# Also:
+# require 'reek'
+# require 'rubocop'
+
 # ## wile review ##
 #   CSV is a comma separated list: content,order,reek,rubocop
 # Usage:

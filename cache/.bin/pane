@@ -9,6 +9,9 @@ unless pane
 end
 
 require 'colorize'
+# Also:
+# require 'colora'
+# require 'rubocop'
 
 def blue(string)
   puts string.blue

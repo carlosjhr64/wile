@@ -3,6 +3,9 @@
 require 'test/unit'
 require 'colorize'
 require 'ostruct'
+# Also:
+# require 'reek'
+# require 'rubocop'
 
 module MissingCalls
   def missing_calls = (@missing_calls ||= [])

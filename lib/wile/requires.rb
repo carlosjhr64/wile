@@ -10,8 +10,6 @@ autoload :ERB,        'erb'
 ## Third-party gems:
 require 'colorize'
 autoload :Prism, 'prism'
-## Also:
-# require 'test/unit'
 ## Local libraries:
 require_relative 'refinement'
 require_relative 'help'
