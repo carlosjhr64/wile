@@ -8,12 +8,12 @@ require 'help_parser'
 require_relative '../lib/wile'
 
 HelpParser[Wile::VERSION, <<~HELP]
-  # ## bootstrap_fish_and_plugins ##
+  # ## bootstrap_fish ##
   # Bootstraps the fish shell environment for Wile by verifying or installing
   # fish (>= 4.0), configuring rbenv in ~/.config/fish/config.fish, and
   # optionally setting fish as the default login shell.
   Usage:
-    bootstrap_fish_and_plugins [:options+]
+    bootstrap_fish [:options+]
   Options:
     -h --help
     -v --version
@@ -30,6 +30,7 @@ class BootstrapFish
 
   def initialize
     verify_linux!
+    verify_rbenv!
     ensure_fish!
     configure_rbenv!
     configure_default_shell!
@@ -43,6 +44,17 @@ class BootstrapFish
     return if os == 'Linux'
 
     abort "Error: Wile is meant to be run on Linux (detected: #{os})."
+  end
+
+  def verify_rbenv!
+    rbenv = File.expand_path('~/.rbenv/bin/rbenv')
+    return if File.executable?(rbenv)
+
+    abort <<~MSG
+      Error: rbenv not found at #{rbenv}.
+      Run ./bin/bootstrap_ruby_rbenv first, then re-run:
+        ./bin/bootstrap_fish
+    MSG
   end
 
   def ensure_fish!
@@ -91,8 +103,7 @@ class BootstrapFish
   end
 
   def install_fish!
-    if command_available?('apt-get') &&
-       confirm?('Install fish with sudo apt-get?')
+    if apt_fish_available? && confirm?('Install fish with sudo apt-get?')
       system('sudo', 'apt-get', 'update') ||
         abort('Error: apt-get update failed.')
       system('sudo', 'apt-get', 'install', '-y', 'fish') ||
@@ -105,6 +116,19 @@ class BootstrapFish
     manual_fish_instructions!(version)
   end
 
+  def apt_fish_available?
+    return false unless command_available?('apt-get') &&
+                        command_available?('apt-cache')
+
+    candidate =
+      `apt-cache policy fish 2>/dev/null`[/Candidate:\s*(\d+\.\d+)/, 1]
+    return false unless candidate
+    return true if version_ok?(candidate)
+
+    puts "apt candidate for fish (#{candidate}) is < #{FISH_MIN_VERSION}."
+    false
+  end
+
   def manual_fish_instructions!(version)
     found = version ? " (currently found: #{version})" : ''
     abort <<~MSG
@@ -113,7 +137,7 @@ class BootstrapFish
       your distribution following the instructions at:
         #{FISH_URL}
       Then re-run:
-        ./bin/bootstrap_fish_and_plugins
+        ./bin/bootstrap_fish
     MSG
   end
 

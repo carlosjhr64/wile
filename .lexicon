@@ -13,6 +13,7 @@ all
 allowed_opt
 already_published
 any
+apt_fish_available
 archive
 arg
 _args
@@ -572,6 +573,7 @@ raise
 Range
 ranks
 raw
+rbenv
 RBENV_INIT_LINE
 rbfile
 rbfiles
@@ -764,6 +766,7 @@ value
 ver
 verbose
 verify_linux
+verify_rbenv
 verify_version
 version
 Version

@@ -29,7 +29,11 @@ and `cache/` templates to fit your own workflow, and install it locally:
 $ git clone https://github.com/carlosjhr64/wile.git
 $ cd wile
 $ ./bin/bootstrap_ruby_rbenv
-$ # And more bootstraping problems to solve... TODO
+$ ./bin/bootstrap_ruby_gems # TODO
+$ ./bin/bootstrap_fish
+$ ./bin/bootstrap_fisher_plugins # TODO
+$ # TODO more bootstraping to be determined
+$ wile install
 ```
 
 ## HELP
