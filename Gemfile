@@ -1,5 +1,5 @@
 source 'https://rubygems.org'
-ruby '4.0.7'
+ruby file: '.ruby-version'
 ## runtime ##
 gem 'colora'
 gem 'colorize'

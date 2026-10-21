@@ -28,7 +28,7 @@ module Wile
     # :reek:TooManyStatements
     def output_gemfile(run, dev)
       puts "source 'https://rubygems.org'"
-      puts "ruby '#{RUBY_VERSION}'"
+      puts "ruby file: '.ruby-version'"
       puts '## runtime ##'
       puts run.sort
       puts '## development ##'
