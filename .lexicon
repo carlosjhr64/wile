@@ -2,6 +2,7 @@ _
 10
 2
 a
+abort
 abs
 add
 add_dependency
@@ -40,6 +41,7 @@ block_end
 blue
 bnswp
 bold
+BootstrapFish
 bprm
 build
 BUILD_USAGE
@@ -103,6 +105,7 @@ color_kernel
 color_stdlib
 combination
 command
+command_available
 CommandVersion
 COMMAND_VERSION
 comment
@@ -112,6 +115,10 @@ compact
 compare
 COMPARE_USAGE
 config
+config_file
+configure_default_shell
+configure_rbenv
+confirm
 const
 constants
 constant_type
@@ -214,7 +221,9 @@ email
 empty
 Encoding
 end_with
+ensure_fish
 Enumerable
+ENV
 erb
 ERB
 erb_convert
@@ -231,6 +240,7 @@ exitstatus
 expand_path
 expected
 EXPECTED_CHANGES
+explain_fish
 EXTENDED
 external
 fh
@@ -247,12 +257,17 @@ Find
 first
 first_match
 first_truthy_value
+FISH_MIN_VERSION
+fish_path
 fish_plugin
+FISH_URL
+fish_version
 flag
 flatten
 flg
 flipped
 Float
+flush
 fn
 fnm
 force
@@ -336,6 +351,7 @@ insert
 inspect
 install
 installed
+install_fish
 INSTALL_USAGE
 Integer
 invocation
@@ -389,6 +405,7 @@ main
 major
 make
 man
+manual_fish_instructions
 map
 match
 matches
@@ -411,6 +428,7 @@ minor
 minutes
 missing
 mkdir
+mkdir_p
 MKDIR_USAGE
 mlc
 mod
@@ -525,6 +543,7 @@ project
 Project
 project_rb
 project_ready
+prompt
 protected
 public
 public_method_defined
@@ -553,6 +572,7 @@ raise
 Range
 ranks
 raw
+RBENV_INIT_LINE
 rbfile
 rbfiles
 read
@@ -573,6 +593,7 @@ regexp
 Regexp
 reject
 rename
+reply
 report_dependencies
 require
 requirements
@@ -742,10 +763,12 @@ valuation
 value
 ver
 verbose
+verify_linux
 verify_version
 version
 Version
 VERSION
+version_ok
 versions
 vrs
 vset

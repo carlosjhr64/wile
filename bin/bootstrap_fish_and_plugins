@@ -1,0 +1,163 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+Encoding.default_external = Encoding::UTF_8
+
+require 'fileutils'
+require 'help_parser'
+require_relative '../lib/wile'
+
+HelpParser[Wile::VERSION, <<~HELP]
+  # ## bootstrap_fish_and_plugins ##
+  # Bootstraps the fish shell environment for Wile by verifying or installing
+  # fish (>= 4.0), configuring rbenv in ~/.config/fish/config.fish, and
+  # optionally setting fish as the default login shell.
+  Usage:
+    bootstrap_fish_and_plugins [:options+]
+  Options:
+    -h --help
+    -v --version
+HELP
+
+# Bootstraps the fish shell environment for Wile.
+# rubocop:disable-next Metrics/ClassLength
+class BootstrapFish
+  FISH_MIN_VERSION = '4.0'
+  FISH_URL         = 'https://fishshell.com/'
+  RBENV_INIT_LINE  =
+    'status --is-interactive; and ' \
+    '~/.rbenv/bin/rbenv init - --no-rehash fish | source'
+
+  def initialize
+    verify_linux!
+    ensure_fish!
+    configure_rbenv!
+    configure_default_shell!
+    puts "Fish setup complete: #{`fish --version`.strip}"
+  end
+
+  private
+
+  def verify_linux!
+    os = `uname -s`.strip
+    return if os == 'Linux'
+
+    abort "Error: Wile is meant to be run on Linux (detected: #{os})."
+  end
+
+  def ensure_fish!
+    version = fish_version
+    if version && version_ok?(version)
+      puts "fish found: #{`fish --version`.strip} (>= #{FISH_MIN_VERSION})"
+      return
+    end
+
+    explain_fish(version)
+    install_fish!
+  end
+
+  def fish_version
+    return nil unless command_available?('fish')
+
+    `fish --version 2>/dev/null`[/\d+\.\d+/]
+  end
+
+  def version_ok?(version)
+    Gem::Version.new(version) >= Gem::Version.new(FISH_MIN_VERSION)
+  end
+
+  def command_available?(cmd)
+    !`which #{cmd}`.strip.empty?
+  end
+
+  # rubocop:disable-next Metrics/MethodLength
+  def explain_fish(version)
+    if version
+      puts "Found fish #{version}; Wile requires fish >= #{FISH_MIN_VERSION}."
+    else
+      puts '`fish` was not found in your PATH.'
+    end
+    puts <<~MSG
+
+      How Wile projects use `fish`:
+        - Wile targets the fish shell (>= #{FISH_MIN_VERSION}) for interactive
+          workflows.
+        - Project directories include `.config.fish`, `.greeting`, `.prompt`,
+          and `.title` to configure your local project environment.
+        - `wile requirements` checks for `fish` (>= #{FISH_MIN_VERSION}) and
+          its plugins.
+
+    MSG
+  end
+
+  def install_fish!
+    if command_available?('apt-get') &&
+       confirm?('Install fish with sudo apt-get?')
+      system('sudo', 'apt-get', 'update') ||
+        abort('Error: apt-get update failed.')
+      system('sudo', 'apt-get', 'install', '-y', 'fish') ||
+        abort('Error: apt-get install fish failed.')
+    end
+
+    version = fish_version
+    return if version && version_ok?(version)
+
+    manual_fish_instructions!(version)
+  end
+
+  def manual_fish_instructions!(version)
+    found = version ? " (currently found: #{version})" : ''
+    abort <<~MSG
+      Error: fish >= #{FISH_MIN_VERSION} is required#{found}.
+      Please install the latest release of fish (>= #{FISH_MIN_VERSION}) for
+      your distribution following the instructions at:
+        #{FISH_URL}
+      Then re-run:
+        ./bin/bootstrap_fish_and_plugins
+    MSG
+  end
+
+  # rubocop:disable-next Metrics/MethodLength
+  def configure_rbenv!
+    config_file = File.expand_path('~/.config/fish/config.fish')
+    if File.exist?(config_file) && File.read(config_file).include?('rbenv init')
+      puts "rbenv initialization already present in #{config_file}."
+      return
+    end
+
+    return unless confirm?("Add rbenv initialization to #{config_file}?")
+
+    FileUtils.mkdir_p(File.dirname(config_file))
+    File.open(config_file, 'a') do |file|
+      file.puts "\n# RbEnv"
+      file.puts RBENV_INIT_LINE
+    end
+    puts "Updated #{config_file} with rbenv initialization."
+  end
+
+  def configure_default_shell!
+    fish_path = `which fish`.strip
+    return if fish_path.empty? || ENV['SHELL'] == fish_path
+
+    puts "Your current login shell is #{ENV['SHELL'] || 'unknown'}."
+    prompt = "Set fish (#{fish_path}) as your default login shell via chsh?"
+    return unless confirm?(prompt)
+
+    if system('chsh', '-s', fish_path)
+      puts "Default shell set to #{fish_path} (re-login to take effect)."
+    else
+      warn "Warning: chsh failed. Run manually: chsh -s #{fish_path}"
+    end
+  end
+
+  def confirm?(prompt)
+    print "#{prompt} [y/N]: "
+    $stdout.flush
+    reply = $stdin.gets
+    return false unless reply
+
+    /^[Yy]([Ee][Ss])?$/.match?(reply.strip)
+  end
+end
+
+BootstrapFish.new
