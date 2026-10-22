@@ -54,7 +54,7 @@ class BootstrapFisherPlugins
     end
 
     error!(EX_UNAVAILABLE, <<~MSG)
-      Error: fish >= #{FISH_MIN_VERSION} is required (found: #{version || 'none'}).
+      Error: fish >= #{FISH_MIN_VERSION} required (found: #{version || 'none'}).
       Run ./bin/bootstrap_fish first, then re-run:
         ./bin/bootstrap_fisher_plugins
     MSG
@@ -93,7 +93,7 @@ class BootstrapFisherPlugins
     end
 
     action = version ? "Upgrade fisher (#{version})" : 'Install fisher'
-    error!(EX_NO, 'Aborted.') unless confirm?("#{action} from #{FISHER_REPO_URL}?")
+    confirm?("#{action} from #{FISHER_REPO_URL}?") || error!(EX_NO, 'Aborted.')
 
     run_fish!(FISHER_INSTALL_CMD)
     verify_fisher_installed!
@@ -104,7 +104,8 @@ class BootstrapFisherPlugins
     return if version && version_ok?(version, FISHER_MIN_VERSION)
 
     error!(EX_UNAVAILABLE, <<~MSG)
-      Error: fisher >= #{FISHER_MIN_VERSION} is required (found: #{version || 'none'}).
+      Error: fisher >= #{FISHER_MIN_VERSION} is required
+      (found: #{version || 'none'}).
       See #{FISHER_REPO_URL} for manual installation instructions.
     MSG
   end
