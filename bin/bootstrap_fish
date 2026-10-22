@@ -154,13 +154,18 @@ class BootstrapFish
     end
 
     unless confirm?("Add rbenv initialization to #{config_file}?")
-      error!(EX_NO, 'Aborted.')
+      error!(EX_NO, <<~MSG)
+        Aborted. To configure manually, add this line to #{config_file}:
+          #{RBENV_INIT_LINE}
+        Then re-run:
+          ./bin/bootstrap_fish
+      MSG
     end
 
     FileUtils.mkdir_p(File.dirname(config_file))
     File.open(config_file, 'a') do |file|
-      file.puts "\n# RbEnv"
-      file.puts RBENV_INIT_LINE
+      file.puts unless File.empty?(config_file)
+      file.puts '# RbEnv', RBENV_INIT_LINE
     end
     puts "Updated #{config_file} with rbenv initialization."
   end
