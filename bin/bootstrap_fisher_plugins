@@ -1,0 +1,153 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+Encoding.default_external = Encoding::UTF_8
+
+require 'help_parser'
+require_relative '../lib/wile'
+
+HelpParser[Wile::VERSION, <<~HELP]
+  # ## bootstrap_fisher_plugins ##
+  # Bootstraps the fisher plugin manager (>= 4.4.8) and installs the fish
+  # plugins used by Wile (carlosjhr64/pkg-goto and carlosjhr64/theme-local).
+  Usage:
+    bootstrap_fisher_plugins [:options+]
+  Options:
+    -h --help
+    -v --version
+HELP
+
+# Bootstraps fisher and fish plugins for Wile.
+# rubocop:disable-next Metrics/ClassLength
+class BootstrapFisherPlugins
+  FISH_MIN_VERSION   = '4.0'
+  RUBY_MIN_VERSION   = '4.0'
+  FISHER_MIN_VERSION = '4.4.8'
+  FISHER_REPO_URL    = 'https://github.com/jorgebucaran/fisher'
+  FISHER_INSTALL_CMD =
+    'curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/' \
+    'functions/fisher.fish | source && fisher install jorgebucaran/fisher'
+  PLUGINS = %w[
+    carlosjhr64/pkg-goto
+    carlosjhr64/theme-local
+  ].freeze
+
+  def initialize
+    verify_fish!
+    verify_ruby_version!
+    verify_curl!
+    ensure_fisher!
+    install_plugins!
+    puts 'Fisher plugins setup complete.'
+  end
+
+  private
+
+  def verify_fish!
+    version = fish_version
+    if version && version_ok?(version, FISH_MIN_VERSION)
+      puts "fish found: #{`fish --version`.strip} (>= #{FISH_MIN_VERSION})"
+      return
+    end
+
+    abort <<~MSG
+      Error: fish >= #{FISH_MIN_VERSION} is required (found: #{version || 'none'}).
+      Run ./bin/bootstrap_fish first, then re-run:
+        ./bin/bootstrap_fisher_plugins
+    MSG
+  end
+
+  def verify_ruby_version!
+    if version_ok?(RUBY_VERSION, RUBY_MIN_VERSION)
+      puts "Ruby verified: #{RUBY_DESCRIPTION}"
+      return
+    end
+
+    abort <<~MSG
+      Error: Ruby >= #{RUBY_MIN_VERSION} is required by carlosjhr64/pkg-goto
+      (found: #{RUBY_VERSION}).
+      Run ./bin/bootstrap_ruby_rbenv first, then re-run:
+        ./bin/bootstrap_fisher_plugins
+    MSG
+  end
+
+  def verify_curl!
+    return if command_available?('curl')
+
+    abort <<~MSG
+      Error: `curl` was not found in your PATH.
+      Fisher requires `curl` to download plugins from GitHub.
+      Please install `curl` (e.g., `sudo apt-get install curl`), then re-run:
+        ./bin/bootstrap_fisher_plugins
+    MSG
+  end
+
+  def ensure_fisher!
+    version = fisher_version
+    if version && version_ok?(version, FISHER_MIN_VERSION)
+      puts "fisher found: #{version} (>= #{FISHER_MIN_VERSION})"
+      return
+    end
+
+    action = version ? "Upgrade fisher (#{version})" : 'Install fisher'
+    abort 'Aborted.' unless confirm?("#{action} from #{FISHER_REPO_URL}?")
+
+    run_fish!(FISHER_INSTALL_CMD)
+    verify_fisher_installed!
+  end
+
+  def verify_fisher_installed!
+    version = fisher_version
+    return if version && version_ok?(version, FISHER_MIN_VERSION)
+
+    abort <<~MSG
+      Error: fisher >= #{FISHER_MIN_VERSION} is required (found: #{version || 'none'}).
+      See #{FISHER_REPO_URL} for manual installation instructions.
+    MSG
+  end
+
+  def install_plugins!
+    unless confirm?("Install/update fish plugins (#{PLUGINS.join(', ')})?")
+      abort 'Aborted.'
+    end
+
+    PLUGINS.each do |plugin|
+      run_fish!("fisher install #{plugin}")
+    end
+  end
+
+  def run_fish!(cmd)
+    return if system('fish', '-c', cmd)
+
+    abort "Error: `fish -c '#{cmd}'` failed."
+  end
+
+  def fish_version
+    return nil unless command_available?('fish')
+
+    `fish --version 2>/dev/null`[/\d+\.\d+/]
+  end
+
+  def fisher_version
+    `fish -c 'fisher --version' 2>/dev/null`[/\d+\.\d+\.\d+/]
+  end
+
+  def version_ok?(version, min_version)
+    Gem::Version.new(version) >= Gem::Version.new(min_version)
+  end
+
+  def command_available?(cmd)
+    !`which #{cmd}`.strip.empty?
+  end
+
+  def confirm?(prompt)
+    print "#{prompt} [y/N]: "
+    $stdout.flush
+    reply = $stdin.gets
+    return false unless reply
+
+    /^[Yy]([Ee][Ss])?$/.match?(reply.strip)
+  end
+end
+
+BootstrapFisherPlugins.new
