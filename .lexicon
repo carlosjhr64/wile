@@ -4,6 +4,7 @@ _
 a
 abort
 abs
+action
 add
 add_dependency
 add_external
@@ -44,6 +45,7 @@ blue
 bnswp
 bold
 BootstrapFish
+BootstrapFisherPlugins
 BootstrapRubyGems
 bprm
 build
@@ -225,6 +227,7 @@ empty
 Encoding
 end_with
 ensure_fish
+ensure_fisher
 Enumerable
 ENV
 erb
@@ -261,6 +264,10 @@ Find
 first
 first_match
 first_truthy_value
+FISHER_INSTALL_CMD
+FISHER_MIN_VERSION
+FISHER_REPO_URL
+fisher_version
 FISH_MIN_VERSION
 fish_path
 fish_plugin
@@ -357,6 +364,7 @@ install
 installed
 install_fish
 install_gems
+install_plugins
 INSTALL_USAGE
 Integer
 intersect
@@ -432,6 +440,7 @@ method_stats
 min
 minor
 minutes
+min_version
 missing
 mkdir
 mkdir_p
@@ -529,6 +538,7 @@ pfiles
 pipe
 pkg
 plugin
+PLUGINS
 pop
 popen
 populate_dependants
@@ -639,11 +649,13 @@ rubocop
 ruby
 Ruby33
 RUBY_DESCRIPTION
+RUBY_MIN_VERSION
 RUBY_USAGE
 RUBY_VERSION
 run
 Run
 run_cmd
+run_fish
 rungems
 RuntimeError
 s
@@ -777,6 +789,9 @@ valuation
 value
 ver
 verbose
+verify_curl
+verify_fish
+verify_fisher_installed
 verify_linux
 verify_project_root
 verify_rbenv

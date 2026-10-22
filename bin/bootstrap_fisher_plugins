@@ -8,7 +8,7 @@ require_relative '../lib/wile'
 
 HelpParser[Wile::VERSION, <<~HELP]
   # ## bootstrap_fisher_plugins ##
-  # Bootstraps the fisher plugin manager (>= 4.4.8) and installs the fish
+  # Bootstraps the fisher plugin manager (>= 4.4) and installs the fish
   # plugins used by Wile (carlosjhr64/pkg-goto and carlosjhr64/theme-local).
   Usage:
     bootstrap_fisher_plugins [:options+]
@@ -22,7 +22,7 @@ HELP
 class BootstrapFisherPlugins
   FISH_MIN_VERSION   = '4.0'
   RUBY_MIN_VERSION   = '4.0'
-  FISHER_MIN_VERSION = '4.4.8'
+  FISHER_MIN_VERSION = '4.4'
   FISHER_REPO_URL    = 'https://github.com/jorgebucaran/fisher'
   FISHER_INSTALL_CMD =
     'curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/' \
@@ -129,7 +129,7 @@ class BootstrapFisherPlugins
   end
 
   def fisher_version
-    `fish -c 'fisher --version' 2>/dev/null`[/\d+\.\d+\.\d+/]
+    `fish -c 'fisher --version' 2>/dev/null`[/\d+\.\d+/]
   end
 
   def version_ok?(version, min_version)
