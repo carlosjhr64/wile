@@ -5,21 +5,22 @@ Gem::Specification.new do |s|
   s.homepage = 'https://github.com/carlosjhr64/wile'
   s.author   = 'CarlosJHR64'
   s.email    = 'carlosjhr64@gmail.com'
-  s.date     = '2026-04-18'
+  s.date     = '2026-10-22'
   s.licenses = ['MIT']
   ## DESCRIPTION ##
   s.summary  = <<~SUMMARY
-    `Wile` is a tasks dispatch manager
-    for ruby gem projects that uses it's project template.
+    `Wile` is a prescriptive task dispatcher for Ruby gem projects,
+    built around a living project template.
   SUMMARY
   s.description = <<~DESCRIPTION
-    `Wile` is a tasks dispatch manager
-    for ruby gem projects that uses it's project template.
+    `Wile` is a prescriptive task dispatcher for Ruby gem projects,
+    built around a living project template.
     
-    Generate a new project from scratch using it's template.
-    Compare current project with template.
-    Automate `gemspec` maintenance.
-    And many other tasks!
+    It scaffolds new projects from the template, keeps existing ones
+    aligned with it, and automates the rest of the workflow — gemspec
+    upkeep, testing, and release. There is no configuration file: your
+    clone is the configuration, to take as-is or edit and install
+    locally. It targets Linux, fish, and tmux.
   DESCRIPTION
   ## FILES ##
   s.require_paths = ['lib']
@@ -46,7 +47,7 @@ Gem::Specification.new do |s|
     cache/.version
     cache/.wileignore
     cache/CREDITS.md
-    cache/Gemfile.erb
+    cache/Gemfile
     cache/Gemfile.lock
     cache/History.txt
     cache/README.md.erb
@@ -60,6 +61,7 @@ Gem::Specification.new do |s|
     cache/features/version.feature.erb
     cache/git/hooks/pre-commit
     cache/lib/project.rb.erb
+    cache/pkg/README.md
     cache/test/cons.gz
     cache/test/tc_comments
     cache/test/tc_cucumber
@@ -72,6 +74,7 @@ Gem::Specification.new do |s|
     cache/test/tc_ruby_syntax
     cache/test/tc_version
     cache/test/test_module.rb
+    cache/tmp/README.md
     lib/wile.rb
     lib/wile/autoloads/cache.rb
     lib/wile/autoloads/code_content.rb
@@ -126,18 +129,22 @@ Gem::Specification.new do |s|
     lib/wile/tasks/todo.rb
     lib/wile/tasks/update.rb
     lib/wile/usage.rb
+    pkg/README.md
   ]
     s.executables << 'wile'
   ## REQUIREMENTS ##
+  s.add_runtime_dependency 'colora', '~> 1.0', '>= 1.0.250401'
   s.add_runtime_dependency 'colorize', '~> 1.1', '>= 1.1.0'
-  s.add_runtime_dependency 'cucumber', '~> 11.0', '>= 11.0.0'
+  s.add_runtime_dependency 'cucumber', '~> 12.0', '>= 12.0.0'
   s.add_runtime_dependency 'help_parser', '~> 9.0', '>= 9.0.240926'
-  s.add_runtime_dependency 'parser', '~> 3.3', '>= 3.3.11'
-  s.add_runtime_dependency 'rubocop', '~> 1.86', '>= 1.86.1'
-  s.add_runtime_dependency 'test-unit', '~> 3.7', '>= 3.7.7'
+  s.add_runtime_dependency 'ostruct', '~> 0.6', '>= 0.6.3'
+  s.add_runtime_dependency 'parser', '~> 3.3', '>= 3.3.12'
+  s.add_runtime_dependency 'reek', '~> 6.6', '>= 6.6.0'
+  s.add_runtime_dependency 'rubocop', '~> 1.92', '>= 1.92.0'
+  s.add_runtime_dependency 'test-unit', '~> 3.7', '>= 3.7.8'
+  s.requirements << 'agy: 1.4'
   s.requirements << 'cat: 9.1'
   s.requirements << 'clear: 6.4'
-  s.requirements << 'colora: 1.0'
   s.requirements << 'colordiff: 3.8'
   s.requirements << 'egrep: 3.8'
   s.requirements << 'gem: 4.0'
@@ -147,7 +154,6 @@ Gem::Specification.new do |s|
   s.requirements << 'md5sum: 9.1'
   s.requirements << 'ncal: 2019'
   s.requirements << 'rbenv: 1.3'
-  s.requirements << 'reek: 6.5'
   s.required_ruby_version = '>= 4.0'
   s.requirements << 'ruby-parse: 3.3'
   s.requirements << 'tmux: 3.3'
