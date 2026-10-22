@@ -812,6 +812,7 @@ verbose
 verify_curl
 verify_fish
 verify_fisher_installed
+verify_gems
 verify_linux
 verify_project_root
 verify_rbenv

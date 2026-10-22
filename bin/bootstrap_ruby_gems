@@ -7,6 +7,7 @@ require 'rbconfig'
 require_relative '../lib/wile/sysexits'
 
 # Bootstraps Ruby gems for Wile into the active rbenv Ruby version.
+# rubocop: disable-next Metrics/ClassLength
 class BootstrapRubyGems
   include Wile::Sysexits
 
@@ -94,6 +95,16 @@ class BootstrapRubyGems
     MSG
   end
 
+  def verify_gems!
+    if system(RbConfig.ruby, '-rbundler/setup', '-rhelp_parser', '-e', '')
+      return
+    end
+
+    error!(EX_UNAVAILABLE,
+           'Error: gems do not load after bundle update — help_parser ' \
+           'unavailable under the bundled environment.')
+  end
+
   def install_gems!
     unless confirm?("Update bundler and run 'bundle update --all' " \
                     "for Ruby #{RUBY_VERSION}?")
@@ -103,6 +114,7 @@ class BootstrapRubyGems
     run_cmd!('gem', 'update', 'bundler')
     run_cmd!('bundle', 'update', '--all')
     run_cmd!('rbenv', 'rehash')
+    verify_gems! # Sanity check
     puts "Ruby gems setup complete for Ruby #{RUBY_VERSION}."
   end
 
