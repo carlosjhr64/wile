@@ -3,13 +3,13 @@ set -euo pipefail
 
 if [[ "$(uname -s)" != "Linux" ]]; then
   echo "Error: Wile is meant to be run on Linux (detected: $(uname -s))." >&2
-  exit 1
+  exit 69 # Unavailable
 fi
 
 for f in .version .ruby-version; do
   if [[ ! -s "${f}" ]]; then
     echo "Error: ${f} not found — run this from a Wile project's root directory." >&2
-    exit 1
+    exit 66 # No input
   fi
 done
 
@@ -85,8 +85,14 @@ if command -v dpkg-query >/dev/null 2>&1 && command -v apt-get >/dev/null 2>&1; 
   if [[ ${#MISSING_PACKAGES[@]} -gt 0 ]]; then
     echo "Missing packages required to compile Ruby: ${MISSING_PACKAGES[*]}"
     if confirm "Install missing packages with sudo apt-get?"; then
-      sudo apt-get update
-      sudo apt-get install -y "${MISSING_PACKAGES[@]}"
+      sudo apt-get update || {
+        echo "Error: 'sudo apt-get update' failed." >&2
+        exit 71 # OS error
+      }
+      sudo apt-get install -y "${MISSING_PACKAGES[@]}" || {
+        echo "Error: 'sudo apt-get install' failed." >&2
+        exit 71 # OS error
+      }
     else
       echo "Aborted. Install them manually with:" >&2
       echo "  sudo apt-get update && sudo apt-get install ${MISSING_PACKAGES[*]}" >&2
@@ -124,7 +130,10 @@ EOF
 
   if [[ ! -x "${HOME}/.rbenv/bin/rbenv" ]]; then
     if confirm "Clone https://github.com/rbenv/rbenv.git into ${HOME}/.rbenv?"; then
-      git clone https://github.com/rbenv/rbenv.git "${HOME}/.rbenv"
+      git clone https://github.com/rbenv/rbenv.git "${HOME}/.rbenv" || {
+        echo "Error: 'git clone' of rbenv failed." >&2
+        exit 71 # OS error
+      }
     else
       echo "Aborted. You can install it manually with:" >&2
       echo "  git clone https://github.com/rbenv/rbenv.git ~/.rbenv" >&2
@@ -147,12 +156,15 @@ EOF
       echo "Error: Could not detect a supported shell (found: '${USER_SHELL:-none}')." >&2
       echo "Configure your shell for rbenv manually, then re-run:" >&2
       print_manual_rbenv_init "~/.rbenv/bin/rbenv"
-      exit 1
+      exit 78 # Config
       ;;
   esac
 
   if confirm "Configure ${USER_SHELL} for rbenv via '${HOME}/.rbenv/bin/rbenv init ${USER_SHELL}'?"; then
-    "${HOME}/.rbenv/bin/rbenv" init "${USER_SHELL}"
+    "${HOME}/.rbenv/bin/rbenv" init "${USER_SHELL}" || {
+      echo "Error: 'rbenv init ${USER_SHELL}' failed." >&2
+      exit 71 # OS error
+    }
   else
     echo "Aborted. Configure your shell manually:" >&2
     print_manual_rbenv_init "~/.rbenv/bin/rbenv"
@@ -162,7 +174,7 @@ EOF
   echo
   echo "Restart your shell so the rbenv configuration takes effect, then re-run:"
   echo "  ./bin/bootstrap_ruby_rbenv"
-  exit 0
+  exit 78 # Config
 fi
 
 echo "rbenv found: $(rbenv --version)"
@@ -177,7 +189,10 @@ The \`ruby-build\` plugin was not found at ${RUBY_BUILD_DIR}.
 and keep the list of available Ruby versions up to date.
 EOF
   if confirm "Clone https://github.com/rbenv/ruby-build.git into ${RUBY_BUILD_DIR}?"; then
-    git clone https://github.com/rbenv/ruby-build.git "${RUBY_BUILD_DIR}"
+    git clone https://github.com/rbenv/ruby-build.git "${RUBY_BUILD_DIR}" || {
+      echo "Error: 'git clone' of ruby-build failed." >&2
+      exit 71 # OS error
+    }
   else
     echo "Aborted. You can install it manually with:" >&2
     echo "  git clone https://github.com/rbenv/ruby-build.git \"${RUBY_BUILD_DIR}\"" >&2
@@ -200,8 +215,14 @@ if rbenv versions --bare | grep -Fxq "${RUBY_VERSION}"; then
 else
   echo "Ruby ${RUBY_VERSION} (specified in .ruby-version) is not installed."
   if confirm "Install Ruby ${RUBY_VERSION} via rbenv now?"; then
-    rbenv install "${RUBY_VERSION}"
-    rbenv rehash
+    rbenv install "${RUBY_VERSION}" || {
+      echo "Error: 'rbenv install ${RUBY_VERSION}' failed." >&2
+      exit 71 # OS error
+    }
+    rbenv rehash || {
+      echo "Error: 'rbenv rehash' failed." >&2
+      exit 71 # OS error
+    }
   else
     echo "Aborted. You can install it later with: rbenv install ${RUBY_VERSION}" >&2
     exit 1
@@ -218,7 +239,7 @@ Your shell likely hasn't initialized \`rbenv\` shims. Add \`rbenv init\` to your
 shell configuration, restart your shell, and re-run:
 EOF
   print_manual_rbenv_init "rbenv"
-  exit 1
+  exit 78 # Config
 fi
 
 echo "Ruby verified: $(ruby --version)"

@@ -43,14 +43,14 @@ class BootstrapFish
     os = `uname -s`.strip
     return if os == 'Linux'
 
-    abort "Error: Wile is meant to be run on Linux (detected: #{os})."
+    error!(69, "Error: Wile is meant to be run on Linux (detected: #{os}).")
   end
 
   def verify_rbenv!
     rbenv = File.expand_path('~/.rbenv/bin/rbenv')
     return if File.executable?(rbenv)
 
-    abort <<~MSG
+    error!(69, <<~MSG)
       Error: rbenv not found at #{rbenv}.
       Run ./bin/bootstrap_ruby_rbenv first, then re-run:
         ./bin/bootstrap_fish
@@ -103,11 +103,13 @@ class BootstrapFish
   end
 
   def install_fish!
-    if apt_fish_available? && confirm?('Install fish with sudo apt-get?')
+    if apt_fish_available?
+      abort 'Aborted.' unless confirm?('Install fish with sudo apt-get?')
+
       system('sudo', 'apt-get', 'update') ||
-        abort('Error: apt-get update failed.')
+        error!(71, 'Error: apt-get update failed.')
       system('sudo', 'apt-get', 'install', '-y', 'fish') ||
-        abort('Error: apt-get install fish failed.')
+        error!(71, 'Error: apt-get install fish failed.')
     end
 
     version = fish_version
@@ -131,7 +133,7 @@ class BootstrapFish
 
   def manual_fish_instructions!(version)
     found = version ? " (currently found: #{version})" : ''
-    abort <<~MSG
+    error!(69, <<~MSG)
       Error: fish >= #{FISH_MIN_VERSION} is required#{found}.
       Please install the latest release of fish (>= #{FISH_MIN_VERSION}) for
       your distribution following the instructions at:
@@ -149,7 +151,9 @@ class BootstrapFish
       return
     end
 
-    return unless confirm?("Add rbenv initialization to #{config_file}?")
+    unless confirm?("Add rbenv initialization to #{config_file}?")
+      abort 'Aborted.'
+    end
 
     FileUtils.mkdir_p(File.dirname(config_file))
     File.open(config_file, 'a') do |file|
@@ -159,19 +163,28 @@ class BootstrapFish
     puts "Updated #{config_file} with rbenv initialization."
   end
 
+  # rubocop:disable-next Metrics/MethodLength
   def configure_default_shell!
     fish_path = `which fish`.strip
     return if fish_path.empty? || ENV['SHELL'] == fish_path
 
     puts "Your current login shell is #{ENV['SHELL'] || 'unknown'}."
     prompt = "Set fish (#{fish_path}) as your default login shell via chsh?"
-    return unless confirm?(prompt)
+    unless confirm?(prompt)
+      puts 'Skipping default shell change.'
+      return
+    end
 
     if system('chsh', '-s', fish_path)
       puts "Default shell set to #{fish_path} (re-login to take effect)."
     else
-      warn "Warning: chsh failed. Run manually: chsh -s #{fish_path}"
+      error!(71, "Error: chsh failed. Run manually: chsh -s #{fish_path}")
     end
+  end
+
+  def error!(val, msg)
+    warn msg
+    exit val
   end
 
   def confirm?(prompt)

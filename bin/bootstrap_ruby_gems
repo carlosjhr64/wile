@@ -33,8 +33,8 @@ class BootstrapRubyGems
     ROOT_FILES.each do |file|
       next if File.file?(file) && !File.empty?(file)
 
-      abort "Error: #{file} not found — " \
-            "run this from a Wile project's root directory."
+      error!(66, "Error: #{file} not found — " \
+                 "run this from a Wile project's root directory.")
     end
   end
 
@@ -53,8 +53,7 @@ class BootstrapRubyGems
     return if args.empty?
 
     warn "Error: Unknown argument(s): #{args.join(' ')}"
-    warn 'Usage: bootstrap_ruby_gems [-h|--help|-v|--version]'
-    exit 64 # Usage
+    error!(64, 'Usage: bootstrap_ruby_gems [-h|--help|-v|--version]')
   end
 
   def verify_rbenv!
@@ -64,7 +63,7 @@ class BootstrapRubyGems
       return
     end
 
-    abort <<~MSG
+    error!(69, <<~MSG)
       Error: rbenv not found or not initialized in PATH.
       Run ./bin/bootstrap_ruby_rbenv first, then re-run:
         ./bin/bootstrap_ruby_gems
@@ -82,7 +81,7 @@ class BootstrapRubyGems
       return
     end
 
-    abort <<~MSG
+    error!(78, <<~MSG)
       Error: Expected rbenv Ruby #{expected} (from .ruby-version), but current
       ruby is #{RUBY_VERSION} at #{RbConfig.ruby}.
 
@@ -107,7 +106,12 @@ class BootstrapRubyGems
   def run_cmd!(*cmd)
     return if system(*cmd)
 
-    abort "Error: '#{cmd.join(' ')}' failed."
+    error!(71, "Error: '#{cmd.join(' ')}' failed.")
+  end
+
+  def error!(val, msg)
+    warn msg
+    exit val
   end
 
   def command_available?(cmd)

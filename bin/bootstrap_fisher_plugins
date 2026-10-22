@@ -50,7 +50,7 @@ class BootstrapFisherPlugins
       return
     end
 
-    abort <<~MSG
+    error!(69, <<~MSG)
       Error: fish >= #{FISH_MIN_VERSION} is required (found: #{version || 'none'}).
       Run ./bin/bootstrap_fish first, then re-run:
         ./bin/bootstrap_fisher_plugins
@@ -63,7 +63,7 @@ class BootstrapFisherPlugins
       return
     end
 
-    abort <<~MSG
+    error!(69, <<~MSG)
       Error: Ruby >= #{RUBY_MIN_VERSION} is required by carlosjhr64/pkg-goto
       (found: #{RUBY_VERSION}).
       Run ./bin/bootstrap_ruby_rbenv first, then re-run:
@@ -74,7 +74,7 @@ class BootstrapFisherPlugins
   def verify_curl!
     return if command_available?('curl')
 
-    abort <<~MSG
+    error!(69, <<~MSG)
       Error: `curl` was not found in your PATH.
       Fisher requires `curl` to download plugins from GitHub.
       Please install `curl` (e.g., `sudo apt-get install curl`), then re-run:
@@ -100,7 +100,7 @@ class BootstrapFisherPlugins
     version = fisher_version
     return if version && version_ok?(version, FISHER_MIN_VERSION)
 
-    abort <<~MSG
+    error!(69, <<~MSG)
       Error: fisher >= #{FISHER_MIN_VERSION} is required (found: #{version || 'none'}).
       See #{FISHER_REPO_URL} for manual installation instructions.
     MSG
@@ -119,7 +119,12 @@ class BootstrapFisherPlugins
   def run_fish!(cmd)
     return if system('fish', '-c', cmd, in: File::NULL)
 
-    abort "Error: `fish -c '#{cmd}'` failed."
+    error!(71, "Error: `fish -c '#{cmd}'` failed.")
+  end
+
+  def error!(val, msg)
+    warn msg
+    exit val
   end
 
   def fish_version
