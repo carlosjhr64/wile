@@ -17,7 +17,9 @@ module MissingCalls
   end
 end
 
+# :reek:IrresponsibleModule
 module MockUp
+  # :reek:TooManyStatements
   def self.create(mod, symbol)
     klass = Class.new do
       include MissingCalls
@@ -78,6 +80,7 @@ module TestModule
       end
     end
 
+    # :reek:ControlParameter
     def test_all(klass_methods)
       test_class_methods if klass_methods
       test_public_methods
@@ -116,6 +119,7 @@ module TestModule
   end
 
   # No fail warnings
+  # :reek:BooleanParameter
   def coverage(klass, klass_methods: true)
     Coverage.new(klass, self).test_all(klass_methods)
   end

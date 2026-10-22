@@ -1,0 +1,25 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'test/unit'
+require 'colorize'
+# Also:
+# require 'reek'
+
+# Reek Tests
+class TestReek < Test::Unit::TestCase
+  REEK = %w[reek --no-progress --config .reek.yml].freeze
+  def test_reek
+    files = `git ls-files`
+            .lines.map(&:chomp)
+            .reject { it.start_with?('cache/') }
+            .select { _ruby?(it) }
+    flunk 'Smelly code!'.red unless system(*REEK, *files)
+  end
+
+  private
+
+  def _ruby?(filename)
+    /\.rb$/.match?(filename)
+  end
+end
