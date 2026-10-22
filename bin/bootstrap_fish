@@ -103,9 +103,7 @@ class BootstrapFish
   end
 
   def install_fish!
-    if apt_fish_available?
-      abort 'Aborted.' unless confirm?('Install fish with sudo apt-get?')
-
+    if apt_fish_available? && confirm?('Install fish with sudo apt-get?')
       system('sudo', 'apt-get', 'update') ||
         error!(71, 'Error: apt-get update failed.')
       system('sudo', 'apt-get', 'install', '-y', 'fish') ||
