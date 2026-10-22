@@ -3,6 +3,7 @@
 # Wile namespace.
 module Wile
   # BSD sysexits(3) exit status codes.
+  # :reek:TooManyConstants
   module Sysexits
     EX_OK          = 0   # success
     EX_FAIL        = 1   # test|task failed

@@ -45,6 +45,7 @@ module Wile
 
     private
 
+    # :reek:DuplicateMethodCall @info.dirname
     def git_init
       Git.init! @info.dirname
       # Add template's hooks

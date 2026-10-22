@@ -81,7 +81,7 @@ module Wile
       end
     end
 
-    # :reek:ControlParameter
+    # :reek:ControlParameter :reek:TooManyStatements
     def diff(cfile, pfile, show)
       cmp, out = show ? ['colordiff', ''] : ['diff -sq', '>/dev/null']
       if /\.erb$/.match?(cfile) then diff_erb(cfile, pfile, cmp, out)

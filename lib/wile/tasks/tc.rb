@@ -10,6 +10,8 @@ module Wile
 
     TC_USAGE = ['tc: Takes no arguments.', 0, Set[]].freeze
 
+    # :reek:DuplicateMethodCall :reek:TooManyStatements
+    # :reek:UncommunicativeVariableName
     # rubocop: disable-next Metrics
     def tc(options)
       Usage.new(options, *TC_USAGE)

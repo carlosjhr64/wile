@@ -59,6 +59,7 @@ module Wile
       system2 "gem install --no-document --local ./#{project}-#{version}.gem"
     end
 
+    # :reek:UncommunicativeVariableName p
     def installed?(project = @info.project, version = @info.version)
       p = Shellwords.escape(project)
       `gem list #{p} --exact`.scan(/\d+\.\d+\.\d+/).any? { it == version }

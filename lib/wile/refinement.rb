@@ -40,6 +40,7 @@ module Wile
           raise "no match: #{regexp} #{filename}"
       end
 
+      # :reek:UtilityFunction
       def sub!(filename, regexp, sub)
         string = File.read(filename).sub!(regexp, sub)
         File.write(filename, string) if string
