@@ -6,6 +6,7 @@ Encoding.default_external = Encoding::UTF_8
 require 'fileutils'
 require 'help_parser'
 require_relative '../lib/wile'
+require_relative '../lib/wile/sysexits'
 
 HelpParser[Wile::VERSION, <<~HELP]
   # ## bootstrap_fish ##
@@ -22,6 +23,8 @@ HELP
 # Bootstraps the fish shell environment for Wile.
 # rubocop:disable-next Metrics/ClassLength
 class BootstrapFish
+  include Wile::Sysexits
+
   FISH_MIN_VERSION = '4.0'
   FISH_URL         = 'https://fishshell.com/'
   RBENV_INIT_LINE  =
@@ -43,14 +46,15 @@ class BootstrapFish
     os = `uname -s`.strip
     return if os == 'Linux'
 
-    error!(69, "Error: Wile is meant to be run on Linux (detected: #{os}).")
+    error!(EX_UNAVAILABLE,
+           "Error: Wile is meant to be run on Linux (detected: #{os}).")
   end
 
   def verify_rbenv!
     rbenv = File.expand_path('~/.rbenv/bin/rbenv')
     return if File.executable?(rbenv)
 
-    error!(69, <<~MSG)
+    error!(EX_UNAVAILABLE, <<~MSG)
       Error: rbenv not found at #{rbenv}.
       Run ./bin/bootstrap_ruby_rbenv first, then re-run:
         ./bin/bootstrap_fish
@@ -105,9 +109,9 @@ class BootstrapFish
   def install_fish!
     if apt_fish_available? && confirm?('Install fish with sudo apt-get?')
       system('sudo', 'apt-get', 'update') ||
-        error!(71, 'Error: apt-get update failed.')
+        error!(EX_OSERR, 'Error: apt-get update failed.')
       system('sudo', 'apt-get', 'install', '-y', 'fish') ||
-        error!(71, 'Error: apt-get install fish failed.')
+        error!(EX_OSERR, 'Error: apt-get install fish failed.')
     end
 
     version = fish_version
@@ -131,7 +135,7 @@ class BootstrapFish
 
   def manual_fish_instructions!(version)
     found = version ? " (currently found: #{version})" : ''
-    error!(69, <<~MSG)
+    error!(EX_UNAVAILABLE, <<~MSG)
       Error: fish >= #{FISH_MIN_VERSION} is required#{found}.
       Please install the latest release of fish (>= #{FISH_MIN_VERSION}) for
       your distribution following the instructions at:
@@ -150,7 +154,7 @@ class BootstrapFish
     end
 
     unless confirm?("Add rbenv initialization to #{config_file}?")
-      abort 'Aborted.'
+      error!(EX_NO, 'Aborted.')
     end
 
     FileUtils.mkdir_p(File.dirname(config_file))
@@ -176,7 +180,7 @@ class BootstrapFish
     if system('chsh', '-s', fish_path)
       puts "Default shell set to #{fish_path} (re-login to take effect)."
     else
-      error!(71, "Error: chsh failed. Run manually: chsh -s #{fish_path}")
+      error!(EX_OSERR, "Error: chsh failed. Run manually: chsh -s #{fish_path}")
     end
   end
 

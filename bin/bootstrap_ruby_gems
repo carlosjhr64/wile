@@ -4,9 +4,12 @@
 Encoding.default_external = Encoding::UTF_8
 
 require 'rbconfig'
+require_relative '../lib/wile/sysexits'
 
 # Bootstraps Ruby gems for Wile into the active rbenv Ruby version.
 class BootstrapRubyGems
+  include Wile::Sysexits
+
   ROOT_FILES = %w[.version .ruby-version Gemfile].freeze
 
   USAGE = <<~TEXT
@@ -33,8 +36,8 @@ class BootstrapRubyGems
     ROOT_FILES.each do |file|
       next if File.file?(file) && !File.empty?(file)
 
-      error!(66, "Error: #{file} not found — " \
-                 "run this from a Wile project's root directory.")
+      error!(EX_NOINPUT, "Error: #{file} not found — " \
+                         "run this from a Wile project's root directory.")
     end
   end
 
@@ -42,18 +45,18 @@ class BootstrapRubyGems
   def parse_args!(args)
     if args.intersect?(%w[-v --version])
       puts File.read('.version').strip
-      exit 0
+      exit EX_OK
     end
 
     if args.intersect?(%w[-h --help])
       puts USAGE
-      exit 0
+      exit EX_OK
     end
 
     return if args.empty?
 
     warn "Error: Unknown argument(s): #{args.join(' ')}"
-    error!(64, 'Usage: bootstrap_ruby_gems [-h|--help|-v|--version]')
+    error!(EX_USAGE, 'Usage: bootstrap_ruby_gems [-h|--help|-v|--version]')
   end
 
   def verify_rbenv!
@@ -63,7 +66,7 @@ class BootstrapRubyGems
       return
     end
 
-    error!(69, <<~MSG)
+    error!(EX_UNAVAILABLE, <<~MSG)
       Error: rbenv not found or not initialized in PATH.
       Run ./bin/bootstrap_ruby_rbenv first, then re-run:
         ./bin/bootstrap_ruby_gems
@@ -81,7 +84,7 @@ class BootstrapRubyGems
       return
     end
 
-    error!(78, <<~MSG)
+    error!(EX_CONFIG, <<~MSG)
       Error: Expected rbenv Ruby #{expected} (from .ruby-version), but current
       ruby is #{RUBY_VERSION} at #{RbConfig.ruby}.
 
@@ -94,7 +97,7 @@ class BootstrapRubyGems
   def install_gems!
     unless confirm?("Update bundler and run 'bundle update --all' " \
                     "for Ruby #{RUBY_VERSION}?")
-      abort 'Aborted.'
+      error!(EX_NO, 'Aborted.')
     end
 
     run_cmd!('gem', 'update', 'bundler')
@@ -106,7 +109,7 @@ class BootstrapRubyGems
   def run_cmd!(*cmd)
     return if system(*cmd)
 
-    error!(71, "Error: '#{cmd.join(' ')}' failed.")
+    error!(EX_OSERR, "Error: '#{cmd.join(' ')}' failed.")
   end
 
   def error!(val, msg)

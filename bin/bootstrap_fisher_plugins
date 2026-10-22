@@ -5,6 +5,7 @@ Encoding.default_external = Encoding::UTF_8
 
 require 'help_parser'
 require_relative '../lib/wile'
+require_relative '../lib/wile/sysexits'
 
 HelpParser[Wile::VERSION, <<~HELP]
   # ## bootstrap_fisher_plugins ##
@@ -20,6 +21,8 @@ HELP
 # Bootstraps fisher and fish plugins for Wile.
 # rubocop:disable-next Metrics/ClassLength
 class BootstrapFisherPlugins
+  include Wile::Sysexits
+
   FISH_MIN_VERSION   = '4.0'
   RUBY_MIN_VERSION   = '4.0'
   FISHER_MIN_VERSION = '4.4'
@@ -50,7 +53,7 @@ class BootstrapFisherPlugins
       return
     end
 
-    error!(69, <<~MSG)
+    error!(EX_UNAVAILABLE, <<~MSG)
       Error: fish >= #{FISH_MIN_VERSION} is required (found: #{version || 'none'}).
       Run ./bin/bootstrap_fish first, then re-run:
         ./bin/bootstrap_fisher_plugins
@@ -63,7 +66,7 @@ class BootstrapFisherPlugins
       return
     end
 
-    error!(69, <<~MSG)
+    error!(EX_UNAVAILABLE, <<~MSG)
       Error: Ruby >= #{RUBY_MIN_VERSION} is required by carlosjhr64/pkg-goto
       (found: #{RUBY_VERSION}).
       Run ./bin/bootstrap_ruby_rbenv first, then re-run:
@@ -74,7 +77,7 @@ class BootstrapFisherPlugins
   def verify_curl!
     return if command_available?('curl')
 
-    error!(69, <<~MSG)
+    error!(EX_UNAVAILABLE, <<~MSG)
       Error: `curl` was not found in your PATH.
       Fisher requires `curl` to download plugins from GitHub.
       Please install `curl` (e.g., `sudo apt-get install curl`), then re-run:
@@ -90,7 +93,7 @@ class BootstrapFisherPlugins
     end
 
     action = version ? "Upgrade fisher (#{version})" : 'Install fisher'
-    abort 'Aborted.' unless confirm?("#{action} from #{FISHER_REPO_URL}?")
+    error!(EX_NO, 'Aborted.') unless confirm?("#{action} from #{FISHER_REPO_URL}?")
 
     run_fish!(FISHER_INSTALL_CMD)
     verify_fisher_installed!
@@ -100,7 +103,7 @@ class BootstrapFisherPlugins
     version = fisher_version
     return if version && version_ok?(version, FISHER_MIN_VERSION)
 
-    error!(69, <<~MSG)
+    error!(EX_UNAVAILABLE, <<~MSG)
       Error: fisher >= #{FISHER_MIN_VERSION} is required (found: #{version || 'none'}).
       See #{FISHER_REPO_URL} for manual installation instructions.
     MSG
@@ -108,7 +111,7 @@ class BootstrapFisherPlugins
 
   def install_plugins!
     unless confirm?("Install/update fish plugins (#{PLUGINS.join(', ')})?")
-      abort 'Aborted.'
+      error!(EX_NO, 'Aborted.')
     end
 
     PLUGINS.each do |plugin|
@@ -119,7 +122,7 @@ class BootstrapFisherPlugins
   def run_fish!(cmd)
     return if system('fish', '-c', cmd, in: File::NULL)
 
-    error!(71, "Error: `fish -c '#{cmd}'` failed.")
+    error!(EX_OSERR, "Error: `fish -c '#{cmd}'` failed.")
   end
 
   def error!(val, msg)
