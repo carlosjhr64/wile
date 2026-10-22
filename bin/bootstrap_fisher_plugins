@@ -117,7 +117,7 @@ class BootstrapFisherPlugins
   end
 
   def run_fish!(cmd)
-    return if system('fish', '-c', cmd)
+    return if system('fish', '-c', cmd, in: File::NULL)
 
     abort "Error: `fish -c '#{cmd}'` failed."
   end
