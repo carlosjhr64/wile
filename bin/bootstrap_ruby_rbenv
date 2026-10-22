@@ -83,7 +83,7 @@ if command -v dpkg-query >/dev/null 2>&1 && command -v apt-get >/dev/null 2>&1; 
   done
 
   if [[ ${#MISSING_PACKAGES[@]} -gt 0 ]]; then
-    echo "Missing packages required to compile Ruby: ${MISSING_PACKAGES[*]}"
+    echo "Missing required packages: ${MISSING_PACKAGES[*]}"
     if confirm "Install missing packages with sudo apt-get?"; then
       sudo apt-get update || {
         echo "Error: 'sudo apt-get update' failed." >&2
