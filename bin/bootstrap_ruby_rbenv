@@ -102,12 +102,12 @@ if command -v dpkg-query >/dev/null 2>&1 && command -v apt-get >/dev/null 2>&1; 
   echo "Ruby build dependencies verified."
 else
   cat >&2 <<EOF
-Notice: \`dpkg-query\` and \`apt-get\` were not found to verify Ruby build dependencies.
-Ensure your system has the equivalents of these Debian/Ubuntu packages installed
-so \`rbenv\` can compile Ruby from source:
+Notice: \`dpkg-query\` and \`apt-get\` were not found to verify the required packages.
+Ensure your system has the equivalents of these Debian/Ubuntu packages installed,
+so this script can fetch \`rbenv\` and \`ruby-build\` and compile Ruby from source:
   ${REQUIRED_PACKAGES[*]}
 EOF
-  if ! confirm "Proceed assuming these Ruby build requirements are satisfied?"; then
+  if ! confirm "Proceed assuming these requirements are satisfied?"; then
     echo "Aborted." >&2
     exit 1
   fi
