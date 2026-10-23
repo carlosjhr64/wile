@@ -26,13 +26,14 @@ class BootstrapSystemCommands
   UTILITIES         = %w[apt-get sudo].freeze
   REQUIRED_COMMANDS = %w[colordiff].freeze
   OPTIONAL_COMMANDS = %w[tmux ncal].freeze
-  ALL_COMMANDS      = (REQUIRED_COMMANDS + OPTIONAL_COMMANDS).freeze
 
   def initialize
     verify_linux!
-    verify_utilities!
-    ensure_commands!
-    verify_commands!
+    unless system_commands_check?
+      verify_utilities!
+      ensure_commands!
+      verify_commands!
+    end
     puts 'System commands setup complete.'
   end
 
@@ -46,6 +47,21 @@ class BootstrapSystemCommands
            "Error: Wile is meant to be run on Linux (detected: #{os}).")
   end
 
+  def system_commands_check?
+    @missed_required = check_commands(REQUIRED_COMMANDS)
+    @missed_optional = check_commands(OPTIONAL_COMMANDS)
+    @missed_required.empty? && @missed_optional.empty?
+  end
+
+  def check_commands(commands)
+    commands.reject do |cmd|
+      path = `which #{cmd}`.strip
+      found = !path.empty?
+      puts "#{cmd} found: #{path}" if found
+      found
+    end
+  end
+
   def verify_utilities!
     missing = missing_from(UTILITIES)
     return if missing.empty?
@@ -55,21 +71,13 @@ class BootstrapSystemCommands
   end
 
   def ensure_commands!
-    missing = check_commands
-    return if missing.empty?
-
+    missing = @missed_required + @missed_optional
     puts "Missing system commands: #{missing.join(', ')}"
-    install_commands!(missing) if confirm?(
-      "Install #{missing.join(', ')} with sudo apt-get?"
-    )
-  end
+    return unless confirm?("Install #{missing.join(', ')} with sudo apt-get?")
 
-  def check_commands
-    ALL_COMMANDS.reject do |cmd|
-      available = command_available?(cmd)
-      puts "#{cmd} found: #{`which #{cmd}`.strip}" if available
-      available
-    end
+    install_commands!(missing)
+    @missed_required = missing_from(@missed_required)
+    @missed_optional = missing_from(@missed_optional)
   end
 
   def install_commands!(packages)
@@ -80,16 +88,14 @@ class BootstrapSystemCommands
   end
 
   def verify_commands!
-    missed_optional = missing_from(OPTIONAL_COMMANDS)
-    unless missed_optional.empty?
-      warn "Notice: Missed optional packages: #{missed_optional.join(', ')}"
+    unless @missed_optional.empty?
+      warn "Notice: Missed optional packages: #{@missed_optional.join(', ')}"
     end
 
-    missed_required = missing_from(REQUIRED_COMMANDS)
-    return if missed_required.empty?
+    return if @missed_required.empty?
 
     error!(EX_UNAVAILABLE,
-           "Error: Missed required packages: #{missed_required.join(', ')}")
+           "Error: Missed required packages: #{@missed_required.join(', ')}")
   end
 
   def missing_from(commands)
