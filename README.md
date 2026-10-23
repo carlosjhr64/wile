@@ -1,6 +1,6 @@
 # Wile
 
-* [VERSION 0.0.261022](https://github.com/carlosjhr64/wile/releases)
+* [VERSION 0.0.261023](https://github.com/carlosjhr64/wile/releases)
 * [github](https://www.github.com/carlosjhr64/wile)
 
 ## DESCRIPTION
@@ -32,7 +32,8 @@ $ ./bin/bootstrap_ruby_rbenv
 $ ./bin/bootstrap_ruby_gems
 $ ./bin/bootstrap_fish
 $ ./bin/bootstrap_fisher_plugins
-$ # TODO more bootstraping to be determined
+$ ./bin/bootstrap_system_commands
+$ # TODO: to be determined what next
 $ wile install
 ```
 

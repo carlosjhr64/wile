@@ -6,7 +6,7 @@ module Wile
   module CommandVersion
     COMMAND_VERSION = {
       'bash' => ['bash --version', '5.2'],
-      'carlosjhr64/goto' => ["fish -c 'goto --version'", '2.1'],
+      'carlosjhr64/pkg-goto' => ["fish -c 'goto --version'", '2.1'],
       'carlosjhr64/theme-local' => [:fish_plugin, '0'],
       'cat' => ['cat --version', '9.1'],
       'clear' => ['clear -V', '6.4'],

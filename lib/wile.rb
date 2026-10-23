@@ -2,7 +2,7 @@
 
 # The Wile module is the main namespace for the Wile application.
 module Wile
-  VERSION = '0.0.261022'
+  VERSION = '0.0.261023'
   ROOT = File.expand_path('..', __dir__)
 
   def self.autoloads
