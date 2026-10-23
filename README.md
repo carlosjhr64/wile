@@ -33,6 +33,7 @@ $ ./bin/bootstrap_ruby_gems
 $ ./bin/bootstrap_fish
 $ ./bin/bootstrap_fisher_plugins
 $ ./bin/bootstrap_system_commands
+$ ./bin/bootstrap_install_neovim
 $ # TODO: to be determined what next
 $ wile install
 ```
