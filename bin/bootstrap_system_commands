@@ -4,10 +4,11 @@
 Encoding.default_external = Encoding::UTF_8
 
 require 'help_parser'
-require_relative '../lib/wile'
 require_relative '../lib/wile/sysexits'
 
-HelpParser[Wile::VERSION, <<~HELP]
+VERSION = File.read("#{__dir__}/../.version").chomp
+
+HelpParser[VERSION, <<~HELP]
   # ## bootstrap_system_commands ##
   # Bootstraps the Linux system commands used by Wile by verifying or
   # installing required commands (colordiff) and optional commands

@@ -5,10 +5,11 @@ Encoding.default_external = Encoding::UTF_8
 
 require 'fileutils'
 require 'help_parser'
-require_relative '../lib/wile'
 require_relative '../lib/wile/sysexits'
 
-HelpParser[Wile::VERSION, <<~HELP]
+VERSION = File.read("#{__dir__}/../.version").chomp
+
+HelpParser[VERSION, <<~HELP]
   # ## bootstrap_fish ##
   # Bootstraps the fish shell environment for Wile by verifying or installing
   # fish (>= 4.0), configuring rbenv in ~/.config/fish/config.fish, and

@@ -4,10 +4,11 @@
 Encoding.default_external = Encoding::UTF_8
 
 require 'help_parser'
-require_relative '../lib/wile'
 require_relative '../lib/wile/sysexits'
 
-HelpParser[Wile::VERSION, <<~HELP]
+VERSION = File.read("#{__dir__}/../.version").chomp
+
+HelpParser[VERSION, <<~HELP]
   # ## bootstrap_fisher_plugins ##
   # Bootstraps the fisher plugin manager (>= 4.4) and installs the fish
   # plugins used by Wile (carlosjhr64/pkg-goto and carlosjhr64/theme-local).

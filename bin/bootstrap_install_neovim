@@ -8,10 +8,11 @@ require 'fileutils'
 require 'help_parser'
 require 'json'
 require 'tmpdir'
-require_relative '../lib/wile'
 require_relative '../lib/wile/sysexits'
 
-HelpParser[Wile::VERSION, <<~HELP]
+VERSION = File.read("#{__dir__}/../.version").chomp
+
+HelpParser[VERSION, <<~HELP]
   # ## bootstrap_install_neovim ##
   # Installs or upgrades Neovim (nvim) in ~/.local/bin from the official
   # GitHub releases (nvim-linux-x86_64.tar.gz).
