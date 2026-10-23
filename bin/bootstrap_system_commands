@@ -29,12 +29,11 @@ class BootstrapSystemCommands
 
   def initialize
     verify_linux!
-    unless system_commands_check?
-      verify_utilities!
+    if !system_commands_check? && utilities_check?
       ensure_commands!
       verify_commands!
     end
-    puts 'System commands setup complete.'
+    puts 'System commands setup OK.'
   end
 
   private
@@ -62,13 +61,13 @@ class BootstrapSystemCommands
     end
   end
 
-  def verify_utilities!
+  def utilities_check?
     missing = missing_from(UTILITIES)
-    return if missing.empty?
+    return true if missing.empty?
 
     warn "Error: Required utilities not found in PATH: #{missing.join(', ')}"
     verify_commands!
-    exit(EX_OK)
+    false
   end
 
   def ensure_commands!

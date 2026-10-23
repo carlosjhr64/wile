@@ -813,6 +813,7 @@ username
 using
 UTF_8
 UTILITIES
+utilities_check
 v
 v2s
 val
@@ -834,7 +835,6 @@ verify_linux
 verify_project_root
 verify_rbenv
 verify_ruby_version
-verify_utilities
 verify_version
 version
 Version
