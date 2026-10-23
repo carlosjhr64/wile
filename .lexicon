@@ -4,6 +4,7 @@ _
 a
 abs
 action
+actual
 add
 add_dependency
 add_external
@@ -13,7 +14,10 @@ all
 allowed_opt
 already_published
 any
+API_URL
 apt_fish_available
+arch
+ARCH
 archive
 arg
 _args
@@ -21,6 +25,8 @@ args
 ARGV
 Array
 as
+asset
+assets
 ast
 attr_reader
 auto
@@ -36,6 +42,7 @@ bcswp
 best
 bin
 binding
+BIN_DIR
 black
 blk
 block
@@ -45,6 +52,7 @@ bnswp
 bold
 BootstrapFish
 BootstrapFisherPlugins
+BootstrapInstallNeovim
 BootstrapRubyGems
 BootstrapSystemCommands
 bprm
@@ -81,6 +89,7 @@ cfiles
 check
 check_commands
 check_p2c
+check_path_notice
 checks
 chmod
 chomp
@@ -88,6 +97,7 @@ chunk
 Class
 CLASSY
 clean
+CLEAN_DIRS
 clear
 clevel
 close_write
@@ -190,6 +200,7 @@ dictionary_ok
 DICTIONARY_USAGE
 diff
 diff_erb
+Digest
 dinit
 __dir__
 dir
@@ -213,6 +224,8 @@ do_todo_in_files
 do_update
 do_update_report
 downcase
+download_archive
+DOWNLOAD_URL
 downto
 dpc
 dump
@@ -231,6 +244,7 @@ end_with
 ensure_commands
 ensure_fish
 ensure_fisher
+ensure_neovim
 Enumerable
 ENV
 erb
@@ -263,14 +277,19 @@ expand_path
 expected
 EXPECTED_CHANGES
 expected_prefix
+expected_sha256
 explain_fish
 EX_PROTOCOL
 EX_SOFTWARE
 EX_TEMPFAIL
 EXTENDED
 external
+extract_archive
+extract_sha256
 EX_UNAVAILABLE
 EX_USAGE
+fetch
+fetch_latest_release
 fh
 file
 File
@@ -365,6 +384,7 @@ Help
 HelpParser
 help_string
 HELP_USAGE
+hexdigest
 i
 idx
 ignore
@@ -385,8 +405,10 @@ inspect
 install
 install_commands
 installed
+installed_version
 install_fish
 install_gems
+install_neovim
 install_plugins
 INSTALL_USAGE
 Integer
@@ -398,6 +420,7 @@ is_a
 isolate
 isolate_methods
 it
+item
 iterate
 IterationVariables
 j
@@ -417,6 +440,7 @@ known_constants
 l
 last
 last_match
+latest_version
 length
 level
 level_pops
@@ -435,6 +459,7 @@ list
 LISTS
 LIST_USAGE
 ljust
+LOCAL_DIR
 loop
 m
 magenta
@@ -473,6 +498,7 @@ missing_from
 mkdir
 mkdir_p
 MKDIR_USAGE
+mktmpdir
 mlc
 mod
 mode
@@ -509,6 +535,7 @@ now
 nswp
 NULL
 nvim
+NVIM_BIN
 nvim_bin_files
 nvim_files
 NvimFiles
@@ -554,14 +581,18 @@ packages
 pad
 PAD
 padding
+parse
 parse_args
 parse_file
 Parser
+ParserError
 parts
 pascal_case
 PASCAL_KEY
 passed
 path
+paths
+PATH_SEPARATOR
 permutation
 permutations
 pf
@@ -593,6 +624,7 @@ Project
 project_rb
 project_ready
 prompt
+prompt_install
 protected
 public
 public_method_defined
@@ -644,6 +676,7 @@ Refinement
 regexp
 Regexp
 reject
+RELEASES_URL
 rename
 reply
 report_dependencies
@@ -672,6 +705,7 @@ rj
 rjust
 rm_pkg
 rm_r
+rm_rf
 root
 ROOT
 ROOT_FILES
@@ -713,6 +747,7 @@ set
 Set
 set_project
 settings
+SHA256
 shared
 shared_methods
 Shellwords
@@ -765,6 +800,7 @@ system2
 system_commands_check
 tag
 tap
+TARBALL
 task
 tasks
 Tasks
@@ -826,15 +862,19 @@ valuation
 value
 ver
 verbose
+verify_arch
+verify_checksum
 verify_commands
 verify_curl
 verify_fish
 verify_fisher_installed
 verify_gems
 verify_linux
+verify_neovim
 verify_project_root
 verify_rbenv
 verify_ruby_version
+verify_utilities
 verify_version
 version
 Version

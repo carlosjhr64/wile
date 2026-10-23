@@ -3,8 +3,10 @@
 
 Encoding.default_external = Encoding::UTF_8
 
+require 'digest'
 require 'fileutils'
 require 'help_parser'
+require 'json'
 require 'tmpdir'
 require_relative '../lib/wile'
 require_relative '../lib/wile/sysexits'
@@ -28,6 +30,7 @@ class BootstrapInstallNeovim
   ARCH         = 'x86_64'
   UTILITIES    = %w[curl tar].freeze
   TARBALL      = 'nvim-linux-x86_64.tar.gz'
+  API_URL      = 'https://api.github.com/repos/neovim/neovim/releases/latest'
   RELEASES_URL = 'https://github.com/neovim/neovim/releases/latest'
   DOWNLOAD_URL = "#{RELEASES_URL}/download/#{TARBALL}".freeze
   LOCAL_DIR    = File.expand_path('~/.local')
@@ -73,35 +76,42 @@ class BootstrapInstallNeovim
   end
 
   def ensure_neovim!
-    latest  = fetch_latest_version!
+    fetch_latest_release!
     current = installed_version
-    if current && Gem::Version.new(current) >= Gem::Version.new(latest)
-      puts "nvim found: v#{current} (latest: v#{latest})"
+    if current && Gem::Version.new(current) >= Gem::Version.new(@latest_version)
+      puts "nvim found: v#{current} (latest: v#{@latest_version})"
       return
     end
 
-    prompt_install!(current, latest)
+    prompt_install!(current)
     install_neovim!
-    verify_neovim!(latest)
+    verify_neovim!
   end
 
-  def prompt_install!(current, latest)
+  def prompt_install!(current)
     action =
       if current
-        "Upgrade nvim (v#{current} -> v#{latest})"
+        "Upgrade nvim (v#{current} -> v#{@latest_version})"
       else
-        "Install nvim v#{latest}"
+        "Install nvim v#{@latest_version}"
       end
     confirm?("#{action} in #{BIN_DIR}?") || error!(EX_NO, 'Aborted.')
   end
 
-  def fetch_latest_version!
-    headers = `curl -fsSI #{RELEASES_URL} 2>/dev/null`
-    version = headers[%r{^location:.*/v(\d+\.\d+\.\d+)}i, 1]
-    return version if version
+  def fetch_latest_release!
+    data = JSON.parse(`curl -fsSL #{API_URL} 2>/dev/null`)
+    @latest_version = data.fetch('tag_name', '')[/\d+\.\d+\.\d+/]
+    @expected_sha256 = extract_sha256(data.fetch('assets', []))
+    return if @latest_version && @expected_sha256
 
-    error!(EX_UNAVAILABLE,
-           "Error: Unable to determine latest version from #{RELEASES_URL}.")
+    error!(EX_UNAVAILABLE, "Error: Invalid release data from #{API_URL}.")
+  rescue JSON::ParserError
+    error!(EX_UNAVAILABLE, "Error: Failed to fetch release from #{API_URL}.")
+  end
+
+  def extract_sha256(assets)
+    asset = assets.find { |item| item['name'] == TARBALL }
+    asset ? asset.fetch('digest', '')[/\Asha256:(\h{64})\z/, 1] : nil
   end
 
   def installed_version
@@ -115,6 +125,7 @@ class BootstrapInstallNeovim
     Dir.mktmpdir do |dir|
       archive = File.join(dir, TARBALL)
       download_archive!(archive)
+      verify_checksum!(archive)
       extract_archive!(archive)
     end
   end
@@ -127,6 +138,20 @@ class BootstrapInstallNeovim
     error!(EX_OSERR, 'Error: Failed to download Neovim archive.')
   end
 
+  def verify_checksum!(archive)
+    actual = Digest::SHA256.file(archive).hexdigest
+    if actual == @expected_sha256
+      puts "SHA256 verified: #{actual}"
+      return
+    end
+
+    error!(EX_DATAERR, <<~MSG)
+      Error: SHA256 checksum mismatch for #{TARBALL}.
+        expected: #{@expected_sha256}
+        actual:   #{actual}
+    MSG
+  end
+
   def extract_archive!(archive)
     FileUtils.rm_rf(CLEAN_DIRS)
     FileUtils.mkdir_p(LOCAL_DIR)
@@ -136,16 +161,17 @@ class BootstrapInstallNeovim
     error!(EX_OSERR, 'Error: Failed to extract Neovim archive.')
   end
 
-  def verify_neovim!(latest)
+  def verify_neovim!
     version = installed_version
-    if version && Gem::Version.new(version) >= Gem::Version.new(latest)
+    if version && Gem::Version.new(version) >= Gem::Version.new(@latest_version)
       puts "nvim installed: #{NVIM_BIN} (v#{version})"
       check_path_notice
       return
     end
 
     error!(EX_UNAVAILABLE,
-           "Error: nvim >= #{latest} required (found: #{version || 'none'}).")
+           "Error: nvim >= #{@latest_version} required " \
+           "(found: #{version || 'none'}).")
   end
 
   def check_path_notice
