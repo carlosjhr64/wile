@@ -66,8 +66,9 @@ class BootstrapSystemCommands
     missing = missing_from(UTILITIES)
     return if missing.empty?
 
-    error!(EX_UNAVAILABLE,
-           "Error: Required utilities not found in PATH: #{missing.join(', ')}")
+    warn "Error: Required utilities not found in PATH: #{missing.join(', ')}"
+    verify_commands!
+    exit(EX_OK)
   end
 
   def ensure_commands!
@@ -87,15 +88,20 @@ class BootstrapSystemCommands
       error!(EX_OSERR, 'Error: apt-get install failed.')
   end
 
-  def verify_commands!
-    unless @missed_optional.empty?
-      warn "Notice: Missed optional packages: #{@missed_optional.join(', ')}"
-    end
+  def missed_optional_notice
+    warn "Notice: Missed optional packages: #{@missed_optional.join(', ')}"
+  end
 
-    return if @missed_required.empty?
-
+  def missed_required_notice!
     error!(EX_UNAVAILABLE,
            "Error: Missed required packages: #{@missed_required.join(', ')}")
+  end
+
+  def verify_commands!
+    missed_optional_notice unless @missed_optional.empty?
+    return if @missed_required.empty?
+
+    missed_required_notice!
   end
 
   def missing_from(commands)

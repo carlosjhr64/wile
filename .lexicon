@@ -10,7 +10,6 @@ add_external
 add_undefined_methods
 alias_method
 all
-ALL_COMMANDS
 allowed_opt
 already_published
 any
@@ -27,7 +26,6 @@ attr_reader
 auto
 autoload
 autoloads
-available
 b
 backtrace
 bad
@@ -467,7 +465,9 @@ minor
 minutes
 min_version
 missed_optional
+missed_optional_notice
 missed_required
+missed_required_notice
 missing
 missing_from
 mkdir
@@ -561,6 +561,7 @@ parts
 pascal_case
 PASCAL_KEY
 passed
+path
 permutation
 permutations
 pf
@@ -761,6 +762,7 @@ Symbol
 Sysexits
 system
 system2
+system_commands_check
 tag
 tap
 task
