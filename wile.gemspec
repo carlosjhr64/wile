@@ -5,7 +5,7 @@ Gem::Specification.new do |s|
   s.homepage = 'https://github.com/carlosjhr64/wile'
   s.author   = 'CarlosJHR64'
   s.email    = 'carlosjhr64@gmail.com'
-  s.date     = '2026-10-22'
+  s.date     = '2026-10-24'
   s.licenses = ['MIT']
   ## DESCRIPTION ##
   s.summary  = <<~SUMMARY
@@ -25,6 +25,7 @@ Gem::Specification.new do |s|
   ## FILES ##
   s.require_paths = ['lib']
   s.files = %w[
+    .version
     CREDITS.md
     README.md
     bin/wile
@@ -70,6 +71,7 @@ Gem::Specification.new do |s|
     cache/test/tc_lib_tests
     cache/test/tc_long_chains
     cache/test/tc_readme_rocket_check
+    cache/test/tc_reek
     cache/test/tc_rubocop
     cache/test/tc_ruby_syntax
     cache/test/tc_version
@@ -100,6 +102,7 @@ Gem::Specification.new do |s|
     lib/wile/help.rb
     lib/wile/refinement.rb
     lib/wile/requires.rb
+    lib/wile/sysexits.rb
     lib/wile/tasks.rb
     lib/wile/tasks/build.rb
     lib/wile/tasks/bump.rb
