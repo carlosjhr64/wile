@@ -152,6 +152,7 @@ Gem::Specification.new do |s|
   s.requirements << 'egrep: 3.8'
   s.requirements << 'gem: 4.0'
   s.requirements << 'git: 2.39'
+  s.requirements << 'grep: 3.8'
   s.requirements << 'ls: 9.1'
   s.requirements << 'man: 2.11'
   s.requirements << 'md5sum: 9.1'
