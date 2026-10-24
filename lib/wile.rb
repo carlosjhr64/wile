@@ -2,8 +2,8 @@
 
 # The Wile module is the main namespace for the Wile application.
 module Wile
-  VERSION = '0.0.261024'
   ROOT = File.expand_path('..', __dir__)
+  VERSION = File.read("#{ROOT}/.version").chomp
 
   def self.autoloads
     Dir.glob("#{__dir__}/wile/autoloads/*.rb")

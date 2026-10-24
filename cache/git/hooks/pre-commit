@@ -14,8 +14,7 @@ Find.find('./lib') do |fn|
 end
 
 # VERSION
-_, MAJOR, MINOR, BUILD =
-  `egrep "VERSION\\s*=\\s*'[0-9]+\\.[0-9]+\\.[0-9]+'" lib/*.rb`.split(/\D+/)
+MAJOR, MINOR, BUILD = File.read('./.version').chomp.split(/\D+/)
 unless MAJOR && MINOR && BUILD
   puts 'Could not get VERSION.'
   exit 1
