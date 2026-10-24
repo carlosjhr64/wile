@@ -1,14 +1,15 @@
 ^(
-  (\.)           |
-  (\w+\.gemspec) |
-  (cucumber\.)   |
-  (examples/)    |
-  (features/)    |
-  (Gemfile)      |
-  (History\.)    |
-  (img/)         |
-  (sig/)         |
-  (test/)        |
-  (tmp/)         |
-  (TODO\.)
+  (\.(?!version$)) | # Exclude all dot files except .version
+  (bin/bootstrap)  | # Executables not to be packaged
+  (examples/)      | # Exclude Git page demos:
+  (img/)           |
+  (\w+\.gemspec)   | # Exclude development and repo maintance files:
+  (Gemfile)        |
+  (History\.)      |
+  (sig/)           |
+  (test/)          |
+  (tmp/)           |
+  (TODO\.)         |
+  (cucumber\.)     | ## Cucumber files:
+  (features/)
 )
