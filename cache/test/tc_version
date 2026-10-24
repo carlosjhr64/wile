@@ -4,24 +4,32 @@
 require 'test/unit'
 
 # Version Tests
+# rubocop: disable-next Style/ClassVars
 class TestVersion < Test::Unit::TestCase
   GREP = 'egrep -m 1 -ho \'[0-9]+\\.[0-9]+\\.[0-9]+\''
-  GREP_VERSION = `#{GREP} lib/*.rb lib/*/version.rb 2> /dev/null`.split.first
+  NULLED = '2> /dev/null'
 
-  if File.exist?('.version')
-    VERSION = File.read('.version').chomp
-  else
-    warn 'Consider using `.version` as the authoritative VERSION source.'
-    VERSION = GREP_VERSION
+  def self.startup
+    @@grep_version = `#{GREP} lib/*.rb lib/*/version.rb #{NULLED}`.split.first
+
+    if File.exist?('.version')
+      @@version = File.read('.version').chomp
+    else
+      warn 'Consider using `.version` as the authoritative VERSION source.'
+      @@version = @@grep_version
+    end
   end
-  raise 'Could not get authoritive VERSION' unless VERSION
+
+  def setup
+    flunk 'Could not get authoritative VERSION' unless @@version
+  end
 
   def test_lib_version
-    if GREP_VERSION
-      warn 'Consider reading `.version` for VERSION.'
-      assert_equal(VERSION, GREP_VERSION)
+    if @@grep_version
+      warn 'Consider reading `.version` for @@version.'
+      assert_equal(@@version, @@grep_version)
     else
-      version_code = `grep VERSION lib/wile.rb`.lines.first&.strip
+      version_code = `grep VERSION lib/*.rb`.lines.first&.strip
       # A strict prescription:
       # rubocop: disable-next Lint/InterpolationCheck
       expected = 'VERSION = File.read("#{ROOT}/.version").chomp'
@@ -31,26 +39,26 @@ class TestVersion < Test::Unit::TestCase
 
   def test_data_version
     File.exist?('data/VERSION') &&
-      assert_equal(VERSION, File.read('data/VERSION').strip)
+      assert_equal(@@version, File.read('data/VERSION').strip)
   end
 
   def test_bin_version
     if (executable = `ls bin/* 2> /dev/null`.split.first)
-      assert_equal(VERSION, `#{executable} --version`.strip)
+      assert_equal(@@version, `#{executable} --version`.strip)
     end
   end
 
   def test_gemspec_version
     if (gemspec = `ls *.gemspec 2> /dev/null`.split.first)
       v = `egrep -o '[0-9]+\\.[0-9]+\\.[0-9]+' #{gemspec}`.split.first
-      assert_equal(VERSION, v)
+      assert_equal(@@version, v)
     end
   end
 
   def test_readme_version
     if (readme = `ls README.* 2> /dev/null`.split.first)
       v = `egrep -o '[0-9]+\\.[0-9]+\\.[0-9]+' #{readme}`.split.first
-      assert_equal(VERSION, v)
+      assert_equal(@@version, v)
       v = /\d+\.\d+/.match(`grep 'Ruby version:' #{readme}`).to_s
       ruby_version = RUBY_VERSION.split('.').first(2).join('.')
       assert_equal(ruby_version, v)
