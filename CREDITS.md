@@ -10,4 +10,3 @@ If you feel someone or something is missing,
 please submit a pull request with the suggested addition.
 
 + [Thor](https://rubygems.org/gems/thor): Although no longer used by Wile, Wile originally started with it.
-+ `wile dictionary`: The algorithm used is not original to Wile.

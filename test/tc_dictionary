@@ -28,6 +28,7 @@ class TestDictionary < Test::Unit::TestCase
 
   private
 
+  ### Trigram-Based Spelling ###
   # Note that `.all?` is true if not iterated.
   # If word.length<3, the word is assumed good.
   def unrecognized?(word)
