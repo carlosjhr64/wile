@@ -7,26 +7,33 @@ require 'zlib'
 
 # Dictionary Test
 class TestDictionary < Test::Unit::TestCase
-  EGREP   = %q(egrep -o '[\]?[[:alpha:]]+')         # Extract words
-  SED_ESC = %q(sed 's/^[\].//')                     # Remove escaped character
-  SED_CC  = %q(sed 's/\\([a-z]\\)\\([A-Z]\\)/\1 \2/g') # Split camelCase
-  TR_NL   = %q(tr ' ' '\n')                         # One word per line
-  TR_LC   = "tr '[:upper:]' '[:lower:]'"            # Lowercase
-  WORDS   = "#{EGREP} | #{SED_ESC} | #{SED_CC} | #{TR_NL} | #{TR_LC}".freeze
-  GLOB    = (Dir.glob('bin/*') + Dir.glob('lib/**/*.rb')).join(' ')
-  VALID   = Zlib::GzipReader.open('test/cons.gz').readlines.to_set(&:strip)
+  FILES = ['README.md', *Dir.glob('bin/*'), *Dir.glob('lib/**/*.rb')].freeze
+  VALID = Zlib::GzipReader.open('test/cons.gz') { it.readlines.to_set(&:strip) }
 
   def test_dictionary
-    unrecognized = `cat README.md #{GLOB} | #{WORDS}`
-                   .lines.map(&:strip).uniq
-                   .select { unrecognized?(it) }
-                   .sort
+    unrecognized = words_from_files.select { unrecognized?(it) }.sort
     File.open('tmp/dictionary', 'w') { it.puts unrecognized }
     diff = `colordiff .dictionary tmp/dictionary`.strip
-    diff.empty? or flunk "#{'Dictionary changed:'.colorize(:blue)}\n#{diff}"
+    assert_empty(diff, "#{'Dictionary changed:'.colorize(:blue)}\n#{diff}")
   end
 
   private
+
+  def words_from_files
+    FILES.flat_map do |path|
+      next [] unless File.file?(path)
+
+      extract_words(File.read(path))
+    end.uniq
+  end
+
+  def extract_words(text)
+    text.gsub(/([a-z])([A-Z])/, '\1 \2')
+        .scan(/\\?[a-zA-Z]+/)
+        .map { it.start_with?('\\') ? it[2..] : it }
+        .reject(&:empty?)
+        .map(&:downcase)
+  end
 
   ### Trigram-Based Spelling ###
   # Note that `.all?` is true if not iterated.
