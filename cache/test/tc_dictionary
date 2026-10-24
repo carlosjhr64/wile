@@ -12,15 +12,15 @@ class TestDictionary < Test::Unit::TestCase
   SED_CC  = %q(sed 's/\\([a-z]\\)\\([A-Z]\\)/\1 \2/g') # Split camelCase
   TR_NL   = %q(tr ' ' '\n')                         # One word per line
   TR_LC   = "tr '[:upper:]' '[:lower:]'"            # Lowercase
-  SORT    = 'sort -u'                               # Sort and remove duplicates
-  WORDS   = "#{EGREP} | #{SED_ESC} | #{SED_CC} | #{TR_NL} | #{TR_LC} | #{SORT}"
-            .freeze
+  WORDS   = "#{EGREP} | #{SED_ESC} | #{SED_CC} | #{TR_NL} | #{TR_LC}".freeze
   GLOB    = (Dir.glob('bin/*') + Dir.glob('lib/**/*.rb')).join(' ')
   VALID   = Zlib::GzipReader.open('test/cons.gz').readlines.to_set(&:strip)
 
   def test_dictionary
     unrecognized = `cat README.md #{GLOB} | #{WORDS}`
-                   .lines.map(&:strip).select { unrecognized?(it) }
+                   .lines.map(&:strip).uniq
+                   .select { unrecognized?(it) }
+                   .sort
     File.open('tmp/dictionary', 'w') { it.puts unrecognized }
     diff = `colordiff .dictionary tmp/dictionary`.strip
     diff.empty? or flunk "#{'Dictionary changed:'.colorize(:blue)}\n#{diff}"
@@ -28,6 +28,7 @@ class TestDictionary < Test::Unit::TestCase
 
   private
 
+  ### Trigram-Based Spelling ###
   # Note that `.all?` is true if not iterated.
   # If word.length<3, the word is assumed good.
   def unrecognized?(word)
