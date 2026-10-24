@@ -3,16 +3,27 @@
 
 require 'test/unit'
 require 'colorize'
-# The gem 'parser' provides `ruby-parse`
 # require 'parser'
 
 # Lexicon Test
 class TestLexicon < Test::Unit::TestCase
-  GLOB = (Dir.glob('bin/*') + Dir.glob('lib/**/*.rb')).join(' ')
-  ADD_TO_LEXI = %q(egrep -o ':@?\w+' | egrep -o '\w+' | sort -u > tmp/lexicon)
+  FILES = [*Dir.glob('bin/*'), *Dir.glob('lib/**/*.rb')].freeze
+
   def test_lexicon
-    system "ruby-parse #{GLOB} | #{ADD_TO_LEXI}"
+    File.open('tmp/lexicon', 'w') { it.puts(lexicon_words) }
     diff = `colordiff .lexicon tmp/lexicon`.strip
-    diff.empty? or flunk "#{'Code lexicon changed:'.colorize(:blue)}\n#{diff}"
+    assert_empty(diff, "#{'Code lexicon changed:'.colorize(:blue)}\n#{diff}")
+  end
+
+  private
+
+  def lexicon_words
+    files = FILES.select { File.file?(it) }
+    output = IO.popen(['ruby-parse', *files], err: File::NULL, &:read)
+    extract_lexicon(output)
+  end
+
+  def extract_lexicon(text)
+    text.scan(/:@?(\w+)/).flatten.uniq.sort
   end
 end
