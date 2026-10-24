@@ -1,3 +1,4 @@
 module <%=@module%>
-  VERSION = '0.0.0'
+  ROOT = File.expand_path('..', __dir_)
+  VERSION = File.read("#{ROOT}/.version")
 end

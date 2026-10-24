@@ -41,7 +41,7 @@ module Wile
     end
 
     def version
-      @version ||= first_match(@project_rb, /\d+\.\d+\.\d+/).to_s
+      @version ||= File.read("#{@dirname}/.version").chomp
     end
 
     private
