@@ -1,0 +1,24 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'test/unit'
+require 'find'
+require 'colorize'
+
+# Check for non-standard / weird filenames
+class TestWeirdFilenames < Test::Unit::TestCase
+  ALLOWED = /\A[a-zA-Z0-9._][a-zA-Z0-9._-]*\z/
+  PRUNED  = %w[./.git ./tmp].freeze
+
+  def test_weird_filenames
+    weird = []
+    Find.find('.') do |path|
+      Find.prune if PRUNED.include?(path)
+      next if path == '.'
+
+      base = File.basename(path)
+      weird << path unless base.match?(ALLOWED)
+    end
+    assert_empty weird, "Weird filenames found:\n#{weird.join("\n").red}"
+  end
+end
