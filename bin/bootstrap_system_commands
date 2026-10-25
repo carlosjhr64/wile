@@ -3,12 +3,9 @@
 
 Encoding.default_external = Encoding::UTF_8
 
-require 'help_parser'
-require_relative '../lib/wile/sysexits'
+require 'wile'
 
-VERSION = File.read("#{__dir__}/../.version").chomp
-
-HelpParser[VERSION, <<~HELP]
+HelpParser[Wile::VERSION, <<~HELP]
   # ## bootstrap_system_commands ##
   # Bootstraps the Linux system commands used by Wile by verifying or
   # installing required commands (colordiff) and optional commands
@@ -34,7 +31,7 @@ class BootstrapSystemCommands
       ensure_commands!
       verify_commands!
     end
-    puts 'System commands setup OK.'
+    puts 'System commands setup OK.'.green
   end
 
   private
@@ -55,10 +52,9 @@ class BootstrapSystemCommands
 
   def check_commands(commands)
     commands.reject do |cmd|
-      path = `which #{cmd}`.strip
-      found = !path.empty?
-      puts "#{cmd} found: #{path}" if found
-      found
+      path = which(cmd)
+      puts "#{cmd} found: #{path}".green if path
+      path
     end
   end
 
@@ -66,14 +62,15 @@ class BootstrapSystemCommands
     missing = missing_from(UTILITIES)
     return true if missing.empty?
 
-    warn "Error: Required utilities not found in PATH: #{missing.join(', ')}"
+    warn 'Error: Required utilities not found in PATH: ' \
+         "#{missing.join(', ')}".red
     verify_commands!
     false
   end
 
   def ensure_commands!
     missing = @missed_required + @missed_optional
-    puts "Missing system commands: #{missing.join(', ')}"
+    puts "Missing system commands: #{missing.join(', ')}".yellow
     return unless confirm?("Install #{missing.join(', ')} with sudo apt-get?")
 
     install_commands!(missing)
@@ -89,7 +86,8 @@ class BootstrapSystemCommands
   end
 
   def missed_optional_notice
-    warn "Notice: Missed optional packages: #{@missed_optional.join(', ')}"
+    msg = "Notice: Missed optional packages: #{@missed_optional.join(', ')}"
+    warn msg.yellow
   end
 
   def missed_required_notice!
@@ -109,16 +107,28 @@ class BootstrapSystemCommands
   end
 
   def command_available?(cmd)
-    !`which #{cmd}`.strip.empty?
+    !which(cmd).nil?
+  end
+
+  def which(cmd)
+    paths.each do |dir|
+      bin = File.join(dir, cmd)
+      return bin if File.file?(bin) && File.executable?(bin)
+    end
+    nil
+  end
+
+  def paths
+    ENV.fetch('PATH', '').split(File::PATH_SEPARATOR)
   end
 
   def error!(val, msg)
-    warn msg
+    warn msg.red
     exit val
   end
 
   def confirm?(prompt)
-    print "#{prompt} [y/N]: "
+    print "#{prompt.yellow} [y/N]: "
     $stdout.flush
     reply = $stdin.gets
     return false unless reply
