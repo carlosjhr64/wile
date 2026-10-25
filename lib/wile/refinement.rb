@@ -99,8 +99,4 @@ module Wile
       end
     end
   end
-
-  using Refinement
-
-  PASCAL_KEY = ->(str) { str.pascal_case.to_sym }
 end
