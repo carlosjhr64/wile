@@ -35,8 +35,9 @@ end
 # BUILD
 dir_args = dirs.join(' ')
 staged = `git diff --cached --name-only #{dir_args}`.strip
-build = if staged.empty?
-          `git log -1 --pretty='%as' #{dir_args}`.strip.delete('-')[2..]
+log = `git log -1 --pretty='%as' #{dir_args}`.strip.delete('-')
+build = if staged.empty? && !log.empty?
+          log[2..]
         else
           Time.now.strftime('%y%m%d')
         end
