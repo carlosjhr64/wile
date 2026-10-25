@@ -34,9 +34,21 @@ $ ./bin/bootstrap_fish
 $ ./bin/bootstrap_fisher_plugins
 $ ./bin/bootstrap_system_commands
 $ ./bin/bootstrap_install_neovim
-$ # TODO: to be determined what next
-$ wile install
 ```
+At this point you should be good to go.
+I have a terminal dedicated to run `fish`, but
+at the point above after installing fish, or
+any time after..
+You can run `fish` and be in the fishshell.
+Anyways(you're in the fishshell), proceed:
+```console
+$ goto wile # takes you to the wile diretory
+$ wile install
+$ cd .. # a resonable place you might set up a new project
+$ wile mkdir awesome # you're calling your new project Awesome
+$ goto awesome
+```
+There you'll see the skeleton of your new Awesome project.
 
 ## HELP
 
