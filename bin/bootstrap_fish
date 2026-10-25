@@ -3,13 +3,9 @@
 
 Encoding.default_external = Encoding::UTF_8
 
-require 'fileutils'
-require 'help_parser'
-require_relative '../lib/wile/sysexits'
+require 'wile'
 
-VERSION = File.read("#{__dir__}/../.version").chomp
-
-HelpParser[VERSION, <<~HELP]
+HelpParser[Wile::VERSION, <<~HELP]
   # ## bootstrap_fish ##
   # Bootstraps the fish shell environment for Wile by verifying or installing
   # fish (>= 4.0), configuring rbenv in ~/.config/fish/config.fish, and
@@ -38,7 +34,7 @@ class BootstrapFish
     ensure_fish!
     configure_rbenv!
     configure_default_shell!
-    puts "Fish setup complete: #{`fish --version`.strip}"
+    puts "Fish setup complete: #{`fish --version`.strip}".green
   end
 
   private
@@ -65,7 +61,8 @@ class BootstrapFish
   def ensure_fish!
     version = fish_version
     if version && version_ok?(version)
-      puts "fish found: #{`fish --version`.strip} (>= #{FISH_MIN_VERSION})"
+      msg = "fish found: #{`fish --version`.strip} (>= #{FISH_MIN_VERSION})"
+      puts msg.green
       return
     end
 
@@ -84,15 +81,16 @@ class BootstrapFish
   end
 
   def command_available?(cmd)
-    !`which #{cmd}`.strip.empty?
+    !which(cmd).nil?
   end
 
   # rubocop:disable-next Metrics/MethodLength
   def explain_fish(version)
     if version
       puts "Found fish #{version}; Wile requires fish >= #{FISH_MIN_VERSION}."
+        .yellow
     else
-      puts '`fish` was not found in your PATH.'
+      puts '`fish` was not found in your PATH.'.yellow
     end
     puts <<~MSG
 
@@ -131,6 +129,7 @@ class BootstrapFish
     return true if version_ok?(candidate)
 
     puts "apt candidate for fish (#{candidate}) is < #{FISH_MIN_VERSION}."
+      .yellow
     false
   end
 
@@ -150,7 +149,7 @@ class BootstrapFish
   def configure_rbenv!
     config_file = File.expand_path('~/.config/fish/config.fish')
     if File.exist?(config_file) && File.read(config_file).include?('rbenv init')
-      puts "rbenv initialization already present in #{config_file}."
+      puts "rbenv initialization already present in #{config_file}.".green
       return
     end
 
@@ -168,13 +167,13 @@ class BootstrapFish
       file.puts unless File.empty?(config_file)
       file.puts '# RbEnv', RBENV_INIT_LINE
     end
-    puts "Updated #{config_file} with rbenv initialization."
+    puts "Updated #{config_file} with rbenv initialization.".green
   end
 
   # rubocop:disable-next Metrics/MethodLength
   def configure_default_shell!
-    fish_path = `which fish`.strip
-    return if fish_path.empty? || ENV['SHELL'] == fish_path
+    fish_path = which('fish')
+    return if fish_path.nil? || ENV['SHELL'] == fish_path
 
     puts "Your current login shell is #{ENV['SHELL'] || 'unknown'}."
     prompt = "Set fish (#{fish_path}) as your default login shell via chsh?"
@@ -184,19 +183,31 @@ class BootstrapFish
     end
 
     if system('chsh', '-s', fish_path)
-      puts "Default shell set to #{fish_path} (re-login to take effect)."
+      puts "Default shell set to #{fish_path} (re-login to take effect).".green
     else
       error!(EX_OSERR, "Error: chsh failed. Run manually: chsh -s #{fish_path}")
     end
   end
 
+  def which(cmd)
+    paths.each do |dir|
+      bin = File.join(dir, cmd)
+      return bin if File.file?(bin) && File.executable?(bin)
+    end
+    nil
+  end
+
+  def paths
+    ENV.fetch('PATH', '').split(File::PATH_SEPARATOR)
+  end
+
   def error!(val, msg)
-    warn msg
+    warn msg.red
     exit val
   end
 
   def confirm?(prompt)
-    print "#{prompt} [y/N]: "
+    print "#{prompt.yellow} [y/N]: "
     $stdout.flush
     reply = $stdin.gets
     return false unless reply
