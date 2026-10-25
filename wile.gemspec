@@ -1,11 +1,11 @@
 Gem::Specification.new do |s|
   ## INFO ##
   s.name     = 'wile'
-  s.version  = '0.0.261025'
+  s.version  = '0.1.261025'
   s.homepage = 'https://github.com/carlosjhr64/wile'
   s.author   = 'CarlosJHR64'
   s.email    = 'carlosjhr64@gmail.com'
-  s.date     = '2026-10-24'
+  s.date     = '2026-10-25'
   s.licenses = ['MIT']
   ## DESCRIPTION ##
   s.summary  = <<~SUMMARY
@@ -102,6 +102,7 @@ Gem::Specification.new do |s|
     lib/wile/help.rb
     lib/wile/refinement.rb
     lib/wile/requires.rb
+    lib/wile/run.rb
     lib/wile/sysexits.rb
     lib/wile/tasks.rb
     lib/wile/tasks/build.rb
