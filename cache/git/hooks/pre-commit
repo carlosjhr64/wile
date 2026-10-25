@@ -4,29 +4,40 @@
 require 'find'
 
 # ruby -c
-Find.find('./lib') do |fn|
-  next unless fn =~ /\.rb$/
+dirs = ['lib', ('bin' if File.directory?('bin'))].compact
+dirs.each do |dir|
+  Find.find(dir) do |fn|
+    next unless File.file?(fn)
+    next unless fn.end_with?('.rb') || File.read(fn, 80).match?(/^#!.*\bruby/)
 
-  unless system "ruby -c #{fn} >/dev/null"
-    puts "Sintax: #{fn}"
-    exit 1
+    unless system('ruby', '-c', fn, out: File::NULL)
+      puts "Syntax error: #{fn}"
+      exit 1
+    end
   end
 end
 
 # VERSION
-MAJOR, MINOR, BUILD = File.read('./.version').chomp.split(/\D+/)
+unless File.file?('.version')
+  puts 'Could not find .version file.'
+  exit 1
+end
+
+MAJOR, MINOR, BUILD = File.read('.version').chomp.split(/\D+/)
 unless MAJOR && MINOR && BUILD
   puts 'Could not get VERSION.'
   exit 1
 end
 
 # BUILD
-dirs = File.exist?('bin') ? 'bin lib' : 'lib'
-build = if `git status --porcelain #{dirs}`.strip.empty?
-          `git log -1 --pretty='%as' #{dirs}`.strip.gsub('-', '')[2..]
+dir_args = dirs.join(' ')
+staged = `git diff --cached --name-only #{dir_args}`.strip
+build = if staged.empty?
+          `git log -1 --pretty='%as' #{dir_args}`.strip.delete('-')[2..]
         else
           Time.now.strftime('%y%m%d')
         end
+
 unless BUILD.start_with? build
   puts "Unexpected BUILD(#{BUILD}) !start_with?(#{build})"
   exit 1
@@ -35,7 +46,8 @@ end
 # Copyright
 year = Time.now.year
 author = `git config --get user.name`.strip
-unless system("egrep -i 'Copyright.*#{year}.*#{author}' README.md >/dev/null")
+readme = File.file?('README.md') ? File.read('README.md') : ''
+unless readme.match?(/Copyright.*#{year}.*#{Regexp.escape(author)}/i)
   puts "Check README's copyright year and author."
   exit 1
 end
