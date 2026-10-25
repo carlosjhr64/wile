@@ -5,6 +5,7 @@ module Wile
   # Tasks class manages the tasks available in the Wile framework.
   class Tasks
     using Refinement
+    include Sysexits
 
     def start_with(string)
       @tasks.select { it.start_with? string }.unique

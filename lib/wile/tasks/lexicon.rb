@@ -14,7 +14,7 @@ module Wile
         puts 'OK'.green
       else
         puts 'Fail'.red
-        exit(1)
+        exit(EX_FAIL)
       end
     end
 

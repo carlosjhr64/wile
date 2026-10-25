@@ -15,6 +15,8 @@ module Wile
   # The Run class is responsible for executing the Wile application.
   # :reek:UncommunicativeVariableName e is standard
   class Run
+    include Sysexits
+
     def initialize(options)
       @options = options
       @error = nil
@@ -48,7 +50,7 @@ module Wile
     def handle_usage_error
       warn @error.message.lines.map { it.chomp.blue }
                  .tap { it[-1] = it[-1].chomp.red }.join("\n")
-      exit 64 # Usage
+      exit EX_USAGE
     end
 
     def handle_error
@@ -64,13 +66,13 @@ module Wile
 
     def handle_runtime_error
       warn @error.message.red
-      exit 1 # Regular
+      exit EX_FAIL
     end
 
     def handle_software_error
       warn @error.backtrace[0..3].reverse.join("\n").blue
       warn @error.message.red
-      exit 70 # Software
+      exit EX_SOFTWARE
     end
   end
 end

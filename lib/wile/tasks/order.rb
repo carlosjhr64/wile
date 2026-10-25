@@ -33,7 +33,7 @@ module Wile
       order_subcommands(data, sort) unless OrderOptimizer::SORTS.include?(sort)
 
       valuation = CodeDataValuation.new(data)
-      order_do(data.names, valuation, sort) || exit(1)
+      order_do(data.names, valuation, sort) || exit(EX_FAIL)
     end
 
     private
@@ -75,7 +75,7 @@ module Wile
       end
 
       CodeDataFunction.method(cmd).call(data)
-      exit
+      exit(EX_OK)
     end
   end
 end

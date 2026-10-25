@@ -49,11 +49,11 @@ module Wile
       missing = gemcheck_missing gemcheck_inventory(prefix)
       if missing.empty?
         puts 'OK'.green
-        exit
+        exit(EX_OK)
       end
       gemcheck_report missing
       puts 'Would you like to install them all? (Y/n)'.blue
-      exit(1) unless $stdin.gets.strip == 'Y'
+      exit(EX_NO) unless $stdin.gets.strip == 'Y'
       gemcheck_install(missing)
       puts 'OK'.green
     end
@@ -62,7 +62,7 @@ module Wile
       missing.each_pair do |name,|
         next if system('gem', 'list',  name, '-i') # already installed
 
-        system('gem', 'install', name) || exit(1)
+        system('gem', 'install', name) || exit(EX_UNAVAILABLE)
       end
     end
 

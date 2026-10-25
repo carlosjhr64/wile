@@ -19,7 +19,7 @@ module Wile
       raise 'No files selected.' if files.empty?
 
       if options.dump? then content_dump(files)
-      elsif Content.new(files, options).red? then exit(1)
+      elsif Content.new(files, options).red? then exit(EX_FAIL)
       end
     end
 

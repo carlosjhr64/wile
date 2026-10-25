@@ -41,6 +41,8 @@ module Wile
   # :reek:TooManyInstanceVariables :reek:UncommunicativeVariableName
   # rubocop:disable Metrics/MethodLength
   class Review
+    include Sysexits
+
     # :reek:ControlParameter
     def initialize(options, match: nil, files: nil, file: nil)
       @files = files || NvimFiles.new.nvim_files.tap(&:shift)
@@ -83,7 +85,7 @@ module Wile
 
     def review_responce_cases(responce, size = @files.size)
       case responce
-      when 'q', 'Q' then exit
+      when 'q', 'Q' then exit(EX_OK)
       when '', 'n', 'N' then @i = (@i + 1) % size
       when 'p', 'P' then @i = (@i - 1) % size
       else

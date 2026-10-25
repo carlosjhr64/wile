@@ -4,6 +4,8 @@
 module Wile
   # CodeDataFunction module provides functions to look at code data.
   module CodeDataFunction
+    include Sysexits
+
     def self.dump(data)
       puts 'Data:'.blue
       puts JSON.pretty_generate data.data
@@ -42,7 +44,7 @@ module Wile
         qc_dependencies(name, data) or ok = false
         qc_dependants(name, data)   or ok = false
       end
-      exit(1) unless ok
+      exit(EX_DATAERR) unless ok
       puts 'OK'.green
     end
 
