@@ -3,12 +3,9 @@
 
 Encoding.default_external = Encoding::UTF_8
 
-require 'help_parser'
-require_relative '../lib/wile/sysexits'
+require 'wile'
 
-VERSION = File.read("#{__dir__}/../.version").chomp
-
-HelpParser[VERSION, <<~HELP]
+HelpParser[Wile::VERSION, <<~HELP]
   # ## bootstrap_fisher_plugins ##
   # Bootstraps the fisher plugin manager (>= 4.4) and installs the fish
   # plugins used by Wile (carlosjhr64/pkg-goto and carlosjhr64/theme-local).
@@ -42,28 +39,27 @@ class BootstrapFisherPlugins
     verify_curl!
     ensure_fisher!
     install_plugins!
-    puts 'Fisher plugins setup complete.'
+    puts 'Fisher plugins setup complete.'.green
   end
 
   private
 
   def verify_fish!
     version = fish_version
-    if version && version_ok?(version, FISH_MIN_VERSION)
-      puts "fish found: #{`fish --version`.strip} (>= #{FISH_MIN_VERSION})"
-      return
+    unless version && version_ok?(version, FISH_MIN_VERSION)
+      error!(EX_UNAVAILABLE, <<~MSG)
+        Error: fish >= #{FISH_MIN_VERSION} required (found: #{version || 'none'}).
+        Run ./bin/bootstrap_fish first, then re-run:
+          ./bin/bootstrap_fisher_plugins
+      MSG
     end
 
-    error!(EX_UNAVAILABLE, <<~MSG)
-      Error: fish >= #{FISH_MIN_VERSION} required (found: #{version || 'none'}).
-      Run ./bin/bootstrap_fish first, then re-run:
-        ./bin/bootstrap_fisher_plugins
-    MSG
+    puts "fish found: #{`fish --version`.strip} (>= #{FISH_MIN_VERSION})".green
   end
 
   def verify_ruby_version!
     if version_ok?(RUBY_VERSION, RUBY_MIN_VERSION)
-      puts "Ruby verified: #{RUBY_DESCRIPTION}"
+      puts "Ruby verified: #{RUBY_DESCRIPTION}".green
       return
     end
 
@@ -89,7 +85,7 @@ class BootstrapFisherPlugins
   def ensure_fisher!
     version = fisher_version
     if version && version_ok?(version, FISHER_MIN_VERSION)
-      puts "fisher found: #{version} (>= #{FISHER_MIN_VERSION})"
+      puts "fisher found: #{version} (>= #{FISHER_MIN_VERSION})".green
       return
     end
 
@@ -127,8 +123,20 @@ class BootstrapFisherPlugins
     error!(EX_OSERR, "Error: `fish -c '#{cmd}'` failed.")
   end
 
+  def which(cmd)
+    paths.each do |dir|
+      bin = File.join(dir, cmd)
+      return bin if File.file?(bin) && File.executable?(bin)
+    end
+    nil
+  end
+
+  def paths
+    ENV.fetch('PATH', '').split(File::PATH_SEPARATOR)
+  end
+
   def error!(val, msg)
-    warn msg
+    warn msg.red
     exit val
   end
 
@@ -147,11 +155,11 @@ class BootstrapFisherPlugins
   end
 
   def command_available?(cmd)
-    !`which #{cmd}`.strip.empty?
+    !which(cmd).nil?
   end
 
   def confirm?(prompt)
-    print "#{prompt} [y/N]: "
+    print "#{prompt.yellow} [y/N]: "
     $stdout.flush
     reply = $stdin.gets
     return false unless reply
