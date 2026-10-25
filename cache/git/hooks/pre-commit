@@ -63,6 +63,14 @@ wile ||= ENV.fetch('PATH', '').split(File::PATH_SEPARATOR)
             .find { |fn| File.file?(fn) && File.executable?(fn) }
 exit 0 unless wile
 
+if wile == 'bin/wile'
+  ENV['RUBYLIB'] = ['lib', ENV.fetch('RUBYLIB', nil)].compact
+                                                     .join(File::PATH_SEPARATOR)
+  wile_cmd = %w[ruby -Ilib bin/wile]
+else
+  wile_cmd = [wile]
+end
+
 io = begin
   File.open('/dev/tty', 'r+')
 rescue StandardError
@@ -75,7 +83,7 @@ reply = io.gets
 io.close if io.is_a?(File)
 exit 0 unless reply&.strip&.match?(/^[Yy]([Ee][Ss])?$/)
 
-lines = IO.popen([wile, 'test'], err: %i[child out], &:readlines)
+lines = IO.popen([*wile_cmd, 'test'], err: %i[child out], &:readlines)
 unless $CHILD_STATUS.success?
   lines&.each { print it }
   exit 1
