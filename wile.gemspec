@@ -75,6 +75,7 @@ Gem::Specification.new do |s|
     cache/test/tc_rubocop
     cache/test/tc_ruby_syntax
     cache/test/tc_version
+    cache/test/tc_weird_filenames
     cache/test/test_module.rb
     cache/tmp/README.md
     lib/wile.rb
