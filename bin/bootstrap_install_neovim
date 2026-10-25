@@ -5,7 +5,7 @@ Encoding.default_external = Encoding::UTF_8
 
 require 'digest'
 require 'tmpdir'
-require 'wile'
+require_relative '../lib/wile'
 
 HelpParser[Wile::VERSION, <<~HELP]
   # ## bootstrap_install_neovim ##

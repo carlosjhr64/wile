@@ -3,7 +3,7 @@
 
 Encoding.default_external = Encoding::UTF_8
 
-require 'wile'
+require_relative '../lib/wile/sysexits'
 
 HelpParser[Wile::VERSION, <<~HELP]
   # ## bootstrap_system_commands ##
