@@ -61,21 +61,22 @@ wile = 'bin/wile' if File.file?('bin/wile') && File.executable?('bin/wile')
 wile ||= ENV.fetch('PATH', '').split(File::PATH_SEPARATOR)
             .map { |dir| File.join(dir, 'wile') }
             .find { |fn| File.file?(fn) && File.executable?(fn) }
-if wile
-  io = begin
-    File.open('/dev/tty', 'r+')
-  rescue StandardError
-    $stdin if $stdin.tty?
-  end
+exit 0 unless wile
 
-  if io
-    io.print 'Run wile test? [y/N]: '
-    reply = io.gets
-    io.close if io.is_a?(File)
-    if reply&.strip&.match?(/^[Yy]([Ee][Ss])?$/)
-      lines = IO.popen([wile, 'test'], err: %i[child out], &:readlines)
-      print lines.last if lines&.last
-      exit 1 unless $CHILD_STATUS.success?
-    end
-  end
+io = begin
+  File.open('/dev/tty', 'r+')
+rescue StandardError
+  $stdin if $stdin.tty?
+end
+exit 0 unless io
+
+io.print 'Run wile test? [y/N]: '
+reply = io.gets
+io.close if io.is_a?(File)
+exit 0 unless reply&.strip&.match?(/^[Yy]([Ee][Ss])?$/)
+
+lines = IO.popen([wile, 'test'], err: %i[child out], &:readlines)
+unless $CHILD_STATUS.success?
+  lines&.each { print it }
+  exit 1
 end
