@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+require 'English'
 require 'find'
 
 # ruby -c
@@ -50,4 +51,28 @@ readme = File.file?('README.md') ? File.read('README.md') : ''
 unless readme.match?(/Copyright.*#{year}.*#{Regexp.escape(author)}/i)
   puts "Check README's copyright year and author."
   exit 1
+end
+
+# wile test
+wile = 'bin/wile' if File.file?('bin/wile') && File.executable?('bin/wile')
+wile ||= ENV.fetch('PATH', '').split(File::PATH_SEPARATOR)
+            .map { |dir| File.join(dir, 'wile') }
+            .find { |fn| File.file?(fn) && File.executable?(fn) }
+if wile
+  io = begin
+    File.open('/dev/tty', 'r+')
+  rescue StandardError
+    $stdin if $stdin.tty?
+  end
+
+  if io
+    io.print 'Run wile test? [y/N]: '
+    reply = io.gets
+    io.close if io.is_a?(File)
+    if reply&.strip&.match?(/^[Yy]([Ee][Ss])?$/)
+      lines = IO.popen([wile, 'test'], err: %i[child out], &:readlines)
+      print lines.last if lines&.last
+      exit 1 unless $CHILD_STATUS.success?
+    end
+  end
 end
