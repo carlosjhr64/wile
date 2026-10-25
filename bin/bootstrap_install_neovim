@@ -4,15 +4,10 @@
 Encoding.default_external = Encoding::UTF_8
 
 require 'digest'
-require 'fileutils'
-require 'help_parser'
-require 'json'
 require 'tmpdir'
-require_relative '../lib/wile/sysexits'
+require 'wile'
 
-VERSION = File.read("#{__dir__}/../.version").chomp
-
-HelpParser[VERSION, <<~HELP]
+HelpParser[Wile::VERSION, <<~HELP]
   # ## bootstrap_install_neovim ##
   # Installs or upgrades Neovim (nvim) in ~/.local/bin from the official
   # GitHub releases (nvim-linux-x86_64.tar.gz).
@@ -47,7 +42,7 @@ class BootstrapInstallNeovim
     verify_arch!
     verify_utilities!
     ensure_neovim!
-    puts 'Neovim setup OK.'
+    puts 'Neovim setup OK.'.green
   end
 
   private
@@ -69,7 +64,7 @@ class BootstrapInstallNeovim
   end
 
   def verify_utilities!
-    missing = UTILITIES.select { |cmd| `which #{cmd}`.strip.empty? }
+    missing = UTILITIES.reject { which(it) }
     return if missing.empty?
 
     error!(EX_UNAVAILABLE,
@@ -80,7 +75,7 @@ class BootstrapInstallNeovim
     fetch_latest_release!
     current = installed_version
     if current && Gem::Version.new(current) >= Gem::Version.new(@latest_version)
-      puts "nvim found: v#{current} (latest: v#{@latest_version})"
+      puts "nvim found: v#{current} (latest: v#{@latest_version})".green
       return
     end
 
@@ -116,8 +111,8 @@ class BootstrapInstallNeovim
   end
 
   def installed_version
-    bin = File.executable?(NVIM_BIN) ? NVIM_BIN : `which nvim`.strip
-    return nil if bin.empty?
+    bin = File.executable?(NVIM_BIN) ? NVIM_BIN : which('nvim')
+    return nil unless bin
 
     `#{bin} --version 2>/dev/null`[/NVIM v(\d+\.\d+\.\d+)/, 1]
   end
@@ -132,7 +127,7 @@ class BootstrapInstallNeovim
   end
 
   def download_archive!(archive)
-    puts "Downloading #{DOWNLOAD_URL}..."
+    puts "Downloading #{DOWNLOAD_URL}...".cyan
     return if system('curl', '-fL', '--progress-bar', '-o', archive,
                      DOWNLOAD_URL)
 
@@ -142,7 +137,7 @@ class BootstrapInstallNeovim
   def verify_checksum!(archive)
     actual = Digest::SHA256.file(archive).hexdigest
     if actual == @expected_sha256
-      puts "SHA256 verified: #{actual}"
+      puts "SHA256 verified: #{actual}".green
       return
     end
 
@@ -165,7 +160,7 @@ class BootstrapInstallNeovim
   def verify_neovim!
     version = installed_version
     if version && Gem::Version.new(version) >= Gem::Version.new(@latest_version)
-      puts "nvim installed: #{NVIM_BIN} (v#{version})"
+      puts "nvim installed: #{NVIM_BIN} (v#{version})".green
       check_path_notice
       return
     end
@@ -176,19 +171,30 @@ class BootstrapInstallNeovim
   end
 
   def check_path_notice
-    paths = ENV.fetch('PATH', '').split(File::PATH_SEPARATOR)
     return if paths.include?(BIN_DIR)
 
-    warn "Notice: #{BIN_DIR} is not currently in your PATH."
+    warn "Notice: #{BIN_DIR} is not currently in your PATH.".yellow
+  end
+
+  def which(cmd)
+    paths.each do |dir|
+      bin = File.join(dir, cmd)
+      return bin if File.file?(bin) && File.executable?(bin)
+    end
+    nil
+  end
+
+  def paths
+    ENV.fetch('PATH', '').split(File::PATH_SEPARATOR)
   end
 
   def error!(val, msg)
-    warn msg
+    warn msg.red
     exit val
   end
 
   def confirm?(prompt)
-    print "#{prompt} [y/N]: "
+    print "#{prompt.yellow} [y/N]: "
     $stdout.flush
     reply = $stdin.gets
     return false unless reply
