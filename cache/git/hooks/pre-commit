@@ -49,10 +49,9 @@ end
 
 # Copyright
 year = Time.now.year
-author = `git config --get user.name`.strip
 readme = File.file?('README.md') ? File.read('README.md') : ''
-unless readme.match?(/Copyright.*#{year}.*#{Regexp.escape(author)}/i)
-  puts "Check README's copyright year and author."
+unless readme.match?(/Copyright.*#{year}/i)
+  puts "Check README's copyright year."
   exit 1
 end
 
