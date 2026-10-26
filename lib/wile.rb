@@ -20,4 +20,5 @@ module Wile
   autoload :Run,        'wile/run'
   autoload :Sysexits,   'wile/sysexits'
   autoload :Refinement, 'wile/refinement'
+  autoload :Utilities,  'wile/utilities'
 end
