@@ -14,3 +14,7 @@ please submit a pull request with the suggested addition.
   and [Zamora & Pollock](https://doi.org/10.1016/0306-4573%2881%2990044-3):
   Pioneered trigram typo detection for early Unix and formalized the binary
   trigram dictionary method used in `test/tc_dictionary`.
++ [Antigravity](https://deepmind.google): AI pair programmer developed by
+  Google DeepMind, assisting with code reviews, testing, and maintenance.
++ [Fluffy](https://muse.ai): AI agent (Muse Spark 1.3), contributing code
+  review, testing, and maintenance of the project wiki.
