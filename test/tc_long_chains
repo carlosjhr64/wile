@@ -5,18 +5,33 @@ Encoding.default_external = Encoding::UTF_8
 
 require 'test/unit'
 require 'colorize'
+require 'prism'
 
 # Fail-less warnings of long.chaining.methods.too_much
 class TestLongChains < Test::Unit::TestCase
   PATTERN = /\w+\.\w+\.\w+\.\w+/
 
   def test_long_chains
-    Dir.glob('lib/**/*.rb').each do |filename|
-      File.foreach(filename).with_index(1) do |line, line_no|
-        next if /^\s*#[^{]/.match?(line) || !line.match?(PATTERN)
+    Dir.glob('lib/**/*.rb').each { scan_file(it) }
+  end
 
-        puts "#{filename}:#{line_no}: #{line.strip.red}"
-      end
+  private
+
+  def scan_file(filename)
+    source = File.read(filename)
+    strip_comments(source).lines.each_with_index do |line, idx|
+      next unless line.match?(PATTERN)
+
+      puts "#{filename}:#{idx + 1}: #{line.strip.red}"
     end
+  end
+
+  def strip_comments(source)
+    clean = source.dup
+    Prism.parse_comments(source).reverse_each do |comment|
+      loc = comment.location
+      clean[loc.start_offset...loc.end_offset] = ' ' * loc.length
+    end
+    clean
   end
 end
