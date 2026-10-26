@@ -14,12 +14,29 @@ module Wile
 
     module_function
 
+    # category: lookup
     # --- Path & Executable Lookup ---
+
+    # Used in: bootstrap_install_neovim
+    def check_path_notice(dir)
+      return if paths.include?(dir)
+
+      warn "Notice: #{dir} is not currently in your PATH.".yellow
+    end
 
     # Used in: bootstrap_fish, bootstrap_fisher_plugins,
     #          bootstrap_install_neovim, bootstrap_system_commands
     def paths
       ENV.fetch('PATH', '').split(File::PATH_SEPARATOR)
+    end
+
+    # Used in: bootstrap_system_commands
+    def check_commands(commands)
+      commands.reject do |cmd|
+        path = which(cmd)
+        puts "#{cmd} found: #{path}".green if path
+        path
+      end
     end
 
     # Used in: bootstrap_fish, bootstrap_fisher_plugins,
@@ -32,25 +49,9 @@ module Wile
       nil
     end
 
-    # Used in: bootstrap_fish, bootstrap_fisher_plugins,
-    #          bootstrap_system_commands, bootstrap_ruby_gems
-    # (Harmonized: replaces subshell `which #{cmd}` with native which)
-    def command_available?(cmd)
-      !which(cmd).nil?
-    end
-
     # Used in: bootstrap_system_commands
     def missing_from(commands)
       commands.reject { |cmd| command_available?(cmd) }
-    end
-
-    # Used in: bootstrap_system_commands
-    def check_commands(commands)
-      commands.reject do |cmd|
-        path = which(cmd)
-        puts "#{cmd} found: #{path}".green if path
-        path
-      end
     end
 
     # Used in: bootstrap_install_neovim
@@ -63,13 +64,14 @@ module Wile
              "#{missing.join(', ')}")
     end
 
-    # Used in: bootstrap_install_neovim
-    def check_path_notice(dir)
-      return if paths.include?(dir)
-
-      warn "Notice: #{dir} is not currently in your PATH.".yellow
+    # Used in: bootstrap_fish, bootstrap_fisher_plugins,
+    #          bootstrap_system_commands, bootstrap_ruby_gems
+    # (Harmonized: replaces subshell `which #{cmd}` with native which)
+    def command_available?(cmd)
+      !which(cmd).nil?
     end
 
+    # category: prompts
     # --- User Prompts & Error Handling ---
 
     # Used in: bootstrap_fish, bootstrap_fisher_plugins,
@@ -94,17 +96,8 @@ module Wile
       exit val
     end
 
+    # category: environment
     # --- Platform & Environment Checks ---
-
-    # Used in: bootstrap_fish, bootstrap_install_neovim,
-    #          bootstrap_system_commands
-    def verify_linux!
-      os = `uname -s`.strip
-      return if os == 'Linux'
-
-      error!(EX_UNAVAILABLE,
-             "Error: Wile is meant to be run on Linux (detected: #{os}).")
-    end
 
     # Used in: bootstrap_install_neovim
     def verify_arch!(arch = 'x86_64')
@@ -115,10 +108,14 @@ module Wile
              "Error: #{arch} architecture required (detected: #{detected}).")
     end
 
-    # Used in: bootstrap_fisher_plugins, bootstrap_fish
-    # (Harmonized: generalized to accept min_version)
-    def version_ok?(version, min_version)
-      Gem::Version.new(version) >= Gem::Version.new(min_version)
+    # Used in: bootstrap_fish, bootstrap_install_neovim,
+    #          bootstrap_system_commands
+    def verify_linux!
+      os = `uname -s`.strip
+      return if os == 'Linux'
+
+      error!(EX_UNAVAILABLE,
+             "Error: Wile is meant to be run on Linux (detected: #{os}).")
     end
 
     # Used in: bootstrap_ruby_gems
@@ -171,6 +168,12 @@ module Wile
       MSG
     end
 
+    # Used in: bootstrap_fisher_plugins, bootstrap_fish
+    # (Harmonized: generalized to accept min_version)
+    def version_ok?(version, min_version)
+      Gem::Version.new(version) >= Gem::Version.new(min_version)
+    end
+
     # Used in: bootstrap_ruby_gems
     # rubocop:disable-next Metrics/MethodLength
     def verify_ruby_project_version!(version_file = '.ruby-version')
@@ -193,6 +196,7 @@ module Wile
       MSG
     end
 
+    # category: probing
     # --- Version Probing ---
 
     # Used in: bootstrap_fish, bootstrap_fisher_plugins
@@ -207,6 +211,7 @@ module Wile
       `fish -c 'fisher --version' 2>/dev/null`[/\d+\.\d+/]
     end
 
+    # category: execution
     # --- Subprocess Execution ---
 
     # Used in: bootstrap_ruby_gems
