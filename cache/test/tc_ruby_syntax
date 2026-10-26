@@ -1,30 +1,43 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+Encoding.default_external = Encoding::UTF_8
+
 require 'test/unit'
-require 'shellwords'
 require 'colorize'
 
 # Ruby Syntax Tests
 class TestRubySyntax < Test::Unit::TestCase
   def test_ruby_syntax
-    # Get all files in git...
-    `git ls-files`.lines.map(&:chomp)
-                  .select { /\.rb$/.match?(it) || _bang_ruby?(it) }
-                  .each do |filename|
-      msg = "# SYNTAX: #{filename}".red
-      fn = Shellwords.escape(filename)
-      assert system("ruby -c #{fn} > /dev/null 2>&1"), msg
-    end
+    files = ruby_files
+    flunk 'No files found for ruby syntax check!'.red if files.empty?
+
+    files.each { check_syntax(it) }
   end
 
   private
 
+  def ruby_files
+    `git ls-files`.lines.map(&:chomp)
+                  .select { /\.rb$/.match?(it) || _bang_ruby?(it) }
+  end
+
+  def check_syntax(filename)
+    res = system('ruby', '-c', filename, out: File::NULL, err: File::NULL)
+    flunk 'ruby command not found!'.red if res.nil?
+    unless res
+      err = IO.popen(['ruby', '-c', filename], err: %i[child out], &:read)
+      flunk "# SYNTAX: #{filename}\n#{err}".red
+    end
+    assert res
+  end
+
   def _bang_ruby?(filename)
     return false if /\.\w*$/.match?(filename) ||
                     File.directory?(filename) ||
+                    File.empty?(filename) ||
                     !File.executable?(filename)
 
-    /^#!.*\bruby$/.match? File.read(filename, 80).lines[0].rstrip
+    /^#!.*\bruby$/.match?(File.read(filename, 80).lines[0].rstrip)
   end
 end
