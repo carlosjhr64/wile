@@ -1,6 +1,8 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+Encoding.default_external = Encoding::UTF_8
+
 require 'test/unit'
 require 'colorize'
 # Also:
@@ -9,12 +11,17 @@ require 'colorize'
 # Rubocop Tests
 class TestRuboCop < Test::Unit::TestCase
   RUBOCOP = %w[rubocop --format quiet --config .rubocop.yml].freeze
-  def test_rubycop
+
+  def test_rubocop
     files = `git ls-files`
             .lines.map(&:chomp)
             .reject { it.start_with?('cache/') }
             .select { /\.rb$/.match?(it) || _bang_ruby?(it) }
-    flunk 'Busted by Rubocop!'.red unless system(*RUBOCOP, *files)
+    flunk 'No files found for rubocop scan!'.red if files.empty?
+
+    res = system(*RUBOCOP, *files)
+    flunk 'rubocop command not found!'.red if res.nil?
+    flunk 'Busted by Rubocop!'.red unless res
   end
 
   private
@@ -22,8 +29,9 @@ class TestRuboCop < Test::Unit::TestCase
   def _bang_ruby?(filename)
     return false if /\.\w*$/.match?(filename) ||
                     File.directory?(filename) ||
+                    File.empty?(filename) ||
                     !File.executable?(filename)
 
-    /^#!.*\bruby$/.match? File.read(filename, 80).lines[0].rstrip
+    /^#!.*\bruby$/.match?(File.read(filename, 80).lines[0].rstrip)
   end
 end
