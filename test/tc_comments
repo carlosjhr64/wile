@@ -16,6 +16,7 @@ class TestComments < Test::Unit::TestCase
     return if errors.zero?
 
     print 'Remove these characters from side comments: '.blue
+    # Backslash escapes the %q delimiter; prints '"/)}] matching FORBIDDEN.
     puts %q('"/\)}]).red
     flunk
   end
@@ -31,7 +32,8 @@ class TestComments < Test::Unit::TestCase
   def check_file(filename)
     source = File.read(filename)
     lines = source.lines
-    Prism.parse_comments(source).count do |comment|
+    comments = Prism.parse_comments(source).grep(Prism::InlineComment)
+    comments.count do |comment|
       line = lines[comment.location.start_line - 1]
       bad_comment?(filename, comment, line)
     end
