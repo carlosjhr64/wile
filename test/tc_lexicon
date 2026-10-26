@@ -1,21 +1,31 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+Encoding.default_external = Encoding::UTF_8
+
 require 'test/unit'
 require 'colorize'
+require 'fileutils'
 # require 'parser'
 
-# Lexicon Test
+# Lexicon Test scans the codebase AST for symbols and identifiers,
+# asserting that the vocabulary matches the committed .lexicon whitelist.
 class TestLexicon < Test::Unit::TestCase
   FILES = [*Dir.glob('bin/*'), *Dir.glob('lib/**/*.rb')].freeze
 
   def test_lexicon
+    FileUtils.mkdir_p('tmp')
     File.open('tmp/lexicon', 'w') { it.puts(lexicon_words) }
-    diff = `colordiff .lexicon tmp/lexicon`.strip
+    diff = diff_output('.lexicon', 'tmp/lexicon')
     assert_empty(diff, "#{'Code lexicon changed:'.colorize(:blue)}\n#{diff}")
   end
 
   private
+
+  def diff_output(file1, file2)
+    cmd = system('which colordiff > /dev/null 2>&1') ? 'colordiff' : 'diff'
+    `#{cmd} #{file1} #{file2}`.strip
+  end
 
   def lexicon_words
     files = FILES.select { File.file?(it) }
