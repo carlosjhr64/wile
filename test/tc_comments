@@ -22,6 +22,12 @@ class TestComments < Test::Unit::TestCase
 
   private
 
+  def ruby_files
+    `git ls-files`.lines.map(&:chomp)
+                  .select { File.file?(it) }
+                  .select { /\.rb$/.match?(it) || _bang_ruby?(it) }
+  end
+
   def check_file(filename)
     source = File.read(filename)
     lines = source.lines
@@ -29,6 +35,15 @@ class TestComments < Test::Unit::TestCase
       line = lines[comment.location.start_line - 1]
       bad_comment?(filename, comment, line)
     end
+  end
+
+  def _bang_ruby?(filename)
+    return false if /\.\w*$/.match?(filename) ||
+                    File.directory?(filename) ||
+                    !File.executable?(filename) ||
+                    File.empty?(filename)
+
+    /^#!.*\bruby$/.match? File.read(filename, 80).lines[0].rstrip
   end
 
   def bad_comment?(filename, comment, line)
@@ -41,22 +56,7 @@ class TestComments < Test::Unit::TestCase
     true
   end
 
-  def ruby_files
-    `git ls-files`.lines.map(&:chomp)
-                  .select { File.file?(it) }
-                  .select { /\.rb$/.match?(it) || _bang_ruby?(it) }
-  end
-
   def puts_blue(filename, line_number, comment_line)
     puts "#{filename}:#{line_number}:#{comment_line.chomp}".blue
-  end
-
-  def _bang_ruby?(filename)
-    return false if /\.\w*$/.match?(filename) ||
-                    File.directory?(filename) ||
-                    !File.executable?(filename) ||
-                    File.empty?(filename)
-
-    /^#!.*\bruby$/.match? File.read(filename, 80).lines[0].rstrip
   end
 end
