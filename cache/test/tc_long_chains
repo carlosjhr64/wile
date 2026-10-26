@@ -19,10 +19,11 @@ class TestLongChains < Test::Unit::TestCase
 
   def scan_file(filename)
     source = File.read(filename)
-    strip_comments(source).lines.each_with_index do |line, idx|
-      next unless line.match?(PATTERN)
+    raw_lines = source.lines
+    strip_comments(source).lines.each_with_index do |clean, idx|
+      next unless clean.match?(PATTERN)
 
-      puts "#{filename}:#{idx + 1}: #{line.strip.red}"
+      puts "#{filename}:#{idx + 1}: #{raw_lines[idx].strip.red}"
     end
   end
 
@@ -30,7 +31,8 @@ class TestLongChains < Test::Unit::TestCase
     clean = source.dup
     Prism.parse_comments(source).reverse_each do |comment|
       loc = comment.location
-      clean[loc.start_offset...loc.end_offset] = ' ' * loc.length
+      blank = loc.slice.gsub(/[^\r\n]/, ' ')
+      clean.bytesplice(loc.start_offset, loc.length, blank)
     end
     clean
   end
