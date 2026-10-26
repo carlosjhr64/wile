@@ -19,7 +19,7 @@ class TestWeirdFilenames < Test::Unit::TestCase
       next if path == '.'
 
       base = File.basename(path)
-      weird << path unless base.match?(ALLOWED)
+      weird << path.scrub unless base.valid_encoding? && base.match?(ALLOWED)
     end
     assert_empty weird, "Weird filenames found:\n#{weird.join("\n").red}"
   end
