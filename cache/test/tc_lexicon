@@ -29,6 +29,8 @@ class TestLexicon < Test::Unit::TestCase
 
   def lexicon_words
     files = FILES.select { File.file?(it) }
+    flunk 'No files found for lexicon scan!'.red if files.empty?
+
     output = IO.popen(['ruby-parse', *files], err: File::NULL, &:read)
     extract_lexicon(output)
   end
