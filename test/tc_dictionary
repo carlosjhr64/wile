@@ -6,20 +6,35 @@ Encoding.default_external = Encoding::UTF_8
 require 'test/unit'
 require 'colorize'
 require 'zlib'
+require 'fileutils'
 
-# Dictionary Test
+# Dictionary Test uses Trigram-Based Spelling to detect non-standard words,
+# asserting that any unrecognized terms match the .dictionary whitelist.
 class TestDictionary < Test::Unit::TestCase
   FILES = ['README.md', *Dir.glob('bin/*'), *Dir.glob('lib/**/*.rb')].freeze
   VALID = Zlib::GzipReader.open('test/cons.gz') { it.readlines.to_set(&:strip) }
 
   def test_dictionary
+    FileUtils.mkdir_p('tmp')
     unrecognized = words_from_files.select { unrecognized?(it) }.sort
     File.open('tmp/dictionary', 'w') { it.puts unrecognized }
-    diff = `colordiff .dictionary tmp/dictionary`.strip
+    diff = diff_output('.dictionary', 'tmp/dictionary')
     assert_empty(diff, "#{'Dictionary changed:'.colorize(:blue)}\n#{diff}")
   end
 
   private
+
+  ### Trigram-Based Spelling ###
+  # Note that `.all?` is true if not iterated.
+  # If word.length<3, the word is assumed good.
+  def unrecognized?(word)
+    !word.chars.each_cons(3).all? { VALID.include? it.join }
+  end
+
+  def diff_output(file1, file2)
+    cmd = system('which colordiff > /dev/null 2>&1') ? 'colordiff' : 'diff'
+    `#{cmd} #{file1} #{file2}`.strip
+  end
 
   def words_from_files
     FILES.flat_map do |path|
@@ -35,12 +50,5 @@ class TestDictionary < Test::Unit::TestCase
         .map { it.start_with?('\\') ? it[2..] : it }
         .reject(&:empty?)
         .map(&:downcase)
-  end
-
-  ### Trigram-Based Spelling ###
-  # Note that `.all?` is true if not iterated.
-  # If word.length<3, the word is assumed good.
-  def unrecognized?(word)
-    !word.chars.each_cons(3).all? { VALID.include? it.join }
   end
 end
