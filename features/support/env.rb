@@ -4,3 +4,5 @@
 require 'open3'
 require 'json'
 require 'digest'
+
+ENV['RUBYLIB'] ||= 'lib'

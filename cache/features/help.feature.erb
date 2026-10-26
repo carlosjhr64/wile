@@ -9,6 +9,7 @@ Feature: Testing <%=@project%> help
     * When we run command
     * Then exit status is "0"
     * Then stderr is ""
+    * Then header is "## <%=@project%> ##"
     * Then stdout includes "Usage:"
 
   Scenario: -h
@@ -16,12 +17,14 @@ Feature: Testing <%=@project%> help
     * When we run command
     * Then exit status is "0"
     * Then stderr is ""
+    * Then header is "## <%=@project%> ##"
     * Then stdout includes "Usage:"
 
-  # HelpParser checks for errors when both flags are set
+  # Setting both -h and --help triggers HelpParser's validation
   Scenario: -h --help
     * Given option "-h --help"
     * When we run command
     * Then exit status is "0"
     * Then stderr is ""
+    * Then header is "## <%=@project%> ##"
     * Then stdout includes "Usage:"

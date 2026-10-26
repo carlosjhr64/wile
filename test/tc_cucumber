@@ -9,6 +9,8 @@ require 'colorize'
 # Cucumber Tests runs the feature suite and flunks if any scenario fails.
 class TestCucumber < Test::Unit::TestCase
   def test_cucumber
-    flunk 'Rotten cucumber!'.red unless system('cucumber', '-f', 'progress')
+    res = system('cucumber', '-f', 'progress')
+    flunk 'cucumber command not found!'.red if res.nil?
+    flunk 'Rotten cucumber!'.red unless res
   end
 end

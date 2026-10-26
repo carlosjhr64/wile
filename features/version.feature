@@ -9,11 +9,11 @@ Feature: Testing wile version
     * When we run command
     * Then exit status is "0"
     * Then stderr is ""
-    * Then stdout matches /^\d+\.\d+\.\d+$/
+    * Then stdout matches /\A\d+\.\d+\.\d+\z/
 
   Scenario: -v
     * Given option "-v"
     * When we run command
     * Then exit status is "0"
     * Then stderr is ""
-    * Then stdout matches /^\d+\.\d+\.\d+$/
+    * Then stdout matches /\A\d+\.\d+\.\d+\z/
