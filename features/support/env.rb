@@ -5,4 +5,6 @@ require 'open3'
 require 'json'
 require 'digest'
 
-ENV['RUBYLIB'] ||= 'lib'
+# Ensure lib is on RUBYLIB even when running under rbenv shims
+paths = ENV['RUBYLIB'].to_s.split(':')
+ENV['RUBYLIB'] = (['lib'] + paths).reject(&:empty?).uniq.join(':')
