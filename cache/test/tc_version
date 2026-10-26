@@ -69,9 +69,8 @@ class TestVersion < Test::Unit::TestCase
 
     content = File.read(readme)
     assert_equal(version, content[/\d+\.\d+\.\d+/])
-    ruby_line = content.lines.find { it.include?('Ruby version:') }
     ruby_version = RUBY_VERSION.split('.').first(2).join('.')
-    assert_equal(ruby_version, ruby_line[/\d+\.\d+/])
+    assert_equal(ruby_version, content[/Ruby version:.*?(\d+\.\d+)/, 1])
   end
 
   private
