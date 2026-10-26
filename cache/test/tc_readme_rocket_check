@@ -1,6 +1,8 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+Encoding.default_external = Encoding::UTF_8
+
 require 'test/unit'
 require 'colorize'
 
@@ -22,7 +24,7 @@ class TestReadmeRocketTest < Test::Unit::TestCase
         assert_equal(expected, actual, message)
       end
     end
-  rescue StandardError => e
+  rescue ScriptError, StandardError => e
     flunk e.message
   end
 
@@ -46,13 +48,21 @@ class TestReadmeRocketTest < Test::Unit::TestCase
     completes_successfully unless @script.empty?
   end
 
+  def completes_successfully
+    BINDING.eval(@script)
+  rescue ScriptError, StandardError => e
+    flunk "#{@line_number}: #{e.message}"
+  ensure
+    @script.clear
+  end
+
   def ruby_code?
-    # Are we ruby yet?
     case @line
     when /^```ruby\b/
       @ruby = true
       return false
-    when /^```$/
+    when /^```\s*$/
+      completes_successfully unless @script.empty?
       @ruby = false
     end
     @ruby
@@ -68,13 +78,6 @@ class TestReadmeRocketTest < Test::Unit::TestCase
     false
   end
 
-  def script_ready?
-    # Build up script
-    @script << @line unless @line.match?(/^\s*#/)
-    # Ready to do something?
-    ROCKET.match?(@line) || MATCH.match?(@line)
-  end
-
   def step_thru_script
     while (@line = @lines.shift)
       @line_number += 1
@@ -82,17 +85,20 @@ class TestReadmeRocketTest < Test::Unit::TestCase
       break if declaration_break?
       next unless script_ready?
 
-      # OK, do it!
       eval_script
       reset_expected_actual
-      # Report it
       yield
     end
   end
 
+  def script_ready?
+    @script << @line unless @line.match?(/^\s*#/)
+    ROCKET.match?(@line) || MATCH.match?(@line)
+  end
+
   def eval_script
     @actual = BINDING.eval(@script)
-  rescue StandardError => e
+  rescue ScriptError, StandardError => e
     @actual = e.message.red
   ensure
     @script.clear
@@ -112,18 +118,12 @@ class TestReadmeRocketTest < Test::Unit::TestCase
     end
   end
 
-  def reset_actual(str = @actual.to_s)
+  def reset_actual(str = @actual.to_s.uncolorize)
     @actual = case @expected
               when Regexp
                 @expected.match?(str) ? str : @actual.inspect
               else
                 @expected == str ? str : @actual.inspect
               end
-  end
-
-  def completes_successfully
-    BINDING.eval(@script)
-  ensure
-    @script.clear
   end
 end
