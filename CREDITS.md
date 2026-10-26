@@ -10,3 +10,7 @@ If you feel someone or something is missing,
 please submit a pull request with the suggested addition.
 
 + [Thor](https://rubygems.org/gems/thor): Although no longer used by Wile, Wile originally started with it.
++ [Robert Morris and Lorinda Cherry](https://doi.org/10.1109/TPC.1975.6593963)
+  and [Zamora & Pollock](https://doi.org/10.1016/0306-4573(81)90044-1):
+  Pioneered trigram typo detection for early Unix and formalized the binary
+  trigram dictionary method used in `test/tc_dictionary`.
