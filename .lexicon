@@ -339,7 +339,9 @@ dependencies_sum
 dependency
 dependency_index
 description
+detail
 detect
+detected
 dev
 devgems
 dflipped
@@ -584,6 +586,7 @@ mod
 mode
 module
 module_defs
+module_function
 module_name
 more
 more_ranks
@@ -712,6 +715,8 @@ rbenv
 rbenv_root
 rbfile
 rbfiles
+re_run
+re_run_hint
 read
 read_rgx
 readlines
@@ -730,6 +735,7 @@ rename
 reply
 report_dependencies
 require
+require_in_path
 require_relative
 requirements
 responce
@@ -751,11 +757,13 @@ rm_pkg
 rm_r
 rm_rf
 root
+root_files
 ros
 rqs
 rstrip
 rubocop
 ruby
+ruby_path
 run
 run_cmd
 run_fish
@@ -855,6 +863,7 @@ upto
 usage
 username
 using
+utilities
 utilities_check
 v
 v2s
@@ -878,10 +887,13 @@ verify_linux
 verify_neovim
 verify_project_root
 verify_rbenv
+verify_ruby_min_version
+verify_ruby_project_version
 verify_ruby_version
 verify_utilities
 verify_version
 version
+version_file
 version_ok
 versions
 vrs

@@ -1,8 +1,234 @@
 # frozen_string_literal: true
 
+require 'rbconfig'
+require_relative 'sysexits'
+
 # Wile namespace.
 module Wile
-  # Utility functions
+  # Utility functions collected and harmonized from bin/bootstrap_* scripts.
+  # :reek:NilCheck
+  # :reek:TooManyStatements
+  # rubocop:disable-next Metrics/ModuleLength
   module Utilities
+    include Sysexits
+
+    module_function
+
+    # --- Path & Executable Lookup ---
+
+    # Used in: bootstrap_fish, bootstrap_fisher_plugins,
+    #          bootstrap_install_neovim, bootstrap_system_commands
+    def paths
+      ENV.fetch('PATH', '').split(File::PATH_SEPARATOR)
+    end
+
+    # Used in: bootstrap_fish, bootstrap_fisher_plugins,
+    #          bootstrap_install_neovim, bootstrap_system_commands
+    def which(cmd)
+      paths.each do |dir|
+        bin = File.join(dir, cmd)
+        return bin if File.file?(bin) && File.executable?(bin)
+      end
+      nil
+    end
+
+    # Used in: bootstrap_fish, bootstrap_fisher_plugins,
+    #          bootstrap_system_commands, bootstrap_ruby_gems
+    # (Harmonized: replaces subshell `which #{cmd}` with native which)
+    def command_available?(cmd)
+      !which(cmd).nil?
+    end
+
+    # Used in: bootstrap_system_commands
+    def missing_from(commands)
+      commands.reject { |cmd| command_available?(cmd) }
+    end
+
+    # Used in: bootstrap_system_commands
+    def check_commands(commands)
+      commands.reject do |cmd|
+        path = which(cmd)
+        puts "#{cmd} found: #{path}".green if path
+        path
+      end
+    end
+
+    # Used in: bootstrap_install_neovim
+    def verify_utilities!(utilities)
+      missing = missing_from(utilities)
+      return if missing.empty?
+
+      error!(EX_UNAVAILABLE,
+             'Error: Required utilities not found in PATH: ' \
+             "#{missing.join(', ')}")
+    end
+
+    # Used in: bootstrap_install_neovim
+    def check_path_notice(dir)
+      return if paths.include?(dir)
+
+      warn "Notice: #{dir} is not currently in your PATH.".yellow
+    end
+
+    # --- User Prompts & Error Handling ---
+
+    # Used in: bootstrap_fish, bootstrap_fisher_plugins,
+    #          bootstrap_install_neovim, bootstrap_system_commands,
+    #          bootstrap_ruby_gems
+    # (Harmonized: includes yellow prompt styling across all scripts)
+    def confirm?(prompt)
+      print "#{prompt.yellow} [y/N]: "
+      $stdout.flush
+      reply = $stdin.gets
+      return false unless reply
+
+      /^[Yy]([Ee][Ss])?$/.match?(reply.strip)
+    end
+
+    # Used in: bootstrap_fish, bootstrap_fisher_plugins,
+    #          bootstrap_install_neovim, bootstrap_system_commands,
+    #          bootstrap_ruby_gems
+    # (Harmonized: includes red error styling across all scripts)
+    def error!(val, msg)
+      warn msg.red
+      exit val
+    end
+
+    # --- Platform & Environment Checks ---
+
+    # Used in: bootstrap_fish, bootstrap_install_neovim,
+    #          bootstrap_system_commands
+    def verify_linux!
+      os = `uname -s`.strip
+      return if os == 'Linux'
+
+      error!(EX_UNAVAILABLE,
+             "Error: Wile is meant to be run on Linux (detected: #{os}).")
+    end
+
+    # Used in: bootstrap_install_neovim
+    def verify_arch!(arch = 'x86_64')
+      detected = `uname -m`.strip
+      return if detected == arch
+
+      error!(EX_UNAVAILABLE,
+             "Error: #{arch} architecture required (detected: #{detected}).")
+    end
+
+    # Used in: bootstrap_fisher_plugins, bootstrap_fish
+    # (Harmonized: generalized to accept min_version)
+    def version_ok?(version, min_version)
+      Gem::Version.new(version) >= Gem::Version.new(min_version)
+    end
+
+    # Used in: bootstrap_ruby_gems
+    def verify_project_root!(root_files = %w[.version .ruby-version Gemfile])
+      root_files.each do |file|
+        next if File.file?(file) && !File.empty?(file)
+
+        error!(EX_NOINPUT, "Error: #{file} not found — " \
+                           "run this from a Wile project's root directory.")
+      end
+    end
+
+    # Used in: bootstrap_fish, bootstrap_ruby_gems
+    # (Harmonized: optional require_in_path supports both initial fish setup
+    # and subsequent gem bundler environments)
+    # :reek:BooleanParameter
+    # rubocop:disable-next Metrics/MethodLength
+    def verify_rbenv!(require_in_path: false, re_run: nil)
+      rbenv = File.expand_path('~/.rbenv/bin/rbenv')
+      ready = File.executable?(rbenv) &&
+              (!require_in_path || command_available?('rbenv'))
+      if ready
+        puts "rbenv found: #{`rbenv --version`.strip}".green if require_in_path
+        return
+      end
+
+      detail =
+        if require_in_path
+          'not found or not initialized in PATH'
+        else
+          "not found at #{rbenv}"
+        end
+      re_run_hint = re_run ? ", then re-run:\n  #{re_run}" : '.'
+      error!(EX_UNAVAILABLE, <<~MSG)
+        Error: rbenv #{detail}.
+        Run ./bin/bootstrap_ruby_rbenv first#{re_run_hint}
+      MSG
+    end
+
+    # Used in: bootstrap_fisher_plugins
+    def verify_ruby_min_version!(min_version = '4.0')
+      if version_ok?(RUBY_VERSION, min_version)
+        puts "Ruby verified: #{RUBY_DESCRIPTION}".green
+        return
+      end
+
+      error!(EX_UNAVAILABLE, <<~MSG)
+        Error: Ruby >= #{min_version} is required (found: #{RUBY_VERSION}).
+        Run ./bin/bootstrap_ruby_rbenv first.
+      MSG
+    end
+
+    # Used in: bootstrap_ruby_gems
+    # rubocop:disable-next Metrics/MethodLength
+    def verify_ruby_project_version!(version_file = '.ruby-version')
+      expected = File.read(version_file).strip
+      rbenv_root = `rbenv root`.strip
+      expected_prefix = "#{rbenv_root}/versions/#{expected}/"
+      ruby_path = RbConfig.ruby
+
+      if expected == RUBY_VERSION && ruby_path.start_with?(expected_prefix)
+        puts "Ruby verified: #{RUBY_DESCRIPTION} (#{ruby_path})".green
+        return
+      end
+
+      error!(EX_CONFIG, <<~MSG)
+        Error: Expected rbenv Ruby #{expected} (from #{version_file}),
+        but current ruby is #{RUBY_VERSION} at #{ruby_path}.
+
+        Ensure ./bin/bootstrap_ruby_rbenv has been run and rbenv shims
+        are active in your shell.
+      MSG
+    end
+
+    # --- Version Probing ---
+
+    # Used in: bootstrap_fish, bootstrap_fisher_plugins
+    def fish_version
+      return nil unless command_available?('fish')
+
+      `fish --version 2>/dev/null`[/\d+\.\d+/]
+    end
+
+    # Used in: bootstrap_fisher_plugins
+    def fisher_version
+      `fish -c 'fisher --version' 2>/dev/null`[/\d+\.\d+/]
+    end
+
+    # --- Subprocess Execution ---
+
+    # Used in: bootstrap_ruby_gems
+    def run_cmd!(*cmd)
+      return if system(*cmd)
+
+      error!(EX_OSERR, "Error: '#{cmd.join(' ')}' failed.")
+    end
+
+    # Used in: bootstrap_fisher_plugins
+    def run_fish!(cmd)
+      return if system('fish', '-c', cmd, in: File::NULL)
+
+      error!(EX_OSERR, "Error: `fish -c '#{cmd}'` failed.")
+    end
+
+    # Used in: bootstrap_system_commands
+    def install_commands!(packages)
+      system('sudo', 'apt-get', 'update') ||
+        error!(EX_OSERR, 'Error: apt-get update failed.')
+      system('sudo', 'apt-get', 'install', '-y', *packages) ||
+        error!(EX_OSERR, 'Error: apt-get install failed.')
+    end
   end
 end
