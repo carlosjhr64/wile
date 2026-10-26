@@ -1,16 +1,42 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+Encoding.default_external = Encoding::UTF_8
+
 require 'test/unit'
 
 # Version Tests
 # rubocop: disable-next Style/ClassVars
 class TestVersion < Test::Unit::TestCase
-  GREP = 'egrep -m 1 -ho \'[0-9]+\\.[0-9]+\\.[0-9]+\''
-  NULLED = '2> /dev/null'
+  def setup
+    flunk 'Could not get authoritative VERSION' unless @@version
+  end
+
+  def test_data_version
+    File.exist?('data/VERSION') &&
+      assert_equal(@@version, File.read('data/VERSION').strip)
+  end
+
+  def test_lib_version
+    if @@grep_version
+      warn 'Consider reading `.version` for VERSION.'
+      assert_equal(@@version, @@grep_version)
+    else
+      # A strict prescription:
+      # rubocop: disable-next Lint/InterpolationCheck
+      expected = 'VERSION = File.read("#{ROOT}/.version").chomp'
+      actual = Dir.glob('lib/*.rb').lazy
+                  .filter_map { File.read(it)[/^\s*VERSION\s*=.*$/] }
+                  .first&.strip
+      assert_equal(expected, actual)
+    end
+  end
 
   def self.startup
-    @@grep_version = `#{GREP} lib/*.rb lib/*/version.rb #{NULLED}`.split.first
+    patterns = ['lib/*.rb', 'lib/*/version.rb']
+    @@grep_version = Dir.glob(patterns).lazy
+                        .filter_map { File.read(it)[/\d+\.\d+\.\d+/] }
+                        .first
 
     if File.exist?('.version')
       @@version = File.read('.version').chomp
@@ -20,48 +46,28 @@ class TestVersion < Test::Unit::TestCase
     end
   end
 
-  def setup
-    flunk 'Could not get authoritative VERSION' unless @@version
-  end
-
-  def test_lib_version
-    if @@grep_version
-      warn 'Consider reading `.version` for VERSION.'
-      assert_equal(@@version, @@grep_version)
-    else
-      version_code = `grep VERSION lib/*.rb`.lines.first&.strip
-      # A strict prescription:
-      # rubocop: disable-next Lint/InterpolationCheck
-      expected = 'VERSION = File.read("#{ROOT}/.version").chomp'
-      assert_equal(expected, version_code)
-    end
-  end
-
-  def test_data_version
-    File.exist?('data/VERSION') &&
-      assert_equal(@@version, File.read('data/VERSION').strip)
-  end
-
   def test_bin_version
-    if (executable = `ls bin/* 2> /dev/null`.split.first)
-      assert_equal(@@version, `#{executable} --version`.strip)
-    end
+    return unless (executable = Dir.glob('bin/*').find do |f|
+      File.file?(f) && File.executable?(f)
+    end)
+
+    out = IO.popen([executable, '--version'], err: File::NULL, &:read)&.strip
+    assert_equal(@@version, out)
   end
 
   def test_gemspec_version
-    if (gemspec = `ls *.gemspec 2> /dev/null`.split.first)
-      v = `egrep -o '[0-9]+\\.[0-9]+\\.[0-9]+' #{gemspec}`.split.first
-      assert_equal(@@version, v)
-    end
+    return unless (gemspec = Dir.glob('*.gemspec').first)
+
+    assert_equal(@@version, File.read(gemspec)[/\d+\.\d+\.\d+/])
   end
 
   def test_readme_version
-    if (readme = `ls README.* 2> /dev/null`.split.first)
-      v = `egrep -o '[0-9]+\\.[0-9]+\\.[0-9]+' #{readme}`.split.first
-      assert_equal(@@version, v)
-      v = /\d+\.\d+/.match(`grep 'Ruby version:' #{readme}`).to_s
-      ruby_version = RUBY_VERSION.split('.').first(2).join('.')
-      assert_equal(ruby_version, v)
-    end
+    return unless (readme = Dir.glob('README.*').first)
+
+    content = File.read(readme)
+    assert_equal(@@version, content[/\d+\.\d+\.\d+/])
+    ruby_line = content.lines.find { it.include?('Ruby version:') }
+    ruby_version = RUBY_VERSION.split('.').first(2).join('.')
+    assert_equal(ruby_version, ruby_line[/\d+\.\d+/])
   end
 end
