@@ -9,12 +9,14 @@ Feature: Testing <%=@project%> help
     * When we run command
     * Then exit status is "0"
     * Then stderr is ""
+    * Then stdout includes "Usage:"
 
   Scenario: -h
     * Given option "-h"
     * When we run command
     * Then exit status is "0"
     * Then stderr is ""
+    * Then stdout includes "Usage:"
 
   # HelpParser checks for errors when both flags are set
   Scenario: -h --help
@@ -22,3 +24,4 @@ Feature: Testing <%=@project%> help
     * When we run command
     * Then exit status is "0"
     * Then stderr is ""
+    * Then stdout includes "Usage:"
