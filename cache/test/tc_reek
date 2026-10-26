@@ -17,6 +17,8 @@ class TestReek < Test::Unit::TestCase
             .lines.map(&:chomp)
             .reject { it.start_with?('cache/') }
             .select { _ruby?(it) }
+    flunk 'No files found for reek scan!'.red if files.empty?
+
     res = system(*REEK, *files)
     flunk 'reek command not found!'.red if res.nil?
     flunk 'Smelly code!'.red unless res
