@@ -45,7 +45,7 @@ Anyways(you're in the fishshell), proceed:
 $ goto wile # takes you to the wile diretory
 $ wile install
 $ cd .. # a resonable place you might set up a new project
-$ wile mkdir awesome # you're calling your new project Awesome
+$ RBENV_VERSION=4.0.7 wile mkdir awesome # Use the actual .ruby-version set in wile
 $ goto awesome
 ```
 There you'll see the skeleton of your new Awesome project.
