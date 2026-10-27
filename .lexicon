@@ -133,8 +133,8 @@ RBENV_INFO
 RBENV_INIT_LINE
 RBENV_URL
 RELEASES_URL
+REQUIRED_BOOTSTRAP_GEMS
 REQUIRED_COMMANDS
-REQUIRED_PREAMBLE_GEMS
 REQUIREMENTS_USAGE
 RESERVED_WORDS
 ROOT
@@ -408,10 +408,12 @@ ensure_neovim
 ensure_rbenv
 ensure_ruby_build
 ensure_target_ruby
+env
 erb
 erb_convert
 erb_cp
 erb_result
+err
 error
 escape
 exec
@@ -600,6 +602,7 @@ missed_required
 missed_required_notice
 missing
 missing_from
+missing_postamble_gems
 missing_preamble_gems
 mkdir
 mkdir_p
@@ -861,6 +864,7 @@ system_commands_check
 tag
 tap
 target
+target_ruby
 task
 tasks
 tc

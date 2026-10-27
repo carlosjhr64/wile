@@ -47,8 +47,8 @@ unless ARGV.empty?
   exit 64
 end
 
-REQUIRED_PREAMBLE_GEMS = %w[help_parser colorize].freeze
-missing_preamble_gems = REQUIRED_PREAMBLE_GEMS.reject do |gem_name|
+REQUIRED_BOOTSTRAP_GEMS = %w[help_parser colorize].freeze
+missing_preamble_gems = REQUIRED_BOOTSTRAP_GEMS.reject do |gem_name|
   Gem::Specification.find_all_by_name(gem_name).any?
 end
 
@@ -68,7 +68,7 @@ unless missing_preamble_gems.empty?
   end
 
   Gem.clear_paths
-  REQUIRED_PREAMBLE_GEMS.each do |gem_name|
+  REQUIRED_BOOTSTRAP_GEMS.each do |gem_name|
     require gem_name
   rescue LoadError => e
     warn "Error: Failed to load gem '#{gem_name}': #{e.message}"
@@ -358,3 +358,31 @@ class BootstrapRubyRbenv
 end
 
 BootstrapRubyRbenv.new
+
+## Postamble:
+target_ruby = File.read('.ruby-version').strip
+missing_postamble_gems = REQUIRED_BOOTSTRAP_GEMS.reject do |gem_name|
+  system({ 'RBENV_VERSION' => target_ruby },
+         'gem', 'list', '-i', "^#{gem_name}$",
+         out: File::NULL, err: File::NULL)
+end
+
+unless missing_postamble_gems.empty?
+  print "Install #{missing_postamble_gems.join(', ')} into Ruby " \
+        "#{target_ruby} with gem install? [y/N]: "
+  $stdout.flush
+  reply = $stdin.gets
+  unless reply && /^[Yy]([Ee][Ss])?$/.match?(reply.strip)
+    warn 'Aborted.'
+    exit 1
+  end
+
+  cmd = ['gem', 'install', *missing_postamble_gems]
+  env = { 'RBENV_VERSION' => target_ruby }
+  unless system(env, *cmd)
+    warn "Error: 'RBENV_VERSION=#{target_ruby} #{cmd.join(' ')}' failed."
+    exit 71
+  end
+
+  system(env, 'rbenv', 'rehash') if system('which', 'rbenv', out: File::NULL)
+end
