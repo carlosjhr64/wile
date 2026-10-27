@@ -23,6 +23,14 @@ locally. It targets Linux, fish, and tmux.
 conventions, and environment expectations are hardcoded directly into
 the Ruby source and `cache/` template, the code itself *is* the configuration.
 
+The minimum Ruby version that should work on
+the first bootstrap script is less than 4, just try it and see.
+The goal is to automate the installation of `rbenv` and
+get your ruby at Wile's current version.
+
+On each bootstrap, run it with the `--help` flag to
+understand what the script is going to attempt to do.
+
 To use `wile`, clone the repository from GitHub, review and customize the code
 and `cache/` templates to fit your own workflow, and install it locally:
 ```console
@@ -45,7 +53,7 @@ Anyways(you're in the fishshell), proceed:
 $ goto wile # takes you to the wile diretory
 $ wile install
 $ cd .. # a resonable place you might set up a new project
-$ RBENV_VERSION=4.0.7 wile mkdir awesome # Use the actual .ruby-version set in wile
+$ RBENV_VERSION=4.0.7 wile mkdir awesome # Use the .ruby-version set in wile
 $ goto awesome
 ```
 There you'll see the skeleton of your new Awesome project.
