@@ -99,6 +99,8 @@ module Wile
     # category: environment
     # --- Platform & Environment Checks ---
 
+    ROOT_FILES = %w[.version .ruby-version Gemfile].freeze
+
     # Used in: bootstrap_install_neovim
     def verify_arch!(arch = 'x86_64')
       detected = `uname -m`.strip
@@ -119,7 +121,7 @@ module Wile
     end
 
     # Used in: bootstrap_ruby_gems
-    def verify_project_root!(root_files = %w[.version .ruby-version Gemfile])
+    def verify_project_root!(root_files = ROOT_FILES)
       root_files.each do |file|
         next if File.file?(file) && !File.empty?(file)
 

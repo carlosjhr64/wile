@@ -17,9 +17,9 @@ HelpParser[Wile::VERSION, <<~HELP]
 HELP
 
 # Bootstraps fisher and fish plugins for Wile.
-# rubocop:disable-next Metrics/ClassLength
 class BootstrapFisherPlugins
   include Wile::Sysexits
+  include Wile::Utilities
 
   FISH_MIN_VERSION   = '4.0'
   RUBY_MIN_VERSION   = '4.0'
@@ -44,11 +44,33 @@ class BootstrapFisherPlugins
 
   private
 
+  def verify_curl!
+    return if command_available?('curl')
+
+    error!(EX_UNAVAILABLE, <<~MSG)
+      Error: `curl` was not found in your PATH.
+      Fisher requires `curl` to download plugins from GitHub.
+      Please install `curl` (e.g., `sudo apt-get install curl`), then re-run:
+        ./bin/bootstrap_fisher_plugins
+    MSG
+  end
+
+  def install_plugins!
+    unless confirm?("Install/update fish plugins (#{PLUGINS.join(', ')})?")
+      error!(EX_NO, 'Aborted.')
+    end
+
+    PLUGINS.each do |plugin|
+      run_fish!("fisher install #{plugin}")
+    end
+  end
+
   def verify_fish!
     version = fish_version
     unless version && version_ok?(version, FISH_MIN_VERSION)
       error!(EX_UNAVAILABLE, <<~MSG)
-        Error: fish >= #{FISH_MIN_VERSION} required (found: #{version || 'none'}).
+        Error: fish >= #{FISH_MIN_VERSION} required
+        (found: #{version || 'none'}).
         Run ./bin/bootstrap_fish first, then re-run:
           ./bin/bootstrap_fisher_plugins
       MSG
@@ -67,17 +89,6 @@ class BootstrapFisherPlugins
       Error: Ruby >= #{RUBY_MIN_VERSION} is required by carlosjhr64/pkg-goto
       (found: #{RUBY_VERSION}).
       Run ./bin/bootstrap_ruby_rbenv first, then re-run:
-        ./bin/bootstrap_fisher_plugins
-    MSG
-  end
-
-  def verify_curl!
-    return if command_available?('curl')
-
-    error!(EX_UNAVAILABLE, <<~MSG)
-      Error: `curl` was not found in your PATH.
-      Fisher requires `curl` to download plugins from GitHub.
-      Please install `curl` (e.g., `sudo apt-get install curl`), then re-run:
         ./bin/bootstrap_fisher_plugins
     MSG
   end
@@ -105,66 +116,6 @@ class BootstrapFisherPlugins
       (found: #{version || 'none'}).
       See #{FISHER_REPO_URL} for manual installation instructions.
     MSG
-  end
-
-  def install_plugins!
-    unless confirm?("Install/update fish plugins (#{PLUGINS.join(', ')})?")
-      error!(EX_NO, 'Aborted.')
-    end
-
-    PLUGINS.each do |plugin|
-      run_fish!("fisher install #{plugin}")
-    end
-  end
-
-  def run_fish!(cmd)
-    return if system('fish', '-c', cmd, in: File::NULL)
-
-    error!(EX_OSERR, "Error: `fish -c '#{cmd}'` failed.")
-  end
-
-  def which(cmd)
-    paths.each do |dir|
-      bin = File.join(dir, cmd)
-      return bin if File.file?(bin) && File.executable?(bin)
-    end
-    nil
-  end
-
-  def paths
-    ENV.fetch('PATH', '').split(File::PATH_SEPARATOR)
-  end
-
-  def error!(val, msg)
-    warn msg.red
-    exit val
-  end
-
-  def fish_version
-    return nil unless command_available?('fish')
-
-    `fish --version 2>/dev/null`[/\d+\.\d+/]
-  end
-
-  def fisher_version
-    `fish -c 'fisher --version' 2>/dev/null`[/\d+\.\d+/]
-  end
-
-  def version_ok?(version, min_version)
-    Gem::Version.new(version) >= Gem::Version.new(min_version)
-  end
-
-  def command_available?(cmd)
-    !which(cmd).nil?
-  end
-
-  def confirm?(prompt)
-    print "#{prompt.yellow} [y/N]: "
-    $stdout.flush
-    reply = $stdin.gets
-    return false unless reply
-
-    /^[Yy]([Ee][Ss])?$/.match?(reply.strip)
   end
 end
 

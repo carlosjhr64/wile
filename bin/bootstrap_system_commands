@@ -20,6 +20,7 @@ HELP
 # Bootstraps Linux system commands for Wile.
 class BootstrapSystemCommands
   include Wile::Sysexits
+  include Wile::Utilities
 
   UTILITIES         = %w[apt-get sudo].freeze
   REQUIRED_COMMANDS = %w[colordiff].freeze
@@ -36,36 +37,10 @@ class BootstrapSystemCommands
 
   private
 
-  def verify_linux!
-    os = `uname -s`.strip
-    return if os == 'Linux'
-
-    error!(EX_UNAVAILABLE,
-           "Error: Wile is meant to be run on Linux (detected: #{os}).")
-  end
-
   def system_commands_check?
     @missed_required = check_commands(REQUIRED_COMMANDS)
     @missed_optional = check_commands(OPTIONAL_COMMANDS)
     @missed_required.empty? && @missed_optional.empty?
-  end
-
-  def check_commands(commands)
-    commands.reject do |cmd|
-      path = which(cmd)
-      puts "#{cmd} found: #{path}".green if path
-      path
-    end
-  end
-
-  def utilities_check?
-    missing = missing_from(UTILITIES)
-    return true if missing.empty?
-
-    warn 'Error: Required utilities not found in PATH: ' \
-         "#{missing.join(', ')}".red
-    verify_commands!
-    false
   end
 
   def ensure_commands!
@@ -78,11 +53,21 @@ class BootstrapSystemCommands
     @missed_optional = missing_from(@missed_optional)
   end
 
-  def install_commands!(packages)
-    system('sudo', 'apt-get', 'update') ||
-      error!(EX_OSERR, 'Error: apt-get update failed.')
-    system('sudo', 'apt-get', 'install', '-y', *packages) ||
-      error!(EX_OSERR, 'Error: apt-get install failed.')
+  def utilities_check?
+    missing = missing_from(UTILITIES)
+    return true if missing.empty?
+
+    warn 'Error: Required utilities not found in PATH: ' \
+         "#{missing.join(', ')}".red
+    verify_commands!
+    false
+  end
+
+  def verify_commands!
+    missed_optional_notice unless @missed_optional.empty?
+    return if @missed_required.empty?
+
+    missed_required_notice!
   end
 
   def missed_optional_notice
@@ -93,47 +78,6 @@ class BootstrapSystemCommands
   def missed_required_notice!
     error!(EX_UNAVAILABLE,
            "Error: Missed required packages: #{@missed_required.join(', ')}")
-  end
-
-  def verify_commands!
-    missed_optional_notice unless @missed_optional.empty?
-    return if @missed_required.empty?
-
-    missed_required_notice!
-  end
-
-  def missing_from(commands)
-    commands.reject { |cmd| command_available?(cmd) }
-  end
-
-  def command_available?(cmd)
-    !which(cmd).nil?
-  end
-
-  def which(cmd)
-    paths.each do |dir|
-      bin = File.join(dir, cmd)
-      return bin if File.file?(bin) && File.executable?(bin)
-    end
-    nil
-  end
-
-  def paths
-    ENV.fetch('PATH', '').split(File::PATH_SEPARATOR)
-  end
-
-  def error!(val, msg)
-    warn msg.red
-    exit val
-  end
-
-  def confirm?(prompt)
-    print "#{prompt.yellow} [y/N]: "
-    $stdout.flush
-    reply = $stdin.gets
-    return false unless reply
-
-    /^[Yy]([Ee][Ss])?$/.match?(reply.strip)
   end
 end
 

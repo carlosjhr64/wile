@@ -4,14 +4,12 @@
 Encoding.default_external = Encoding::UTF_8
 
 require 'rbconfig'
-require_relative '../lib/wile/sysexits'
+require_relative '../lib/wile'
 
 # Bootstraps Ruby gems for Wile into the active rbenv Ruby version.
-# rubocop: disable-next Metrics/ClassLength
 class BootstrapRubyGems
   include Wile::Sysexits
-
-  ROOT_FILES = %w[.version .ruby-version Gemfile].freeze
+  include Wile::Utilities
 
   USAGE = <<~TEXT
     Usage:
@@ -26,21 +24,12 @@ class BootstrapRubyGems
   def initialize(args = ARGV)
     verify_project_root!
     parse_args!(args)
-    verify_rbenv!
-    verify_ruby_version!
+    verify_rbenv!(require_in_path: true, re_run: './bin/bootstrap_ruby_gems')
+    verify_ruby_project_version!
     install_gems!
   end
 
   private
-
-  def verify_project_root!
-    ROOT_FILES.each do |file|
-      next if File.file?(file) && !File.empty?(file)
-
-      error!(EX_NOINPUT, "Error: #{file} not found — " \
-                         "run this from a Wile project's root directory.")
-    end
-  end
 
   # rubocop:disable-next Metrics/MethodLength
   def parse_args!(args)
@@ -60,51 +49,6 @@ class BootstrapRubyGems
     error!(EX_USAGE, 'Usage: bootstrap_ruby_gems [-h|--help|-v|--version]')
   end
 
-  def verify_rbenv!
-    rbenv = File.expand_path('~/.rbenv/bin/rbenv')
-    if File.executable?(rbenv) && command_available?('rbenv')
-      puts "rbenv found: #{`rbenv --version`.strip}"
-      return
-    end
-
-    error!(EX_UNAVAILABLE, <<~MSG)
-      Error: rbenv not found or not initialized in PATH.
-      Run ./bin/bootstrap_ruby_rbenv first, then re-run:
-        ./bin/bootstrap_ruby_gems
-    MSG
-  end
-
-  # rubocop:disable-next Metrics/MethodLength
-  def verify_ruby_version!
-    expected = File.read('.ruby-version').strip
-    rbenv_root = `rbenv root`.strip
-    expected_prefix = "#{rbenv_root}/versions/#{expected}/"
-
-    if expected == RUBY_VERSION && RbConfig.ruby.start_with?(expected_prefix)
-      puts "Ruby verified: #{RUBY_DESCRIPTION} (#{RbConfig.ruby})"
-      return
-    end
-
-    error!(EX_CONFIG, <<~MSG)
-      Error: Expected rbenv Ruby #{expected} (from .ruby-version), but current
-      ruby is #{RUBY_VERSION} at #{RbConfig.ruby}.
-
-      Ensure ./bin/bootstrap_ruby_rbenv has been run and rbenv shims are active
-      in your shell, then re-run:
-        ./bin/bootstrap_ruby_gems
-    MSG
-  end
-
-  def verify_gems!
-    if system(RbConfig.ruby, '-rbundler/setup', '-rhelp_parser', '-e', '')
-      return
-    end
-
-    error!(EX_UNAVAILABLE,
-           'Error: gems do not load after bundle update — help_parser ' \
-           'unavailable under the bundled environment.')
-  end
-
   def install_gems!
     unless confirm?("Update bundler and run 'bundle update --all' " \
                     "for Ruby #{RUBY_VERSION}?")
@@ -118,28 +62,14 @@ class BootstrapRubyGems
     puts "Ruby gems setup complete for Ruby #{RUBY_VERSION}."
   end
 
-  def run_cmd!(*cmd)
-    return if system(*cmd)
+  def verify_gems!
+    if system(RbConfig.ruby, '-rbundler/setup', '-rhelp_parser', '-e', '')
+      return
+    end
 
-    error!(EX_OSERR, "Error: '#{cmd.join(' ')}' failed.")
-  end
-
-  def error!(val, msg)
-    warn msg
-    exit val
-  end
-
-  def command_available?(cmd)
-    !`which #{cmd}`.strip.empty?
-  end
-
-  def confirm?(prompt)
-    print "#{prompt} [y/N]: "
-    $stdout.flush
-    reply = $stdin.gets
-    return false unless reply
-
-    /^[Yy]([Ee][Ss])?$/.match?(reply.strip)
+    error!(EX_UNAVAILABLE,
+           'Error: gems do not load after bundle update — help_parser ' \
+           'unavailable under the bundled environment.')
   end
 end
 

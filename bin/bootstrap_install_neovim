@@ -22,6 +22,7 @@ HELP
 # rubocop:disable-next Metrics/ClassLength
 class BootstrapInstallNeovim
   include Wile::Sysexits
+  include Wile::Utilities
 
   ARCH         = 'x86_64'
   UTILITIES    = %w[curl tar].freeze
@@ -39,36 +40,35 @@ class BootstrapInstallNeovim
 
   def initialize
     verify_linux!
-    verify_arch!
-    verify_utilities!
+    verify_arch!(ARCH)
+    verify_utilities!(UTILITIES)
     ensure_neovim!
     puts 'Neovim setup OK.'.green
   end
 
   private
 
-  def verify_linux!
-    os = `uname -s`.strip
-    return if os == 'Linux'
-
-    error!(EX_UNAVAILABLE,
-           "Error: Wile is meant to be run on Linux (detected: #{os}).")
+  def extract_sha256(assets)
+    asset = assets.find { |item| item['name'] == TARBALL }
+    asset ? asset.fetch('digest', '')[/\Asha256:(\h{64})\z/, 1] : nil
   end
 
-  def verify_arch!
-    arch = `uname -m`.strip
-    return if arch == ARCH
+  def fetch_latest_release!
+    data = JSON.parse(`curl -fsSL #{API_URL} 2>/dev/null`)
+    @latest_version = data.fetch('tag_name', '')[/\d+\.\d+\.\d+/]
+    @expected_sha256 = extract_sha256(data.fetch('assets', []))
+    return if @latest_version && @expected_sha256
 
-    error!(EX_UNAVAILABLE,
-           "Error: #{ARCH} architecture required (detected: #{arch}).")
+    error!(EX_UNAVAILABLE, "Error: Invalid release data from #{API_URL}.")
+  rescue JSON::ParserError
+    error!(EX_UNAVAILABLE, "Error: Failed to fetch release from #{API_URL}.")
   end
 
-  def verify_utilities!
-    missing = UTILITIES.reject { which(it) }
-    return if missing.empty?
+  def installed_version
+    bin = File.executable?(NVIM_BIN) ? NVIM_BIN : which('nvim')
+    return nil unless bin
 
-    error!(EX_UNAVAILABLE,
-           "Error: Required utilities not found in PATH: #{missing.join(', ')}")
+    `#{bin} --version 2>/dev/null`[/NVIM v(\d+\.\d+\.\d+)/, 1]
   end
 
   def ensure_neovim!
@@ -84,6 +84,19 @@ class BootstrapInstallNeovim
     verify_neovim!
   end
 
+  def verify_neovim!
+    version = installed_version
+    if version && Gem::Version.new(version) >= Gem::Version.new(@latest_version)
+      puts "nvim installed: #{NVIM_BIN} (v#{version})".green
+      check_path_notice(BIN_DIR)
+      return
+    end
+
+    error!(EX_UNAVAILABLE,
+           "Error: nvim >= #{@latest_version} required " \
+           "(found: #{version || 'none'}).")
+  end
+
   def prompt_install!(current)
     action =
       if current
@@ -92,29 +105,6 @@ class BootstrapInstallNeovim
         "Install nvim v#{@latest_version}"
       end
     confirm?("#{action} in #{BIN_DIR}?") || error!(EX_NO, 'Aborted.')
-  end
-
-  def fetch_latest_release!
-    data = JSON.parse(`curl -fsSL #{API_URL} 2>/dev/null`)
-    @latest_version = data.fetch('tag_name', '')[/\d+\.\d+\.\d+/]
-    @expected_sha256 = extract_sha256(data.fetch('assets', []))
-    return if @latest_version && @expected_sha256
-
-    error!(EX_UNAVAILABLE, "Error: Invalid release data from #{API_URL}.")
-  rescue JSON::ParserError
-    error!(EX_UNAVAILABLE, "Error: Failed to fetch release from #{API_URL}.")
-  end
-
-  def extract_sha256(assets)
-    asset = assets.find { |item| item['name'] == TARBALL }
-    asset ? asset.fetch('digest', '')[/\Asha256:(\h{64})\z/, 1] : nil
-  end
-
-  def installed_version
-    bin = File.executable?(NVIM_BIN) ? NVIM_BIN : which('nvim')
-    return nil unless bin
-
-    `#{bin} --version 2>/dev/null`[/NVIM v(\d+\.\d+\.\d+)/, 1]
   end
 
   def install_neovim!
@@ -134,6 +124,15 @@ class BootstrapInstallNeovim
     error!(EX_OSERR, 'Error: Failed to download Neovim archive.')
   end
 
+  def extract_archive!(archive)
+    FileUtils.rm_rf(CLEAN_DIRS)
+    FileUtils.mkdir_p(LOCAL_DIR)
+    return if system('tar', '-C', LOCAL_DIR, '--strip-components=1',
+                     '-xzf', archive)
+
+    error!(EX_OSERR, 'Error: Failed to extract Neovim archive.')
+  end
+
   def verify_checksum!(archive)
     actual = Digest::SHA256.file(archive).hexdigest
     if actual == @expected_sha256
@@ -146,60 +145,6 @@ class BootstrapInstallNeovim
         expected: #{@expected_sha256}
         actual:   #{actual}
     MSG
-  end
-
-  def extract_archive!(archive)
-    FileUtils.rm_rf(CLEAN_DIRS)
-    FileUtils.mkdir_p(LOCAL_DIR)
-    return if system('tar', '-C', LOCAL_DIR, '--strip-components=1',
-                     '-xzf', archive)
-
-    error!(EX_OSERR, 'Error: Failed to extract Neovim archive.')
-  end
-
-  def verify_neovim!
-    version = installed_version
-    if version && Gem::Version.new(version) >= Gem::Version.new(@latest_version)
-      puts "nvim installed: #{NVIM_BIN} (v#{version})".green
-      check_path_notice
-      return
-    end
-
-    error!(EX_UNAVAILABLE,
-           "Error: nvim >= #{@latest_version} required " \
-           "(found: #{version || 'none'}).")
-  end
-
-  def check_path_notice
-    return if paths.include?(BIN_DIR)
-
-    warn "Notice: #{BIN_DIR} is not currently in your PATH.".yellow
-  end
-
-  def which(cmd)
-    paths.each do |dir|
-      bin = File.join(dir, cmd)
-      return bin if File.file?(bin) && File.executable?(bin)
-    end
-    nil
-  end
-
-  def paths
-    ENV.fetch('PATH', '').split(File::PATH_SEPARATOR)
-  end
-
-  def error!(val, msg)
-    warn msg.red
-    exit val
-  end
-
-  def confirm?(prompt)
-    print "#{prompt.yellow} [y/N]: "
-    $stdout.flush
-    reply = $stdin.gets
-    return false unless reply
-
-    /^[Yy]([Ee][Ss])?$/.match?(reply.strip)
   end
 end
 

@@ -21,6 +21,7 @@ HELP
 # rubocop:disable-next Metrics/ClassLength
 class BootstrapFish
   include Wile::Sysexits
+  include Wile::Utilities
 
   FISH_MIN_VERSION = '4.0'
   FISH_URL         = 'https://fishshell.com/'
@@ -30,7 +31,7 @@ class BootstrapFish
 
   def initialize
     verify_linux!
-    verify_rbenv!
+    verify_rbenv!(re_run: './bin/bootstrap_fish')
     ensure_fish!
     configure_rbenv!
     configure_default_shell!
@@ -39,28 +40,53 @@ class BootstrapFish
 
   private
 
-  def verify_linux!
-    os = `uname -s`.strip
-    return if os == 'Linux'
+  # rubocop:disable-next Metrics/MethodLength
+  def configure_default_shell!
+    fish_path = which('fish')
+    return if fish_path.nil? || ENV['SHELL'] == fish_path
 
-    error!(EX_UNAVAILABLE,
-           "Error: Wile is meant to be run on Linux (detected: #{os}).")
+    puts "Your current login shell is #{ENV['SHELL'] || 'unknown'}."
+    prompt = "Set fish (#{fish_path}) as your default login shell via chsh?"
+    unless confirm?(prompt)
+      puts 'Skipping default shell change.'
+      return
+    end
+
+    if system('chsh', '-s', fish_path)
+      puts "Default shell set to #{fish_path} (re-login to take effect).".green
+    else
+      error!(EX_OSERR, "Error: chsh failed. Run manually: chsh -s #{fish_path}")
+    end
   end
 
-  def verify_rbenv!
-    rbenv = File.expand_path('~/.rbenv/bin/rbenv')
-    return if File.executable?(rbenv)
+  # rubocop:disable-next Metrics/MethodLength
+  def configure_rbenv!
+    config_file = File.expand_path('~/.config/fish/config.fish')
+    if File.exist?(config_file) && File.read(config_file).include?('rbenv init')
+      puts "rbenv initialization already present in #{config_file}.".green
+      return
+    end
 
-    error!(EX_UNAVAILABLE, <<~MSG)
-      Error: rbenv not found at #{rbenv}.
-      Run ./bin/bootstrap_ruby_rbenv first, then re-run:
-        ./bin/bootstrap_fish
-    MSG
+    unless confirm?("Add rbenv initialization to #{config_file}?")
+      error!(EX_NO, <<~MSG)
+        Aborted. To configure manually, add this line to #{config_file}:
+          #{RBENV_INIT_LINE}
+        Then re-run:
+          ./bin/bootstrap_fish
+      MSG
+    end
+
+    FileUtils.mkdir_p(File.dirname(config_file))
+    File.open(config_file, 'a') do |file|
+      file.puts unless File.empty?(config_file)
+      file.puts '# RbEnv', RBENV_INIT_LINE
+    end
+    puts "Updated #{config_file} with rbenv initialization.".green
   end
 
   def ensure_fish!
     version = fish_version
-    if version && version_ok?(version)
+    if version && version_ok?(version, FISH_MIN_VERSION)
       msg = "fish found: #{`fish --version`.strip} (>= #{FISH_MIN_VERSION})"
       puts msg.green
       return
@@ -68,20 +94,6 @@ class BootstrapFish
 
     explain_fish(version)
     install_fish!
-  end
-
-  def fish_version
-    return nil unless command_available?('fish')
-
-    `fish --version 2>/dev/null`[/\d+\.\d+/]
-  end
-
-  def version_ok?(version)
-    Gem::Version.new(version) >= Gem::Version.new(FISH_MIN_VERSION)
-  end
-
-  def command_available?(cmd)
-    !which(cmd).nil?
   end
 
   # rubocop:disable-next Metrics/MethodLength
@@ -114,7 +126,7 @@ class BootstrapFish
     end
 
     version = fish_version
-    return if version && version_ok?(version)
+    return if version && version_ok?(version, FISH_MIN_VERSION)
 
     manual_fish_instructions!(version)
   end
@@ -126,7 +138,7 @@ class BootstrapFish
     candidate =
       `apt-cache policy fish 2>/dev/null`[/Candidate:\s*(\d+\.\d+)/, 1]
     return false unless candidate
-    return true if version_ok?(candidate)
+    return true if version_ok?(candidate, FISH_MIN_VERSION)
 
     puts "apt candidate for fish (#{candidate}) is < #{FISH_MIN_VERSION}."
       .yellow
@@ -143,76 +155,6 @@ class BootstrapFish
       Then re-run:
         ./bin/bootstrap_fish
     MSG
-  end
-
-  # rubocop:disable-next Metrics/MethodLength
-  def configure_rbenv!
-    config_file = File.expand_path('~/.config/fish/config.fish')
-    if File.exist?(config_file) && File.read(config_file).include?('rbenv init')
-      puts "rbenv initialization already present in #{config_file}.".green
-      return
-    end
-
-    unless confirm?("Add rbenv initialization to #{config_file}?")
-      error!(EX_NO, <<~MSG)
-        Aborted. To configure manually, add this line to #{config_file}:
-          #{RBENV_INIT_LINE}
-        Then re-run:
-          ./bin/bootstrap_fish
-      MSG
-    end
-
-    FileUtils.mkdir_p(File.dirname(config_file))
-    File.open(config_file, 'a') do |file|
-      file.puts unless File.empty?(config_file)
-      file.puts '# RbEnv', RBENV_INIT_LINE
-    end
-    puts "Updated #{config_file} with rbenv initialization.".green
-  end
-
-  # rubocop:disable-next Metrics/MethodLength
-  def configure_default_shell!
-    fish_path = which('fish')
-    return if fish_path.nil? || ENV['SHELL'] == fish_path
-
-    puts "Your current login shell is #{ENV['SHELL'] || 'unknown'}."
-    prompt = "Set fish (#{fish_path}) as your default login shell via chsh?"
-    unless confirm?(prompt)
-      puts 'Skipping default shell change.'
-      return
-    end
-
-    if system('chsh', '-s', fish_path)
-      puts "Default shell set to #{fish_path} (re-login to take effect).".green
-    else
-      error!(EX_OSERR, "Error: chsh failed. Run manually: chsh -s #{fish_path}")
-    end
-  end
-
-  def which(cmd)
-    paths.each do |dir|
-      bin = File.join(dir, cmd)
-      return bin if File.file?(bin) && File.executable?(bin)
-    end
-    nil
-  end
-
-  def paths
-    ENV.fetch('PATH', '').split(File::PATH_SEPARATOR)
-  end
-
-  def error!(val, msg)
-    warn msg.red
-    exit val
-  end
-
-  def confirm?(prompt)
-    print "#{prompt.yellow} [y/N]: "
-    $stdout.flush
-    reply = $stdin.gets
-    return false unless reply
-
-    /^[Yy]([Ee][Ss])?$/.match?(reply.strip)
   end
 end
 
