@@ -4,51 +4,33 @@
 Encoding.default_external = Encoding::UTF_8
 
 require 'rbconfig'
-require_relative '../lib/wile/utilities'
 require_relative '../lib/wile'
+
+HelpParser[Wile::VERSION, <<~HELP]
+  # ## bootstrap_ruby_gems ##
+  # Bootstraps the Ruby gems required by Wile by verifying `rbenv` and the
+  # active Ruby version against `.ruby-version`, updating `bundler`, and
+  # running `bundle update --all`.
+  Usage:
+    bootstrap_ruby_gems [:options+]
+  Options:
+    -h --help
+    -v --version
+HELP
 
 # Bootstraps Ruby gems for Wile into the active rbenv Ruby version.
 class BootstrapRubyGems
   include Wile::Sysexits
   include Wile::Utilities
 
-  USAGE = <<~TEXT
-    Usage:
-      bootstrap_ruby_gems [-h|--help|-v|--version]
-
-    Description:
-      Bootstraps the Ruby gems required by Wile by verifying `rbenv` and the
-      active Ruby version against `.ruby-version`, updating `bundler`, and
-      running `bundle update --all`.
-  TEXT
-
-  def initialize(args = ARGV)
+  def initialize
     verify_project_root!
-    parse_args!(args)
     verify_rbenv!(require_in_path: true, re_run: './bin/bootstrap_ruby_gems')
     verify_ruby_project_version!(re_run: './bin/bootstrap_ruby_gems')
     install_gems!
   end
 
   private
-
-  # rubocop:disable-next Metrics/MethodLength
-  def parse_args!(args)
-    if args.intersect?(%w[-v --version])
-      puts File.read('.version').strip
-      exit EX_OK
-    end
-
-    if args.intersect?(%w[-h --help])
-      puts USAGE
-      exit EX_OK
-    end
-
-    return if args.empty?
-
-    warn "Error: Unknown argument(s): #{args.join(' ')}"
-    error!(EX_USAGE, 'Usage: bootstrap_ruby_gems [-h|--help|-v|--version]')
-  end
 
   def install_gems!
     unless confirm?("Update bundler and run 'bundle update --all' " \

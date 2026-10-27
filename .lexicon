@@ -180,7 +180,6 @@ Test
 Time
 Translation
 UPDATE_USAGE
-USAGE
 UTF_8
 UTILITIES
 Usage
@@ -674,7 +673,6 @@ packages
 pad
 padding
 parse
-parse_args
 parse_file
 parts
 pascal_case
