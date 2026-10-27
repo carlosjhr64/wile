@@ -4,6 +4,7 @@
 Encoding.default_external = Encoding::UTF_8
 
 require 'rbconfig'
+require_relative '../lib/wile/utilities'
 require_relative '../lib/wile'
 
 # Bootstraps Ruby gems for Wile into the active rbenv Ruby version.
@@ -25,7 +26,7 @@ class BootstrapRubyGems
     verify_project_root!
     parse_args!(args)
     verify_rbenv!(require_in_path: true, re_run: './bin/bootstrap_ruby_gems')
-    verify_ruby_project_version!
+    verify_ruby_project_version!(re_run: './bin/bootstrap_ruby_gems')
     install_gems!
   end
 

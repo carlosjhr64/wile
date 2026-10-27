@@ -3,6 +3,7 @@
 
 Encoding.default_external = Encoding::UTF_8
 
+require_relative '../lib/wile/utilities'
 require_relative '../lib/wile'
 
 HelpParser[Wile::VERSION, <<~HELP]

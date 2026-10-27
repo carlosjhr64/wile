@@ -178,7 +178,8 @@ module Wile
 
     # Used in: bootstrap_ruby_gems
     # rubocop:disable-next Metrics/MethodLength
-    def verify_ruby_project_version!(version_file = '.ruby-version')
+    def verify_ruby_project_version!(version_file = '.ruby-version',
+                                     re_run: nil)
       expected = File.read(version_file).strip
       rbenv_root = `rbenv root`.strip
       expected_prefix = "#{rbenv_root}/versions/#{expected}/"
@@ -189,12 +190,13 @@ module Wile
         return
       end
 
+      re_run_hint = re_run ? ", then re-run:\n  #{re_run}" : '.'
       error!(EX_CONFIG, <<~MSG)
         Error: Expected rbenv Ruby #{expected} (from #{version_file}),
         but current ruby is #{RUBY_VERSION} at #{ruby_path}.
 
         Ensure ./bin/bootstrap_ruby_rbenv has been run and rbenv shims
-        are active in your shell.
+        are active in your shell#{re_run_hint}
       MSG
     end
 

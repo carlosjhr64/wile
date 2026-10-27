@@ -3,6 +3,7 @@
 
 Encoding.default_external = Encoding::UTF_8
 
+require_relative '../lib/wile/utilities'
 require_relative '../lib/wile'
 
 HelpParser[Wile::VERSION, <<~HELP]
@@ -68,12 +69,11 @@ class BootstrapFisherPlugins
   def verify_fish!
     version = fish_version
     unless version && version_ok?(version, FISH_MIN_VERSION)
-      error!(EX_UNAVAILABLE, <<~MSG)
-        Error: fish >= #{FISH_MIN_VERSION} required
-        (found: #{version || 'none'}).
-        Run ./bin/bootstrap_fish first, then re-run:
-          ./bin/bootstrap_fisher_plugins
-      MSG
+      error!(EX_UNAVAILABLE,
+             "Error: fish >= #{FISH_MIN_VERSION} required " \
+             "(found: #{version || 'none'}).\n" \
+             "Run ./bin/bootstrap_fish first, then re-run:\n  " \
+             "./bin/bootstrap_fisher_plugins\n")
     end
 
     puts "fish found: #{`fish --version`.strip} (>= #{FISH_MIN_VERSION})".green
