@@ -36,7 +36,6 @@ class TestVersion < Test::Unit::TestCase
 
   def test_lib_version
     if grep_version
-      warn 'Consider reading `.version` for VERSION.'
       assert_equal(version, grep_version)
     else
       # A strict prescription:

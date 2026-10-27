@@ -18,7 +18,7 @@ require 'colorize'
 # The Wile module is the main namespace for the Wile application.
 module Wile
   ROOT = File.expand_path('..', __dir__)
-  VERSION = File.read("#{ROOT}/.version").chomp
+  VERSION = '0.2.261027'
   autoload :Run,        File.join(__dir__, 'wile/run')
   autoload :Sysexits,   File.join(__dir__, 'wile/sysexits')
   autoload :Refinement, File.join(__dir__, 'wile/refinement')
