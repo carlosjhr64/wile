@@ -1,247 +1,360 @@
-#!/usr/bin/env bash
-set -euo pipefail
+#!/usr/bin/env ruby
+# frozen_string_literal: true
 
-if [[ "$(uname -s)" != "Linux" ]]; then
-  echo "Error: Wile is meant to be run on Linux (detected: $(uname -s))." >&2
-  exit 69 # Unavailable
-fi
+Encoding.default_external = Encoding::UTF_8
 
-for f in .version .ruby-version; do
-  if [[ ! -s "${f}" ]]; then
-    echo "Error: ${f} not found — run this from a Wile project's root directory." >&2
-    exit 66 # No input
-  fi
-done
+# --- Preamble: Platform, Root, Arguments, and Gem Bootstrapping ---
 
-for arg in "$@"; do
-  if [[ "${arg}" == "--version" || "${arg}" == "-v" ]]; then
-    cat .version
-    exit 0
-  fi
-done
+detected_os = `uname -s`.strip
+unless detected_os == 'Linux'
+  warn "Error: Wile is meant to be run on Linux (detected: #{detected_os})."
+  exit 69
+end
 
-for arg in "$@"; do
-  if [[ "${arg}" == "--help" || "${arg}" == "-h" ]]; then
-    cat <<'EOF'
-Usage:
-  bootstrap_ruby_rbenv [-h|--help|-v|--version]
+%w[.version .ruby-version].each do |file|
+  next if File.file?(file) && !File.empty?(file)
 
-Description:
-  Bootstraps the Ruby environment for Wile by verifying Ruby build
-  dependencies, `rbenv` and its `ruby-build` plugin, updating available
-  Ruby definitions, and ensuring the Ruby version in `.ruby-version` is
-  installed.
-EOF
-    exit 0
-  fi
-done
+  warn "Error: #{file} not found — run this from a Wile project's " \
+       'root directory.'
+  exit 66
+end
 
-if [[ $# -gt 0 ]]; then
-  echo "Error: Unknown argument(s): $*" >&2
-  echo "Usage: bootstrap_ruby_rbenv [-h|--help|-v|--version]" >&2
-  exit 64 # Usage
-fi
+if ARGV.intersect?(%w[-v --version])
+  puts File.read('.version').strip
+  exit 0
+end
 
-confirm() {
-  local prompt="$1"
-  local reply=""
-  read -r -p "${prompt} [y/N]: " reply || { echo; return 1; }
-  [[ "${reply}" =~ ^[Yy]([Ee][Ss])?$ ]]
-}
+if ARGV.intersect?(%w[-h --help])
+  puts <<~HELP
+    Usage:
+      bootstrap_ruby_rbenv [-h|--help|-v|--version]
 
-print_manual_rbenv_init() {
-  local rbenv_cmd="${1:-rbenv}"
-  cat >&2 <<EOF
-  - For fish (~/.config/fish/config.fish):
-      status --is-interactive; and ${rbenv_cmd} init - --no-rehash fish | source
-  - For bash (~/.bashrc):
-      eval "\$(${rbenv_cmd} init - --no-rehash bash)"
-EOF
-}
+    Description:
+      Bootstraps the Ruby environment for Wile by verifying Ruby build
+      dependencies, `rbenv` and its `ruby-build` plugin, updating available
+      Ruby definitions, and ensuring the Ruby version in `.ruby-version` is
+      installed.
 
-REQUIRED_PACKAGES=(
-  autoconf
-  build-essential
-  git
-  patch
-  rustc
-  libffi-dev
-  libgmp-dev
-  libncurses-dev
-  libreadline-dev
-  libssl-dev
-  libyaml-dev
-  zlib1g-dev
-)
+      It will also install the two gems (`help_parser` and `colorize`)
+      if missing.
+  HELP
+  exit 0
+end
 
-if command -v dpkg-query >/dev/null 2>&1 && command -v apt-get >/dev/null 2>&1; then
-  MISSING_PACKAGES=()
-  for pkg in "${REQUIRED_PACKAGES[@]}"; do
-    if [[ "$(dpkg-query -W -f='${db:Status-Status}' "${pkg}" 2>/dev/null || true)" != "installed" ]]; then
-      MISSING_PACKAGES+=("${pkg}")
-    fi
-  done
+unless ARGV.empty?
+  warn "Error: Unknown argument(s): #{ARGV.join(' ')}"
+  warn 'Usage: bootstrap_ruby_rbenv [-h|--help|-v|--version]'
+  exit 64
+end
 
-  if [[ ${#MISSING_PACKAGES[@]} -gt 0 ]]; then
-    echo "Missing required packages: ${MISSING_PACKAGES[*]}"
-    if confirm "Install missing packages with sudo apt-get?"; then
-      sudo apt-get update || {
-        echo "Error: 'sudo apt-get update' failed." >&2
-        exit 71 # OS error
-      }
-      sudo apt-get install -y "${MISSING_PACKAGES[@]}" || {
-        echo "Error: 'sudo apt-get install' failed." >&2
-        exit 71 # OS error
-      }
+REQUIRED_PREAMBLE_GEMS = %w[help_parser colorize].freeze
+missing_preamble_gems = REQUIRED_PREAMBLE_GEMS.reject do |gem_name|
+  Gem::Specification.find_all_by_name(gem_name).any?
+end
+
+unless missing_preamble_gems.empty?
+  print "Install #{missing_preamble_gems.join(', ')} with gem install? [y/N]: "
+  $stdout.flush
+  reply = $stdin.gets
+  unless reply && /^[Yy]([Ee][Ss])?$/.match?(reply.strip)
+    warn 'Aborted.'
+    exit 1
+  end
+
+  cmd = ['gem', 'install', '--user-install', *missing_preamble_gems]
+  unless system(*cmd)
+    warn "Error: '#{cmd.join(' ')}' failed."
+    exit 71
+  end
+
+  Gem.clear_paths
+  REQUIRED_PREAMBLE_GEMS.each do |gem_name|
+    require gem_name
+  rescue LoadError => e
+    warn "Error: Failed to load gem '#{gem_name}': #{e.message}"
+    exit 69
+  end
+end
+
+require_relative '../lib/wile'
+
+# Bootstraps the Ruby environment for Wile.
+# rubocop:disable-next Metrics/ClassLength
+class BootstrapRubyRbenv
+  include Wile::Sysexits
+  include Wile::Utilities
+
+  BUILD_PACKAGES = %w[
+    autoconf
+    build-essential
+    git
+    patch
+    rustc
+    libffi-dev
+    libgmp-dev
+    libncurses-dev
+    libreadline-dev
+    libssl-dev
+    libyaml-dev
+    zlib1g-dev
+  ].freeze
+  SUPPORTED_SHELLS = %w[bash fish zsh ksh].freeze
+  RBENV_URL        = 'https://github.com/rbenv/rbenv.git'
+  RUBY_BUILD_URL   = 'https://github.com/rbenv/ruby-build.git'
+
+  RBENV_INFO = <<~TEXT
+    `rbenv` was not found in your PATH.
+
+    How Wile projects use `rbenv`:
+      - Each project defines its target Ruby version in `.ruby-version`, which
+        `rbenv` uses to automatically switch to the required Ruby (>= 4.0).
+      - `wile install` and `gem install` install gems into the user-managed
+        `rbenv` Ruby environment without requiring root (`sudo`) privileges.
+      - `wile gemcheck` inspects `~/.rbenv/versions` to compare installed gems
+        across your Ruby versions.
+      - `wile requirements` checks for `rbenv` (>= 1.3).
+
+  TEXT
+
+  def initialize
+    verify_dependencies!
+    ensure_rbenv!
+    ensure_ruby_build!
+    ensure_target_ruby!
+    verify_active_ruby!
+  end
+
+  private
+
+  # category: dependencies
+  def verify_generic_packages!
+    warn <<~NOTICE
+      Notice: `dpkg-query` and `apt-get` were not found to verify the
+      required packages. Ensure your system has the equivalents of these
+      Debian/Ubuntu packages installed, so this script can fetch `rbenv`
+      and `ruby-build` and compile Ruby from source:
+        #{BUILD_PACKAGES.join(' ')}
+    NOTICE
+    return if confirm?('Proceed assuming these requirements are satisfied?')
+
+    error!(EX_NO, 'Aborted.')
+  end
+
+  def verify_dependencies!
+    if command_available?('dpkg-query') && command_available?('apt-get')
+      verify_apt_packages!
     else
-      echo "Aborted. Install them manually with:" >&2
-      echo "  sudo apt-get update && sudo apt-get install ${MISSING_PACKAGES[*]}" >&2
-      exit 1
-    fi
-  fi
-  echo "Ruby build dependencies verified."
-else
-  cat >&2 <<EOF
-Notice: \`dpkg-query\` and \`apt-get\` were not found to verify the required packages.
-Ensure your system has the equivalents of these Debian/Ubuntu packages installed,
-so this script can fetch \`rbenv\` and \`ruby-build\` and compile Ruby from source:
-  ${REQUIRED_PACKAGES[*]}
-EOF
-  if ! confirm "Proceed assuming these requirements are satisfied?"; then
-    echo "Aborted." >&2
-    exit 1
-  fi
-fi
+      verify_generic_packages!
+    end
+  end
 
-if ! command -v rbenv >/dev/null 2>&1; then
-  cat <<'EOF'
-`rbenv` was not found in your PATH.
+  def check_missing_packages(packages)
+    packages.reject do |pkg|
+      `dpkg-query -W -f='${db:Status-Status}' #{pkg} 2>/dev/null`.strip ==
+        'installed'
+    end
+  end
 
-How Wile projects use `rbenv`:
-  - Each project defines its target Ruby version in `.ruby-version`, which
-    `rbenv` uses to automatically switch to the required Ruby (>= 4.0).
-  - `wile install` and `gem install` install gems into the user-managed
-    `rbenv` Ruby environment without requiring root (`sudo`) privileges.
-  - `wile gemcheck` inspects `~/.rbenv/versions` to compare installed gems
-    across your Ruby versions.
-  - `wile requirements` checks for `rbenv` (>= 1.3).
+  def verify_apt_packages!
+    missing = check_missing_packages(BUILD_PACKAGES)
+    if missing.empty?
+      puts 'Ruby build dependencies verified.'.green
+      return
+    end
 
-EOF
+    prompt_apt_install!(missing)
+  end
 
-  if [[ ! -x "${HOME}/.rbenv/bin/rbenv" ]]; then
-    if confirm "Clone https://github.com/rbenv/rbenv.git into ${HOME}/.rbenv?"; then
-      git clone https://github.com/rbenv/rbenv.git "${HOME}/.rbenv" || {
-        echo "Error: 'git clone' of rbenv failed." >&2
-        exit 71 # OS error
-      }
+  # rubocop:disable-next Metrics/MethodLength
+  def prompt_apt_install!(missing)
+    puts "Missing required packages: #{missing.join(' ')}".yellow
+    if confirm?('Install missing packages with sudo apt-get?')
+      system('sudo', 'apt-get', 'update') ||
+        error!(EX_OSERR, "Error: 'sudo apt-get update' failed.")
+      system('sudo', 'apt-get', 'install', '-y', *missing) ||
+        error!(EX_OSERR, "Error: 'sudo apt-get install' failed.")
     else
-      echo "Aborted. You can install it manually with:" >&2
-      echo "  git clone https://github.com/rbenv/rbenv.git ~/.rbenv" >&2
-      exit 1
-    fi
-  else
-    echo "Found existing rbenv installation at ${HOME}/.rbenv."
-  fi
+      warn 'Aborted. Install them manually with:'
+      warn "  sudo apt-get update && sudo apt-get install #{missing.join(' ')}"
+      exit EX_NO
+    end
+    puts 'Ruby build dependencies verified.'.green
+  end
 
-  USER_SHELL="$(ps -p "${PPID}" -o comm= 2>/dev/null || true)"
-  USER_SHELL="${USER_SHELL##-}"
-  case "${USER_SHELL}" in
-    bash|fish|zsh|ksh) ;;
-    *) USER_SHELL="${SHELL:+${SHELL##*/}}" ;;
-  esac
+  # category: rbenv
+  def ensure_rbenv!
+    if command_available?('rbenv')
+      puts "rbenv found: #{`rbenv --version`.strip}".green
+      return
+    end
 
-  case "${USER_SHELL}" in
-    bash|fish|zsh|ksh) ;;
-    *)
-      echo "Error: Could not detect a supported shell (found: '${USER_SHELL:-none}')." >&2
-      echo "Configure your shell for rbenv manually, then re-run:" >&2
-      print_manual_rbenv_init "~/.rbenv/bin/rbenv"
-      exit 78 # Config
-      ;;
-  esac
+    puts RBENV_INFO
+    clone_rbenv_if_missing!
+    configure_rbenv_shell!
+  end
 
-  if confirm "Configure ${USER_SHELL} for rbenv via '${HOME}/.rbenv/bin/rbenv init ${USER_SHELL}'?"; then
-    "${HOME}/.rbenv/bin/rbenv" init "${USER_SHELL}" || {
-      echo "Error: 'rbenv init ${USER_SHELL}' failed." >&2
-      exit 71 # OS error
-    }
-  else
-    echo "Aborted. Configure your shell manually:" >&2
-    print_manual_rbenv_init "~/.rbenv/bin/rbenv"
-    exit 1
-  fi
+  # rubocop:disable-next Metrics/MethodLength
+  def clone_rbenv_if_missing!
+    rbenv_dir = File.expand_path('~/.rbenv')
+    rbenv_bin = File.join(rbenv_dir, 'bin/rbenv')
+    if File.executable?(rbenv_bin)
+      puts "Found existing rbenv installation at #{rbenv_dir}."
+      return
+    end
 
-  echo
-  echo "Restart your shell so the rbenv configuration takes effect, then re-run:"
-  echo "  ./bin/bootstrap_ruby_rbenv"
-  exit 78 # Config
-fi
+    if confirm?("Clone #{RBENV_URL} into #{rbenv_dir}?")
+      system('git', 'clone', RBENV_URL, rbenv_dir) ||
+        error!(EX_OSERR, "Error: 'git clone' of rbenv failed.")
+    else
+      warn 'Aborted. You can install it manually with:'
+      warn "  git clone #{RBENV_URL} ~/.rbenv"
+      exit EX_NO
+    end
+  end
 
-echo "rbenv found: $(rbenv --version)"
+  def detect_user_shell
+    comm = `ps -p #{Process.ppid} -o comm= 2>/dev/null`.strip.sub(/\A-/, '')
+    return comm if SUPPORTED_SHELLS.include?(comm)
 
-RUBY_BUILD_DIR="$(rbenv root)/plugins/ruby-build"
+    fallback = File.basename(ENV.fetch('SHELL', ''))
+    return fallback if SUPPORTED_SHELLS.include?(fallback)
 
-if [[ ! -d "${RUBY_BUILD_DIR}/.git" ]]; then
-  cat >&2 <<EOF
-The \`ruby-build\` plugin was not found at ${RUBY_BUILD_DIR}.
+    return fallback unless fallback.empty?
+    return comm unless comm.empty?
 
-\`rbenv\` relies on the \`ruby-build\` plugin to provide \`rbenv install\`
-and keep the list of available Ruby versions up to date.
-EOF
-  if confirm "Clone https://github.com/rbenv/ruby-build.git into ${RUBY_BUILD_DIR}?"; then
-    git clone https://github.com/rbenv/ruby-build.git "${RUBY_BUILD_DIR}" || {
-      echo "Error: 'git clone' of ruby-build failed." >&2
-      exit 71 # OS error
-    }
-  else
-    echo "Aborted. You can install it manually with:" >&2
-    echo "  git clone https://github.com/rbenv/ruby-build.git \"${RUBY_BUILD_DIR}\"" >&2
-    exit 1
-  fi
-else
-  if confirm "Pull latest Ruby version definitions in ${RUBY_BUILD_DIR}?"; then
-    git -C "${RUBY_BUILD_DIR}" pull || echo "Git pull failed, proceeding anyway..." >&2
-  else
-    echo "Skipping ruby-build update."
-  fi
-fi
+    'none'
+  end
 
-echo "ruby-build found: $(rbenv install --version)"
+  def configure_rbenv_shell!
+    user_shell = detect_user_shell
+    unless SUPPORTED_SHELLS.include?(user_shell)
+      warn "Error: Could not detect a supported shell (found: '#{user_shell}')."
+      warn 'Configure your shell for rbenv manually, then re-run:'
+      print_manual_rbenv_init('~/.rbenv/bin/rbenv')
+      exit EX_CONFIG
+    end
 
-RUBY_VERSION="$(tr -d '[:space:]' < .ruby-version)"
+    prompt_configure_shell!(user_shell)
+  end
 
-if rbenv versions --bare | grep -Fxq "${RUBY_VERSION}"; then
-  echo "Ruby ${RUBY_VERSION} is already installed."
-else
-  echo "Ruby ${RUBY_VERSION} (specified in .ruby-version) is not installed."
-  if confirm "Install Ruby ${RUBY_VERSION} via rbenv now?"; then
-    rbenv install "${RUBY_VERSION}" || {
-      echo "Error: 'rbenv install ${RUBY_VERSION}' failed." >&2
-      exit 71 # OS error
-    }
-    rbenv rehash || {
-      echo "Error: 'rbenv rehash' failed." >&2
-      exit 71 # OS error
-    }
-  else
-    echo "Aborted. You can install it later with: rbenv install ${RUBY_VERSION}" >&2
-    exit 1
-  fi
-fi
+  # rubocop:disable-next Metrics/MethodLength
+  def prompt_configure_shell!(user_shell)
+    rbenv_bin = File.expand_path('~/.rbenv/bin/rbenv')
+    prompt = "Configure #{user_shell} for rbenv via " \
+             "'#{rbenv_bin} init #{user_shell}'?"
+    if confirm?(prompt)
+      system(rbenv_bin, 'init', user_shell) ||
+        error!(EX_OSERR, "Error: 'rbenv init #{user_shell}' failed.")
+    else
+      warn 'Aborted. Configure your shell manually:'
+      print_manual_rbenv_init('~/.rbenv/bin/rbenv')
+      exit EX_NO
+    end
 
-ACTIVE_RUBY="$(ruby -e 'print RUBY_VERSION' 2>/dev/null || true)"
-if [[ "${ACTIVE_RUBY}" != "${RUBY_VERSION}" ]]; then
-  cat >&2 <<EOF
-Error: Ruby ${RUBY_VERSION} is installed in rbenv, but this shell's \`ruby\`
-resolves to '${ACTIVE_RUBY:-none}' ($(command -v ruby || echo 'not found')).
+    puts
+    puts 'Restart your shell so the rbenv configuration takes effect, ' \
+         'then re-run:'
+    puts '  ./bin/bootstrap_ruby_rbenv'
+    exit EX_CONFIG
+  end
 
-Your shell likely hasn't initialized \`rbenv\` shims. Add \`rbenv init\` to your
-shell configuration, restart your shell, and re-run:
-EOF
-  print_manual_rbenv_init "rbenv"
-  exit 78 # Config
-fi
+  def print_manual_rbenv_init(rbenv_cmd = 'rbenv')
+    warn "  - For fish (~/.config/fish/config.fish):\n      " \
+         "status --is-interactive; and #{rbenv_cmd} " \
+         "init - --no-rehash fish | source\n  " \
+         "- For bash (~/.bashrc):\n      " \
+         "eval \"$(#{rbenv_cmd} init - --no-rehash bash)\""
+  end
 
-echo "Ruby verified: $(ruby --version)"
+  # category: build
+  def ensure_ruby_build!
+    rbenv_root = `rbenv root 2>/dev/null`.strip
+    ruby_build_dir = File.join(rbenv_root, 'plugins/ruby-build')
 
+    if File.directory?(File.join(ruby_build_dir, '.git'))
+      update_ruby_build!(ruby_build_dir)
+    else
+      clone_ruby_build!(ruby_build_dir)
+    end
 
+    version = `rbenv install --version 2>/dev/null`.strip
+    puts "ruby-build found: #{version}".green
+  end
+
+  def update_ruby_build!(ruby_build_dir)
+    if confirm?("Pull latest Ruby version definitions in #{ruby_build_dir}?")
+      return if system('git', '-C', ruby_build_dir, 'pull')
+
+      warn 'Git pull failed, proceeding anyway...'
+    else
+      puts 'Skipping ruby-build update.'
+    end
+  end
+
+  # rubocop:disable-next Metrics/MethodLength
+  def clone_ruby_build!(ruby_build_dir)
+    warn <<~TEXT
+      The `ruby-build` plugin was not found at #{ruby_build_dir}.
+
+      `rbenv` relies on the `ruby-build` plugin to provide `rbenv install`
+      and keep the list of available Ruby versions up to date.
+    TEXT
+    prompt = "Clone #{RUBY_BUILD_URL} into #{ruby_build_dir}?"
+    if confirm?(prompt)
+      system('git', 'clone', RUBY_BUILD_URL, ruby_build_dir) ||
+        error!(EX_OSERR, "Error: 'git clone' of ruby-build failed.")
+    else
+      warn "Aborted. You can install it manually with:\n  " \
+           "git clone #{RUBY_BUILD_URL} \"#{ruby_build_dir}\""
+      exit EX_NO
+    end
+  end
+
+  # category: ruby
+  def ensure_target_ruby!
+    target = File.read('.ruby-version').strip
+    installed = `rbenv versions --bare 2>/dev/null`.lines.map(&:strip)
+    if installed.include?(target)
+      puts "Ruby #{target} is already installed.".green
+      return
+    end
+
+    prompt_target_ruby_install!(target)
+  end
+
+  # rubocop:disable-next Metrics/MethodLength
+  def verify_active_ruby!
+    target = File.read('.ruby-version').strip
+    active_ruby = `ruby -e 'print RUBY_VERSION' 2>/dev/null`.strip
+    if active_ruby == target
+      puts "Ruby verified: #{`ruby --version`.strip}".green
+      return
+    end
+
+    ruby_path = which('ruby') || 'not found'
+    warn <<~MSG.red
+      Error: Ruby #{target} is installed in rbenv, but this shell's `ruby`
+      resolves to '#{active_ruby.empty? ? 'none' : active_ruby}' (#{ruby_path}).
+
+      Your shell likely hasn't initialized `rbenv` shims. Add `rbenv init` to
+      your shell configuration, restart your shell, and re-run:
+    MSG
+    print_manual_rbenv_init('rbenv')
+    exit EX_CONFIG
+  end
+
+  def prompt_target_ruby_install!(target)
+    puts "Ruby #{target} (specified in .ruby-version) is not installed.".yellow
+    if confirm?("Install Ruby #{target} via rbenv now?")
+      system('rbenv', 'install', target) ||
+        error!(EX_OSERR, "Error: 'rbenv install #{target}' failed.")
+      system('rbenv', 'rehash') ||
+        error!(EX_OSERR, "Error: 'rbenv rehash' failed.")
+    else
+      warn "Aborted. You can install it later with: rbenv install #{target}"
+      exit EX_NO
+    end
+  end
+end
+
+BootstrapRubyRbenv.new
