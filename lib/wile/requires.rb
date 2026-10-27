@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-## Local libraries:
+## List of Local Libraries:
 require_relative 'help'
 require_relative 'usage'
 require_relative 'tasks'
