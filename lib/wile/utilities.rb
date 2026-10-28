@@ -14,7 +14,7 @@ module Wile
     # category: lookup
     # --- Path & Executable Lookup ---
 
-    # Used in: bootstrap_ruby_rbenv
+    # Used in: missing_packages (internal helper)
     def package_installed?(pkg)
       `dpkg-query -W -f='${db:Status-Status}' #{pkg} 2>/dev/null`.strip ==
         'installed'
@@ -32,8 +32,7 @@ module Wile
       warn "Notice: #{dir} is not currently in your PATH.".yellow
     end
 
-    # Used in: bootstrap_fish, bootstrap_fisher_plugins,
-    #          bootstrap_install_neovim, bootstrap_system_commands
+    # Used in: check_path_notice, which (internal helper)
     def paths
       ENV.fetch('PATH', '').split(File::PATH_SEPARATOR)
     end
@@ -47,8 +46,7 @@ module Wile
       end
     end
 
-    # Used in: bootstrap_fish, bootstrap_fisher_plugins,
-    #          bootstrap_install_neovim, bootstrap_system_commands
+    # Used in: bootstrap_fish, bootstrap_install_neovim, bootstrap_ruby_rbenv
     def which(cmd)
       paths.each do |dir|
         bin = File.join(dir, cmd)
@@ -72,9 +70,7 @@ module Wile
              "#{missing.join(', ')}")
     end
 
-    # Used in: bootstrap_fish, bootstrap_fisher_plugins,
-    #          bootstrap_system_commands, bootstrap_ruby_gems
-    # (Harmonized: replaces subshell `which #{cmd}` with native which)
+    # Used in: bootstrap_fish, bootstrap_fisher_plugins, bootstrap_ruby_rbenv
     def command_available?(cmd)
       !which(cmd).nil?
     end
@@ -83,9 +79,8 @@ module Wile
     # --- User Prompts & Error Handling ---
 
     # Used in: bootstrap_fish, bootstrap_fisher_plugins,
-    #          bootstrap_install_neovim, bootstrap_system_commands,
-    #          bootstrap_ruby_gems
-    # (Harmonized: includes yellow prompt styling across all scripts)
+    #          bootstrap_install_neovim, bootstrap_ruby_gems,
+    #          bootstrap_ruby_rbenv, bootstrap_system_commands
     def confirm?(prompt)
       print "#{prompt.yellow} [y/N]: "
       $stdout.flush
@@ -96,9 +91,8 @@ module Wile
     end
 
     # Used in: bootstrap_fish, bootstrap_fisher_plugins,
-    #          bootstrap_install_neovim, bootstrap_system_commands,
-    #          bootstrap_ruby_gems
-    # (Harmonized: includes red error styling across all scripts)
+    #          bootstrap_install_neovim, bootstrap_ruby_gems,
+    #          bootstrap_ruby_rbenv, bootstrap_system_commands
     def error!(val, msg)
       warn msg.red
       exit val
@@ -139,8 +133,6 @@ module Wile
     end
 
     # Used in: bootstrap_fish, bootstrap_ruby_gems
-    # (Harmonized: optional require_in_path supports both initial fish setup
-    # and subsequent gem bundler environments)
     # :reek:BooleanParameter
     # rubocop:disable-next Metrics/MethodLength
     def verify_rbenv!(require_in_path: false, re_run: nil)
@@ -179,13 +171,14 @@ module Wile
       MSG
     end
 
-    # Used in: bootstrap_fisher_plugins, bootstrap_fish
-    # (Harmonized: generalized to accept min_version)
+    # Used in: bootstrap_fish, bootstrap_fisher_plugins,
+    #          bootstrap_install_neovim
     def version_ok?(version, min_version)
+      # This is strictly greater than or equal, not a "twiddle-wakka".
       Gem::Version.new(version) >= Gem::Version.new(min_version)
     end
 
-    # Used in: bootstrap_ruby_gems, bootstrap_ruby_rbenv
+    # Used in: bootstrap_ruby_rbenv (and verify_ruby_project_version!)
     def rbenv_root
       `rbenv root 2>/dev/null`.strip
     end
