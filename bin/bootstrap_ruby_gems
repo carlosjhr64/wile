@@ -3,7 +3,6 @@
 
 Encoding.default_external = Encoding::UTF_8
 
-require 'rbconfig'
 require_relative '../lib/wile'
 
 HelpParser[Wile::VERSION, <<~HELP]

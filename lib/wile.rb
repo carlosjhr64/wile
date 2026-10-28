@@ -10,6 +10,7 @@ autoload :FileUtils,  'fileutils'
 autoload :JSON,       'json'
 autoload :ERB,        'erb'
 autoload :Prism,      'prism'
+autoload :RbConfig,   'rbconfig'
 
 ## Third-party gems:
 autoload :HelpParser, 'help_parser'

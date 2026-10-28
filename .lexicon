@@ -209,6 +209,7 @@ allowed_opt
 already_published
 any
 apt_fish_available
+apt_install
 arch
 archive
 arg
@@ -265,7 +266,6 @@ cfile2pfile
 cfiles
 check
 check_commands
-check_missing_packages
 check_p2c
 check_path_notice
 checks
@@ -462,6 +462,7 @@ freeze
 fullname
 func
 gem
+gem_installed
 gem_name
 gem_which
 gemcheck
@@ -523,7 +524,6 @@ initialize
 insert
 inspect
 install
-install_commands
 install_fish
 install_gems
 install_neovim
@@ -601,7 +601,8 @@ missed_optional_notice
 missed_required
 missed_required_notice
 missing
-missing_from
+missing_commands
+missing_packages
 missing_postamble_gems
 missing_preamble_gems
 mkdir
@@ -672,6 +673,7 @@ p
 p2c
 p2c_and_missing
 p2c_hash
+package_installed
 packages
 pad
 padding
@@ -931,7 +933,6 @@ verify_project_root
 verify_rbenv
 verify_ruby_min_version
 verify_ruby_project_version
-verify_ruby_version
 verify_utilities
 verify_version
 version

@@ -127,6 +127,14 @@ class BootstrapRubyRbenv
   private
 
   # category: dependencies
+  def verify_dependencies!
+    if command_available?('dpkg-query') && command_available?('apt-get')
+      verify_apt_packages!
+    else
+      verify_generic_packages!
+    end
+  end
+
   def verify_generic_packages!
     warn <<~NOTICE
       Notice: `dpkg-query` and `apt-get` were not found to verify the
@@ -140,23 +148,8 @@ class BootstrapRubyRbenv
     error!(EX_NO, 'Aborted.')
   end
 
-  def verify_dependencies!
-    if command_available?('dpkg-query') && command_available?('apt-get')
-      verify_apt_packages!
-    else
-      verify_generic_packages!
-    end
-  end
-
-  def check_missing_packages(packages)
-    packages.reject do |pkg|
-      `dpkg-query -W -f='${db:Status-Status}' #{pkg} 2>/dev/null`.strip ==
-        'installed'
-    end
-  end
-
   def verify_apt_packages!
-    missing = check_missing_packages(BUILD_PACKAGES)
+    missing = missing_packages(BUILD_PACKAGES)
     if missing.empty?
       puts 'Ruby build dependencies verified.'.green
       return
@@ -165,14 +158,10 @@ class BootstrapRubyRbenv
     prompt_apt_install!(missing)
   end
 
-  # rubocop:disable-next Metrics/MethodLength
   def prompt_apt_install!(missing)
     puts "Missing required packages: #{missing.join(' ')}".yellow
     if confirm?('Install missing packages with sudo apt-get?')
-      system('sudo', 'apt-get', 'update') ||
-        error!(EX_OSERR, "Error: 'sudo apt-get update' failed.")
-      system('sudo', 'apt-get', 'install', '-y', *missing) ||
-        error!(EX_OSERR, "Error: 'sudo apt-get install' failed.")
+      apt_install!(missing)
     else
       warn 'Aborted. Install them manually with:'
       warn "  sudo apt-get update && sudo apt-get install #{missing.join(' ')}"
@@ -203,8 +192,7 @@ class BootstrapRubyRbenv
     end
 
     if confirm?("Clone #{RBENV_URL} into #{rbenv_dir}?")
-      system('git', 'clone', RBENV_URL, rbenv_dir) ||
-        error!(EX_OSERR, "Error: 'git clone' of rbenv failed.")
+      run_cmd!('git', 'clone', RBENV_URL, rbenv_dir)
     else
       warn 'Aborted. You can install it manually with:'
       warn "  git clone #{RBENV_URL} ~/.rbenv"
@@ -243,8 +231,7 @@ class BootstrapRubyRbenv
     prompt = "Configure #{user_shell} for rbenv via " \
              "'#{rbenv_bin} init #{user_shell}'?"
     if confirm?(prompt)
-      system(rbenv_bin, 'init', user_shell) ||
-        error!(EX_OSERR, "Error: 'rbenv init #{user_shell}' failed.")
+      run_cmd!(rbenv_bin, 'init', user_shell)
     else
       warn 'Aborted. Configure your shell manually:'
       print_manual_rbenv_init('~/.rbenv/bin/rbenv')
@@ -268,7 +255,6 @@ class BootstrapRubyRbenv
 
   # category: build
   def ensure_ruby_build!
-    rbenv_root = `rbenv root 2>/dev/null`.strip
     ruby_build_dir = File.join(rbenv_root, 'plugins/ruby-build')
 
     if File.directory?(File.join(ruby_build_dir, '.git'))
@@ -301,8 +287,7 @@ class BootstrapRubyRbenv
     TEXT
     prompt = "Clone #{RUBY_BUILD_URL} into #{ruby_build_dir}?"
     if confirm?(prompt)
-      system('git', 'clone', RUBY_BUILD_URL, ruby_build_dir) ||
-        error!(EX_OSERR, "Error: 'git clone' of ruby-build failed.")
+      run_cmd!('git', 'clone', RUBY_BUILD_URL, ruby_build_dir)
     else
       warn "Aborted. You can install it manually with:\n  " \
            "git clone #{RUBY_BUILD_URL} \"#{ruby_build_dir}\""
@@ -346,10 +331,8 @@ class BootstrapRubyRbenv
   def prompt_target_ruby_install!(target)
     puts "Ruby #{target} (specified in .ruby-version) is not installed.".yellow
     if confirm?("Install Ruby #{target} via rbenv now?")
-      system('rbenv', 'install', target) ||
-        error!(EX_OSERR, "Error: 'rbenv install #{target}' failed.")
-      system('rbenv', 'rehash') ||
-        error!(EX_OSERR, "Error: 'rbenv rehash' failed.")
+      run_cmd!('rbenv', 'install', target)
+      run_cmd!('rbenv', 'rehash')
     else
       warn "Aborted. You can install it later with: rbenv install #{target}"
       exit EX_NO
@@ -361,28 +344,18 @@ BootstrapRubyRbenv.new
 
 ## Postamble:
 target_ruby = File.read('.ruby-version').strip
+env = { 'RBENV_VERSION' => target_ruby }
 missing_postamble_gems = REQUIRED_BOOTSTRAP_GEMS.reject do |gem_name|
-  system({ 'RBENV_VERSION' => target_ruby },
-         'gem', 'list', '-i', "^#{gem_name}$",
-         out: File::NULL, err: File::NULL)
+  Wile::Utilities.gem_installed?(gem_name, env:)
 end
 
 unless missing_postamble_gems.empty?
-  print "Install #{missing_postamble_gems.join(', ')} into Ruby " \
-        "#{target_ruby} with gem install? [y/N]: "
-  $stdout.flush
-  reply = $stdin.gets
-  unless reply && /^[Yy]([Ee][Ss])?$/.match?(reply.strip)
-    warn 'Aborted.'
-    exit 1
+  prompt = "Install #{missing_postamble_gems.join(', ')} into Ruby " \
+           "#{target_ruby} with gem install?"
+  unless Wile::Utilities.confirm?(prompt)
+    Wile::Utilities.error!(Wile::Sysexits::EX_NO, 'Aborted.')
   end
 
-  cmd = ['gem', 'install', *missing_postamble_gems]
-  env = { 'RBENV_VERSION' => target_ruby }
-  unless system(env, *cmd)
-    warn "Error: 'RBENV_VERSION=#{target_ruby} #{cmd.join(' ')}' failed."
-    exit 71
-  end
-
-  system(env, 'rbenv', 'rehash') if system('which', 'rbenv', out: File::NULL)
+  Wile::Utilities.run_cmd!('gem', 'install', *missing_postamble_gems, env:)
+  system(env, 'rbenv', 'rehash') if Wile::Utilities.command_available?('rbenv')
 end

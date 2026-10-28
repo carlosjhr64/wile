@@ -48,13 +48,13 @@ class BootstrapSystemCommands
     puts "Missing system commands: #{missing.join(', ')}".yellow
     return unless confirm?("Install #{missing.join(', ')} with sudo apt-get?")
 
-    install_commands!(missing)
-    @missed_required = missing_from(@missed_required)
-    @missed_optional = missing_from(@missed_optional)
+    apt_install!(missing)
+    @missed_required = missing_commands(@missed_required)
+    @missed_optional = missing_commands(@missed_optional)
   end
 
   def utilities_check?
-    missing = missing_from(UTILITIES)
+    missing = missing_commands(UTILITIES)
     return true if missing.empty?
 
     warn 'Error: Required utilities not found in PATH: ' \

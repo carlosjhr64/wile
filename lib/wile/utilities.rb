@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require 'rbconfig'
-require_relative 'sysexits'
-
 # Wile namespace.
 module Wile
   # Utility functions collected and harmonized from bin/bootstrap_* scripts.
@@ -16,6 +13,17 @@ module Wile
 
     # category: lookup
     # --- Path & Executable Lookup ---
+
+    # Used in: bootstrap_ruby_rbenv
+    def package_installed?(pkg)
+      `dpkg-query -W -f='${db:Status-Status}' #{pkg} 2>/dev/null`.strip ==
+        'installed'
+    end
+
+    # Used in: bootstrap_ruby_rbenv
+    def missing_packages(packages)
+      packages.reject { |pkg| package_installed?(pkg) }
+    end
 
     # Used in: bootstrap_install_neovim
     def check_path_notice(dir)
@@ -50,13 +58,13 @@ module Wile
     end
 
     # Used in: bootstrap_system_commands
-    def missing_from(commands)
+    def missing_commands(commands)
       commands.reject { |cmd| command_available?(cmd) }
     end
 
     # Used in: bootstrap_install_neovim
     def verify_utilities!(utilities)
-      missing = missing_from(utilities)
+      missing = missing_commands(utilities)
       return if missing.empty?
 
       error!(EX_UNAVAILABLE,
@@ -158,15 +166,16 @@ module Wile
     end
 
     # Used in: bootstrap_fisher_plugins
-    def verify_ruby_min_version!(min_version = '4.0')
+    def verify_ruby_min_version!(min_version = '4.0', re_run: nil)
       if version_ok?(RUBY_VERSION, min_version)
         puts "Ruby verified: #{RUBY_DESCRIPTION}".green
         return
       end
 
+      re_run_hint = re_run ? ", then re-run:\n  #{re_run}" : '.'
       error!(EX_UNAVAILABLE, <<~MSG)
         Error: Ruby >= #{min_version} is required (found: #{RUBY_VERSION}).
-        Run ./bin/bootstrap_ruby_rbenv first.
+        Run ./bin/bootstrap_ruby_rbenv first#{re_run_hint}
       MSG
     end
 
@@ -176,12 +185,16 @@ module Wile
       Gem::Version.new(version) >= Gem::Version.new(min_version)
     end
 
+    # Used in: bootstrap_ruby_gems, bootstrap_ruby_rbenv
+    def rbenv_root
+      `rbenv root 2>/dev/null`.strip
+    end
+
     # Used in: bootstrap_ruby_gems
     # rubocop:disable-next Metrics/MethodLength
     def verify_ruby_project_version!(version_file = '.ruby-version',
                                      re_run: nil)
       expected = File.read(version_file).strip
-      rbenv_root = `rbenv root`.strip
       expected_prefix = "#{rbenv_root}/versions/#{expected}/"
       ruby_path = RbConfig.ruby
 
@@ -215,15 +228,14 @@ module Wile
       `fish -c 'fisher --version' 2>/dev/null`[/\d+\.\d+/]
     end
 
+    # Used in: bootstrap_ruby_rbenv
+    def gem_installed?(gem_name, env: {})
+      system(env, 'gem', 'list', '-i', "^#{gem_name}$",
+             out: File::NULL, err: File::NULL)
+    end
+
     # category: execution
     # --- Subprocess Execution ---
-
-    # Used in: bootstrap_ruby_gems
-    def run_cmd!(*cmd)
-      return if system(*cmd)
-
-      error!(EX_OSERR, "Error: '#{cmd.join(' ')}' failed.")
-    end
 
     # Used in: bootstrap_fisher_plugins
     def run_fish!(cmd)
@@ -232,8 +244,17 @@ module Wile
       error!(EX_OSERR, "Error: `fish -c '#{cmd}'` failed.")
     end
 
-    # Used in: bootstrap_system_commands
-    def install_commands!(packages)
+    # Used in: bootstrap_install_neovim, bootstrap_ruby_gems,
+    #          bootstrap_ruby_rbenv
+    def run_cmd!(*cmd, env: {})
+      return if system(env, *cmd)
+
+      prefix = env.map { |key, val| "#{key}=#{val} " }.join
+      error!(EX_OSERR, "Error: '#{prefix}#{cmd.join(' ')}' failed.")
+    end
+
+    # Used in: bootstrap_fish, bootstrap_ruby_rbenv, bootstrap_system_commands
+    def apt_install!(packages)
       system('sudo', 'apt-get', 'update') ||
         error!(EX_OSERR, 'Error: apt-get update failed.')
       system('sudo', 'apt-get', 'install', '-y', *packages) ||

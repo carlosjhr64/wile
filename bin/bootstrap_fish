@@ -119,10 +119,7 @@ class BootstrapFish
 
   def install_fish!
     if apt_fish_available? && confirm?('Install fish with sudo apt-get?')
-      system('sudo', 'apt-get', 'update') ||
-        error!(EX_OSERR, 'Error: apt-get update failed.')
-      system('sudo', 'apt-get', 'install', '-y', 'fish') ||
-        error!(EX_OSERR, 'Error: apt-get install fish failed.')
+      apt_install!(['fish'])
     end
 
     version = fish_version

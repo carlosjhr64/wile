@@ -17,7 +17,6 @@ HelpParser[Wile::VERSION, <<~HELP]
 HELP
 
 # Bootstraps or upgrades Neovim from GitHub releases.
-# rubocop:disable-next Metrics/ClassLength
 class BootstrapInstallNeovim
   include Wile::Sysexits
   include Wile::Utilities
@@ -31,10 +30,8 @@ class BootstrapInstallNeovim
   LOCAL_DIR    = File.expand_path('~/.local')
   BIN_DIR      = File.join(LOCAL_DIR, 'bin')
   NVIM_BIN     = File.join(BIN_DIR, 'nvim')
-  CLEAN_DIRS   = [
-    File.join(LOCAL_DIR, 'lib/nvim'),
-    File.join(LOCAL_DIR, 'share/nvim/runtime')
-  ].freeze
+  CLEAN_DIRS   = [File.join(LOCAL_DIR, 'lib/nvim'),
+                  File.join(LOCAL_DIR, 'share/nvim/runtime')].freeze
 
   def initialize
     verify_linux!
@@ -62,17 +59,20 @@ class BootstrapInstallNeovim
     error!(EX_UNAVAILABLE, "Error: Failed to fetch release from #{API_URL}.")
   end
 
-  def installed_version
-    bin = File.executable?(NVIM_BIN) ? NVIM_BIN : which('nvim')
-    return nil unless bin
-
-    `#{bin} --version 2>/dev/null`[/NVIM v(\d+\.\d+\.\d+)/, 1]
+  def prompt_install!(current)
+    action =
+      if current
+        "Upgrade nvim (v#{current} -> v#{@latest_version})"
+      else
+        "Install nvim v#{@latest_version}"
+      end
+    confirm?("#{action} in #{BIN_DIR}?") || error!(EX_NO, 'Aborted.')
   end
 
   def ensure_neovim!
     fetch_latest_release!
     current = installed_version
-    if current && Gem::Version.new(current) >= Gem::Version.new(@latest_version)
+    if current && version_ok?(current, @latest_version)
       puts "nvim found: v#{current} (latest: v#{@latest_version})".green
       return
     end
@@ -82,9 +82,16 @@ class BootstrapInstallNeovim
     verify_neovim!
   end
 
+  def installed_version
+    bin = File.executable?(NVIM_BIN) ? NVIM_BIN : which('nvim')
+    return nil unless bin
+
+    `#{bin} --version 2>/dev/null`[/NVIM v(\d+\.\d+\.\d+)/, 1]
+  end
+
   def verify_neovim!
     version = installed_version
-    if version && Gem::Version.new(version) >= Gem::Version.new(@latest_version)
+    if version && version_ok?(version, @latest_version)
       puts "nvim installed: #{NVIM_BIN} (v#{version})".green
       check_path_notice(BIN_DIR)
       return
@@ -93,16 +100,6 @@ class BootstrapInstallNeovim
     error!(EX_UNAVAILABLE,
            "Error: nvim >= #{@latest_version} required " \
            "(found: #{version || 'none'}).")
-  end
-
-  def prompt_install!(current)
-    action =
-      if current
-        "Upgrade nvim (v#{current} -> v#{@latest_version})"
-      else
-        "Install nvim v#{@latest_version}"
-      end
-    confirm?("#{action} in #{BIN_DIR}?") || error!(EX_NO, 'Aborted.')
   end
 
   def install_neovim!
@@ -116,19 +113,13 @@ class BootstrapInstallNeovim
 
   def download_archive!(archive)
     puts "Downloading #{DOWNLOAD_URL}...".cyan
-    return if system('curl', '-fL', '--progress-bar', '-o', archive,
-                     DOWNLOAD_URL)
-
-    error!(EX_OSERR, 'Error: Failed to download Neovim archive.')
+    run_cmd!('curl', '-fL', '--progress-bar', '-o', archive, DOWNLOAD_URL)
   end
 
   def extract_archive!(archive)
     FileUtils.rm_rf(CLEAN_DIRS)
     FileUtils.mkdir_p(LOCAL_DIR)
-    return if system('tar', '-C', LOCAL_DIR, '--strip-components=1',
-                     '-xzf', archive)
-
-    error!(EX_OSERR, 'Error: Failed to extract Neovim archive.')
+    run_cmd!('tar', '-C', LOCAL_DIR, '--strip-components=1', '-xzf', archive)
   end
 
   def verify_checksum!(archive)

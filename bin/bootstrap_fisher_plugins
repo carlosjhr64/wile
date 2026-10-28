@@ -35,7 +35,8 @@ class BootstrapFisherPlugins
 
   def initialize
     verify_fish!
-    verify_ruby_version!
+    verify_ruby_min_version!(RUBY_MIN_VERSION,
+                             re_run: './bin/bootstrap_fisher_plugins')
     verify_curl!
     ensure_fisher!
     install_plugins!
@@ -76,20 +77,6 @@ class BootstrapFisherPlugins
     end
 
     puts "fish found: #{`fish --version`.strip} (>= #{FISH_MIN_VERSION})".green
-  end
-
-  def verify_ruby_version!
-    if version_ok?(RUBY_VERSION, RUBY_MIN_VERSION)
-      puts "Ruby verified: #{RUBY_DESCRIPTION}".green
-      return
-    end
-
-    error!(EX_UNAVAILABLE, <<~MSG)
-      Error: Ruby >= #{RUBY_MIN_VERSION} is required by carlosjhr64/pkg-goto
-      (found: #{RUBY_VERSION}).
-      Run ./bin/bootstrap_ruby_rbenv first, then re-run:
-        ./bin/bootstrap_fisher_plugins
-    MSG
   end
 
   def ensure_fisher!
