@@ -5,7 +5,7 @@ Gem::Specification.new do |s|
   s.homepage = 'https://github.com/carlosjhr64/wile'
   s.author   = 'CarlosJHR64'
   s.email    = 'carlosjhr64@gmail.com'
-  s.date     = '2026-10-25'
+  s.date     = '2026-10-28'
   s.licenses = ['MIT']
   ## DESCRIPTION ##
   s.summary  = <<~SUMMARY
@@ -134,6 +134,7 @@ Gem::Specification.new do |s|
     lib/wile/tasks/todo.rb
     lib/wile/tasks/update.rb
     lib/wile/usage.rb
+    lib/wile/utilities.rb
     pkg/README.md
   ]
     s.executables << 'wile'
@@ -150,17 +151,19 @@ Gem::Specification.new do |s|
   s.requirements << 'agy: 1.4'
   s.requirements << 'clear: 6.4'
   s.requirements << 'colordiff: 3.8'
+  s.requirements << 'dpkg-query: 1.21'
   s.requirements << 'egrep: 3.8'
+  s.requirements << 'fish: 4.9'
   s.requirements << 'gem: 4.0'
   s.requirements << 'git: 2.39'
-  s.requirements << 'grep: 3.8'
-  s.requirements << 'ls: 9.1'
   s.requirements << 'man: 2.11'
   s.requirements << 'md5sum: 9.1'
   s.requirements << 'ncal: 2019'
   s.requirements << 'rbenv: 1.3'
   s.required_ruby_version = '>= 4.0'
+  s.requirements << 'sudo: 1.9'
   s.requirements << 'tmux: 3.3'
   s.requirements << 'tput: 6.4'
+  s.requirements << 'uname: 9.1'
   s.requirements << 'which: 2016'
 end
