@@ -4,7 +4,11 @@
 Encoding.default_external = Encoding::UTF_8
 
 # --- Preamble: Platform, Root, Arguments, and Gem Bootstrapping ---
+# The problem this section solves is that
+# the main script requires gems that may be missing, so installs it.
 
+# $ uname # with no arguments prints the kernel name
+# Linux
 detected_os = `uname -s`.strip
 unless detected_os == 'Linux'
   warn "Error: Wile is meant to be run on Linux (detected: #{detected_os})."
@@ -19,11 +23,13 @@ end
   exit 66
 end
 
+# Check if either -v or --version is in ARGV
 if ARGV.intersect?(%w[-v --version])
   puts File.read('.version').strip
   exit 0
 end
 
+# Check if either -h or --help is in ARGV
 if ARGV.intersect?(%w[-h --help])
   puts <<~HELP
     Usage:
@@ -67,6 +73,7 @@ unless missing_preamble_gems.empty?
     exit 71
   end
 
+  # Reset to discovered newly installed gems
   Gem.clear_paths
   REQUIRED_BOOTSTRAP_GEMS.each do |gem_name|
     require gem_name
@@ -269,6 +276,7 @@ class BootstrapRubyRbenv
 
   def update_ruby_build!(ruby_build_dir)
     if confirm?("Pull latest Ruby version definitions in #{ruby_build_dir}?")
+      # git -C <path> ... runs as if git was started in pathn
       return if system('git', '-C', ruby_build_dir, 'pull')
 
       warn 'Git pull failed, proceeding anyway...'
@@ -342,7 +350,10 @@ end
 
 BootstrapRubyRbenv.new
 
-## Postamble:
+# --- Postamble: ---
+# A newly installed ruby version will also need
+# the gems ensured in the preamble.
+
 target_ruby = File.read('.ruby-version').strip
 env = { 'RBENV_VERSION' => target_ruby }
 missing_postamble_gems = REQUIRED_BOOTSTRAP_GEMS.reject do |gem_name|

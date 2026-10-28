@@ -52,6 +52,7 @@ class BootstrapFish
       return
     end
 
+    # Change default login shell; takes effect upon next login.
     if system('chsh', '-s', fish_path)
       puts "Default shell set to #{fish_path} (re-login to take effect).".green
     else
@@ -132,6 +133,11 @@ class BootstrapFish
     return false unless command_available?('apt-get') &&
                         command_available?('apt-cache')
 
+    # Query candidate version available to install from APT cache.
+    # Fish:
+    #   Installed: ...
+    #   Candidate: ...
+    #   ...
     candidate =
       `apt-cache policy fish 2>/dev/null`[/Candidate:\s*(\d+\.\d+)/, 1]
     return false unless candidate
