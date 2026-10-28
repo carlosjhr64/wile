@@ -1,8 +1,26 @@
 # frozen_string_literal: true
 
+# Shared helpers for unit tests in scaffolded projects. Verifies that every
+# method on a target class has a corresponding test method (method-level
+# coverage audit) and provides no-fail wrappers for running linters on files.
+#
+# Suggested template usage:
+#
+#   class TestMyClass < Test::Unit::TestCase
+#     include TestModule
+#
+#     def test_coverage = coverage(MyClass)
+#
+#     # And unit test methods...
+#
+#     def test_rubocop_and_reek
+#       file = 'lib/my_class.rb'
+#       rubocop(file) && reek(file) && rubocop(__FILE__)
+#     end
+#   end
+
 require 'test/unit'
 require 'colorize'
-require 'ostruct'
 # Also:
 # require 'reek'
 # require 'rubocop'
@@ -10,7 +28,7 @@ require 'ostruct'
 module MissingCalls
   def missing_calls = (@missing_calls ||= [])
 
-  # rubocop: disable-next Style/MissingRespondToMissing
+  # rubocop:disable-next Style/MissingRespondToMissing
   def method_missing(*args)
     missing_calls.push(args)
     self
@@ -37,7 +55,7 @@ module TestModule
   # Checks for context.test_method for each klass.method
   class Coverage
     # Allow color changes.
-    # rubocop: disable-next Style/MutableConstant
+    # rubocop:disable-next Style/MutableConstant
     COLOR = {
       public: :red,
       protected: :light_red,
@@ -48,6 +66,15 @@ module TestModule
     def initialize(klass, context)
       @klass = klass
       @context = context
+    end
+
+    # :reek:ControlParameter
+    def test_all(klass_methods)
+      test_class_methods if klass_methods
+      test_public_methods
+      test_protected_methods
+      test_private_methods
+      test_refinements
     end
 
     def test_class_methods
@@ -78,15 +105,6 @@ module TestModule
       @klass.refinements.each do |refinement|
         test_refinement refinement, refinement.target.to_s.downcase
       end
-    end
-
-    # :reek:ControlParameter
-    def test_all(klass_methods)
-      test_class_methods if klass_methods
-      test_public_methods
-      test_protected_methods
-      test_private_methods
-      test_refinements
     end
 
     private
@@ -126,13 +144,13 @@ module TestModule
 
   # No fail system runs
 
-  def rubocop(file)
-    puts "Rubocop #{file}".blue
-    system('rubocop', file)
-  end
-
   def reek(file)
     puts "Reek #{file}".blue
     system('reek', file)
+  end
+
+  def rubocop(file)
+    puts "Rubocop #{file}".blue
+    system('rubocop', file)
   end
 end
