@@ -15,7 +15,9 @@
 #
 #     def test_rubocop_and_reek
 #       file = 'lib/my_class.rb'
-#       rubocop(file) && reek(file) && rubocop(__FILE__)
+#       rubocop(file) &&  # but redundant by tc_rubocop
+#       reek(file) &&     # but redundant by tc_reek
+#       rubocop(__FILE__) # self robocop-ing
 #     end
 #   end
 
