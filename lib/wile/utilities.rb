@@ -2,11 +2,21 @@
 
 # Wile namespace.
 module Wile
+  # Refinements for Utilities.
+  module UtilitiesRefinements
+    refine String do
+      def sw
+        Shellwords.escape(self)
+      end
+    end
+  end
+
   # Utility functions collected and harmonized from bin/bootstrap_* scripts.
   # :reek:NilCheck
   # :reek:TooManyStatements
   # rubocop:disable-next Metrics/ModuleLength
   module Utilities
+    using UtilitiesRefinements
     include Sysexits
 
     module_function
@@ -16,8 +26,8 @@ module Wile
 
     # Used in: missing_packages (internal helper)
     def package_installed?(pkg)
-      cmd = "dpkg-query -W -f='${db:Status-Status}' #{Shellwords.escape(pkg)}"
-      `#{cmd} 2>/dev/null`.strip == 'installed'
+      `dpkg-query -W -f='${db:Status-Status}' #{pkg.sw} 2>/dev/null`
+        .strip == 'installed'
     end
 
     # Used in: bootstrap_ruby_rbenv
@@ -243,7 +253,7 @@ module Wile
     def run_cmd!(*cmd, env: {})
       return if system(env, *cmd)
 
-      prefix = env.map { |key, val| "#{key}=#{Shellwords.escape(val)} " }.join
+      prefix = env.map { |key, val| "#{key}=#{val.sw} " }.join
       error!(EX_OSERR, "Error: '#{prefix}#{cmd.join(' ')}' failed.")
     end
 

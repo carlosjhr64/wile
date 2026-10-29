@@ -185,6 +185,7 @@ UTILITIES
 Usage
 UsageError
 Utilities
+UtilitiesRefinements
 VALIDATORS
 VERSION
 Version
@@ -857,6 +858,7 @@ sub
 sub_scopes
 sum
 summary
+sw
 swap
 swap_valuation
 sym
