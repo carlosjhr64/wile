@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Shared helpers for unit tests in scaffolded projects. Verifies that every
+# Shared helpers for unit tests in Wile projects. Verifies that every
 # method on a target class has a corresponding test method (method-level
 # coverage audit) and provides no-fail wrappers for running linters on files.
 #
