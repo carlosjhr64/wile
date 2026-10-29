@@ -16,8 +16,8 @@ module Wile
 
     # Used in: missing_packages (internal helper)
     def package_installed?(pkg)
-      `dpkg-query -W -f='${db:Status-Status}' #{pkg} 2>/dev/null`.strip ==
-        'installed'
+      cmd = "dpkg-query -W -f='${db:Status-Status}' #{Shellwords.escape(pkg)}"
+      `#{cmd} 2>/dev/null`.strip == 'installed'
     end
 
     # Used in: bootstrap_ruby_rbenv
@@ -181,7 +181,7 @@ module Wile
 
     # Used in: bootstrap_ruby_rbenv (and verify_ruby_project_version!)
     def rbenv_root
-      `rbenv root 2>/dev/null`.strip
+      `rbenv root`.strip
     end
 
     # Used in: bootstrap_ruby_gems
@@ -243,7 +243,7 @@ module Wile
     def run_cmd!(*cmd, env: {})
       return if system(env, *cmd)
 
-      prefix = env.map { |key, val| "#{key}=#{val} " }.join
+      prefix = env.map { |key, val| "#{key}=#{Shellwords.escape(val)} " }.join
       error!(EX_OSERR, "Error: '#{prefix}#{cmd.join(' ')}' failed.")
     end
 
