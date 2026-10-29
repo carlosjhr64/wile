@@ -62,8 +62,8 @@ module Wile
     def jkab(idx, names, name, optimized, old)
       j = names.index(name)
       k = optimized.index(old)
-      a = j < idx ? '↓' : '↑'
-      b = idx < k ? '↓' : '↑'
+      a = j < idx ? '↓' : '↑' # UTF-8
+      b = idx < k ? '↓' : '↑' # UTF-8
       [j, k, a, b]
     end
 

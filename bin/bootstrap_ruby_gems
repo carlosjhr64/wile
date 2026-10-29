@@ -50,7 +50,7 @@ class BootstrapRubyGems
     end
 
     error!(EX_UNAVAILABLE,
-           'Error: gems do not load after bundle update — help_parser ' \
+           'Error: gems do not load after bundle update -- help_parser ' \
            'unavailable under the bundled environment.')
   end
 end

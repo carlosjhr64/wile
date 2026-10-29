@@ -127,7 +127,7 @@ module Wile
       root_files.each do |file|
         next if File.file?(file) && !File.empty?(file)
 
-        error!(EX_NOINPUT, "Error: #{file} not found — " \
+        error!(EX_NOINPUT, "Error: #{file} not found -- " \
                            "run this from a Wile project's root directory.")
       end
     end

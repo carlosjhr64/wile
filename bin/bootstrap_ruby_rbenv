@@ -18,7 +18,7 @@ end
 %w[.version .ruby-version].each do |file|
   next if File.file?(file) && !File.empty?(file)
 
-  warn "Error: #{file} not found — run this from a Wile project's " \
+  warn "Error: #{file} not found -- run this from a Wile project's " \
        'root directory.'
   exit 66
 end

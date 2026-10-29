@@ -1,6 +1,6 @@
 # Wile
 
-* [VERSION 0.2.261028](https://github.com/carlosjhr64/wile/releases)
+* [VERSION 0.2.261029](https://github.com/carlosjhr64/wile/releases)
 * [github](https://www.github.com/carlosjhr64/wile)
 
 ## DESCRIPTION
@@ -9,7 +9,7 @@
 built around a living project template.
 
 It scaffolds new projects from the template, keeps existing ones
-aligned with it, and automates the rest of the workflow — gemspec
+aligned with it, and automates the rest of the workflow -- gemspec
 upkeep, testing, and release. There is no configuration file: your
 clone is the configuration, to take as-is or edit and install
 locally. It targets Linux, fish, and tmux.

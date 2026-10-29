@@ -1,0 +1,40 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+Encoding.default_external = Encoding::UTF_8
+
+require 'test/unit'
+require 'colorize'
+
+# Encoding Test reports non-ASCII characters and verifies valid UTF-8.
+class TestEncoding < Test::Unit::TestCase
+  def test_encoding
+    invalid = []
+    text_files.each { scan_file(it, invalid) }
+    assert_empty invalid,
+                 "Invalid UTF-8 sequences found:\n#{invalid.join("\n")}"
+  end
+
+  private
+
+  def text_files
+    `git ls-files`.lines.map(&:chomp)
+                  .select { File.file?(it) }
+                  .reject { binary?(it) }
+  end
+
+  def binary?(filename)
+    File.open(filename, 'rb') { |io| io.read(8192)&.include?("\x00") }
+  end
+
+  def scan_file(filename, invalid)
+    File.foreach(filename, chomp: true).with_index(1) do |line, lno|
+      unless line.valid_encoding?
+        invalid << "#{filename}:#{lno}: #{line.scrub}".red
+        next
+      end
+
+      puts "#{filename}:#{lno}: #{line}" unless line.ascii_only?
+    end
+  end
+end
