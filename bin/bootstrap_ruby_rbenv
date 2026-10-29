@@ -276,7 +276,7 @@ class BootstrapRubyRbenv
 
   def update_ruby_build!(ruby_build_dir)
     if confirm?("Pull latest Ruby version definitions in #{ruby_build_dir}?")
-      # git -C <path> ... runs as if git was started in pathn
+      # git -C <path> ... runs as if git was started in path
       return if system('git', '-C', ruby_build_dir, 'pull')
 
       warn 'Git pull failed, proceeding anyway...'
