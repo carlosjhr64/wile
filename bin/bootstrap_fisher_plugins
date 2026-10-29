@@ -36,6 +36,7 @@ class BootstrapFisherPlugins
   def initialize
     verify_fish!
     verify_ruby_min_version!(RUBY_MIN_VERSION,
+                             note: 'carlosjhr64/pkg-goto',
                              re_run: './bin/bootstrap_fisher_plugins')
     verify_curl!
     ensure_fisher!

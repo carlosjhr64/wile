@@ -158,17 +158,18 @@ module Wile
     end
 
     # Used in: bootstrap_fisher_plugins
-    def verify_ruby_min_version!(min_version = '4.0', re_run: nil)
+    def verify_ruby_min_version!(min_version = '4.0', re_run: nil, note: nil)
       if version_ok?(RUBY_VERSION, min_version)
         puts "Ruby verified: #{RUBY_DESCRIPTION}".green
         return
       end
 
+      note = " by #{note}" if note
       re_run_hint = re_run ? ", then re-run:\n  #{re_run}" : '.'
-      error!(EX_UNAVAILABLE, <<~MSG)
-        Error: Ruby >= #{min_version} is required (found: #{RUBY_VERSION}).
-        Run ./bin/bootstrap_ruby_rbenv first#{re_run_hint}
-      MSG
+      msg = "Error: Ruby >= #{min_version} is required#{note} " \
+            "(found: #{RUBY_VERSION}).\n" \
+            "Run ./bin/bootstrap_ruby_rbenv first#{re_run_hint}\n"
+      error!(EX_UNAVAILABLE, msg)
     end
 
     # Used in: bootstrap_fish, bootstrap_fisher_plugins,
@@ -251,7 +252,7 @@ module Wile
       system('sudo', 'apt-get', 'update') ||
         error!(EX_OSERR, 'Error: apt-get update failed.')
       system('sudo', 'apt-get', 'install', '-y', *packages) ||
-        error!(EX_OSERR, 'Error: apt-get install failed.')
+        error!(EX_OSERR, "Error: apt-get install #{packages.join(' ')} failed.")
     end
   end
 end
