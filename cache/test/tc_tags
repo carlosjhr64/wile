@@ -1,0 +1,35 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+Encoding.default_external = Encoding::UTF_8
+
+require 'test/unit'
+require 'colorize'
+# Also:
+# require 'ripper-tags'
+
+# Tags Test generates and maintains the ctags file using ripper-tags.
+class TestTags < Test::Unit::TestCase
+  PATTERNS = %w[lib/**/*.rb bin/* test/tc_* test/test_module.rb].freeze
+
+  def test_tags
+    before = tags_content
+    generate_tags
+    after = tags_content
+    puts 'Tags changed.'.colorize(:blue) if before != after
+  end
+
+  private
+
+  def tags_content
+    File.file?('tags') ? File.read('tags') : nil
+  end
+
+  def generate_tags
+    system('ripper-tags', *files)
+  end
+
+  def files
+    Dir.glob(PATTERNS).select { File.file?(it) }
+  end
+end
