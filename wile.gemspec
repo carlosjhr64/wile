@@ -5,7 +5,7 @@ Gem::Specification.new do |s|
   s.homepage = 'https://github.com/carlosjhr64/wile'
   s.author   = 'CarlosJHR64'
   s.email    = 'carlosjhr64@gmail.com'
-  s.date     = '2026-10-28'
+  s.date     = '2026-10-29'
   s.licenses = ['MIT']
   ## DESCRIPTION ##
   s.summary  = <<~SUMMARY
@@ -67,6 +67,7 @@ Gem::Specification.new do |s|
     cache/test/tc_comments
     cache/test/tc_cucumber
     cache/test/tc_dictionary
+    cache/test/tc_encoding
     cache/test/tc_lexicon
     cache/test/tc_lib_tests
     cache/test/tc_long_chains
@@ -143,7 +144,6 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency 'colorize', '~> 1.1', '>= 1.1.0'
   s.add_runtime_dependency 'cucumber', '~> 12.0', '>= 12.0.0'
   s.add_runtime_dependency 'help_parser', '~> 9.0', '>= 9.0.240926'
-  s.add_runtime_dependency 'ostruct', '~> 0.6', '>= 0.6.3'
   s.add_runtime_dependency 'parser', '~> 3.3', '>= 3.3.12'
   s.add_runtime_dependency 'reek', '~> 6.6', '>= 6.6.0'
   s.add_runtime_dependency 'rubocop', '~> 1.92', '>= 1.92.0'
