@@ -75,6 +75,7 @@ Gem::Specification.new do |s|
     cache/test/tc_reek
     cache/test/tc_rubocop
     cache/test/tc_ruby_syntax
+    cache/test/tc_tags
     cache/test/tc_version
     cache/test/tc_weird_filenames
     cache/test/test_module.rb
@@ -136,6 +137,8 @@ Gem::Specification.new do |s|
     lib/wile/tasks/update.rb
     lib/wile/usage.rb
     lib/wile/utilities.rb
+    man/wile.1
+    man/wile.md
     pkg/README.md
   ]
     s.executables << 'wile'
@@ -146,6 +149,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency 'help_parser', '~> 9.0', '>= 9.0.240926'
   s.add_runtime_dependency 'parser', '~> 3.3', '>= 3.3.12'
   s.add_runtime_dependency 'reek', '~> 6.6', '>= 6.6.0'
+  s.add_runtime_dependency 'ripper-tags', '~> 1.0', '>= 1.0.2'
   s.add_runtime_dependency 'rubocop', '~> 1.92', '>= 1.92.0'
   s.add_runtime_dependency 'test-unit', '~> 3.7', '>= 3.7.8'
   s.requirements << 'agy: 1.4'
