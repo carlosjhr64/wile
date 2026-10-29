@@ -32,24 +32,31 @@ module Wile
     private
 
     def run
-      if (name = @options.task) && (task = @tasks.find(name))
+      return man unless (name = @options.task)
+
+      if (task = @tasks.find(name))
         require_relative "tasks/#{task}"
         @tasks.method(task).call(@options)
       else
-        help(name)
+        raise UsageError, "wile: No task matched '#{name}'"
       end
     end
 
-    def help(name)
-      raise UsageError, "list: No tasks matched '#{name}'" if name
-
-      require_relative 'tasks/help'
-      @tasks.help(@options)
+    def man
+      path = File.join(Wile::ROOT, 'man/wile.1')
+      if $stdout.tty? && File.file?(path)
+        exec('man', '-l', path)
+      else
+        path = File.join(Wile::ROOT, 'man/wile.md')
+        puts File.read(path) if File.exist?(path)
+      end
     end
 
     def handle_usage_error
-      warn @error.message.lines.map { it.chomp.blue }
-                 .tap { it[-1] = it[-1].chomp.red }.join("\n")
+      msg = @error.message
+      lines = msg.lines.map(&:chomp)
+      lines = lines[...-1].map(&:blue) << lines[-1]&.red
+      warn lines.compact.join("\n")
       exit EX_USAGE
     end
 
@@ -70,7 +77,9 @@ module Wile
     end
 
     def handle_software_error
-      warn @error.backtrace[0..3].reverse.join("\n").blue
+      if (backtrace = @error.backtrace)
+        warn backtrace[0..3].reverse.join("\n").blue
+      end
       warn @error.message.red
       exit EX_SOFTWARE
     end

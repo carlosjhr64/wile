@@ -1,0 +1,58 @@
+.TH WILE 1 "October 2026" "wile 0.2" "User Commands"
+.SH NAME
+wile \- prescriptive task dispatcher for Ruby gem projects
+.SH SYNOPSIS
+.B wile
+[\fItask\fR [\fIargs\fR...]] [:\fIoptions\fR...]
+.SH DESCRIPTION
+\fBWile\fR is a prescriptive task dispatcher for Ruby gem projects,
+built around a living project template.
+.PP
+It scaffolds new projects from the template, keeps existing ones
+aligned with it, and automates workflow steps \-\- gemspec upkeep,
+testing, and release.
+.SH GET STARTED
+.TP
+.B wile
+Display this manual page.
+.TP
+.B wile list
+List all available tasks.
+.TP
+.B wile help [\fItask\fR]
+Show detailed documentation for task(s).
+.TP
+.B wile test
+Run project test suites.
+.SH OPTIONS
+.TP
+.BR \-h ", " \-\-help
+Show help summary.
+.TP
+.BR \-v ", " \-\-version
+Show version number.
+.TP
+.BR \-c ", " \-\-check
+Check-only mode for supported tasks.
+.TP
+.BR \-f ", " \-\-force
+Force operations, bypassing clean git gates.
+.TP
+.BR \-l ", " \-\-list
+List mode for supported tasks.
+.TP
+.BR \-r ", " \-\-raw
+Raw / unformatted output.
+.TP
+.BR \-s ", " \-\-strict
+Strict checks mode.
+.TP
+.BR \-t ", " \-\-trace
+Trace execution.
+.SH TASKS
+See \fBwile list\fR for the complete list of tasks, or
+\fBwile help <task>\fR for individual task details.
+.SH SEE ALSO
+.BR ruby (1),
+.BR fish (1),
+.BR tmux (1)
