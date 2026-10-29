@@ -24,4 +24,10 @@ Wile::Run.new(HelpParser[Wile::VERSION, <<~HELP])
   Types:
     WORD /^\\w+$/
     FILE /^[\\w\\-\\.\\/]+$/
+  ### Get started ################################
+  #  wile               # shows man page         #
+  #  wile list          # list all tasks         #
+  #  wile help [<task>] # show help for task(s)  #
+  #  wile test          # run the test suites    #
+  ################################################
 HELP
