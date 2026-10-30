@@ -47,8 +47,16 @@ Then(/(?:Then )?stdout includes "([^"]*)"/) do |string|
   raise "Stdout did not include '#{string}'" unless @stdout.include?(string)
 end
 
+Then(/(?:Then )?stdout (?:not|does not) includes? "([^"]*)"/) do |string|
+  raise "Stdout included '#{string}'" if @stdout.include?(string)
+end
+
 Then(/(?:Then )?stderr includes "([^"]*)"/) do |string|
   raise "Stderr did not include '#{string}'" unless @stderr.include?(string)
+end
+
+Then(/(?:Then )?stderr (?:not|does not) includes? "([^"]*)"/) do |string|
+  raise "Stderr included '#{string}'" if @stderr.include?(string)
 end
 
 Then %r{(?:Then )?stdout matches /([^/]*)/} do |string|
