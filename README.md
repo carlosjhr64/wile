@@ -70,15 +70,20 @@ Usage:
 Options:
   -h --help
   -v --version
+  -a --all
   -c --check
   --config=FILE
   -d --dump
   -f --force
+  --format=WORD
   -l --list
   --name=WORD
+  --output=FILE
+  -q --quiet
   -r --raw
   -s --strict
   -t --trace
+  -y --yes
 Types:
   WORD /^\w+$/
   FILE /^[\w\-\.\/]+$/
