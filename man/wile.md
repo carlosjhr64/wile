@@ -15,12 +15,10 @@ testing, and release.
 
 ## GET STARTED
 
-```
-wile               # display manual page
-wile list          # list all available tasks
-wile help [<task>] # show help for task(s)
-wile test          # run project test suites
-```
+- `wile`: Display manual page.
+- `wile list`: List all available tasks.
+- `wile help [<task>]`: Show help for task(s).
+- `wile test`: Run project test suites.
 
 ## GLOBAL OPTIONS
 
