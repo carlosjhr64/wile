@@ -86,7 +86,7 @@ Options:
   -y --yes
 Types:
   WORD /^\w+$/
-  FILE /^[\w\-\.\/]+$/
+  FILE /^(\/?[\w.][\w.-]*)+\/?$/
 ### Get started ################################
 #  wile               # shows man page         #
 #  wile list          # list all tasks         #
