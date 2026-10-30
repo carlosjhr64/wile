@@ -22,14 +22,22 @@ testing, and release.
 
 ## GLOBAL OPTIONS
 
-- `-h`, `--help`: Show general help and options.
+- `-h`, `--help`: Show help summary.
 - `-v`, `--version`: Show version number.
-- `-c`, `--check`: Check-only mode for supported tasks.
-- `-f`, `--force`: Force operations, bypassing safety gates.
-- `-l`, `--list`: List mode for supported tasks.
-- `-r`, `--raw`: Simple / unformatted output.
-- `-s`, `--strict`: Strict linting and check mode.
-- `-t`, `--trace`: Enable verbose trace execution.
+- `-a`, `--all`: Apply to all targets.
+- `-c`, `--check`: Check-only mode.
+- `--config=FILE`: Configuration file path.
+- `-d`, `--dump`: Dump internal structure or AST.
+- `-f`, `--force`: Force execution, bypassing safety gates.
+- `--format=WORD`: Output format.
+- `-l`, `--list`: List mode for items.
+- `--name=WORD`: Filter or specify item by name.
+- `--output=FILE`: Write output to file.
+- `-q`, `--quiet`: Suppress non-essential output.
+- `-r`, `--raw`: Raw / unformatted output.
+- `-s`, `--strict`: Strict checks mode.
+- `-t`, `--trace`: Trace execution.
+- `-y`, `--yes`: Assume yes to confirmation prompts.
 
 ## TASKS
 

@@ -32,14 +32,35 @@ Show help summary.
 .BR \-v ", " \-\-version
 Show version number.
 .TP
+.BR \-a ", " \-\-all
+Apply to all targets.
+.TP
 .BR \-c ", " \-\-check
-Check-only mode for supported tasks.
+Check-only mode.
+.TP
+.BI \-\-config= FILE
+Configuration file path.
+.TP
+.BR \-d ", " \-\-dump
+Dump internal structure or AST.
 .TP
 .BR \-f ", " \-\-force
-Force operations, bypassing clean git gates.
+Force execution, bypassing safety gates.
+.TP
+.BI \-\-format= WORD
+Output format.
 .TP
 .BR \-l ", " \-\-list
-List mode for supported tasks.
+List mode for items.
+.TP
+.BI \-\-name= WORD
+Filter or specify item by name.
+.TP
+.BI \-\-output= FILE
+Write output to file.
+.TP
+.BR \-q ", " \-\-quiet
+Suppress non-essential output.
 .TP
 .BR \-r ", " \-\-raw
 Raw / unformatted output.
@@ -49,6 +70,9 @@ Strict checks mode.
 .TP
 .BR \-t ", " \-\-trace
 Trace execution.
+.TP
+.BR \-y ", " \-\-yes
+Assume yes to confirmation prompts.
 .SH TASKS
 See \fBwile list\fR for the complete list of tasks, or
 \fBwile help <task>\fR for individual task details.
