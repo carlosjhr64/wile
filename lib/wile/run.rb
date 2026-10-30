@@ -38,7 +38,8 @@ module Wile
         require_relative "tasks/#{task}"
         @tasks.method(task).call(@options)
       else
-        raise UsageError, "wile: No task matched '#{name}'"
+        # The 'list:' prefix tells UsageError to prepend Help[:list] usage.
+        raise UsageError, "list: No tasks matched '#{name}'"
       end
     end
 
