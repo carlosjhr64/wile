@@ -129,6 +129,41 @@ $ wile list --list #>>
 + update: update README and gemspec
 
 ```
+## FEATURED TESTS
+
+* `test/tc_readme_rocket_check`
+
+Your Ruby demos don't lie.
+Test to verify your README rockets!
+```ruby
+# The rockets are compared to the inspect return of the value
+1 + 2 #=> 3
+1 + 2 == 3 #=> true
+['a', 'b', 'c'].join #=> "abc"
+'abc'.class #=> String
+'abc'.to_sym #=> :abc
+'Major.Minor.Build'.split('.') #=> ["Major", "Minor", "Build"]
+{a: 'abc', b: 'cde', c: 'xyz', d: 'ace'}.select{|k,v| v.include? 'c'} #=> {a: "abc", b: "cde", d: "ace"}
+require 'date'
+# The twiddle rockets verifies it matches the pattern
+Date.today.to_s #~> ^\d\d\d\d-\d\d-\d\d$
+```
+
+* `test/tc_dictionary`
+
+Spell check tailored for code and docs.
+Uses compressed English trigram frequencies to catch typos across
+`README.md`, `bin/*`, and `lib/` without external dependencies.
+New terms and project jargon are reviewed with `wile dictionary`
+and tracked in `.dictionary`.
+
+* `test/tc_version`
+
+Keep version numbers honest and in sync.
+Ensures the authoritative version in `.version` stays aligned with code
+constants in `lib/`, `data/VERSION`, and git release tags so you never
+publish a mismatched gem.
+
 ## LICENSE
 
 Copyright (c) 2026 CarlosJHR64

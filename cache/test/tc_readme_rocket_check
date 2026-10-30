@@ -119,12 +119,13 @@ class TestReadmeRocketTest < Test::Unit::TestCase
   end
 
   def reset_actual(str = @actual.to_s.uncolorize)
-    fallback = @actual.is_a?(String) ? str : @actual.inspect
+    ins = @actual.inspect
+    fallback = @actual.is_a?(String) ? str : ins
     @actual = case @expected
-              when Regexp
-                @expected.match?(str) ? str : fallback
-              else
-                @expected == str ? str : fallback
+              when Regexp then @expected.match?(str) ? str : fallback
+              when str then str
+              when ins then ins
+              else fallback
               end
   end
 end
