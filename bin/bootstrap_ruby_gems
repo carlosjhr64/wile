@@ -41,7 +41,7 @@ class BootstrapRubyGems
     run_cmd!('bundle', 'update', '--all')
     run_cmd!('rbenv', 'rehash')
     verify_gems! # Sanity check
-    puts "Ruby gems setup complete for Ruby #{RUBY_VERSION}."
+    puts "Ruby gems setup complete for Ruby #{RUBY_VERSION}.".green
   end
 
   def verify_gems!
