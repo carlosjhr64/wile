@@ -45,10 +45,10 @@ class BootstrapFish
     fish_path = which('fish')
     return if fish_path.nil? || ENV['SHELL'] == fish_path
 
-    puts "Your current login shell is #{ENV['SHELL'] || 'unknown'}."
+    puts "Your current login shell is #{ENV['SHELL'] || 'unknown'}.".gray
     prompt = "Set fish (#{fish_path}) as your default login shell via chsh?"
     unless confirm?(prompt)
-      puts 'Skipping default shell change.'
+      puts 'Skipping default shell change.'.gray
       return
     end
 

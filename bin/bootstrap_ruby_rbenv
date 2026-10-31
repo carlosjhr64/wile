@@ -283,7 +283,7 @@ class BootstrapRubyRbenv
 
       warn 'Git pull failed, proceeding anyway...'
     else
-      puts 'Skipping ruby-build update.'
+      puts 'Skipping ruby-build update.'.gray
     end
   end
 

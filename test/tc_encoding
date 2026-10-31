@@ -34,7 +34,7 @@ class TestEncoding < Test::Unit::TestCase
         next
       end
 
-      puts "#{filename}:#{lno}: #{line}" unless line.ascii_only?
+      puts "#{filename}:#{lno}: #{line}".gray unless line.ascii_only?
     end
   end
 end
