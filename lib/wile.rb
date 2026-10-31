@@ -16,6 +16,10 @@ autoload :RbConfig,   'rbconfig'
 autoload :HelpParser, 'help_parser'
 require 'colorize'
 
+String.disable_colorization = true unless $stdout.tty? &&
+                                          ENV['NO_COLOR'].to_s.empty? &&
+                                          ENV['TERM'] != 'dumb'
+
 # The Wile module is the main namespace for the Wile application.
 module Wile
   ROOT = File.expand_path('..', __dir__)

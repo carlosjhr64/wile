@@ -369,6 +369,7 @@ dinit
 dir
 directory
 dirname
+disable_colorization
 display
 display_help
 display_list

@@ -26,8 +26,7 @@ module Wile
 
     private
 
-    # :reek:ControlParameter
-    def puts_blue(str, tty = $stdout.tty?) = puts(tty ? str.blue : str)
+    def puts_blue(str) = puts(str.blue)
 
     # :reek:DuplicateMethodCall puts(it) are different its
     # :reek:LongParameterList :reek:TooManyStatements
