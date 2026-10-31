@@ -87,7 +87,7 @@ Options:
   -t --trace	Trace execution
   -y --yes	Assume yes to confirmation prompts
 Types:
-  WORD /^\w+$/
+  WORD /^[\w-]+$/
   FILE /^(\/?[\w.][\w.-]*)+\/?$/
 ### Get started ################################
 #  wile               # shows man page         #
