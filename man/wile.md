@@ -25,17 +25,19 @@ testing, and release.
 - `-h`, `--help`: Show help summary.
 - `-v`, `--version`: Show version number.
 - `-a`, `--all`: Apply to all targets.
-- `-c`, `--check`: Check-only mode.
+- `-c`, `--check`: Run in check-only mode.
 - `--config=FILE`: Configuration file path.
-- `-d`, `--dump`: Dump internal structure or AST.
-- `-f`, `--force`: Force execution, bypassing safety gates.
+- `--detailed`: Display detailed output.
+- `-d`, `--dump`: Dump internal structure or data.
+- `-f`, `--force`: Force execution without safety checks.
 - `--format=WORD`: Output format.
-- `-l`, `--list`: List mode for items.
-- `--name=WORD`: Filter or specify item by name.
+- `-l`, `--list`: List items.
+- `--name=WORD`: Filter or match by name.
 - `--output=FILE`: Write output to file.
 - `-q`, `--quiet`: Suppress non-essential output.
 - `-r`, `--raw`: Raw / unformatted output.
-- `-s`, `--strict`: Strict checks mode.
+- `--simulate`: Simulate execution without making changes.
+- `-s`, `--strict`: Enable strict mode.
 - `-t`, `--trace`: Trace execution.
 - `-y`, `--yes`: Assume yes to confirmation prompts.
 

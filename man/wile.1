@@ -36,25 +36,28 @@ Show version number.
 Apply to all targets.
 .TP
 .BR \-c ", " \-\-check
-Check-only mode.
+Run in check-only mode.
 .TP
 .BI \-\-config= FILE
 Configuration file path.
 .TP
+.B \-\-detailed
+Display detailed output.
+.TP
 .BR \-d ", " \-\-dump
-Dump internal structure or AST.
+Dump internal structure or data.
 .TP
 .BR \-f ", " \-\-force
-Force execution, bypassing safety gates.
+Force execution without safety checks.
 .TP
 .BI \-\-format= WORD
 Output format.
 .TP
 .BR \-l ", " \-\-list
-List mode for items.
+List items.
 .TP
 .BI \-\-name= WORD
-Filter or specify item by name.
+Filter or match by name.
 .TP
 .BI \-\-output= FILE
 Write output to file.
@@ -65,8 +68,11 @@ Suppress non-essential output.
 .BR \-r ", " \-\-raw
 Raw / unformatted output.
 .TP
+.B \-\-simulate
+Simulate execution without making changes.
+.TP
 .BR \-s ", " \-\-strict
-Strict checks mode.
+Enable strict mode.
 .TP
 .BR \-t ", " \-\-trace
 Trace execution.
