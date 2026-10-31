@@ -160,9 +160,9 @@ and tracked in `.dictionary`.
 * `test/tc_version`
 
 Keep version numbers honest and in sync.
-Ensures the authoritative version in `.version` stays aligned with code
-constants in `lib/`, `data/VERSION`, and git release tags so you never
-publish a mismatched gem.
+Ensures the authoritative version in `.version` stays aligned across
+code constants in `lib/`, CLI executables in `bin/`, gemspecs, and
+`README.md` so you never publish a mismatched gem.
 
 ## LICENSE
 
