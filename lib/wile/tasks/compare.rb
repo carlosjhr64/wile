@@ -73,17 +73,18 @@ module Wile
 
     def colorized_puts(pfile)
       if $CHILD_STATUS.exitstatus.zero?
-        puts pfile.green
+        puts "✓  #{pfile}".green # UTF-8
       elsif EXPECTED_CHANGES.any? { it.match?(pfile) }
-        puts pfile.blue
+        puts "Δ  #{pfile}".blue # UTF-8
       else
-        puts pfile.red
+        puts "✗  #{pfile}".red # UTF-8
       end
     end
 
     # :reek:ControlParameter :reek:TooManyStatements
     def diff(cfile, pfile, show)
-      cmp, out = show ? ['colordiff', ''] : ['diff -sq', '>/dev/null']
+      color = String.disable_colorization ? 'diff' : 'colordiff'
+      cmp, out = show ? [color, ''] : ['diff -sq', '>/dev/null']
       if /\.erb$/.match?(cfile) then diff_erb(cfile, pfile, cmp, out)
       else
         cf = Shellwords.escape(cfile)
