@@ -25,7 +25,7 @@ class TestReadmeRocketTest < Test::Unit::TestCase
       end
     end
   rescue ScriptError, StandardError => e
-    flunk e.message
+    flunk e.message.red
   end
 
   private
@@ -51,7 +51,7 @@ class TestReadmeRocketTest < Test::Unit::TestCase
   def completes_successfully
     BINDING.eval(@script)
   rescue ScriptError, StandardError => e
-    flunk "#{@line_number}: #{e.message}"
+    flunk "#{@line_number}: #{e.message}".red
   ensure
     @script.clear
   end

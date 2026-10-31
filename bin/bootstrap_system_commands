@@ -57,8 +57,9 @@ class BootstrapSystemCommands
     missing = missing_commands(UTILITIES)
     return true if missing.empty?
 
-    warn 'Error: Required utilities not found in PATH: ' \
-         "#{missing.join(', ')}".red
+    msg = 'Error: Required utilities not found in PATH: ' \
+          "#{missing.join(', ')}"
+    warn msg.red
     verify_commands!
     false
   end

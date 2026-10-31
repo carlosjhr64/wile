@@ -223,7 +223,9 @@ class BootstrapRubyRbenv
   def configure_rbenv_shell!
     user_shell = detect_user_shell
     unless SUPPORTED_SHELLS.include?(user_shell)
-      warn "Error: Could not detect a supported shell (found: '#{user_shell}')."
+      msg = 'Error: Could not detect a supported shell ' \
+            "(found: '#{user_shell}')."
+      warn msg.red
       warn 'Configure your shell for rbenv manually, then re-run:'
       print_manual_rbenv_init('~/.rbenv/bin/rbenv')
       exit EX_CONFIG

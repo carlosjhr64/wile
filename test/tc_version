@@ -27,7 +27,7 @@ class TestVersion < Test::Unit::TestCase
   end
 
   def setup
-    flunk 'Could not get authoritative VERSION' unless version
+    flunk 'Could not get authoritative VERSION'.red unless version
   end
 
   def test_data_version
