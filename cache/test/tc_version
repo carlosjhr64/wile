@@ -4,6 +4,7 @@
 Encoding.default_external = Encoding::UTF_8
 
 require 'test/unit'
+require 'colorize'
 
 # Version Tests
 class TestVersion < Test::Unit::TestCase
@@ -12,15 +13,15 @@ class TestVersion < Test::Unit::TestCase
   end
 
   def self.startup
-    patterns = ['lib/*.rb', 'lib/*/version.rb']
-    @grep_version = Dir.glob(patterns).lazy
+    @grep_version = Dir.glob(['lib/*.rb', 'lib/*/version.rb']).lazy
                        .filter_map { File.read(it)[/\d+\.\d+\.\d+/] }
                        .first
 
     if File.exist?('.version')
       @version = File.read('.version').chomp
     else
-      warn 'Consider using `.version` as the authoritative VERSION source.'
+      msg = 'Consider using `.version` as the authoritative VERSION source.'
+      warn msg.yellow
       @version = @grep_version
     end
   end

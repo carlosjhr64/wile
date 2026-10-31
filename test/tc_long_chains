@@ -23,7 +23,7 @@ class TestLongChains < Test::Unit::TestCase
     strip_comments(source).lines.each_with_index do |clean, idx|
       next unless clean.match?(PATTERN)
 
-      puts "#{filename}:#{idx + 1}: #{raw_lines[idx].strip.red}"
+      puts "#{filename}:#{idx + 1}: #{raw_lines[idx].strip.yellow}"
     end
   end
 

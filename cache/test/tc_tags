@@ -16,7 +16,7 @@ class TestTags < Test::Unit::TestCase
     before = tags_content
     generate_tags
     after = tags_content
-    puts 'Tags changed.'.colorize(:blue) if before != after
+    puts 'Tags changed.'.yellow if before != after
   end
 
   private

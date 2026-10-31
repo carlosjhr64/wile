@@ -112,7 +112,7 @@ class BootstrapInstallNeovim
   end
 
   def download_archive!(archive)
-    puts "Downloading #{DOWNLOAD_URL}...".cyan
+    puts "Downloading #{DOWNLOAD_URL}...".gray
     run_cmd!('curl', '-fL', '--progress-bar', '-o', archive, DOWNLOAD_URL)
   end
 

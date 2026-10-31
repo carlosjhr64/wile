@@ -59,10 +59,10 @@ module TestModule
     # Allow color changes.
     # rubocop:disable-next Style/MutableConstant
     COLOR = {
-      public: :red,
-      protected: :light_red,
-      private: :magenta,
-      refinement: :cyan
+      public: :yellow,
+      protected: :yellow,
+      private: :yellow,
+      refinement: :yellow
     }
 
     def initialize(klass, context)
