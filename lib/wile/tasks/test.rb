@@ -13,7 +13,7 @@ module Wile
       match = Usage.new(options, *TEST_USAGE).args
       started = Time.now
       Test.test!(match)
-      puts "Time: #{Time.now - started} seconds".blue
+      puts "Time: #{Time.now - started} seconds"
       puts 'OK'.green
     end
   end

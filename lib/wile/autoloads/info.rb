@@ -66,7 +66,7 @@ module Wile
     def read(filename)
       File.read(filename)
     rescue StandardError
-      warn "Warning: using cache #{filename}".red
+      warn "Warning: using cache #{filename}".yellow
       File.read("#{@cache}/#{filename}")
     end
 

@@ -27,7 +27,7 @@ module Wile
       system 'colordiff .lexicon tmp/lexicon'
       return false if options.check?
 
-      print 'Update lexicon(Yes/No)?: '
+      print 'Update lexicon(Yes/No)?: '.yellow
       return false unless $stdin.gets&.include?('Y')
 
       FileUtils.cp 'tmp/lexicon', '.lexicon'

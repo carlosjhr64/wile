@@ -96,7 +96,7 @@ module Wile
 
     def review_do
       system('clear')
-      puts "#{@i + 1}. #{@file}"
+      puts "#{@i + 1}. #{@file}".blue.bold
       review_next review_file
     end
 
@@ -111,7 +111,7 @@ module Wile
     def review_choice(passed)
       return @i + 1 < @files.size ? 'n' : 'q' if @auto && passed
 
-      print 'Next(Enter) Quit(q) Redo(r) Previous(p) or file match: '
+      print 'Next(Enter) Quit(q) Redo(r) Previous(p) or file match: '.yellow
       $stdin.gets.strip
     end
 

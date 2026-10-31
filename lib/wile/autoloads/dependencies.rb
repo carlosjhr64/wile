@@ -111,7 +111,7 @@ module Wile
     # :reek:UtilityFunction
     def os_cmd_version(cmd)
       ['--version', '-v', '-V'].each do |flag|
-        warn "trying `#{cmd} #{flag}`".magenta
+        warn "trying `#{cmd} #{flag}`".gray
         version = `#{cmd} #{flag} 2>&1`.strip.scan(/\d+\.\d+/)&.first
         return version if version
       end

@@ -28,7 +28,7 @@ module Wile
       system 'colordiff .dictionary tmp/dictionary'
       return false if options.check? # Just checking
 
-      print 'Update dictionary(Yes/No)?: '
+      print 'Update dictionary(Yes/No)?: '.yellow
       return false unless $stdin.gets&.include?('Y')
 
       FileUtils.cp 'tmp/dictionary', '.dictionary'

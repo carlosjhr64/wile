@@ -26,10 +26,11 @@ module Wile
 
     # :reek:FeatureEnvy
     def puts_info(info)
+      project = info.project
       puts <<~INFO
-        # #{info.project.magenta}
-        + Version: #{info.version.magenta}
-        + Author:  #{info.username.magenta}
+        # #{project.blue.bold}
+        + Version: #{info.version}
+        + Author:  #{info.username}
       INFO
     end
 
@@ -37,7 +38,7 @@ module Wile
 
     def puts_readme(readme)
       puts <<~README
-        ## Description
+        #{'## Description'.blue}
         #{readme.description.light_black}
       README
     end
@@ -55,29 +56,29 @@ module Wile
 
     def puts_gemspec_files(files)
       puts <<~GEMSPEC_FILES
-        ## Files
-        #{files.map { "* #{it.blue}" }.join("\n")}
+        #{'## Files'.blue}
+        #{files.map { "* #{it}" }.join("\n")}
       GEMSPEC_FILES
     end
 
     def puts_gemspec_executables(executables)
       puts <<~GEMSPEC_EXECUTABLES
-        ## Executables
-        #{executables.map { "* #{it.red}" }.join("\n")}
+        #{'## Executables'.blue}
+        #{executables.map { "* #{it}" }.join("\n")}
       GEMSPEC_EXECUTABLES
     end
 
     def puts_gemspec_runtime(rungems)
       puts <<~GEMSPEC_RUNTIME
-        ## Runtime gems
-        #{rungems.map { "* #{it.name.magenta}(#{it.version.blue})" }.join("\n")}
+        #{'## Runtime gems'.blue}
+        #{rungems.map { "* #{it.name}(#{it.version})" }.join("\n")}
       GEMSPEC_RUNTIME
     end
 
     def puts_gemspec_development(devgems)
       puts <<~GEMSPEC_DEVELOPMENT
-        ## Development gems
-        #{devgems.map { "* #{it.name.magenta}(#{it.version.blue})" }.join("\n")}
+        #{'## Development gems'.blue}
+        #{devgems.map { "* #{it.name}(#{it.version})" }.join("\n")}
       GEMSPEC_DEVELOPMENT
     end
   end

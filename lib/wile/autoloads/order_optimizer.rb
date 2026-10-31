@@ -25,10 +25,10 @@ module Wile
 
       rj = ->(v) { v.to_s.rjust(8) }
       start = Time.now
-      warn "# Start: #{rj[@value]}\tSort: #{@sort}\tN: #{@order.size}".magenta
+      warn "# Start: #{rj[@value]}\tSort: #{@sort}\tN: #{@order.size}".gray
       method(@sort).call
       elapsed = Time.now - start
-      warn "# End:   #{rj[@value]}\tTime: #{elapsed}".magenta
+      warn "# End:   #{rj[@value]}\tTime: #{elapsed}".gray
     end
 
     def to_a

@@ -37,8 +37,8 @@ module Wile
     end
 
     def gemcheck_report(missing)
-      puts "Current Ruby version: #{RUBY_VERSION}"
-      puts 'Gems missing in current found in other versions:'
+      puts "Current Ruby version: #{RUBY_VERSION}".gray
+      puts 'Gems missing in current found in other versions:'.blue
       missing.each do |name, versions|
         puts "  #{name}:  #{versions.join(', ')}"
       end
@@ -52,7 +52,7 @@ module Wile
         exit(EX_OK)
       end
       gemcheck_report missing
-      puts 'Would you like to install them all? (Y/n)'.blue
+      puts 'Would you like to install them all? (Y/n)'.yellow
       exit(EX_NO) unless $stdin.gets.strip == 'Y'
       gemcheck_install(missing)
       puts 'OK'.green

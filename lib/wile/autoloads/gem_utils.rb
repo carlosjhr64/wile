@@ -13,7 +13,7 @@ module Wile
       return if (ready = ready?(minutes))
       raise 'missing gemspec!' if ready.nil?
 
-      warn 'Ensure gemspec is up-to-date.'.blue
+      warn 'Ensure gemspec is up-to-date.'.yellow
       raise "gemspec has not been touched in the last #{minutes} minutes"
     end
 

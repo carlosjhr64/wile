@@ -105,7 +105,7 @@ module Wile
 
     def content_def(line, fnm = line.split.last)
       name, sep, @scope = fnm.split(/([#.])/).reverse
-      print "#{@scope&.light_blue}#{sep&.light_blue}#{name.black.bold}"
+      print "#{@scope&.light_blue}#{sep&.light_blue}#{name.bold}"
       @mlc.key?(fnm) ? puts(" #{@mlc[fnm].to_s.green}") : puts(' ??'.red)
     end
 

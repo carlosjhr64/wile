@@ -41,7 +41,7 @@ module Wile
       if (i = lines.index { /\d+\.\d+\.\d+/.match? it })
         lines[i].sub!(/\d+\.\d+\.\d+/, @info.version)
       else
-        warn 'Warning: README does not have VERSION'.cyan
+        warn 'Warning: README does not have VERSION'.yellow
       end
     end
 
@@ -51,7 +51,7 @@ module Wile
       if (i = lines.index { /^Copyright\s\D+\d\d\d\d\s/.match? it })
         lines[i] = "Copyright (c) #{@info.year} #{@info.username}\n"
       else
-        warn 'Warning: README does not have Copyright'.cyan
+        warn 'Warning: README does not have Copyright'.yellow
       end
     end
 
@@ -74,7 +74,7 @@ module Wile
       end
       return if flg
 
-      warn 'Warning: README does not have an active console output'.cyan
+      warn 'Warning: README does not have an active console output'.yellow
     end
 
     # :reek:UtilityFunction
