@@ -27,5 +27,5 @@ Feature: Testing wile list
     * When we run command
     * Then exit status is "0"
     * Then stderr is ""
-    * Then stdout includes "test"
-    * Then stdout does not include "help"
+    * Then stdout does not match /wile[^\n]+help/
+    * Then stdout matches /wile[^\n]+test/
