@@ -15,8 +15,8 @@ test-unit    3.7.6
 cat          9.1
 clear        6.4
 colora       1.0
-colordiff    3.8
 cucumber     10.2
+diff         3.8
 egrep        3.8
 gem          4.0
 git          2.39
@@ -36,8 +36,8 @@ which        2016
 cat          9.1
 clear        6.4
 colora       1.0
-colordiff    3.8
 cucumber     10.2
+diff         3.8
 egrep        3.8
 git          2.39
 ls           9.1

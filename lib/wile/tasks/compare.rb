@@ -83,7 +83,7 @@ module Wile
 
     # :reek:ControlParameter :reek:TooManyStatements
     def diff(cfile, pfile, show)
-      color = String.disable_colorization ? 'diff' : 'colordiff'
+      color = String.disable_colorization ? 'diff' : 'diff --color=always'
       cmp, out = show ? [color, ''] : ['diff -sq', '>/dev/null']
       if /\.erb$/.match?(cfile) then diff_erb(cfile, pfile, cmp, out)
       else

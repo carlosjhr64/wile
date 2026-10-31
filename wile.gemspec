@@ -154,7 +154,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency 'test-unit', '~> 3.7', '>= 3.7.8'
   s.requirements << 'agy: 1.4'
   s.requirements << 'clear: 6.4'
-  s.requirements << 'colordiff: 3.8'
+  s.requirements << 'diff: 3.8'
   s.requirements << 'dpkg-query: 1.21'
   s.requirements << 'egrep: 3.8'
   s.requirements << 'fish: 4.9'

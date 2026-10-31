@@ -23,7 +23,7 @@ class TestLexicon < Test::Unit::TestCase
   private
 
   def diff_output(file1, file2)
-    cmd = system('which colordiff > /dev/null 2>&1') ? 'colordiff' : 'diff'
+    cmd = String.disable_colorization ? 'diff' : 'diff --color=always'
     `#{cmd} #{file1} #{file2}`.strip
   end
 

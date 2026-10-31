@@ -11,7 +11,6 @@ module Wile
       'cat' => ['cat --version', '9.1'],
       'clear' => ['clear -V', '6.4'],
       'colora' => ['colora --version', '1.0'],
-      'colordiff' => ['colordiff --version', '3.8'],
       'cucumber' => ['cucumber --version', '11.1'],
       'diff' => ['diff --version', '3.8'],
       'egrep' => ['egrep --version', '3.8'],
