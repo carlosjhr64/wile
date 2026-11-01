@@ -705,7 +705,7 @@ packages
 pad
 padding
 pandoc
-pandoc_cmd
+pandoc_args
 parse
 parse_file
 parts

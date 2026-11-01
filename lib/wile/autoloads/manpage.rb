@@ -24,13 +24,15 @@ module Wile
         return
       end
 
-      system(*pandoc_cmd)
+      return if system('pandoc', *pandoc_args)
+
+      warn 'Warning: pandoc failed to generate manpage.'.red
     end
 
     private
 
-    def pandoc_cmd
-      ['pandoc', '-s', '-f', 'markdown', '-t', 'man',
+    def pandoc_args
+      ['-s', '-f', 'markdown', '-t', 'man',
        '--shift-heading-level-by=-1',
        '-V', "title=#{@project.upcase}",
        '-V', 'section=1',

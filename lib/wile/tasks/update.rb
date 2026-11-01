@@ -14,7 +14,7 @@
 module Wile
   # This file is loaded upon a :update task request.
   class Tasks
-    UPDATE_USAGE = ['update: May specify either README, gemspec, or man.',
+    UPDATE_USAGE = ['update: May specify README, gemspec, or man.',
                     (..1), /^(README|gemspec|man)$/, Set['force']].freeze
 
     UPDATERS = {

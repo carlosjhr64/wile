@@ -29,7 +29,7 @@ module Wile
     EXPECTED_CHANGES = [
       /README.md/,
       /^(\.ruby-version|\.version|\.irbrc|\.config\.fish)/,
-      %r{^(lib/|bin/|\.bin/|\.git/)},
+      %r{^(lib/|bin/|\.bin/|\.git/|man/)},
       /^(Gemfile|TODO\.md|CREDITS\.md|History\.txt)/,
       /^(\.gemignore|\.gitignore|\.wileignore)/,
       /^(\.dictionary|\.lexicon)/,

@@ -75,7 +75,7 @@ Run `wile list` to list all tasks, or `wile help <task>` for details.
 - **tc**: List custom unit tests.
 - **test**: Run test suites.
 - **todo**: Scrape files for TODO comments.
-- **update**: Update README and gemspec.
+- **update**: Update project files.
 
 ## SEE ALSO
 

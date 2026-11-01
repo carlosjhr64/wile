@@ -62,6 +62,7 @@ Gem::Specification.new do |s|
     cache/features/version.feature.erb
     cache/git/hooks/pre-commit
     cache/lib/project.rb.erb
+    cache/man/project.md.erb
     cache/pkg/README.md
     cache/test/cons.gz
     cache/test/tc_comments
