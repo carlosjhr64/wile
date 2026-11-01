@@ -6,16 +6,22 @@
 #   $ <project> [<args>] #>>
 # runs ./bin/<project> [<args>] and inserts its output into the block.
 # (Only when bin/<project> exists; only run on projects you trust.)
-# Will also update gemspec.
-# You can optionally specify which if not both.
+# Will also update gemspec and manpage.
+# You can optionally specify which if not all.
 # Git status must be clean, unless forced.
 # Usage:
-#   wile update [README|gemspec] [-f|--force] # update README and gemspec
+#   wile update [README|gemspec|man] [-f|--force] # update project files
 module Wile
   # This file is loaded upon a :update task request.
   class Tasks
-    UPDATE_USAGE = ['update: May specify either README or gemspec.',
-                    (..1), /^(README|gemspec)$/, Set['force']].freeze
+    UPDATE_USAGE = ['update: May specify either README, gemspec, or man.',
+                    (..1), /^(README|gemspec|man)$/, Set['force']].freeze
+
+    UPDATERS = {
+      'README' => [Readme],
+      'gemspec' => [Gemspec],
+      'man' => [Manpage]
+    }.freeze
 
     def update(options)
       token, = Usage.new(options, *UPDATE_USAGE).args
@@ -29,23 +35,17 @@ module Wile
     def do_update_report(info = Info.info)
       if Git.clean? then puts 'up-to-date'.green
       else
-        Git.diff(info.readme, info.gemspec)
+        targets = [info.readme, info.gemspec]
+        targets << 'man' if File.directory?('man')
+        Git.diff(*targets)
         puts 'verify updated changes'.red
       end
     end
 
     # :reek:ControlParameter and :reek:UtilityFunction
-    # :reek:DuplicateMethodCall `#update!` are on different cases!
     def do_update(token)
-      case token
-      when 'README'
-        Readme.new.update!
-      when 'gemspec'
-        Gemspec.new.update!
-      else
-        Readme.new.update!
-        Gemspec.new.update!
-      end
+      targets = UPDATERS.fetch(token) { [Readme, Gemspec, Manpage] }
+      targets.each { it.new.update! }
     end
   end
 end

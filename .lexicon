@@ -111,6 +111,7 @@ METHOD_NAME
 MKDIR_USAGE
 MODULE_NAME
 MTHD
+Manpage
 NOTE_USAGE
 NULL
 NVIM_BIN
@@ -188,6 +189,7 @@ Test
 Time
 Translation
 TrigramCounts
+UPDATERS
 UPDATE_USAGE
 UTF_8
 UTILITIES
@@ -605,6 +607,7 @@ match
 matches
 max
 md
+md_path
 mdt
 message
 method
@@ -701,6 +704,8 @@ package_installed
 packages
 pad
 padding
+pandoc
+pandoc_cmd
 parse
 parse_file
 parts
@@ -816,6 +821,7 @@ rjust
 rm_pkg
 rm_r
 rm_rf
+roff_path
 root
 root_files
 ros
@@ -896,6 +902,7 @@ tag
 tap
 target
 target_ruby
+targets
 task
 tasks
 tc
@@ -929,6 +936,7 @@ unique
 unlink
 unshift
 unused
+upcase
 update
 update_ruby_build
 upto

@@ -128,7 +128,7 @@ $ wile list --list #>>
 + tc: lists custom unit tests in project
 + test: runs tests
 + todo: scrape file's TODO's
-+ update: update README and gemspec
++ update: update project files
 
 ```
 ## FEATURED TESTS

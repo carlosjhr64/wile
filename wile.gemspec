@@ -94,6 +94,7 @@ Gem::Specification.new do |s|
     lib/wile/autoloads/gemspec.rb
     lib/wile/autoloads/git.rb
     lib/wile/autoloads/info.rb
+    lib/wile/autoloads/manpage.rb
     lib/wile/autoloads/nvim_files.rb
     lib/wile/autoloads/order_optimizer.rb
     lib/wile/autoloads/order_swap.rb
@@ -162,6 +163,7 @@ Gem::Specification.new do |s|
   s.requirements << 'man: 2.11'
   s.requirements << 'md5sum: 9.1'
   s.requirements << 'ncal: 2019'
+  s.requirements << 'pandoc: 2.17'
   s.requirements << 'rbenv: 1.3'
   s.required_ruby_version = '>= 4.0'
   s.requirements << 'sudo: 1.9'

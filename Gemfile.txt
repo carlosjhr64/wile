@@ -30,6 +30,7 @@ git          2.39
 man          2.11
 md5sum       9.1
 ncal         2019
+pandoc       2.17
 rbenv        1.3
 reek         6.6
 ripper-tags  1.0

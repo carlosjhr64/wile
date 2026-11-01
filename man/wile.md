@@ -1,8 +1,12 @@
-# wile(1) -- prescriptive task dispatcher for Ruby gem projects
+# wile
+
+## NAME
+
+wile -- prescriptive task dispatcher for Ruby gem projects
 
 ## SYNOPSIS
 
-`wile` [<task>] [<args>...] [:<options>...]
+`wile [<task>] [<args>...] [:<options>...]`
 
 ## DESCRIPTION
 
@@ -72,3 +76,7 @@ Run `wile list` to list all tasks, or `wile help <task>` for details.
 - **test**: Run test suites.
 - **todo**: Scrape files for TODO comments.
 - **update**: Update README and gemspec.
+
+## SEE ALSO
+
+`ruby`(1), `fish`(1), `tmux`(1)
