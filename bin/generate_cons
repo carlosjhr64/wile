@@ -8,12 +8,12 @@ require_relative '../lib/wile'
 
 HelpParser[Wile::VERSION, <<~HELP]
   # ## generate_cons ##
-  # Generates `test/cons.gz` trigrams from Linux `/usr/share/dict/words`
-  # and the active Ruby standard library.
+  # Generates `test/cons.gz` top 6,583 trigrams from Linux
+  # `/usr/share/dict/words` and the active Ruby standard library.
   #
-  # This builds an objective trigram whitelist used by `test/tc_dictionary`
-  # to detect spelling errors and non-standard terms across documentation
-  # and code.
+  # This builds an objective trigram frequency whitelist used by
+  # `test/tc_dictionary` to detect spelling errors and non-standard terms
+  # across documentation and code without personal project bias.
   Usage:
     generate_cons [:options+]
   Options:
@@ -27,6 +27,7 @@ class GenerateCons
   include Wile::Utilities
 
   OUTPUT_FILE = 'test/cons.gz'
+  TOP_COUNT   = 6583
   DICT_PATHS  = %w[
     /usr/share/dict/words
     /usr/share/dict/american-english
@@ -55,26 +56,33 @@ class GenerateCons
   end
 
   def collect_trigrams
-    trigrams = Set.new
-    add_dict_trigrams!(trigrams)
-    add_stdlib_trigrams!(trigrams)
-    trigrams
+    counts = Hash.new(0)
+    add_dict_trigrams!(counts)
+    add_stdlib_trigrams!(counts)
+    top_trigrams(counts)
   end
 
-  def add_dict_trigrams!(trigrams)
+  def add_dict_trigrams!(counts)
     File.foreach(dict_path) do |line|
       extract_words(line).each do |word|
-        extract_trigrams(word, trigrams)
+        extract_trigrams(word, counts)
       end
     end
   end
 
-  def add_stdlib_trigrams!(trigrams)
+  def add_stdlib_trigrams!(counts)
     stdlib_files.each do |path|
       extract_words(File.read(path)).each do |word|
-        extract_trigrams(word, trigrams)
+        extract_trigrams(word, counts)
       end
     end
+  end
+
+  def top_trigrams(counts)
+    counts.sort_by { |tri, count| [-count, tri] }
+          .first(TOP_COUNT)
+          .map(&:first)
+          .sort
   end
 
   def stdlib_files
@@ -83,6 +91,11 @@ class GenerateCons
     Dir.glob("#{stdlib_dir}/**/*.rb")
   end
 
+  # Extracts normalized words from code and documentation text:
+  # 1. Splits camelCase and PascalCase into separate words.
+  # 2. Scans for alphabetical tokens, optionally prefixed with backslash.
+  # 3. Strips escape prefixes (e.g. hex escapes).
+  # 4. Discards empty tokens and downcases to lowercase words.
   def extract_words(text)
     text.gsub(/([a-z])([A-Z])/, '\1 \2')
         .scan(/\\?[a-zA-Z]+/)
@@ -91,16 +104,15 @@ class GenerateCons
         .map(&:downcase)
   end
 
-  def extract_trigrams(word, trigrams)
+  def extract_trigrams(word, counts)
     return if word.length < 3
 
-    word.chars.each_cons(3) { |c| trigrams << c.join }
+    word.chars.each_cons(3) { |c| counts[c.join] += 1 }
   end
 
   def write_cons!(trigrams)
-    sorted = trigrams.to_a.sort
     Zlib::GzipWriter.open(OUTPUT_FILE, Zlib::BEST_COMPRESSION) do |gz|
-      sorted.each { |tri| gz.puts(tri) }
+      trigrams.each { |tri| gz.puts(tri) }
     end
   end
 

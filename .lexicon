@@ -2,6 +2,7 @@ API_URL
 ARCH
 ARGV
 Array
+BEST_COMPRESSION
 BIN_DIR
 BUILD_PACKAGES
 BUILD_USAGE
@@ -20,6 +21,7 @@ CLEAN_DIRS
 CLRS
 COMMAND_VERSION
 COMPARE_USAGE
+CONFIG
 CONTENT_TYPE
 CONTENT_USAGE
 CP_USAGE
@@ -36,6 +38,7 @@ DEPENDENCIES_USAGE
 DEPENDENCY_SCRAPES
 DESCRIPTION
 DICTIONARY_USAGE
+DICT_PATHS
 DOWNLOAD_URL
 Dependencies
 Digest
@@ -81,7 +84,9 @@ Gem
 GemInfo
 GemUtils
 Gemspec
+GenerateCons
 Git
+GzipWriter
 HELP_USAGE
 Hash
 Help
@@ -115,6 +120,7 @@ ONELINER
 OPTIONAL_COMMANDS
 ORDER_USAGE
 OS_CMDS
+OUTPUT_FILE
 Object
 OrderOptimizer
 OrderSwap
@@ -174,6 +180,7 @@ TARBALL
 TC_USAGE
 TEST_USAGE
 TODO_USAGE
+TOP_COUNT
 TYPES
 Tasks
 Test
@@ -191,6 +198,7 @@ VERSION
 Version
 WILES_USAGE
 Wile
+Zlib
 _
 __dir__
 _args
@@ -202,7 +210,9 @@ active_ruby
 actual
 add
 add_dependency
+add_dict_trigrams
 add_external
+add_stdlib_trigrams
 add_undefined_methods
 alias_method
 all
@@ -264,6 +274,7 @@ cf
 cfile
 cfile2pfile
 cfiles
+chars
 check
 check_commands
 check_p2c
@@ -282,6 +293,7 @@ close_write
 cmd
 cmp
 col
+collect_trigrams
 color
 color_code
 color_here_casgn
@@ -325,6 +337,7 @@ content_scrape
 continue
 copy2project
 count
+counts
 cp
 cp_r
 cswp
@@ -361,6 +374,7 @@ detected_os
 dev
 devgems
 dflipped
+dict_path
 dictionary
 dictionary_ok
 diff
@@ -431,6 +445,8 @@ explain_fish
 external
 extract_archive
 extract_sha256
+extract_trigrams
+extract_words
 fallback
 fetch
 fetch_latest_release
@@ -458,6 +474,7 @@ flush
 fn
 fnm
 force
+foreach
 found
 freeze
 fullname
@@ -500,6 +517,8 @@ gray
 green
 grep
 grep_v
+gsub
+gz
 h
 handle_error
 handle_runtime_error
@@ -769,6 +788,7 @@ regexp
 reject
 rename
 reply
+report
 report_dependencies
 require
 require_in_path
@@ -846,6 +866,9 @@ start_with
 started
 stat
 stdlib
+stdlib_dir
+stdlib_files
+stdlib_key
 stdrb
 stdso
 stop
@@ -873,6 +896,7 @@ task
 tasks
 tc
 test
+text
 tf
 title_case
 to_a
@@ -882,8 +906,11 @@ to_s
 to_sym
 todo
 token
+top_trigrams
 total
 trace
+tri
+trigrams
 truthy
 tsk
 tty
@@ -925,6 +952,7 @@ verify_checksum
 verify_commands
 verify_curl
 verify_dependencies
+verify_dict
 verify_fish
 verify_fisher_installed
 verify_gems
@@ -947,7 +975,9 @@ warn
 which
 width
 wileignore
+word
 write
+write_cons
 wut
 x
 year

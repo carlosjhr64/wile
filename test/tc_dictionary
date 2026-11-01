@@ -41,6 +41,11 @@ class TestDictionary < Test::Unit::TestCase
     end.uniq
   end
 
+  # Extracts normalized words from code and documentation text:
+  # 1. Splits camelCase and PascalCase into separate words.
+  # 2. Scans for alphabetical tokens, optionally prefixed with backslash.
+  # 3. Strips escape prefixes (e.g. hex escapes).
+  # 4. Discards empty tokens and downcases to lowercase words.
   def extract_words(text)
     text.gsub(/([a-z])([A-Z])/, '\1 \2')
         .scan(/\\?[a-zA-Z]+/)
