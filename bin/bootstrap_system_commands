@@ -46,9 +46,10 @@ class BootstrapSystemCommands
   def ensure_commands!
     missing = @missed_required + @missed_optional
     puts "Missing system commands: #{missing.join(', ')}".yellow
-    return unless confirm?("Install #{missing.join(', ')} with sudo apt-get?")
+    packages = missing.map { it == 'diff' ? 'diffutils' : it }.uniq
+    return unless confirm?("Install #{packages.join(', ')} with sudo apt-get?")
 
-    apt_install!(missing)
+    apt_install!(packages)
     @missed_required = missing_commands(@missed_required)
     @missed_optional = missing_commands(@missed_optional)
   end
