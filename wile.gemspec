@@ -78,7 +78,7 @@ Gem::Specification.new do |s|
     cache/test/tc_tags
     cache/test/tc_version
     cache/test/tc_weird_filenames
-    cache/test/test_module.rb
+    cache/test/test_helper.rb
     cache/tmp/README.md
     lib/wile.rb
     lib/wile/autoloads/cache.rb

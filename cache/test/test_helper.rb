@@ -1,5 +1,17 @@
 # frozen_string_literal: true
 
+Encoding.default_external = Encoding::UTF_8
+
+require 'test/unit'
+require 'colorize'
+# Also:
+# require 'reek'
+# require 'rubocop'
+
+String.disable_colorization = true unless $stdout.tty? &&
+                                          ENV['NO_COLOR'].to_s.empty? &&
+                                          ENV['TERM'] != 'dumb'
+
 # Shared helpers for unit tests in Wile projects. Verifies that every
 # method on a target class has a corresponding test method (method-level
 # coverage audit) and provides no-fail wrappers for running linters on files.
@@ -20,12 +32,6 @@
 #       rubocop(__FILE__) # self rubocop-ing
 #     end
 #   end
-
-require 'test/unit'
-require 'colorize'
-# Also:
-# require 'reek'
-# require 'rubocop'
 
 module MissingCalls
   def missing_calls = (@missing_calls ||= [])

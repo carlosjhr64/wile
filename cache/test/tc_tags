@@ -1,16 +1,13 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-Encoding.default_external = Encoding::UTF_8
-
-require 'test/unit'
-require 'colorize'
+require_relative 'test_helper'
 # Also:
 # require 'ripper-tags'
 
 # Tags Test generates and maintains the ctags file using ripper-tags.
 class TestTags < Test::Unit::TestCase
-  PATTERNS = %w[lib/**/*.rb bin/* test/tc_* test/test_module.rb].freeze
+  PATTERNS = %w[lib/**/*.rb bin/* test/tc_* test/test_helper.rb].freeze
 
   def test_tags
     before = tags_content

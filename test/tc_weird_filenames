@@ -1,11 +1,8 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-Encoding.default_external = Encoding::UTF_8
-
-require 'test/unit'
+require_relative 'test_helper'
 require 'find'
-require 'colorize'
 
 # Check for non-standard / weird filenames
 class TestWeirdFilenames < Test::Unit::TestCase
