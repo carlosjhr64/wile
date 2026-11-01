@@ -7,7 +7,7 @@ require 'zlib'
 require_relative '../lib/wile'
 
 OPTIONS = HelpParser[Wile::VERSION, <<~HELP]
-  # ## generate_cons ##
+  # ## bootstrap_generate_cons ##
   # Generates `test/cons.gz` top 6,583 trigrams from Linux
   # `/usr/share/dict/words` and the active Ruby standard library.
   #
@@ -15,7 +15,7 @@ OPTIONS = HelpParser[Wile::VERSION, <<~HELP]
   # `test/tc_dictionary` to detect spelling errors and non-standard terms
   # across documentation and code without personal project bias.
   Usage:
-    generate_cons [:options+]
+    bootstrap_generate_cons [:options+]
   Options:
     -h --help
     -v --version
@@ -26,7 +26,7 @@ HELP
 HelpParser.integer(:count)
 
 # Generates trigram frequency table in test/cons.gz.
-class GenerateCons
+class BootstrapGenerateCons
   include Wile::Sysexits
   include Wile::Utilities
 
@@ -132,4 +132,4 @@ class GenerateCons
   end
 end
 
-GenerateCons.new
+BootstrapGenerateCons.new

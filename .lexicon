@@ -9,6 +9,7 @@ BUILD_USAGE
 BUMP_USAGE
 BootstrapFish
 BootstrapFisherPlugins
+BootstrapGenerateCons
 BootstrapInstallNeovim
 BootstrapRubyGems
 BootstrapRubyRbenv
@@ -84,7 +85,6 @@ Gem
 GemInfo
 GemUtils
 Gemspec
-GenerateCons
 Git
 GzipWriter
 HELP_USAGE
