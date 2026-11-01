@@ -28,6 +28,7 @@ module Wile
       'md5sum' => ['md5sum --version', '9.1'],
       'ncal' => [:man, '2019'],
       'nvim' => ['nvim --version', '0.12'],
+      'pandoc' => ['pandoc -v', '2.17'],
       'rbenv' => ['rbenv --version', '1.3'],
       'ripper-tags' => ['ripper-tags --version', '1.0'],
       'reek' => ['reek --version', '6.6'],

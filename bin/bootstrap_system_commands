@@ -9,7 +9,7 @@ HelpParser[Wile::VERSION, <<~HELP]
   # ## bootstrap_system_commands ##
   # Bootstraps the Linux system commands used by Wile by verifying or
   # installing required commands (diff) and optional commands
-  # (tmux, ncal) via apt-get.
+  # (tmux, ncal, pandoc) via apt-get.
   Usage:
     bootstrap_system_commands [:options+]
   Options:
@@ -24,7 +24,7 @@ class BootstrapSystemCommands
 
   UTILITIES         = %w[apt-get sudo].freeze
   REQUIRED_COMMANDS = %w[diff].freeze
-  OPTIONAL_COMMANDS = %w[tmux ncal].freeze
+  OPTIONAL_COMMANDS = %w[tmux ncal pandoc].freeze
 
   def initialize
     verify_linux!
