@@ -6,7 +6,7 @@ Encoding.default_external = Encoding::UTF_8
 require 'zlib'
 require_relative '../lib/wile'
 
-HelpParser[Wile::VERSION, <<~HELP]
+OPTIONS = HelpParser[Wile::VERSION, <<~HELP]
   # ## generate_cons ##
   # Generates `test/cons.gz` top 6,583 trigrams from Linux
   # `/usr/share/dict/words` and the active Ruby standard library.
@@ -19,7 +19,11 @@ HelpParser[Wile::VERSION, <<~HELP]
   Options:
     -h --help
     -v --version
+    --count=NUMBER 6583\tNumber of top trigrams
+  Types:
+    NUMBER /^\\d+$/
 HELP
+HelpParser.integer(:count)
 
 # Generates trigram frequency table in test/cons.gz.
 class GenerateCons
@@ -47,7 +51,7 @@ class GenerateCons
   end
 
   OUTPUT_FILE = 'test/cons.gz'
-  TOP_COUNT   = 6583
+  TOP_COUNT   = OPTIONS.count || 6583
   DICT_PATHS  = %w[
     /usr/share/dict/words
     /usr/share/dict/american-english

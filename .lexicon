@@ -118,6 +118,7 @@ NVIM_USAGE
 NvimFiles
 ONELINER
 OPTIONAL_COMMANDS
+OPTIONS
 ORDER_USAGE
 OS_CMDS
 OUTPUT_FILE
@@ -551,6 +552,7 @@ install_neovim
 install_plugins
 installed
 installed_version
+integer
 intersect
 invocation
 io
