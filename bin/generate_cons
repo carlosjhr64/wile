@@ -1,0 +1,113 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+Encoding.default_external = Encoding::UTF_8
+
+require 'zlib'
+require_relative '../lib/wile'
+
+HelpParser[Wile::VERSION, <<~HELP]
+  # ## generate_cons ##
+  # Generates `test/cons.gz` trigrams from Linux `/usr/share/dict/words`
+  # and the active Ruby standard library.
+  #
+  # This builds an objective trigram whitelist used by `test/tc_dictionary`
+  # to detect spelling errors and non-standard terms across documentation
+  # and code.
+  Usage:
+    generate_cons [:options+]
+  Options:
+    -h --help
+    -v --version
+HELP
+
+# Generates trigram frequency table in test/cons.gz.
+class GenerateCons
+  include Wile::Sysexits
+  include Wile::Utilities
+
+  OUTPUT_FILE = 'test/cons.gz'
+  DICT_PATHS  = %w[
+    /usr/share/dict/words
+    /usr/share/dict/american-english
+    /usr/dict/words
+  ].freeze
+
+  def initialize
+    verify_project_root!
+    verify_dict!
+    trigrams = collect_trigrams
+    write_cons!(trigrams)
+    report!(trigrams)
+  end
+
+  private
+
+  def dict_path
+    @dict_path ||= DICT_PATHS.find { |path| File.file?(path) }
+  end
+
+  def verify_dict!
+    return if dict_path
+
+    error!(EX_UNAVAILABLE,
+           'Error: No system dictionary found in standard paths.')
+  end
+
+  def collect_trigrams
+    trigrams = Set.new
+    add_dict_trigrams!(trigrams)
+    add_stdlib_trigrams!(trigrams)
+    trigrams
+  end
+
+  def add_dict_trigrams!(trigrams)
+    File.foreach(dict_path) do |line|
+      extract_words(line).each do |word|
+        extract_trigrams(word, trigrams)
+      end
+    end
+  end
+
+  def add_stdlib_trigrams!(trigrams)
+    stdlib_files.each do |path|
+      extract_words(File.read(path)).each do |word|
+        extract_trigrams(word, trigrams)
+      end
+    end
+  end
+
+  def stdlib_files
+    stdlib_key = %w[ruby lib dir].join
+    stdlib_dir = RbConfig::CONFIG[stdlib_key]
+    Dir.glob("#{stdlib_dir}/**/*.rb")
+  end
+
+  def extract_words(text)
+    text.gsub(/([a-z])([A-Z])/, '\1 \2')
+        .scan(/\\?[a-zA-Z]+/)
+        .map { it.start_with?('\\') ? it[2..] : it }
+        .reject(&:empty?)
+        .map(&:downcase)
+  end
+
+  def extract_trigrams(word, trigrams)
+    return if word.length < 3
+
+    word.chars.each_cons(3) { |c| trigrams << c.join }
+  end
+
+  def write_cons!(trigrams)
+    sorted = trigrams.to_a.sort
+    Zlib::GzipWriter.open(OUTPUT_FILE, Zlib::BEST_COMPRESSION) do |gz|
+      sorted.each { |tri| gz.puts(tri) }
+    end
+  end
+
+  def report!(trigrams)
+    puts "Generated #{OUTPUT_FILE} (#{trigrams.size} trigrams).".green
+    puts 'Run `bin/wile test dictionary` or `bin/wile dictionary` to verify.'
+  end
+end
+
+GenerateCons.new
