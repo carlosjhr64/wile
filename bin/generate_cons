@@ -26,6 +26,26 @@ class GenerateCons
   include Wile::Sysexits
   include Wile::Utilities
 
+  # Tracks trigram frequencies from words and provides top-frequency ranking.
+  class TrigramCounts
+    def initialize
+      @counts = Hash.new(0)
+    end
+
+    def add(word)
+      return if word.length < 3
+
+      word.chars.each_cons(3) { |chars| @counts[chars.join] += 1 }
+    end
+
+    def top(limit)
+      @counts.sort_by { |tri, count| [-count, tri] }
+             .first(limit)
+             .map(&:first)
+             .sort
+    end
+  end
+
   OUTPUT_FILE = 'test/cons.gz'
   TOP_COUNT   = 6583
   DICT_PATHS  = %w[
@@ -36,10 +56,11 @@ class GenerateCons
 
   def initialize
     verify_project_root!
-    verify_dict!
-    trigrams = collect_trigrams
-    write_cons!(trigrams)
-    report!(trigrams)
+    verify_dict
+    @counts = TrigramCounts.new
+    collect_trigrams
+    write_cons
+    report
   end
 
   private
@@ -48,7 +69,7 @@ class GenerateCons
     @dict_path ||= DICT_PATHS.find { |path| File.file?(path) }
   end
 
-  def verify_dict!
+  def verify_dict
     return if dict_path
 
     error!(EX_UNAVAILABLE,
@@ -56,33 +77,20 @@ class GenerateCons
   end
 
   def collect_trigrams
-    counts = Hash.new(0)
-    add_dict_trigrams!(counts)
-    add_stdlib_trigrams!(counts)
-    top_trigrams(counts)
+    add_dict_trigrams
+    add_stdlib_trigrams
   end
 
-  def add_dict_trigrams!(counts)
-    File.foreach(dict_path) do |line|
-      extract_words(line).each do |word|
-        extract_trigrams(word, counts)
-      end
-    end
+  def add_dict_trigrams
+    File.foreach(dict_path) { |line| ingest(line) }
   end
 
-  def add_stdlib_trigrams!(counts)
-    stdlib_files.each do |path|
-      extract_words(File.read(path)).each do |word|
-        extract_trigrams(word, counts)
-      end
-    end
+  def add_stdlib_trigrams
+    stdlib_files.each { |path| ingest(File.read(path)) }
   end
 
-  def top_trigrams(counts)
-    counts.sort_by { |tri, count| [-count, tri] }
-          .first(TOP_COUNT)
-          .map(&:first)
-          .sort
+  def ingest(text)
+    extract_words(text).each { |word| @counts.add(word) }
   end
 
   def stdlib_files
@@ -104,20 +112,18 @@ class GenerateCons
         .map(&:downcase)
   end
 
-  def extract_trigrams(word, counts)
-    return if word.length < 3
-
-    word.chars.each_cons(3) { |c| counts[c.join] += 1 }
+  def top_trigrams
+    @top_trigrams ||= @counts.top(TOP_COUNT)
   end
 
-  def write_cons!(trigrams)
+  def write_cons
     Zlib::GzipWriter.open(OUTPUT_FILE, Zlib::BEST_COMPRESSION) do |gz|
-      trigrams.each { |tri| gz.puts(tri) }
+      gz.puts(top_trigrams)
     end
   end
 
-  def report!(trigrams)
-    puts "Generated #{OUTPUT_FILE} (#{trigrams.size} trigrams).".green
+  def report
+    puts "Generated #{OUTPUT_FILE} (#{top_trigrams.size} trigrams).".green
     puts 'Run `bin/wile test dictionary` or `bin/wile dictionary` to verify.'
   end
 end

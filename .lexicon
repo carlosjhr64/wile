@@ -186,6 +186,7 @@ Tasks
 Test
 Time
 Translation
+TrigramCounts
 UPDATE_USAGE
 UTF_8
 UTILITIES
@@ -445,7 +446,6 @@ explain_fish
 external
 extract_archive
 extract_sha256
-extract_trigrams
 extract_words
 fallback
 fetch
@@ -539,6 +539,7 @@ includes
 independent
 index
 info
+ingest
 init
 initialize
 insert
@@ -583,6 +584,7 @@ lib
 libs
 light_black
 light_blue
+limit
 line
 lines
 lines_shift
@@ -906,11 +908,11 @@ to_s
 to_sym
 todo
 token
+top
 top_trigrams
 total
 trace
 tri
-trigrams
 truthy
 tsk
 tty
