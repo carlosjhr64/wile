@@ -1,13 +1,50 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-require 'shellwords'
+HELP = <<~HELP
+  ## panes ##
+  Broadcast controller for the Wile tmux workstation.
+  Sends a command to multiple tmux panes in the current window simultaneously.
 
-CMD = ARGV.shift
-list = *ARGV
-list = `tmux list-panes -F '#P'`.split if list.empty?
-list.each do |i|
-  running = `tmux display -t ":.#{i}" -p '\#{pane_current_command}'`.chomp
-  cmd = Shellwords.escape(CMD || "pane #{i}")
-  `tmux send-keys -t ":.#{i}" #{cmd} Enter` if running == 'fish'
+  Usage:
+    panes [<cmd>] [<pane>+]
+    panes [-h | --help] # Any flag displays this help
+
+  Arguments:
+    <cmd>   - The command string to broadcast. If omitted (or if arguments
+              are purely numeric pane indices), defaults to refreshing each
+              pane's assigned dashboard command (`pane <idx>`).
+    <pane>+ - Specific pane numbers to target (e.g. `panes 0 1`). If omitted,
+              all qualifying panes in the current window are targeted.
+
+  Safety Property:
+    To prevent interrupting active workflows (such as an open editor like
+    Neovim, a running test runner, or an interactive prompt), commands are
+    ONLY sent to panes currently idle at a fish shell (`running == 'fish'`).
+    Panes running any other command are skipped silently.
+HELP
+
+if ARGV.any? { it.start_with?('-') }
+  puts HELP
+  exit 0
+end
+
+cmd = ARGV.shift unless ARGV.first&.match?(/^\d+$/)
+cmd = nil if cmd == ''
+panes = ARGV
+
+# Fetch idle fish panes in the current window in a single tmux query
+idle_panes = `tmux list-panes -F '#P \#{pane_current_command}'`
+             .lines
+             .map(&:split)
+             .select { |_idx, running| running == 'fish' }
+             .map(&:first)
+
+# Target specified panes that are idle, or all idle panes if none specified
+targets = panes.empty? ? idle_panes : (idle_panes & panes)
+
+# Dispatch command and Enter key directly to each target pane
+targets.each do |idx|
+  action = cmd || "pane #{idx}"
+  system('tmux', 'send-keys', '-t', ":.#{idx}", action, 'Enter')
 end
