@@ -29,6 +29,8 @@ if ARGV.any? { it.start_with?('-') }
   exit 0
 end
 
+require 'shellwords'
+
 cmd = ARGV.shift unless ARGV.first&.match?(/^\d+$/)
 cmd = nil if cmd == ''
 panes = ARGV
@@ -45,6 +47,6 @@ targets = panes.empty? ? idle_panes : (idle_panes & panes)
 
 # Dispatch command and Enter key directly to each target pane
 targets.each do |idx|
-  action = cmd ? "pane #{idx} #{cmd}" : "pane #{idx}"
+  action = cmd ? "pane #{idx} #{Shellwords.escape(cmd)}" : "pane #{idx}"
   system('tmux', 'send-keys', '-t', ":.#{idx}", action, 'Enter')
 end
