@@ -2,6 +2,7 @@ TODO.*
 *.swp
 pkg/*.gem
 tags
-tmp
+tmp/*
+!tmp/README.md
 .git-backup-*
 .solargraph.yml
