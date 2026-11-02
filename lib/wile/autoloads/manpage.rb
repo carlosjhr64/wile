@@ -26,7 +26,7 @@ module Wile
 
       return if system('pandoc', *pandoc_args)
 
-      warn 'Warning: pandoc failed to generate manpage.'.red
+      raise 'pandoc failed to generate manpage'
     end
 
     private
