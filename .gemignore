@@ -1,6 +1,7 @@
 ^(
   (\.(?!version$)) | # Exclude all dot files except .version
   (bin/bootstrap)  | # Executables not to be packaged
+  (bin/maint)      |
   (examples/)      | # Exclude Git page demos:
   (img/)           |
   (\w+\.gemspec)   | # Exclude development and repo maintance files:
