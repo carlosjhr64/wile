@@ -8,7 +8,7 @@ HELP = <<~HELP
 
   Usage:
     panes [<cmd>] [<pane>+]
-    panes [-h | --help] # Any flag displays this help
+    panes [-h | --help]
 
   Arguments:
     <cmd>   - The command string to broadcast. If omitted (or if arguments
@@ -26,7 +26,7 @@ HELP
 
 if ARGV.any? { it.start_with?('-') }
   puts HELP
-  exit 0
+  exit(ARGV == ['-h'] || ARGV == ['--help'] ? 0 : 64)
 end
 
 require 'shellwords'

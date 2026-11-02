@@ -10,7 +10,7 @@ HELP = <<~HELP
   Usage:
     pane [<n>] [<cmd>]
     pane [<cmd>]
-    pane [-h | --help] # Any flag displays this help
+    pane [-h | --help]
 
   Arguments:
     <n>     - Target pane index (0..10). If omitted, detects the current pane
@@ -29,7 +29,7 @@ HELP
 
 if ARGV.any? { it.start_with?('-') }
   puts HELP
-  exit 0
+  exit(ARGV == ['-h'] || ARGV == ['--help'] ? 0 : 64)
 end
 
 pane = ARGV.first&.match?(/^\d+$/) ? ARGV.shift.to_i : nil
