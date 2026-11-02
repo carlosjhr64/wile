@@ -1,12 +1,42 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-pane = ARGV.shift&.to_i
-unless pane
-  # rubocop: disable-next Lint/InterpolationCheck
-  pane_index = '"#{pane_index}"'
-  pane = `tmux display-message -p #{pane_index}`.to_i
+HELP = <<~HELP
+  ## pane ##
+  Per-pane dashboard and command runner for the Wile tmux workstation.
+  Clears the screen and displays the assigned task or executes a command.
+  Meant to be run by `panes` (`.bin/panes`).
+
+  Usage:
+    pane [<n>] [<cmd>]
+    pane [<cmd>]
+    pane [-h | --help] # Any flag displays this help
+
+  Arguments:
+    <n>     - Target pane index (0..10). If omitted, detects the current pane
+              from tmux.
+    <cmd>   - Optional command to execute. If omitted, runs the assigned
+              preset dashboard for that pane.
+
+  Presets:
+     0  # Git Diff: (colora)       6  wile todo
+     1  # Git Status:              7  ncal -B 1 -A 1
+     2  # Lexicon:                 8  wile nvim --list
+     3  # Dictionary:              9  # Git Log: (last 7 commits)
+     4  # Rubocop:                10  agy -c
+     5  (unassigned)           other  #<n> alone
+HELP
+
+if ARGV.any? { it.start_with?('-') }
+  puts HELP
+  exit 0
 end
+
+pane = ARGV.first&.match?(/^\d+$/) ? ARGV.shift.to_i : nil
+pane ||= `tmux display-message -p '#P'`.to_i
+
+cmd = ARGV.join(' ')
+cmd = nil if cmd.empty?
 
 require 'colorize'
 # Also:
@@ -22,40 +52,47 @@ def clear
 end
 
 clear
-case pane
-when 0
-  blue '# Git Diff:'
-  system('colora')
-when 1
-  blue '# Git Status:'
-  system('git status')
-when 2
-  blue '# Lexicon:'
-  system('wile lexicon --check')
-when 3
-  blue '# Dictionary:'
-  system('wile dictionary --check')
-when 4
-  blue '# Rubocop:'
-  system('rubocop bin lib')
-when 6
-  system('wile todo')
-when 7
-  system('ncal -B 1 -A 1')
-when 8
-  system('wile nvim --list')
-when 9
-  blue '# Git Log:'
-  n = -1
-  `git log --oneline --name-only -n 7`.each_line do |line|
-    if (mdt = /^([a-f0-9]{7})(.*)$/.match(line))
-      puts "#{n += 1}: ".bold + mdt[1].magenta + mdt[2].blue
-    else
-      puts line
-    end
-  end
-when 10
-  system('agy -c')
+if cmd
+  blue "# #{cmd}:"
+  system(cmd)
 else
-  blue "##{pane}"
+  case pane
+  when 0
+    blue '# Git Diff:'
+    # colora: Terminal colorizer utility for diffs and logs
+    system('colora')
+  when 1
+    blue '# Git Status:'
+    system('git status')
+  when 2
+    blue '# Lexicon:'
+    system('wile lexicon --check')
+  when 3
+    blue '# Dictionary:'
+    system('wile dictionary --check')
+  when 4
+    blue '# Rubocop:'
+    system('rubocop bin lib')
+  when 6
+    system('wile todo')
+  when 7
+    system('ncal -B 1 -A 1')
+  when 8
+    system('wile nvim --list')
+  when 9
+    blue '# Git Log:'
+    n = -1
+    `git log --oneline --name-only --abbrev=7 -n 7`.each_line do |line|
+      if (mdt = /^([a-f0-9]{7})(.*)$/.match(line))
+        puts "#{n += 1}: ".bold + mdt[1].magenta + mdt[2].blue
+      else
+        puts line
+      end
+    end
+  when 10
+    # agy: Antigravity AI coding assistant (-c continues active session)
+    system('agy -c')
+  else
+    blue "##{pane}"
+  end
 end

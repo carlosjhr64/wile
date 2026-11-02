@@ -45,6 +45,6 @@ targets = panes.empty? ? idle_panes : (idle_panes & panes)
 
 # Dispatch command and Enter key directly to each target pane
 targets.each do |idx|
-  action = cmd || "pane #{idx}"
+  action = cmd ? "pane #{idx} #{cmd}" : "pane #{idx}"
   system('tmux', 'send-keys', '-t', ":.#{idx}", action, 'Enter')
 end
