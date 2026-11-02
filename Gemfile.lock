@@ -73,6 +73,7 @@ GEM
       dry-inflector (~> 1.0)
       dry-logic (~> 1.4)
       zeitwerk (~> 2.6)
+    erubi (1.13.1)
     ffi (1.17.4)
     ffi (1.17.4-aarch64-linux-gnu)
     ffi (1.17.4-aarch64-linux-musl)
@@ -133,6 +134,10 @@ GEM
       memoist3 (~> 1.0.0)
     test-unit (3.7.8)
       power_assert
+    thor (1.4.0)
+    tmuxinator (3.4.2)
+      erubi (~> 1.13)
+      thor (~> 1.4.0)
     unicode-display_width (3.3.0)
       unicode-emoji (~> 4.3)
     unicode-emoji (4.3.0)
@@ -161,6 +166,7 @@ DEPENDENCIES
   ripper-tags
   rubocop
   test-unit
+  tmuxinator
 
 RUBY VERSION
   ruby 4.0.7

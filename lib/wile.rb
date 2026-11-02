@@ -15,6 +15,8 @@ autoload :RbConfig,   'rbconfig'
 ## Third-party gems:
 autoload :HelpParser, 'help_parser'
 require 'colorize'
+# Also:
+# require 'tmuxinator'
 
 String.disable_colorization = true unless $stdout.tty? &&
                                           ENV['NO_COLOR'].to_s.empty? &&

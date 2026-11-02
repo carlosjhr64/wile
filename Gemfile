@@ -10,4 +10,5 @@ gem 'reek'
 gem 'ripper-tags'
 gem 'rubocop'
 gem 'test-unit'
+gem 'tmuxinator'
 ## development ##

@@ -154,6 +154,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency 'ripper-tags', '~> 1.0', '>= 1.0.2'
   s.add_runtime_dependency 'rubocop', '~> 1.92', '>= 1.92.2'
   s.add_runtime_dependency 'test-unit', '~> 3.7', '>= 3.7.8'
+  s.add_runtime_dependency 'tmuxinator', '~> 3.4', '>= 3.4.2'
   s.requirements << 'agy: 1.4'
   s.requirements << 'clear: 6.4'
   s.requirements << 'dpkg-query: 1.21'
