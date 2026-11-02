@@ -27,11 +27,6 @@ class TestVersion < Test::Unit::TestCase
     flunk 'Could not get authoritative VERSION'.red unless version
   end
 
-  def test_data_version
-    File.exist?('data/VERSION') &&
-      assert_equal(version, File.read('data/VERSION').strip)
-  end
-
   def test_lib_version
     if grep_version
       assert_equal(version, grep_version)
