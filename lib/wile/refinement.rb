@@ -37,6 +37,7 @@ module Wile
     # category: file
 
     refine File.singleton_class do
+      # Matches a regexp against file contents, raising if no match is found.
       def match!(filename, regexp)
         regexp.match File.read(filename) or
           raise "no match: #{regexp} #{filename}"
@@ -91,14 +92,21 @@ module Wile
         snake_case('-')
       end
 
+      # Converts a method name string into a Regexp to match its occurrence
+      # in Ruby source code lines (e.g. definitions, calls, or operators).
       # :reek:FeatureEnvy :reek:TooManyStatements
       # :reek:DuplicateMethodCall nme[-1]
       def namex
         nme = start_with?('#', '.') ? self[1..] : self
         return /\[\s*\]=/ if nme == '[]='
         return /\[\s*\]/ if nme == '[]'
+        return /#{Regexp.escape(nme)}/ unless nme.match?(/\w/)
 
-        '!=?'.include?(nme[-1]) ? /\b#{nme[...-1]}[#{nme[-1]}]/ : /\b#{nme}\b/
+        if '!=?'.include?(nme[-1]) && nme[...-1].match?(/\w/)
+          /\b#{Regexp.escape(nme[...-1])}[#{nme[-1]}]/
+        else
+          /\b#{Regexp.escape(nme)}\b/
+        end
       end
     end
   end
