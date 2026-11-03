@@ -102,6 +102,7 @@ Run `wile list` and you'll get the entire list of available tasks.
 ```console
 $ wile list --list #>>
 
++ hello: prints Hello World
 + build: build gem pkg
 + bump: Bump the version number
 + compare: compares project with template
