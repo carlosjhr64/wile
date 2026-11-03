@@ -9,7 +9,7 @@ module Wile
   def self.autoloads
     Dir.glob("#{__dir__}/autoloads/*.rb")
        .map { File.basename(it, '.rb') }
-       .each { autoload PASCAL_KEY[it], "wile/autoloads/#{it}" }
+       .each { autoload PASCAL_KEY[it], File.join(__dir__, "autoloads/#{it}") }
   end
 
   # The Run class is responsible for executing the Wile application.
