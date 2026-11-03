@@ -96,5 +96,7 @@ class TestUtRefinement < Test::Unit::TestCase
     assert_equal(Regexp.new('\bfoo[!]'), 'foo!'.namex)
     assert_equal(/\bfoo\b/, '#foo'.namex)
     assert_equal(/\bfoo\b/, '.foo'.namex)
+    assert_equal(/\[\s*\]/, '#[]'.namex)
+    assert_equal(/\[\s*\]=/, '#[]='.namex)
   end
 end

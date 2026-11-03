@@ -10,6 +10,8 @@ module Wile
       # :reek:TooManyStatements
       # :reek:DuplicateMethodCall it.to_s
       def display(width: `tput cols`.to_i, padding: 2, io: $stdout)
+        return if empty?
+
         max = map { it.to_s.length }.max + padding
         div = width / max
         div = 1 if div.zero?
@@ -89,12 +91,13 @@ module Wile
         snake_case('-')
       end
 
-      # :reek:TooManyStatements
+      # :reek:FeatureEnvy :reek:TooManyStatements
       # :reek:DuplicateMethodCall nme[-1]
-      # :reek:UncommunicativeVariableName c
       def namex
-        c = self[0]
-        nme = ['#', '.'].any? { it == c } ? self[1..] : self
+        nme = start_with?('#', '.') ? self[1..] : self
+        return /\[\s*\]=/ if nme == '[]='
+        return /\[\s*\]/ if nme == '[]'
+
         '!=?'.include?(nme[-1]) ? /\b#{nme[...-1]}[#{nme[-1]}]/ : /\b#{nme}\b/
       end
     end
