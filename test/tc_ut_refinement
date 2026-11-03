@@ -1,0 +1,100 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require_relative 'test_helper'
+require 'stringio'
+require 'tempfile'
+require_relative '../lib/wile'
+require_relative '../lib/wile/refinement'
+
+# Unit tests for Wile::Refinement.
+class TestUtRefinement < Test::Unit::TestCase
+  using Wile::Refinement
+
+  def test_array_unique
+    assert_equal 'a', ['a'].unique
+    assert_nil %w[a b].unique
+    assert_nil [].unique
+  end
+
+  def test_array_display
+    io = StringIO.new
+    %w[one two three four five].display(width: 20, padding: 2, io: io)
+    expected = "one    two    \nthree  four   \nfive   \n"
+    assert_equal expected, io.string
+  end
+
+  def test_array_display_empty
+    io = StringIO.new
+    assert_nil [].display(io: io)
+    assert_empty io.string
+  end
+
+  # :reek:FeatureEnvy
+  def test_enumerable_first_truthy_value
+    numbers = [1, 2, 3, 4]
+    found = numbers.first_truthy_value { |num| num > 2 ? num * 10 : nil }
+    assert_equal 30, found
+  end
+
+  def test_enumerable_first_truthy_none
+    none = [1, 2, 3].first_truthy_value { |num| num > 10 ? num : nil }
+    assert_nil none
+  end
+
+  # :reek:FeatureEnvy :reek:TooManyStatements
+  def test_file_match_bang
+    Tempfile.create('test_match') do |file|
+      file.puts('version = 1.2.3')
+      file.flush
+      path = file.path
+      assert_equal '1.2.3', File.match!(path, /\d+\.\d+\.\d+/)[0]
+      assert_raise(RuntimeError) { File.match!(path, /nonexistent/) }
+    end
+  end
+
+  # :reek:FeatureEnvy :reek:TooManyStatements
+  def test_file_sub_bang
+    Tempfile.create('test_sub') do |file|
+      file.puts('name: old_name')
+      file.flush
+      path = file.path
+      File.sub!(path, /old_name/, 'new_name')
+      assert_equal "name: new_name\n", File.read(path)
+    end
+  end
+
+  def test_object_as
+    result = 5.as { |val| val * 3 }
+    assert_equal 15, result
+  end
+
+  def test_string_camel_case
+    assert_equal 'helloWorldTest', 'hello_world_test'.camel_case
+  end
+
+  def test_string_pascal_case
+    assert_equal 'HelloWorldTest', 'hello_world_test'.pascal_case
+    assert_equal 'HelloWorldTest', 'hello_world_test'.title_case
+  end
+
+  def test_string_snake_case
+    assert_equal 'hello_world_test', 'HelloWorldTest'.snake_case
+  end
+
+  def test_string_kebab_case
+    assert_equal 'hello-world-test', 'HelloWorldTest'.kebab_case
+  end
+
+  def test_string_name_split
+    assert_equal %w[hello world test], 'hello_world-test'.name_split
+  end
+
+  def test_string_namex
+    assert_equal(/\bfoo\b/, 'foo'.namex)
+    assert_equal(/\bfoo[?]/, 'foo?'.namex)
+    assert_equal(Regexp.new('\bfoo[!]'), 'foo!'.namex)
+    assert_equal(/\bfoo\b/, '#foo'.namex)
+    assert_equal(/\bfoo\b/, '.foo'.namex)
+  end
+end
