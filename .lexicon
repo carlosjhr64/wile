@@ -1,6 +1,7 @@
 API_URL
 ARCH
 ARGV
+ArgumentError
 Array
 BEST_COMPRESSION
 BIN_DIR
@@ -230,6 +231,7 @@ arch
 archive
 arg
 args
+args_size
 as
 asset
 assets
@@ -538,6 +540,7 @@ idx
 ignore
 improved
 in
+in_range
 include
 includes
 independent

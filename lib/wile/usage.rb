@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 # Wile namespace.
-# :reek:MissingSafeMethod
 module Wile
   # UsageError is raised when the usage of a task is incorrect.
   # It provides a message that includes the help information for the task.
@@ -18,14 +17,14 @@ module Wile
   end
 
   # Usage class validates the command-line arguments for a task.
+  # :reek:MissingSafeMethod
   class Usage
     attr_reader :args
 
     def initialize(options, message, *validators)
+      keys        = options.to_h.keys
       @args       = options.args
-      @opts       = options.to_h.keys.grep(String)
-                           .select { it.length > 1 }
-                           .reject { %w[task args].include? it }
+      @opts       = keys.grep(String).select { it.length > 1 } - %w[task args]
       @message    = message
       @validators = validators
       validate!
@@ -40,7 +39,7 @@ module Wile
     end
 
     VALIDATORS = {
-      Range => :include?,
+      Range => :in_range?,
       Regexp => :match?,
       Integer => :size_of?,
       Set => :allowed_opt?
@@ -49,17 +48,17 @@ module Wile
 
     def validator_type_check(validator)
       _, mth = VALIDATORS.detect { |type, _| validator.is_a? type }
-      raise StandardError, "invalid validator: #{validator.inspect}" unless mth
+      raise ArgumentError, "invalid validator: #{validator.inspect}" unless mth
 
-      method(mth).call(validator)
+      send(mth, validator)
     end
 
     def allowed_opt?(validator)
       @opts.all? { validator.include? it }
     end
 
-    def include?(validator)
-      validator.include?(@args&.size.to_i)
+    def in_range?(validator)
+      validator.include?(args_size)
     end
 
     # :reek:NilCheck
@@ -68,7 +67,11 @@ module Wile
     end
 
     def size_of?(validator)
-      validator == @args&.size.to_i
+      validator == args_size
+    end
+
+    def args_size
+      @args&.size.to_i
     end
   end
 end
