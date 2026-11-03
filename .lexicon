@@ -533,7 +533,6 @@ handle_usage_error
 hash
 heading
 help
-help_string
 hexdigest
 i
 idx

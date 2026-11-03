@@ -4,13 +4,9 @@
 module Wile
   # Scrape help documentation from task files.
   module Help
-    def self.[](sym)
-      Help.help_string(sym)
-    end
-
-    def self.help_string(task)
+    def self.[](task)
       help = String.new
-      Help.scrape_help(task) { help << it }
+      scrape_help(task) { help << it }
       help.empty? ? nil : help
     end
 
@@ -21,17 +17,15 @@ module Wile
 
       raise ArgumentError, "does not exist: #{file}"
     end
+    private_class_method :task_file
 
-    # :reek:TooManyStatements
     def self.scrape_help(task)
       continue = false
-      File.open(task_file(task), 'r') do |file|
-        while (line = file.gets)
-          next unless continue ||= /^# #/.match?(line)
-          break unless /^#/.match?(line)
+      File.foreach(task_file(task)) do |line|
+        next unless continue ||= /^# #/.match?(line)
+        break unless /^#/.match?(line)
 
-          yield line[2..]
-        end
+        yield line[2..]
       end
     end
 
