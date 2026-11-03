@@ -1,0 +1,58 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require_relative 'test_helper'
+require_relative '../lib/wile'
+require_relative '../lib/wile/tasks'
+
+# Unit tests for Wile::Tasks.
+class TestWileTasksUt < Test::Unit::TestCase
+  TASKS = Wile::Tasks.new
+
+  def test_find_exact
+    assert_equal :help, TASKS.find('help')
+    assert_equal :list, TASKS.find('list')
+    assert_equal :test, TASKS.find('test')
+  end
+
+  def test_find_prefix
+    assert_equal :build, TASKS.find('bui')
+    assert_equal :bump, TASKS.find('bum')
+    assert_equal :lexicon, TASKS.find('lex')
+    assert_equal :requirements, TASKS.find('req')
+  end
+
+  def test_find_suffix
+    assert_equal :bump, TASKS.find('mp')
+    assert_equal :publish, TASKS.find('ish')
+    assert_equal :mkdir, TASKS.find('dir')
+  end
+
+  def test_find_substring
+    assert_equal :lexicon, TASKS.find('xic')
+    assert_equal :requirements, TASKS.find('qui')
+  end
+
+  def test_find_ambiguous_returns_nil
+    assert_nil TASKS.find('bu')
+    assert_nil TASKS.find('co')
+    assert_nil TASKS.find('ge')
+  end
+
+  def test_find_ambiguous_prefix_falls_back_to_suffix
+    # 're' starts both requirements and review, but ends only compare.
+    assert_equal :compare, TASKS.find('re')
+  end
+
+  def test_find_short_or_empty_returns_nil
+    assert_nil TASKS.find('h')
+    assert_nil TASKS.find('b')
+    assert_nil TASKS.find('')
+    assert_nil TASKS.find(nil)
+  end
+
+  def test_find_unmatched_returns_nil
+    assert_nil TASKS.find('xyz')
+    assert_nil TASKS.find('nonexistent')
+  end
+end
