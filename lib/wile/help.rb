@@ -30,9 +30,12 @@ module Wile
     end
 
     def self.usage(task)
-      last = nil
-      scrape_help(task) { last = it }
-      last&.strip
+      usage = "wile #{task}"
+      scrape_help(task) do |line|
+        text = line.strip
+        usage = text unless text.empty?
+      end
+      usage
     end
   end
 end
