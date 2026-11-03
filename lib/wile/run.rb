@@ -31,6 +31,7 @@ module Wile
 
     private
 
+    # :reek:TooManyStatements
     def run
       return man unless (name = @options.task)
 
@@ -38,7 +39,11 @@ module Wile
       # The 'list:' prefix tells UsageError to prepend Help[:list] usage.
       raise UsageError, "list: No tasks matched '#{name}'" unless task
 
-      require_relative "tasks/#{task}"
+      if File.file?(".tasks/#{task}.rb")
+        require File.expand_path(".tasks/#{task}.rb")
+      else
+        require_relative "tasks/#{task}"
+      end
       @tasks.method(task).call(@options)
     end
 

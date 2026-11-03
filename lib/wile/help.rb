@@ -16,7 +16,8 @@ module Wile
 
     # :reek:TooManyStatements
     def self.scrape_help(task)
-      filename = File.join(__dir__, "/tasks/#{task}.rb")
+      custom = File.expand_path(".tasks/#{task}.rb")
+      filename = File.file?(custom) ? custom : "#{__dir__}/tasks/#{task}.rb"
       continue = false
       File.open(filename, 'r') do |file|
         while (line = file.gets)

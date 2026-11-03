@@ -8,8 +8,8 @@ module Wile
     include Sysexits
 
     def initialize
-      @tasks = Dir.glob("#{__dir__}/tasks/*.rb")
-                  .map { File.basename(it, '.rb').to_sym }
+      @tasks = (Dir.glob('.tasks/*.rb') + Dir.glob("#{__dir__}/tasks/*.rb"))
+               .map { File.basename(it, '.rb').to_sym }.uniq
     end
 
     def find(string)
