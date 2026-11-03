@@ -1,6 +1,6 @@
 # Wile
 
-* [VERSION 0.3.261102](https://github.com/carlosjhr64/wile/releases)
+* [VERSION 0.3.261103](https://github.com/carlosjhr64/wile/releases)
 * [github](https://www.github.com/carlosjhr64/wile)
 
 ## DESCRIPTION

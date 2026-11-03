@@ -6,7 +6,7 @@ require_relative '../lib/wile'
 require_relative '../lib/wile/tasks'
 
 # Unit tests for Wile::Tasks.
-class TestWileTasksUt < Test::Unit::TestCase
+class TestUtTasks < Test::Unit::TestCase
   TASKS = Wile::Tasks.new
 
   def test_find_exact

@@ -11,7 +11,7 @@ class TestLibTests < Test::Unit::TestCase
       a = fn.split('/')
       a.shift
       a.shift if a.length > 1
-      a.unshift('tc')
+      a.unshift('tc_ut')
       "test/#{a.join('_').chomp('.rb')}"
     end
     count = 0

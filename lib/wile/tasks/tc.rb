@@ -24,7 +24,7 @@ module Wile
         ordered.map! { it.split('/')[1..] }
         ordered.map! do |a|
           s = (a.length == 1 ? a[0] : a[1..].join('_')).chomp('.rb')
-          "test/tc_#{s}"
+          "test/tc_ut_#{s}"
         end
         ordered.select! { custom.include? it }
         puts ordered
