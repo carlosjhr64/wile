@@ -64,6 +64,17 @@ class TestUtRefinement < Test::Unit::TestCase
     end
   end
 
+  # Verifies Kernel#system2 prints the command to $stderr and runs system().
+  # :reek:TooManyStatements
+  def test_kernel_system2
+    orig_stderr = $stderr
+    $stderr = StringIO.new
+    assert system2('true')
+    assert_match(/true/, $stderr.string)
+  ensure
+    $stderr = orig_stderr
+  end
+
   def test_object_as
     result = 5.as { |val| val * 3 }
     assert_equal 15, result
@@ -98,5 +109,13 @@ class TestUtRefinement < Test::Unit::TestCase
     assert_equal(/\bfoo\b/, '.foo'.namex)
     assert_equal(/\[\s*\]/, '#[]'.namex)
     assert_equal(/\[\s*\]=/, '#[]='.namex)
+  end
+
+  def test_string_namex_operators
+    assert_match '=='.namex, 'def ==(other)'
+    assert_match '+'.namex, 'def +(other)'
+    assert_match '<=>'.namex, 'def <=>(other)'
+    assert_match 'a.b'.namex, 'a.b'
+    refute_match 'a.b'.namex, 'aXb'
   end
 end
