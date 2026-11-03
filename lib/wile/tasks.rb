@@ -7,6 +7,19 @@ module Wile
     using Refinement
     include Sysexits
 
+    def initialize
+      @tasks = Dir.glob("#{__dir__}/tasks/*.rb")
+                  .map { File.basename(it, '.rb').to_sym }
+    end
+
+    def find(string)
+      return nil if string.to_s.length < 2
+
+      start_with(string) || end_with(string) || includes(string)
+    end
+
+    private
+
     def start_with(string)
       @tasks.select { it.start_with? string }.unique
     end
@@ -15,22 +28,8 @@ module Wile
       @tasks.select { it.end_with? string }.unique
     end
 
-    def find(string, task = nil)
-      return nil if string.length < 2
-      return task if (task = start_with(string))
-      return task if (task = end_with(string))
-      return task if (task = includes(string))
-
-      nil
-    end
-
     def includes(string)
       @tasks.select { it.to_s.include? string }.unique
-    end
-
-    def initialize
-      @tasks = Dir.glob("#{__dir__}/tasks/*.rb")
-                  .map { File.basename(it, '.rb').to_sym }
     end
   end
 end
