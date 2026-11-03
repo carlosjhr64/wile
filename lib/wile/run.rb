@@ -24,7 +24,7 @@ module Wile
       Wile.autoloads
       @tasks = Wile::Tasks.new
       run
-    rescue StandardError => e
+    rescue StandardError, ScriptError => e
       @error = e
       handle_error
     end
@@ -34,13 +34,12 @@ module Wile
     def run
       return man unless (name = @options.task)
 
-      if (task = @tasks.find(name))
-        require_relative "tasks/#{task}"
-        @tasks.method(task).call(@options)
-      else
-        # The 'list:' prefix tells UsageError to prepend Help[:list] usage.
-        raise UsageError, "list: No tasks matched '#{name}'"
-      end
+      task = @tasks.find(name)
+      # The 'list:' prefix tells UsageError to prepend Help[:list] usage.
+      raise UsageError, "list: No tasks matched '#{name}'" unless task
+
+      require_relative "tasks/#{task}"
+      @tasks.method(task).call(@options)
     end
 
     def man
