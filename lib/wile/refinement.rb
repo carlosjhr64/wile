@@ -98,7 +98,7 @@ module Wile
       # :reek:DuplicateMethodCall nme[-1]
       def namex
         nme = start_with?('#', '.') ? self[1..] : self
-        return /\[\s*\]#{'=' if nme == '[]='}/ if nme.start_with?('[]')
+        return /\[\s*\]#{'=' if nme == '[]='}/ if ['[]', '[]='].include?(nme)
 
         sym = %r{[-=!<>&|*+%/^~]}
         return /(?<!#{sym})#{Regexp.escape(nme)}(?!#{sym})/ unless
