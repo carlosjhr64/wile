@@ -11,15 +11,21 @@ module Wile
     def self.help_string(task)
       help = String.new
       Help.scrape_help(task) { help << it }
-      help
+      help.empty? ? nil : help
+    end
+
+    def self.task_file(task)
+      custom = File.expand_path(".tasks/#{task}.rb")
+      file = File.file?(custom) ? custom : "#{__dir__}/tasks/#{task}.rb"
+      return file if File.file?(file)
+
+      raise ArgumentError, "does not exist: #{file}"
     end
 
     # :reek:TooManyStatements
     def self.scrape_help(task)
-      custom = File.expand_path(".tasks/#{task}.rb")
-      filename = File.file?(custom) ? custom : "#{__dir__}/tasks/#{task}.rb"
       continue = false
-      File.open(filename, 'r') do |file|
+      File.open(task_file(task), 'r') do |file|
         while (line = file.gets)
           next unless continue ||= /^# #/.match?(line)
           break unless /^#/.match?(line)
@@ -31,8 +37,8 @@ module Wile
 
     def self.usage(task)
       last = nil
-      Help.scrape_help(task) { last = it }
-      last.strip
+      scrape_help(task) { last = it }
+      last&.strip
     end
   end
 end
