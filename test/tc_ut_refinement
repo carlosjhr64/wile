@@ -113,6 +113,7 @@ class TestUtRefinement < Test::Unit::TestCase
 
   def test_string_namex_operators
     assert_match '=='.namex, 'def ==(other)'
+    refute_match '=='.namex, 'def ===(other)'
     assert_match '+'.namex, 'def +(other)'
     assert_match '<=>'.namex, 'def <=>(other)'
     assert_match 'a.b'.namex, 'a.b'

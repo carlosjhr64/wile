@@ -98,11 +98,13 @@ module Wile
       # :reek:DuplicateMethodCall nme[-1]
       def namex
         nme = start_with?('#', '.') ? self[1..] : self
-        return /\[\s*\]=/ if nme == '[]='
-        return /\[\s*\]/ if nme == '[]'
-        return /#{Regexp.escape(nme)}/ unless nme.match?(/\w/)
+        return /\[\s*\]#{'=' if nme == '[]='}/ if nme.start_with?('[]')
 
-        if '!=?'.include?(nme[-1]) && nme[...-1].match?(/\w/)
+        sym = %r{[-=!<>&|*+%/^~]}
+        return /(?<!#{sym})#{Regexp.escape(nme)}(?!#{sym})/ unless
+          nme.match?(/\w/)
+
+        if '!=?'.include?(nme[-1])
           /\b#{Regexp.escape(nme[...-1])}[#{nme[-1]}]/
         else
           /\b#{Regexp.escape(nme)}\b/
