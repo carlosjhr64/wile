@@ -11,8 +11,9 @@ module Wile
 
     COMPARE_USAGE = ['compare: Takes one or more file matcher.', Set[]].freeze
 
-    # :reek:NilCheck
+    # :reek:NilCheck :reek:TooManyStatements
     def compare(options)
+      Utilities.verify_project_root!
       match = Usage.new(options, *COMPARE_USAGE).args
       p2c, missing = p2c_and_missing
       display_missing(missing, '# Missing:'.red) unless missing.empty?

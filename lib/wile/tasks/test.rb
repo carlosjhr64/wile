@@ -9,7 +9,9 @@ module Wile
     TEST_USAGE = ['test: Optionally takes one or more arguments.', Set[]].freeze
 
     # :reek:DuplicateMethodCall Time.now are different times!
+    # :reek:TooManyStatements
     def test(options)
+      Utilities.verify_project_root!
       match = Usage.new(options, *TEST_USAGE).args
       started = Time.now
       Test.test!(match)

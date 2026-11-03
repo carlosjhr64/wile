@@ -13,14 +13,13 @@ module Wile
 
     # :reek:TooManyStatements
     def nvim(options)
+      Utilities.verify_project_root!
       match = Usage.new(options, *NVIM_USAGE).args
       files = NvimFiles.new.nvim_files
       files.select! { |fn| match.any? { fn.match? it } } if match
-      if options.list?
-        puts files
-      else
-        exec('nvim', *files)
-      end
+      return puts files if options.list?
+
+      exec('nvim', *files)
     end
   end
 end

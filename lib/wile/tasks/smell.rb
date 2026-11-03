@@ -22,6 +22,7 @@ module Wile
 
     # :reek:TooManyStatements
     def smell(options)
+      Utilities.verify_project_root!
       matches = Usage.new(options, *SMELL_USAGE).args&.map { Regexp.new(it) }
       smell = Smell.new
       select = options.name&.downcase

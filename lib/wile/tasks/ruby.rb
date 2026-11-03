@@ -13,6 +13,7 @@ module Wile
                   (..1), /^git$/, Set[]].freeze
 
     def ruby(options)
+      Utilities.verify_project_root!
       token, = Usage.new(options, *RUBY_USAGE).args
       Project.rbfiles(token&.to_sym).sort.each { puts it }
     end

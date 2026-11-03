@@ -9,6 +9,7 @@ module Wile
     LEXICON_USAGE = ['lexicon: Takes no arguments.', 0, Set['check']].freeze
 
     def lexicon(options)
+      Utilities.verify_project_root!
       Usage.new(options, *LEXICON_USAGE)
       if lexicon_ok?(options)
         puts 'OK'.green

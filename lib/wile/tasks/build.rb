@@ -11,8 +11,9 @@ module Wile
     BUILD_USAGE = ['build: Takes no arguments with optional force flag.',
                    0, Set['force']].freeze
 
-    # :reek:UtilityFunction
+    # :reek:UtilityFunction :reek:TooManyStatements
     def build(options)
+      Utilities.verify_project_root!
       Usage.new(options, *BUILD_USAGE)
       gmu = GemUtils.new
       Git.clean! && gmu.clean! unless options.force?

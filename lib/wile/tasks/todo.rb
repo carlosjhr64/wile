@@ -11,6 +11,7 @@ module Wile
     TODO_USAGE = ['todo: Optionally takes one or more arguments.', Set[]].freeze
 
     def todo(options)
+      Utilities.verify_project_root!
       if (match = Usage.new(options, *TODO_USAGE).args)
         do_todo_in_files(match)
       else

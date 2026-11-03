@@ -13,6 +13,7 @@ module Wile
 
     # :reek:FeatureEnvy :reek:TooManyStatements
     def bump(options)
+      Utilities.verify_project_root!
       type, = Usage.new(options, *BUMP_USAGE).args
       info = Info.info
       version = bumped(info.version, type)

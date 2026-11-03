@@ -18,6 +18,7 @@ module Wile
     ].freeze
 
     def review(options, match: nil, file: nil, files: nil)
+      Utilities.verify_project_root!
       name = Usage.new(options, *WILES_USAGE).args&.first
       files, file, match = files_file_match(name) if name
       Review.new(options, match:, file:, files:)

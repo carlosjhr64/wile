@@ -11,6 +11,7 @@ module Wile
 
     # :reek:TooManyStatements
     def info(options)
+      Utilities.verify_project_root!
       Usage.new(options, *INFO_USAGE)
       info = Info.info
       readme = Readme.new(info)

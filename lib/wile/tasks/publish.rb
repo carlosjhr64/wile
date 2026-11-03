@@ -10,7 +10,9 @@ module Wile
     PUBLISH_USAGE = ['publish: Takes one argument.',
                      1, /^\d+\.\d+\.\d+$/, Set[]].freeze
 
+    # :reek:TooManyStatements
     def publish(options)
+      Utilities.verify_project_root!
       version, = Usage.new(options, *PUBLISH_USAGE).args
       verify_version! version
       gmu = project_ready!

@@ -13,6 +13,7 @@ module Wile
 
     # :reek:UtilityFunction :reek:TooManyStatements
     def install(options)
+      Utilities.verify_project_root!
       Usage.new(options, *INSTALL_USAGE)
       gmu = GemUtils.new
       Git.clean! && gmu.clean! unless options.force?

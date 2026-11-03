@@ -14,6 +14,7 @@ module Wile
     # :reek:UncommunicativeVariableName
     # rubocop: disable-next Metrics
     def tc(options)
+      Utilities.verify_project_root!
       Usage.new(options, *TC_USAGE)
       cached = Cache.new.p2c_hash.keys.grep(%r{^test/tc_})
       custom = Dir.glob('test/tc_*').reject { cached.include? it }

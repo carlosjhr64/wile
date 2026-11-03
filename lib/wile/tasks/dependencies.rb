@@ -13,8 +13,9 @@ module Wile
     DEPENDENCIES_USAGE = ['dependencies: Optionally only "git" as an argument.',
                           (..1), /^git$/].freeze
 
-    # :reek:FeatureEnvy
+    # :reek:FeatureEnvy :reek:TooManyStatements
     def dependencies(options)
+      Utilities.verify_project_root!
       token, = Usage.new(options, *DEPENDENCIES_USAGE).args
       dpc = Dependencies.new
       run, dev, ros, dos = dpc.dependencies(token&.to_sym)

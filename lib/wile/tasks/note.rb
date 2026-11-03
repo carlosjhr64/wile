@@ -11,6 +11,7 @@ module Wile
 
     # :reek:TooManyStatements
     def note(options)
+      Utilities.verify_project_root!
       match = Usage.new(options, *NOTE_USAGE).args
       Project.rbfiles.each do |fn|
         next if match&.none? { fn.match? it }

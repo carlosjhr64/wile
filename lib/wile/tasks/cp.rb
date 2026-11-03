@@ -12,6 +12,7 @@ module Wile
 
     # :reek:FeatureEnvy :reek:TooManyStatements
     def cp(options)
+      Utilities.verify_project_root!
       match = Usage.new(options, *CP_USAGE).args&.first
       cache = Cache.new(trace: options.trace?)
       p2c = cache.p2c_hash

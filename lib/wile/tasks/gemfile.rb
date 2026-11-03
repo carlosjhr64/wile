@@ -15,6 +15,7 @@ module Wile
     # :reek:DuplicateMethodCall on attributes
     # :reek:TooManyStatements
     def gemfile(options)
+      Utilities.verify_project_root!
       token, = Usage.new(options, *GEMFILE_USAGE).args
       gemspec = Gemspec.new(token: token)
       run = gemspec.rungems.map { "gem '#{it.name}'" }.uniq

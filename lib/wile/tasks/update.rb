@@ -24,6 +24,7 @@ module Wile
     }.freeze
 
     def update(options)
+      Utilities.verify_project_root!
       token, = Usage.new(options, *UPDATE_USAGE).args
       Git.clean! unless options.force?
       do_update(token)

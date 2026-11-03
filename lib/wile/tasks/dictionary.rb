@@ -10,6 +10,7 @@ module Wile
                         0, Set['check']].freeze
 
     def dictionary(options)
+      Utilities.verify_project_root!
       Usage.new(options, *DICTIONARY_USAGE)
       if dictionary_ok?(options)
         puts 'OK'.green
