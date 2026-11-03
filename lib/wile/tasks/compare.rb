@@ -29,7 +29,7 @@ module Wile
     EXPECTED_CHANGES = [
       /README.md/,
       /^(\.ruby-version|\.version|\.irbrc|\.config\.fish)/,
-      %r{^(lib/|bin/|\.bin/|\.git/|man/)},
+      %r{^(lib/|bin/|\.bin/|\.git/|man/|\.tasks/)},
       /^(Gemfile|TODO\.md|CREDITS\.md|History\.txt)/,
       /^(\.gemignore|\.gitignore|\.wileignore)/,
       /^(\.dictionary|\.lexicon)/,
@@ -43,11 +43,11 @@ module Wile
       puts
     end
 
-    # :reek:FeatureEnvy
+    # :reek:FeatureEnvy :reek:TooManyStatements
     def p2c_and_missing
       p2c, pfiles = Cache.new.as { [it.p2c_hash, it.pfiles] }
       found = (keys = p2c.keys) & pfiles
-      missing = keys - found
+      missing = (keys - found).reject { it.start_with?('.tasks/') }
       [p2c.slice(*found), missing]
     end
 
