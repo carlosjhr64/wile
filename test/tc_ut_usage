@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+require 'fileutils'
 require_relative 'test_helper'
 require_relative '../lib/wile'
 require_relative '../lib/wile/usage'
@@ -61,9 +62,21 @@ class TestUtUsage < Test::Unit::TestCase
     end
   end
 
+  def test_initialize_regexp_validator_with_nil_args
+    opt = MockOptions.new(args: nil)
+    usage = Wile::Usage.new(opt, 'msg', /^[a-z]+$/)
+    assert_nil usage.args
+  end
+
   def test_initialize_set_validator_options
     opt = MockOptions.new(args: ['test'], strict: true, check: 'all')
     usage = Wile::Usage.new(opt, 'msg', Set['strict', 'check'])
+    assert_equal ['test'], usage.args
+  end
+
+  def test_initialize_set_validator_ignores_single_letter_options
+    opt = MockOptions.new(args: ['test'], s: true, strict: true)
+    usage = Wile::Usage.new(opt, 'msg', Set['strict'])
     assert_equal ['test'], usage.args
   end
 
@@ -96,6 +109,15 @@ class TestUtUsage < Test::Unit::TestCase
   def test_usage_error_passes_unformatted_message_without_help
     error = Wile::UsageError.new('simple error without colon')
     assert_equal 'simple error without colon', error.message
+  end
+
+  def test_usage_error_undocumented_task_key_passes_through
+    path = '.tasks/test_undocumented.rb'
+    File.write(path, "# No help header\nputs 123\n")
+    error = Wile::UsageError.new('test_undocumented: custom error')
+    assert_equal 'test_undocumented: custom error', error.message
+  ensure
+    FileUtils.rm_f(path)
   end
 
   def test_usage_error_inherits_error_info_message
