@@ -7,6 +7,7 @@ module Wile
   # :reek:MissingSafeMethod build!, clean!, push!, ready!
   class GemUtils
     using Refinement
+    using UtilitiesRefinements
 
     # :reek:NilCheck
     def ready!(minutes = 5)
@@ -59,10 +60,9 @@ module Wile
       system2 "gem install --no-document --local ./#{project}-#{version}.gem"
     end
 
-    # :reek:UncommunicativeVariableName p
     def installed?(project = @info.project, version = @info.version)
-      p = Shellwords.escape(project)
-      `gem list #{p} --exact`.scan(/\d+\.\d+\.\d+/).any? { it == version }
+      `gem list #{project.sw} --exact`
+        .scan(/\d+\.\d+\.\d+/).any? { it == version }
     end
 
     def push!(pkg)

@@ -8,6 +8,7 @@ module Wile
   # :reek:MissingSafeMethod
   class Tasks
     using Refinement
+    using UtilitiesRefinements
 
     COMPARE_USAGE = ['compare: Takes one or more file matcher.', Set[]].freeze
 
@@ -88,9 +89,7 @@ module Wile
       cmp, out = show ? [color, ''] : ['diff -sq', '>/dev/null']
       if /\.erb$/.match?(cfile) then diff_erb(cfile, pfile, cmp, out)
       else
-        cf = Shellwords.escape(cfile)
-        pf = Shellwords.escape(pfile)
-        `#{cmp} #{cf} #{pf} #{out}`
+        `#{cmp} #{cfile.sw} #{pfile.sw} #{out}`
       end
     end
 

@@ -7,6 +7,8 @@
 module Wile
   # This file is loaded upon a :note task request.
   class Tasks
+    using UtilitiesRefinements
+
     NOTE_USAGE = ['note: Optionally takes one or more arguments.', Set[]].freeze
 
     # :reek:TooManyStatements
@@ -16,7 +18,7 @@ module Wile
       Project.rbfiles.each do |fn|
         next if match&.none? { fn.match? it }
 
-        string = `egrep '#\s*NOTE' #{Shellwords.escape(fn)}`
+        string = `egrep '#\s*NOTE' #{fn.sw}`
         next if string.empty?
 
         puts fn.blue

@@ -42,6 +42,7 @@ module Wile
   # :reek:TooManyInstanceVariables :reek:UncommunicativeVariableName
   # rubocop:disable Metrics/MethodLength
   class Review
+    using UtilitiesRefinements
     include Sysexits
 
     # :reek:ControlParameter
@@ -126,20 +127,18 @@ module Wile
 
     def content
       puts "\n# Content".blue
-      file = Shellwords.escape(@file)
-      system("wile content #{file}")
+      system("wile content #{@file.sw}")
     end
 
     def order
       puts "\n# Order".blue
-      file = Shellwords.escape(@file)
+      file = @file.sw
       system("wile order #{file}") && system("wile order #{file} bprm")
     end
 
     def reek
       puts "\n# Reek".blue
-      file = Shellwords.escape(@file)
-      system("reek --no-documentation #{config('reek')} #{file}")
+      system("reek --no-documentation #{config('reek')} #{@file.sw}")
     end
 
     def config(name)
@@ -148,8 +147,7 @@ module Wile
 
     def rubocop
       puts "\n# Rubocop".blue
-      file = Shellwords.escape(@file)
-      system("rubocop #{config('rubocop')} #{file}")
+      system("rubocop #{config('rubocop')} #{@file.sw}")
     end
   end
 end

@@ -8,6 +8,8 @@
 module Wile
   # This file is loaded upon a :todo task request.
   class Tasks
+    using UtilitiesRefinements
+
     TODO_USAGE = ['todo: Optionally takes one or more arguments.', Set[]].freeze
 
     def todo(options)
@@ -30,7 +32,7 @@ module Wile
       Project.rbfiles.each do |fn|
         next if match.none? { fn.match? it }
 
-        string = `egrep '#\s+TODO' #{Shellwords.escape(fn)}`
+        string = `egrep '#\s+TODO' #{fn.sw}`
         next if string.empty?
 
         puts fn.blue

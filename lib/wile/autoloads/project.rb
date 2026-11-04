@@ -4,12 +4,14 @@
 module Wile
   # Project module provides methods to manage project files.
   module Project
+    using UtilitiesRefinements
+
     def self.archive(pkg)
       version = pkg.scan(/\d+\.\d+\.\d+/).first
       File.rename pkg, "pkg/#{pkg}"
       File.open('History.txt', 'a') do |file|
         file.puts "# #{version} / #{Time.now}"
-        file.puts `md5sum pkg/#{Shellwords.escape(pkg)}`
+        file.puts `md5sum pkg/#{pkg.sw}`
       end
     end
 
