@@ -10,8 +10,8 @@ DECLARATION = /\s*#!>\s*/
 BINDING     = binding
 
 # README.md validations
-class TestReadmeRocketTest < Test::Unit::TestCase
-  def test_readme_rocket_test
+class TestReadmeRocketCheck < Test::Unit::TestCase
+  def test_readme_rocket_check
     return unless File.exist? README
 
     step_thru_readme do |expected, actual, message|

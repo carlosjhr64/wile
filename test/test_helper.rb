@@ -119,9 +119,14 @@ module TestModule
 
     RENAME = lambda do |method|
       "test_#{method}"
+        .sub(/\[\]=$/, 'brackets_set')
+        .sub(/\[\]$/, 'brackets')
+        .sub(/<<$/, 'shovel')
+        .sub(/<=>$/, 'spaceship')
+        .sub(/==$/, 'equals')
         .sub(/=$/, '_set')
         .sub(/!$/, '_bang')
-        .sub(/\?$/, '_wut')
+        .sub(/\?$/, '_predicate')
     end
     private_constant :RENAME
 
@@ -131,10 +136,23 @@ module TestModule
       return if method.start_with? 'test_'
 
       name = RENAME["#{mod}#{method}"]
-      return if name.end_with? '?_set'
-      return if @context.respond_to? name.to_sym
+      return if name.end_with?('?_set') || covered?(name, mod, method)
 
       puts "Missing #{@context.class}##{name}".colorize COLOR[type]
+    end
+
+    def covered?(name, mod, method)
+      return true if test_exists?(name)
+
+      method.end_with?('?') &&
+        test_exists?("test_#{mod}#{method}".sub(/\?$/, '_wut'))
+    end
+
+    # :reek:ManualDispatch
+    def test_exists?(name)
+      return true if @context.respond_to?(name.to_sym)
+
+      @context.methods.any? { it.to_s.start_with?("#{name}_") }
     end
 
     def test_refinement(refinement, target)
