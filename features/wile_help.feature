@@ -1,5 +1,5 @@
 @wile_help
-Feature: Testing wile help
+Feature: Testing wile help task
 
   Background:
     * Given command "./bin/wile"

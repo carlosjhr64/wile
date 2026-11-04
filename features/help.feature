@@ -1,5 +1,5 @@
 @help
-Feature: Testing wile help
+Feature: Testing wile help option
 
   Background:
     * Given command "./bin/wile"

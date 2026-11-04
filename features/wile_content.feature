@@ -1,5 +1,5 @@
 @wile_content
-Feature: Testing wile content
+Feature: Testing wile content task
 
   Background:
     * Given command "./bin/wile"

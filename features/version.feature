@@ -1,5 +1,5 @@
 @version
-Feature: Testing wile version
+Feature: Testing wile version option
 
   Background:
     * Given command "./bin/wile"

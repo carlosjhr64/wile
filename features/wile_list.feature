@@ -1,5 +1,5 @@
 @wile_list
-Feature: Testing wile list
+Feature: Testing wile list task
 
   Background:
     * Given command "./bin/wile"

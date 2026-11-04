@@ -1,5 +1,5 @@
 @wile_man
-Feature: Testing wile man
+Feature: Testing wile man page
 
   Background:
     * Given command "./bin/wile"

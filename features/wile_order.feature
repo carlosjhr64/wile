@@ -1,5 +1,5 @@
 @wile_order
-Feature: Testing wile order
+Feature: Testing wile order task
 
   Background:
     * Given command "./bin/wile"
