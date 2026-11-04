@@ -1,0 +1,120 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require_relative 'test_helper'
+require_relative '../lib/wile'
+require_relative '../lib/wile/usage'
+require_relative '../lib/wile/help'
+
+# Mock options helper mimicking HelpParser output structure.
+class MockOptions
+  attr_reader :args
+
+  def initialize(args: nil, **opts)
+    @args = args
+    @opts = opts.transform_keys(&:to_s)
+  end
+
+  def to_h
+    @opts.merge('args' => @args)
+  end
+end
+
+# Unit tests for Wile::Usage and Wile::UsageError.
+class TestUtUsage < Test::Unit::TestCase
+  def test_initialize_range_validator
+    opt = MockOptions.new(args: %w[foo bar])
+    usage = Wile::Usage.new(opt, 'msg', 1..3)
+    assert_equal %w[foo bar], usage.args
+  end
+
+  def test_initialize_range_validator_raises_usage_error
+    opt = MockOptions.new(args: %w[foo bar baz])
+    assert_raise(Wile::UsageError) do
+      Wile::Usage.new(opt, 'list: out of range', 0..1)
+    end
+  end
+
+  def test_initialize_integer_validator
+    opt = MockOptions.new(args: ['single'])
+    usage = Wile::Usage.new(opt, 'msg', 1)
+    assert_equal ['single'], usage.args
+  end
+
+  def test_initialize_integer_validator_raises_usage_error
+    opt = MockOptions.new(args: %w[one two])
+    assert_raise(Wile::UsageError) do
+      Wile::Usage.new(opt, 'list: wrong size', 1)
+    end
+  end
+
+  def test_initialize_regexp_validator
+    opt = MockOptions.new(args: %w[alpha beta])
+    usage = Wile::Usage.new(opt, 'msg', /^[a-z]+$/)
+    assert_equal %w[alpha beta], usage.args
+  end
+
+  def test_initialize_regexp_validator_raises_usage_error
+    opt = MockOptions.new(args: %w[alpha 123])
+    assert_raise(Wile::UsageError) do
+      Wile::Usage.new(opt, 'list: format error', /^[a-z]+$/)
+    end
+  end
+
+  def test_initialize_set_validator_options
+    opt = MockOptions.new(args: ['test'], strict: true, check: 'all')
+    usage = Wile::Usage.new(opt, 'msg', Set['strict', 'check'])
+    assert_equal ['test'], usage.args
+  end
+
+  def test_initialize_set_validator_raises_usage_error_on_disallowed_option
+    opt = MockOptions.new(args: ['test'], bogus: true)
+    assert_raise(Wile::UsageError) do
+      Wile::Usage.new(opt, 'list: bad flag', Set['strict'])
+    end
+  end
+
+  def test_initialize_combined_validators
+    opt = MockOptions.new(args: ['single'], strict: true)
+    usage = Wile::Usage.new(opt, 'msg', 1, Set['strict'], /^[a-z]+$/)
+    assert_equal ['single'], usage.args
+  end
+
+  def test_initialize_raises_argument_error_on_invalid_validator
+    opt = MockOptions.new(args: ['item'])
+    assert_raise(ArgumentError) do
+      Wile::Usage.new(opt, 'msg', 'invalid_string_validator')
+    end
+  end
+
+  def test_usage_error_prepends_help_for_task_key
+    error = Wile::UsageError.new('list: too many arguments')
+    assert_includes error.message, '## wile list ##'
+    assert_includes error.message, 'too many arguments'
+  end
+
+  def test_usage_error_passes_unformatted_message_without_help
+    error = Wile::UsageError.new('simple error without colon')
+    assert_equal 'simple error without colon', error.message
+  end
+
+  def test_usage_error_inherits_error_info_message
+    error = begin
+      raise 'original failure'
+    rescue RuntimeError
+      Wile::UsageError.new
+    end
+    assert_equal 'original failure', error.message
+  end
+
+  def test_usage_error_nil_message
+    error = Wile::UsageError.new(nil)
+    assert_equal 'Wile::UsageError', error.message
+  end
+
+  def test_usage_error_raises_argument_error_on_nonexistent_key
+    assert_raise(ArgumentError) do
+      Wile::UsageError.new('nonexistent_task_key: some message')
+    end
+  end
+end
