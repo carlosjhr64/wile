@@ -51,4 +51,17 @@ class TestUtHelp < Test::Unit::TestCase
     error = assert_raise(ArgumentError) { Wile::Help[:nonexistent_task_xyz] }
     assert_match(/does not exist:/, error.message)
   end
+
+  def test_class_usage_documented_task
+    assert_equal 'wile list [<match>+] [--list] # list tasks(by match)',
+                 Wile::Help.usage(:list)
+  end
+
+  def test_class_usage_undocumented_task_fallback
+    path = '.tasks/test_undocumented.rb'
+    File.write(path, "# No help header\nputs 123\n")
+    assert_equal 'wile test_undocumented', Wile::Help.usage(:test_undocumented)
+  ensure
+    FileUtils.rm_f(path)
+  end
 end
