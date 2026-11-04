@@ -30,10 +30,10 @@ Feature: Testing wile test task
     * Given option "test one two three"
     * When we run command
     * Then exit status is "64"
-    * Then stderr includes "Takes at most two arguments."
+    * Then stderr includes "Takes at most two arguments"
 
   Scenario: test with invalid option
     * Given option "test --force"
     * When we run command
     * Then exit status is "64"
-    * Then stderr includes "Takes at most two arguments."
+    * Then stderr includes "optional list/quiet flags"

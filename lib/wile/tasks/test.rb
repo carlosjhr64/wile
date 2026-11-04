@@ -9,8 +9,10 @@
 module Wile
   # This file is loaded upon a :test task request.
   class Tasks
-    TEST_USAGE = ['test: Takes at most two arguments.',
-                  (..2), Set['list', 'quiet']].freeze
+    TEST_USAGE = [
+      'test: Takes at most two arguments with optional list/quiet flags.',
+      (..2), Set['list', 'quiet']
+    ].freeze
 
     # :reek:DuplicateMethodCall Time.now are different times!
     # :reek:FeatureEnvy
