@@ -21,52 +21,60 @@ module Wile
       Utilities.verify_project_root!
       name = Usage.new(options, *WILES_USAGE).args&.first
       files, file, match = files_file_match(name) if name
-      Review.new(options, match:, file:, files:)
+      Review.new(options, match:, file:, files:).run
     end
 
     private
 
-    def files_file_match(name, files = nil, file = nil, match = nil)
+    def files_file_match(name)
       if File.directory?(name)
-        files = Dir.glob("#{name}/**.rb")
+        [Dir.glob("#{name}/**.rb"), nil, nil]
       elsif File.file?(name)
-        file = name
+        [nil, name, nil]
       else
-        match = name
+        [nil, nil, name]
       end
-      [files, file, match]
     end
   end
 
   # This class is used to run review.
   # :reek:TooManyInstanceVariables :reek:UncommunicativeVariableName
-  # rubocop:disable Metrics/MethodLength
   class Review
     using UtilitiesRefinements
     include Sysexits
 
+    AVAILABLE_CHECKS = %i[content order reek rubocop].freeze
+
     # :reek:ControlParameter
     def initialize(options, match: nil, files: nil, file: nil)
-      @files = files || NvimFiles.new.nvim_files.tap(&:shift)
-      if file
-        @files.unshift(file) unless @files.include?(file)
-        @i = index(file)
-      else
-        @i = match ? (index(match) || 0) : 0
-      end
-      @file = @files[@i]
+      @files = files || NvimFiles.new.nvim_files.drop(1)
+      @files.unshift(file) if file && !@files.include?(file)
+      @index = target_index(file, match)
       @strict = false
-      @checks = %i[content order reek rubocop]
+      @checks = AVAILABLE_CHECKS
       @auto = false
       settings(options)
+    end
+
+    def run
       loop { review_do }
     end
-    # rubocop:enable Metrics/MethodLength
 
     private
 
+    def file
+      @files[@index]
+    end
+
+    def target_index(file, match)
+      return index(file) if file
+      return index(match) || 0 if match
+
+      0
+    end
+
     def index(match)
-      @files.index { |file| file.match?(match) } or
+      @files.index { |entry| entry.match?(match) } or
         raise "no match for #{match}"
     end
 
@@ -76,32 +84,31 @@ module Wile
       return unless (checks = options.only)
 
       checks = checks.map(&:to_sym)
-      bad = checks - @checks
+      bad = checks - AVAILABLE_CHECKS
       raise "Unknown checks: #{bad.join(',')}" unless bad.empty?
 
       @checks = checks
       @auto = true
     end
 
-    def review_responce_cases(responce, size = @files.size)
-      case responce
+    def review_response_cases(response, size = @files.size)
+      case response
       when 'q', 'Q' then exit(EX_OK)
-      when '', 'n', 'N' then @i = (@i + 1) % size
-      when 'p', 'P' then @i = (@i - 1) % size
+      when '', 'n', 'N' then @index = (@index + 1) % size
+      when 'p', 'P' then @index = (@index - 1) % size
       else
-        @i = index(responce) unless responce == 'r'
+        @index = index(response) unless response == 'r'
       end
-      @file = @files[@i]
     end
 
     def review_do
       system('clear')
-      puts "#{@i + 1}. #{@file}".blue.bold
-      review_next review_file
+      puts "#{@index + 1}. #{file}".blue.bold
+      review_next review_file?
     end
 
     def review_next(passed)
-      review_responce_cases review_choice(passed)
+      review_response_cases review_choice(passed)
     rescue RuntimeError => e
       puts e.message.red
       retry
@@ -109,43 +116,37 @@ module Wile
 
     # :reek:ControlParameter
     def review_choice(passed)
-      return @i + 1 < @files.size ? 'n' : 'q' if @auto && passed
+      return @index + 1 < @files.size ? 'n' : 'q' if @auto && passed
 
       print 'Next(Enter) Quit(q) Redo(r) Previous(p) or file match: '.yellow
       $stdin.gets.strip
     end
 
-    def review_file
-      ok = true
-      @checks.each do |check|
-        send(check) or ok = false
-      end
-      ok
+    def review_file?
+      @checks.map { send(it) }.all?
     end
 
     def content
       puts "\n# Content".blue
-      system("wile content #{@file.sw}")
+      system("wile content #{file.sw}")
     end
 
     def order
       puts "\n# Order".blue
-      file = @file.sw
-      system("wile order #{file}") && system("wile order #{file} bprm")
+      sw = file.sw
+      system("wile order #{sw}") && system("wile order #{sw} bprm")
     end
 
     def reek
       puts "\n# Reek".blue
-      system("reek --no-documentation #{config('reek')} #{@file.sw}")
-    end
-
-    def config(name)
-      @strict ? "--config .#{name}-strict.yml" : ''
+      cfg = @strict ? '--config .reek-strict.yml' : ''
+      system("reek --no-documentation #{cfg} #{file.sw}")
     end
 
     def rubocop
       puts "\n# Rubocop".blue
-      system("rubocop #{config('rubocop')} #{@file.sw}")
+      cfg = @strict ? '--config .rubocop-strict.yml' : ''
+      system("rubocop #{cfg} #{file.sw}")
     end
   end
 end

@@ -1,6 +1,7 @@
 API_URL
 ARCH
 ARGV
+AVAILABLE_CHECKS
 ArgumentError
 Array
 BEST_COMPRESSION
@@ -279,6 +280,7 @@ category_set
 cc
 cdt
 cf
+cfg
 cfile
 cfile2pfile
 cfiles
@@ -320,7 +322,6 @@ commit
 commit_and_tag
 compact
 compare
-config
 config_file
 configure_default_shell
 configure_rbenv
@@ -414,6 +415,7 @@ downcase
 download_archive
 downto
 dpc
+drop
 dump
 dup
 e
@@ -433,6 +435,7 @@ ensure_neovim
 ensure_rbenv
 ensure_ruby_build
 ensure_target_ruby
+entry
 env
 erb
 erb_convert
@@ -819,9 +822,9 @@ require_in_path
 require_relative
 requirements
 resolve_format
-responce
 respond_to
 responds
+response
 result
 reused
 reverse
@@ -830,7 +833,7 @@ review_choice
 review_do
 review_file
 review_next
-review_responce_cases
+review_response_cases
 rgx
 rj
 rjust
@@ -917,6 +920,7 @@ system_commands_check
 tag
 tap
 target
+target_index
 target_ruby
 targets
 task
