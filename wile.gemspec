@@ -5,7 +5,7 @@ Gem::Specification.new do |s|
   s.homepage = 'https://github.com/carlosjhr64/wile'
   s.author   = 'CarlosJHR64'
   s.email    = 'carlosjhr64@gmail.com'
-  s.date     = '2026-11-03'
+  s.date     = '2026-11-04'
   s.licenses = ['MIT']
   ## DESCRIPTION ##
   s.summary  = <<~SUMMARY
@@ -140,6 +140,7 @@ Gem::Specification.new do |s|
     lib/wile/tasks/update.rb
     lib/wile/usage.rb
     lib/wile/utilities.rb
+    lib/wile/utilities_refinements.rb
     man/wile.1
     man/wile.md
     pkg/README.md
@@ -156,7 +157,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency 'rubocop', '~> 1.92', '>= 1.92.2'
   s.add_runtime_dependency 'test-unit', '~> 3.7', '>= 3.7.8'
   s.add_runtime_dependency 'tmuxinator', '~> 3.4', '>= 3.4.2'
-  s.requirements << 'agy: 1.4'
+  s.requirements << 'agy: 1.5'
   s.requirements << 'clear: 6.4'
   s.requirements << 'dpkg-query: 1.21'
   s.requirements << 'egrep: 3.8'
