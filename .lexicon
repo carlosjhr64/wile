@@ -459,6 +459,7 @@ fetch_latest_release
 fh
 file
 file_ranks
+filematch
 filename
 filenames
 files
@@ -621,6 +622,7 @@ method_line_count
 method_name
 method_source
 method_stats
+methodmatch
 methods
 min
 min_version
@@ -772,6 +774,7 @@ qc
 qc_circular
 qc_dependants
 qc_dependencies
+quiet
 raise
 ranks
 raw
@@ -911,6 +914,7 @@ task_file
 tasks
 tc
 test
+test_files
 text
 tf
 title_case

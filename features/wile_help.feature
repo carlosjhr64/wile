@@ -17,4 +17,4 @@ Feature: Testing wile help task
     * When we run command
     * Then exit status is "0"
     * Then stderr is ""
-    * Then stdout includes "wile test [<match>+]"
+    * Then stdout includes "wile test [<filematch> [<methodmatch>]]"
