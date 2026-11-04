@@ -75,7 +75,6 @@ module Wile
       @strict = options.strict?
       return unless (checks = options.only)
 
-      checks = checks.split(',') if checks.is_a?(String)
       checks = checks.map(&:to_sym)
       bad = checks - @checks
       raise "Unknown checks: #{bad.join(',')}" unless bad.empty?
