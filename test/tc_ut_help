@@ -1,0 +1,54 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'fileutils'
+require_relative 'test_helper'
+require_relative '../lib/wile'
+require_relative '../lib/wile/help'
+
+# Unit tests for Wile::Help.
+class TestUtHelp < Test::Unit::TestCase
+  def test_class_brackets_builtin_task
+    help = Wile::Help[:list]
+    assert_not_nil help
+    assert_match(/\A## wile list ##\n/, help)
+    assert_includes help, 'Usage:'
+  end
+
+  def test_class_brackets_custom_task
+    help = Wile::Help[:hello]
+    assert_not_nil help
+    assert_match(/\A## wile hello ##\n/, help)
+    assert_includes help, 'Usage:'
+  end
+
+  def test_class_brackets_accepts_symbol_and_string
+    assert_equal Wile::Help[:help], Wile::Help['help']
+  end
+
+  def test_class_brackets_ignores_preamble_comments
+    # review.rb contains comments before the help block header
+    help = Wile::Help[:review]
+    assert_match(/\A## wile review ##\n/, help)
+    assert_not_includes help, 'Also:'
+  end
+
+  def test_class_brackets_stops_at_code
+    help = Wile::Help[:list]
+    assert_not_includes help, 'module Wile'
+    assert_not_includes help, 'class Tasks'
+  end
+
+  def test_class_brackets_undocumented_task_returns_nil
+    path = '.tasks/test_undocumented.rb'
+    File.write(path, "# No help header\nputs 123\n")
+    assert_nil Wile::Help[:test_undocumented]
+  ensure
+    FileUtils.rm_f(path)
+  end
+
+  def test_class_brackets_raises_argument_error_on_nonexistent_task
+    error = assert_raise(ArgumentError) { Wile::Help[:nonexistent_task_xyz] }
+    assert_match(/does not exist:/, error.message)
+  end
+end
