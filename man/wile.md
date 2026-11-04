@@ -37,6 +37,7 @@ testing, and release.
 - `--format=WORD`: Output format.
 - `-l`, `--list`: List items.
 - `--name=WORD`: Filter or match by name.
+- `--only=CSV`: Select only specified items.
 - `--output=FILE`: Write output to file.
 - `-q`, `--quiet`: Suppress non-essential output.
 - `-r`, `--raw`: Raw / unformatted output.

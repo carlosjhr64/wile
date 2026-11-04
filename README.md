@@ -79,6 +79,7 @@ Options:
   --format=WORD	Output format
   -l --list	List items
   --name=WORD	Filter or match by name
+  --only=CSV	Select only specified items
   --output=FILE	Write output to file
   -q --quiet	Suppress non-essential output
   -r --raw	Raw / unformatted output
@@ -88,6 +89,7 @@ Options:
   -y --yes	Assume yes to confirmation prompts
 Types:
   WORD /^[\w-]+$/
+  CSV /^[\w-]+(,[\w-]+)*$/
   FILE /^(\/?[\w.][\w.-]*)+\/?$/
 ### Get started ################################
 #  wile               # shows man page         #

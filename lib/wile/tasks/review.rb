@@ -7,14 +7,14 @@
 # ## wile review ##
 #   CSV is a comma separated list: content,order,reek,rubocop
 # Usage:
-#   wile review [<match>] [--strict, --check=CSV] # runs review
+#   wile review [<match>] [--strict, --only=CSV] # runs review
 module Wile
   # This file is loaded upon a :review task request.
   # :reek:UtilityFunction :reek:LongParameterList
   class Tasks
     WILES_USAGE = [
-      'review: May take one match with optional strict/check flag.',
-      (0..1), Set['strict', 'check']
+      'review: May take one match with optional strict/only flag.',
+      (0..1), Set['strict', 'only']
     ].freeze
 
     def review(options, match: nil, file: nil, files: nil)
@@ -73,16 +73,15 @@ module Wile
     # :reek:TooManyStatements
     def settings(options)
       @strict = options.strict?
-      if (checks = options.check)
-        if checks.is_a?(String)
-          checks = checks.split(',').map(&:to_sym)
-          bad = checks - @checks
-          raise "Unknown checks: #{bad.join(',')}" unless bad.empty?
+      return unless (checks = options.only)
 
-          @checks = checks
-        end
-        @auto = true
-      end
+      checks = checks.split(',') if checks.is_a?(String)
+      checks = checks.map(&:to_sym)
+      bad = checks - @checks
+      raise "Unknown checks: #{bad.join(',')}" unless bad.empty?
+
+      @checks = checks
+      @auto = true
     end
 
     def review_responce_cases(responce, size = @files.size)
