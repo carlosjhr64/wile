@@ -2,15 +2,6 @@
 
 # Wile namespace.
 module Wile
-  # Refinements for Utilities.
-  module UtilitiesRefinements
-    refine String do
-      def sw
-        Shellwords.escape(self)
-      end
-    end
-  end
-
   # Utility functions collected and harmonized from bin/bootstrap_* scripts.
   # :reek:NilCheck
   # :reek:TooManyStatements
