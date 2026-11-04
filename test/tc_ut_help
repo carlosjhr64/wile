@@ -53,7 +53,7 @@ class TestUtHelp < Test::Unit::TestCase
   end
 
   def test_class_usage_documented_task
-    assert_equal 'wile list [<match>+] [--list] # list tasks(by match)',
+    assert_equal 'wile list [<match>+] [--format=WORD] # list tasks(by match)',
                  Wile::Help.usage(:list)
   end
 

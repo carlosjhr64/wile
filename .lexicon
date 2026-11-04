@@ -73,6 +73,7 @@ FISHER_MIN_VERSION
 FISHER_REPO_URL
 FISH_MIN_VERSION
 FISH_URL
+FORMATS
 FULL_SCOPE
 File
 FileUtils
@@ -397,6 +398,7 @@ display_list
 display_missing
 display_p2c
 display_reused
+display_tasks
 distance
 distance_squared
 div
@@ -478,10 +480,13 @@ flatten
 flg
 flipped
 flush
+fmt
 fn
 fnm
 force
 foreach
+format
+formatter
 found
 freeze
 fullname
@@ -761,14 +766,16 @@ push
 push_scope
 puts
 puts_blue
+puts_code
+puts_dictionary
 puts_gemspec
 puts_gemspec_development
 puts_gemspec_executables
 puts_gemspec_files
 puts_gemspec_runtime
 puts_info
+puts_name
 puts_readme
-puts_task
 puts_usage
 qc
 qc_circular
@@ -809,6 +816,7 @@ require
 require_in_path
 require_relative
 requirements
+resolve_format
 responce
 respond_to
 responds

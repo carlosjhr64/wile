@@ -100,7 +100,7 @@ Types:
 
 Run `wile list` and you'll get the entire list of available tasks.
 ```console
-$ wile list --list #>>
+$ wile list --format=dictionary #>>
 
 + hello: prints Hello World
 + build: build gem pkg

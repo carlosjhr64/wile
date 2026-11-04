@@ -14,13 +14,39 @@ Feature: Testing wile list task
     * Then stdout matches /^# Runs tests:$/
     * Then stdout matches /^\s*wile\s+test\s+\[<filematch>\s+\[<methodmatch>\]\]\s+\[--list\|--quiet\]$/
 
-  Scenario: list --list
-    * Given option "list --list"
+  Scenario: list with dictionary format
+    * Given option "list --format=dictionary"
     * When we run command
     * Then exit status is "0"
     * Then stderr is ""
     * Then stdout matches /^\+ help: show task's help$/
     * Then stdout matches /^\+ test: runs tests$/
+
+  Scenario: list with name format
+    * Given option "list test --format=name"
+    * When we run command
+    * Then exit status is "0"
+    * Then stderr is ""
+    * Then stdout matches /^\s*test\s*$/
+
+  Scenario: list with code format
+    * Given option "list test --format=code"
+    * When we run command
+    * Then exit status is "0"
+    * Then stderr is ""
+    * Then stdout matches /^wile\s+test\s+/
+
+  Scenario: list with invalid format
+    * Given option "list --format=invalid"
+    * When we run command
+    * Then exit status is "64"
+    * Then stderr includes "Unrecognized format 'invalid'"
+
+  Scenario: list with disallowed option
+    * Given option "list --list"
+    * When we run command
+    * Then exit status is "64"
+    * Then stderr includes "with optional format flag"
 
   Scenario: list test
     * Given option "list test"
