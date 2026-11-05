@@ -31,7 +31,7 @@ module Wile
     end
 
     def build!
-      raise 'gem build failed!' unless system2 "gem build #{gemspec}"
+      raise 'gem build failed!' unless system2 "gem build #{gemspec.sw}"
 
       gempkg
     end
@@ -57,7 +57,8 @@ module Wile
     end
 
     def install(project = @info.project, version = @info.version)
-      system2 "gem install --no-document --local ./#{project}-#{version}.gem"
+      pkg = "./#{project}-#{version}.gem".sw
+      system2 "gem install --no-document --local #{pkg}"
     end
 
     def installed?(project = @info.project, version = @info.version)
@@ -66,11 +67,12 @@ module Wile
     end
 
     def push!(pkg)
-      raise 'gem push failed' unless system2("gem push #{pkg}")
+      raise 'gem push failed' unless system2("gem push #{pkg.sw}")
     end
 
     def uninstall(project = @info.project, version = @info.version)
-      system2 "gem uninstall #{project} --version #{version} --executables"
+      opts = "--version #{version.sw} --executables"
+      system2 "gem uninstall #{project.sw} #{opts}"
     end
   end
 end
