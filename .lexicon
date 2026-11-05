@@ -129,11 +129,13 @@ ORDER_USAGE
 OS_CMDS
 OUTPUT_FILE
 Object
+OptionsDictionary
 OrderOptimizer
 OrderSwap
 PAD
 PASCAL_KEY
 PATH_SEPARATOR
+PATTERNS
 PLUGINS
 PUBLISH_USAGE
 Parser
@@ -378,6 +380,7 @@ dependencies_populate
 dependencies_sum
 dependency
 dependency_index
+desc
 description
 detail
 detect
