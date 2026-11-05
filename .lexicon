@@ -400,6 +400,7 @@ dir
 directory
 dirname
 disable_colorization
+dispatch_no_task
 display
 display_help
 display_list
@@ -703,6 +704,7 @@ opt
 optimize
 optimized
 options
+options_empty
 opts
 order
 order_do

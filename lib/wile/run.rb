@@ -33,7 +33,7 @@ module Wile
 
     # :reek:TooManyStatements
     def run
-      return man unless (name = @options.task)
+      return dispatch_no_task unless (name = @options.task)
 
       task = @tasks.find(name)
       # The 'list:' prefix tells UsageError to prepend Help[:list] usage.
@@ -45,6 +45,14 @@ module Wile
         require_relative "tasks/#{task}"
       end
       @tasks.method(task).call(@options)
+    end
+
+    def dispatch_no_task
+      options_empty? ? man : OptionsDictionary.new(@options)
+    end
+
+    def options_empty?
+      (@options.to_h.keys.grep(String) - %w[task args]).empty?
     end
 
     def man
