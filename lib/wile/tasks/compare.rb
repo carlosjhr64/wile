@@ -19,6 +19,7 @@ module Wile
       Utilities.verify_project_root!
       match = Usage.new(options, *COMPARE_USAGE).args
       p2c, missing = p2c_and_missing
+      p2c.keys.weird_filename!
       display_missing(missing, '# Missing:'.red) unless missing.empty?
       check_p2c!(p2c, match)
       display_p2c(p2c, '# Found:'.blue, show: !match.nil?)
