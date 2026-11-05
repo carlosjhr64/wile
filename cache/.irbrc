@@ -1,3 +1,5 @@
+# wile: require 'irbtools'
+
 begin
   project = File.basename __dir__
   require project

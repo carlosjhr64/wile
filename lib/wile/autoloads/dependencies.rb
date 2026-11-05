@@ -22,7 +22,7 @@ module Wile
       ros = Set['ruby'] # run os
       dos = Set['ruby'] # dev os
       ignore = @info.gemignore
-      Project.rbfiles(token).each do |rbfile|
+      project_files(token).each do |rbfile|
         if ignore.match?(rbfile)
           dependencies_populate(rbfile, dev, dos)
         else
@@ -34,7 +34,7 @@ module Wile
     # rubocop:enable Metrics/MethodLength
 
     def geminfo(libs)
-      libs.map { gem_which(it) }.select { it.type == :gem }.uniq
+      libs.map { gem_which(it) }.select { it.type == :gem }.uniq(&:name)
     end
 
     def osinfo(os)
@@ -42,6 +42,17 @@ module Wile
     end
 
     private
+
+    def project_files(token)
+      files = Project.rbfiles(token)
+      files << '.irbrc' if irbrc?(token)
+      files
+    end
+
+    # :reek:ControlParameter :reek:UtilityFunction
+    def irbrc?(token)
+      File.file?('.irbrc') && (token != :git || Git.files.include?('.irbrc'))
+    end
 
     DEPENDENCY_SCRAPES = [
       [/^\s*#\s*`([-\w.]+)`$/, :os, 1],

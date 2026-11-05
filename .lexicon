@@ -573,6 +573,7 @@ integer
 intersect
 invocation
 io
+irbrc
 is_a
 isolate
 isolate_methods
@@ -756,6 +757,7 @@ private_class_method
 private_constant
 probe
 project
+project_files
 project_rb
 project_ready
 prompt
