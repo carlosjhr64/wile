@@ -4,9 +4,36 @@
 module Wile
   # Refinements for Utilities.
   module UtilitiesRefinements
+    ALLOWED = /\A[a-zA-Z0-9._][a-zA-Z0-9._-]*\z/
+
+    # category: array
+
+    refine Array do
+      def weird_filename!
+        each(&:weird_filename!)
+      end
+    end
+
+    # category: object
+
+    refine Object do
+      def weird_filename!
+        raise "Weird filename: #{self}"
+      end
+    end
+
+    # category: string
+
     refine String do
       def sw
         Shellwords.escape(self)
+      end
+
+      def weird_filename!
+        return self if valid_encoding? &&
+                       split('/').reject(&:empty?).all? { ALLOWED.match?(it) }
+
+        raise "Weird filename: #{self}"
       end
     end
   end

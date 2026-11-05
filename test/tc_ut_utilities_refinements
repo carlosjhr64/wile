@@ -1,0 +1,36 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require_relative 'test_helper'
+require_relative '../lib/wile'
+require_relative '../lib/wile/utilities_refinements'
+
+# Unit tests for Wile::UtilitiesRefinements.
+class TestUtUtilitiesRefinements < Test::Unit::TestCase
+  using Wile::UtilitiesRefinements
+
+  def test_array_weird_filename
+    arr = ['file.rb', 'dir/sub.rb']
+    assert_equal arr, arr.weird_filename!
+    assert_raise(RuntimeError) { ['-bad.rb'].weird_filename! }
+    assert_raise(RuntimeError) { [123].weird_filename! }
+  end
+
+  def test_object_weird_filename
+    assert_raise(RuntimeError) { :symbol.weird_filename! }
+    assert_raise(RuntimeError) { 123.weird_filename! }
+    assert_raise(RuntimeError) { Object.new.weird_filename! }
+  end
+
+  def test_string_sw
+    assert_equal 'foo\\ bar', 'foo bar'.sw
+  end
+
+  def test_string_weird_filename
+    assert_equal 'foo.rb', 'foo.rb'.weird_filename!
+    assert_equal 'dir/sub_1.2.rb', 'dir/sub_1.2.rb'.weird_filename!
+    assert_raise(RuntimeError) { '-flag'.weird_filename! }
+    assert_raise(RuntimeError) { 'dir/-flag'.weird_filename! }
+    assert_raise(RuntimeError) { "bad\xFFname".weird_filename! }
+  end
+end

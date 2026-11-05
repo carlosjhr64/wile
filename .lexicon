@@ -1,3 +1,4 @@
+ALLOWED
 API_URL
 ARCH
 ARGV
@@ -974,6 +975,7 @@ utilities_check
 v
 v2s
 val
+valid_encoding
 validate
 validator
 validator_type_check
@@ -1009,6 +1011,7 @@ versions
 vrs
 vset
 warn
+weird_filename
 which
 width
 wileignore
