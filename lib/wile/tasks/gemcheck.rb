@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 # ## wile gemcheck ##
-# Checks for missing gems in the current Ruby version that is found installe in
-# other version on the system using `rbenv`.
+# Checks for missing gems in the current Ruby version that are found installed
+# in other versions on the system using `rbenv`.
 # Usage:
 #   wile gemcheck # Checks for missing gems
 module Wile
@@ -10,16 +10,17 @@ module Wile
   # :reek:TooManyStatements :reek:UncommunicativeVariableName
   class Tasks
     GEMCHECK_USAGE = ['gemcheck: Takes no parameters/options.', 0, Set[]].freeze
-    GEMCHECK_PREFIX = %r{^(.*/\.rbenv/versions)/\d+\.\d+\.\d+/bin/gem$}
 
     def gemcheck(options)
       Usage.new(options, *GEMCHECK_USAGE)
-      gemcmd = `rbenv which gem`.strip
-      unless (prefix = GEMCHECK_PREFIX.match(gemcmd)&.[](1))
+      root = `rbenv root 2>/dev/null`.strip
+      prefix = File.join(root, 'versions')
+      gemcmd = `rbenv which gem 2>/dev/null`.strip
+      unless File.directory?(prefix) && gemcmd.start_with?(prefix)
         raise "Unexpected gem command: #{gemcmd}"
       end
 
-      gemgchec_do(prefix)
+      gemcheck_do(prefix)
     end
 
     private
@@ -45,7 +46,7 @@ module Wile
     end
 
     # :reek:DuplicateMethodCall 'OK'.green
-    def gemgchec_do(prefix)
+    def gemcheck_do(prefix)
       missing = gemcheck_missing gemcheck_inventory(prefix)
       if missing.empty?
         puts 'OK'.green
@@ -53,14 +54,14 @@ module Wile
       end
       gemcheck_report missing
       puts 'Would you like to install them all? (Y/n)'.yellow
-      exit(EX_NO) unless $stdin.gets.strip == 'Y'
+      exit(EX_NO) unless $stdin.gets&.strip&.match?(/^[Yy]/)
       gemcheck_install(missing)
       puts 'OK'.green
     end
 
     def gemcheck_install(missing)
       missing.each_pair do |name,|
-        next if system('gem', 'list',  name, '-i') # already installed
+        next if system('gem', 'list', name, '-i') # already installed
 
         system('gem', 'install', name) || exit(EX_UNAVAILABLE)
       end

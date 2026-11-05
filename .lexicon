@@ -82,7 +82,6 @@ File
 FileUtils
 Find
 Float
-GEMCHECK_PREFIX
 GEMCHECK_USAGE
 GEMFILE_USAGE
 Gem
@@ -502,13 +501,13 @@ gem_installed
 gem_name
 gem_which
 gemcheck
+gemcheck_do
 gemcheck_install
 gemcheck_inventory
 gemcheck_missing
 gemcheck_report
 gemcmd
 gemfile
-gemgchec_do
 gemignore
 geminfo
 gempkg
