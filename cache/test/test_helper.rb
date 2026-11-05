@@ -4,9 +4,8 @@ Encoding.default_external = Encoding::UTF_8
 
 require 'test/unit'
 require 'colorize'
-# Also:
-# require 'reek'
-# require 'rubocop'
+# wile: require 'reek'
+# wile: require 'rubocop'
 
 String.disable_colorization = true unless $stdout.tty? &&
                                           ENV['NO_COLOR'].to_s.empty? &&

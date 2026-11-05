@@ -2,8 +2,7 @@
 # frozen_string_literal: true
 
 require_relative 'test_helper'
-# Also:
-# require 'reek'
+# wile: require 'reek'
 
 # Reek Tests
 class TestReek < Test::Unit::TestCase

@@ -2,8 +2,7 @@
 # frozen_string_literal: true
 
 require_relative 'test_helper'
-# Also:
-# require 'cucumber'
+# wile: require 'cucumber'
 
 # Cucumber Tests runs the feature suite and flunks if any scenario fails.
 class TestCucumber < Test::Unit::TestCase

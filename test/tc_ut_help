@@ -30,7 +30,7 @@ class TestUtHelp < Test::Unit::TestCase
     # review.rb contains comments before the help block header
     help = Wile::Help[:review]
     assert_match(/\A## wile review ##\n/, help)
-    assert_not_includes help, 'Also:'
+    assert_not_includes help, 'wile: require'
   end
 
   def test_class_brackets_stops_at_code

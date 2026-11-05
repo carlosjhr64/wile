@@ -2,8 +2,7 @@
 # frozen_string_literal: true
 
 require_relative 'test_helper'
-# Also:
-# require 'ripper-tags'
+# wile: require 'ripper-tags'
 
 # Tags Test generates and maintains the ctags file using ripper-tags.
 class TestTags < Test::Unit::TestCase

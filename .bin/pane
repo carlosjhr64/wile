@@ -39,9 +39,8 @@ cmd = ARGV.join(' ')
 cmd = nil if cmd.empty?
 
 require 'colorize'
-# Also:
-# require 'colora'
-# require 'rubocop'
+# wile: require 'colora'
+# wile: require 'rubocop'
 
 def blue(string)
   puts string.blue

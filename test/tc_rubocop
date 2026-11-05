@@ -2,8 +2,7 @@
 # frozen_string_literal: true
 
 require_relative 'test_helper'
-# Also:
-# require 'rubocop'
+# wile: require 'rubocop'
 
 # Rubocop Tests
 class TestRuboCop < Test::Unit::TestCase
