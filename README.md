@@ -65,32 +65,87 @@ For more help, see the AI generated and maintained
 ```console
 $ wile --help #>>
 ## wile ##
+
 Usage:
   wile [<task=WORD> [<args>+]] [:options+]
+
 Options:
   -h --help	Show help summary
   -v --version	Show version number
-  -a --all	Apply to all targets
   -c --check	Run in check-only mode
-  --config=FILE	Configuration file path
-  --detailed	Display detailed output
   -d --dump	Dump internal structure or data
   -f --force	Force execution without safety checks
   --format=WORD	Output format
   -l --list	List items
   --name=WORD	Filter or match by name
   --only=CSV	Select only specified items
-  --output=FILE	Write output to file
   -q --quiet	Suppress non-essential output
   -r --raw	Raw / unformatted output
-  --simulate	Simulate execution without making changes
   -s --strict	Enable strict mode
   -t --trace	Trace execution
+
+Reserved flags for customs tasks:
+
+  -a --all	Apply to all targets
+  --archive	Archive mode; preserve file attributes and permissions
+  --backup	Make backup before removal or overwrite
+  --batch	Run in non-interactive batch mode
+  --clean	Remove build artifacts and temporary files
+  --color=WHEN	Control colored output (always, auto, never)
+  --config=FILE	Configuration file path
+  --context=INTEGER	Number of lines of context to display
+  --count	Print count of matching items instead of contents
+  --delete	Delete extraneous or target files
+  --dereference	Follow symbolic links
+  --detailed	Display detailed output
+  --diff	Show differences between files or states
+  --directory=FILE	Change to directory before operating
+  --encoding=WORD	Character encoding to use
+  --exclude=PATTERN	Exclude files or paths matching pattern
+  --follow	Output appended data as file grows
+  --header	Display or include header line
+  --icase	Ignore case distinctions in patterns or text
+  --include=PATTERN	Include only files or paths matching pattern
+  -i --interactive	Prompt before overwrite or action
+  --interval=DECIMAL	Time to wait between repetitions
+  --jobs=INTEGER	Number of concurrent jobs or tasks
+  --limit=INTEGER	Limit the number of results or records
+  --linenumber	Print line number with output lines
+  --logfile=FILE	Path to log file
+  --maxdepth=INTEGER	Descend at most INTEGER directory levels
+  --mode=MODE	File permission mode (octal or symbolic)
+  --nocache	Bypass cache and fetch fresh data
+  --output=FILE	Write output to file
+  -p --parents	Create intermediate parent directories as needed
+  --port=INTEGER	Port number to connect or listen to
+  --preserve=ATTRS	Preserve specified file attributes
+  --readable	Print human readable output
+  -R --recursive	Operate recursively on directories
+  --remote=URL	Remote repository or server address
+  --reverse	Reverse sorting order of results
+  --simulate	Simulate execution without making changes
+  --sort=WORD	Sort output by specified key or field
+  --status	Display operational status or summary
+  --sync	Synchronize data to storage before exiting
+  --tag=WORD	Tag name or label to apply or filter by
+  --target=FILE	Target file, directory, or architecture
+  --timeout=DECIMAL	Maximum time to wait before timing out
+  --user=USER	Run as or filter by user
   -y --yes	Assume yes to confirmation prompts
+
 Types:
-  WORD /^[\w-]+$/
-  CSV /^[\w-]+(,[\w-]+)*$/
-  FILE /^(\/?[\w.][\w.-]*)+\/?$/
+  WORD      /\A[\w-]+\z/
+  CSV       /\A[\w-]+(,[\w-]+)*\z/
+  FILE      /\A(\/?[\w.][\w.-]*)+\/?\z/
+  ATTRS     /\A[a-zA-Z]+(,[a-zA-Z]+)*\z/
+  MODE      /\A[0-7]{3,4}\z/
+  INTEGER   /\A\d+\z/
+  DECIMAL   /\A\d+(\.\d+)?\z/
+  PATTERN   /\A\S+\z/
+  USER      /\A([a-zA-Z_])[\w-]*\z/
+  WHEN      /\A(always|auto|never)\z/
+  URL       /\A([a-zA-Z]+:\/\/\S+|[\w.-]+@\S+)\z/
+
 ### Get started ################################
 #  wile               # shows man page         #
 #  wile list          # list all tasks         #
