@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# ## wile compare ###
+# ## wile compare ##
 # Usage:
 #   wile compare [<match>+] # compares project with template
 module Wile
@@ -10,7 +10,9 @@ module Wile
     using Refinement
     using UtilitiesRefinements
 
-    COMPARE_USAGE = ['compare: Takes one or more file matcher.', Set[]].freeze
+    COMPARE_USAGE = [
+      'compare: Optionally takes one or more file matchers.', Set[]
+    ].freeze
 
     # :reek:NilCheck :reek:TooManyStatements
     def compare(options)
