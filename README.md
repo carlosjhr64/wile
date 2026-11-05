@@ -34,7 +34,7 @@ understand what the script is going to attempt to do.
 To use `wile`, clone the repository from GitHub, review and customize the code
 and `cache/` templates to fit your own workflow, and install it locally:
 ```console
-$ git clone https://github.com/carlosjhr64/wile.git
+$ git clone --depth 1 https://github.com/carlosjhr64/wile.git
 $ cd wile
 $ ./bin/bootstrap_ruby_rbenv
 $ ./bin/bootstrap_ruby_gems
