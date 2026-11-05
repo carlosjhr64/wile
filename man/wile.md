@@ -8,6 +8,8 @@ wile -- prescriptive task dispatcher for Ruby gem projects
 
 `wile [<task>] [<args>...] [:<options>...]`
 
+`wile <options>...`
+
 ## DESCRIPTION
 
 **Wile** is a prescriptive task dispatcher for Ruby gem projects,
@@ -20,31 +22,49 @@ testing, and release.
 ## GET STARTED
 
 - `wile`: Display manual page.
+- `wile <options>...`: Query options dictionary for flag details.
 - `wile list`: List all available tasks.
 - `wile help [<task>]`: Show help for task(s).
-- `wile test`: Run project test suites.
+- `wile test [<file> [<method>]]`: Run project test suites.
+
+## OPTIONS DICTIONARY
+
+Wile maintains a canonical dictionary of CLI options and conventions.
+When invoked with one or more options and no task, Wile queries this
+dictionary:
+
+    $ wile --format=json
+    --format=json
+      Description: Output format
+      Pattern:     WORD (/\A[\w-]+\z/)
+      Commands:    rubocop, reek, cucumber
+
+For each flag, the dictionary reports:
+
+- **Description**: The standard purpose of the flag.
+- **Pattern**: The type name and regular expression (for flags taking a
+  value).
+- **Commands**: Established Linux tools that use the flag.
+
+Both active task flags and reserved flags for custom tasks can be
+inspected. If an unrecognized flag is passed or an option value fails
+pattern validation, an error is reported.
 
 ## GLOBAL OPTIONS
 
 - `-h`, `--help`: Show help summary.
 - `-v`, `--version`: Show version number.
-- `-a`, `--all`: Apply to all targets.
 - `-c`, `--check`: Run in check-only mode.
-- `--config=FILE`: Configuration file path.
-- `--detailed`: Display detailed output.
 - `-d`, `--dump`: Dump internal structure or data.
 - `-f`, `--force`: Force execution without safety checks.
 - `--format=WORD`: Output format.
 - `-l`, `--list`: List items.
 - `--name=WORD`: Filter or match by name.
 - `--only=CSV`: Select only specified items.
-- `--output=FILE`: Write output to file.
 - `-q`, `--quiet`: Suppress non-essential output.
 - `-r`, `--raw`: Raw / unformatted output.
-- `--simulate`: Simulate execution without making changes.
 - `-s`, `--strict`: Enable strict mode.
 - `-t`, `--trace`: Trace execution.
-- `-y`, `--yes`: Assume yes to confirmation prompts.
 
 ## TASKS
 
@@ -74,9 +94,27 @@ Run `wile list` to list all tasks, or `wile help <task>` for details.
 - **ruby**: List all ruby files in project or git.
 - **smell**: Classify method dependencies and smells.
 - **tc**: List custom unit tests.
-- **test**: Run test suites.
+- **test**: Run test suites (see **TESTING**).
 - **todo**: Scrape files for TODO comments.
 - **update**: Update project files.
+
+## TESTING
+
+Wile executes project test suites located in `test/**/tc_*`. The `test`
+task supports targeted filtering by test file and test method name:
+
+    $ wile test                     # Run all test suites
+    $ wile test usage               # Run test files matching "usage"
+    $ wile test usage init          # Run test methods matching "init"
+    $ wile test --list              # List matching test files only
+    $ wile test -q                  # Fault-only output (suppress dots)
+
+Arguments and options:
+
+- `<filematch>`: Optional pattern filtering test file paths.
+- `<methodmatch>`: Optional pattern filtering test method names.
+- `-l`, `--list`: Print matching test files without running them.
+- `-q`, `--quiet`: Run with fault-only progress style.
 
 ## SEE ALSO
 
