@@ -13,7 +13,7 @@ module Wile
   # :reek:UtilityFunction :reek:LongParameterList
   class Tasks
     WILES_USAGE = [
-      'review: May take one match with optional strict/only flag.',
+      'review: May take one match with optional strict/only flags.',
       (0..1), Set['strict', 'only']
     ].freeze
 
