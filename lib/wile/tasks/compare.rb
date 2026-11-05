@@ -96,7 +96,7 @@ module Wile
     # :reek:LongParameterList and :reek:UtilityFunction
     def diff_erb(cfile, pfile, cmp, out)
       result = Info.info.erb_result(cfile)
-      IO.popen("#{cmp} - #{pfile} #{out}", 'w+') do |pipe|
+      IO.popen("#{cmp} - #{pfile.sw} #{out}", 'w+') do |pipe|
         pipe.puts result
         pipe.close_write
         pipe.read
