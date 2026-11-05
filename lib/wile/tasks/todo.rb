@@ -29,7 +29,7 @@ module Wile
 
     # :reek:TooManyStatements
     def do_todo_in_files(match)
-      Project.rbfiles.each do |fn|
+      Project.rbfiles.weird_filename!.each do |fn|
         next if match.none? { fn.match? it }
 
         string = `egrep '#\s+TODO' #{fn.sw}`
