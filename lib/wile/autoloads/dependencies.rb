@@ -5,6 +5,7 @@ module Wile
   # Project module provides methods to manage project files.
   class Dependencies
     using Refinement
+    using UtilitiesRefinements
 
     attr_reader :info
 
@@ -84,7 +85,7 @@ module Wile
 
     # :reek:FeatureEnvy :reek:TooManyStatements
     def gem_which(name)
-      fn = `gem which -q #{name}`.strip
+      fn = `gem which -q #{name.sw}`.strip
       if (mdt = %r{/gems/([-\w]+)-(\d+\.\d+\.\d+)}.match(fn))
         return GemInfo.new(mdt[1], mdt[2], :gem, fn, name)
       elsif (type, = LIB_TYPE.detect { |_, rgx| rgx.match? fn })
@@ -97,7 +98,7 @@ module Wile
 
     # :reek:TooManyStatements
     def os_which(cmd)
-      fn = `which #{cmd}`.strip
+      fn = `which #{cmd.sw}`.strip
       if fn.empty?
         warn "Missing command: #{cmd}".red
       elsif (version = CommandVersion[cmd] || os_cmd_version(cmd))
@@ -113,7 +114,7 @@ module Wile
     def os_cmd_version(cmd)
       ['--version', '-v', '-V'].each do |flag|
         warn "trying `#{cmd} #{flag}`".gray
-        version = `#{cmd} #{flag} 2>&1`.strip.scan(/\d+\.\d+/)&.first
+        version = `#{cmd.sw} #{flag} 2>&1`.strip.scan(/\d+\.\d+/)&.first
         return version if version
       end
       nil

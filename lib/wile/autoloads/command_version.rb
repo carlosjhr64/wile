@@ -4,6 +4,8 @@
 module Wile
   # This module knows how to get the version of a command.
   module CommandVersion
+    using UtilitiesRefinements
+
     COMMAND_VERSION = {
       'bash' => ['bash --version', '5.2'],
       'carlosjhr64/pkg-goto' => ["fish -c 'goto --version'", '2.1'],
@@ -66,11 +68,12 @@ module Wile
     end
 
     def self.fish_plugin(plugin)
-      system("egrep -q '^#{plugin}$' ~/.config/fish/fish_plugins") ? '0' : nil
+      path = File.expand_path('~/.config/fish/fish_plugins')
+      system('egrep', '-q', "^#{plugin}$", path) ? '0' : nil
     end
 
     def self.man(cmd)
-      year = `man #{cmd} | tail -n 1 | egrep -o '[12][0-9][0-9][0-9]'`.strip
+      year = `man #{cmd.sw} | tail -n 1 | egrep -o '[12][0-9][0-9][0-9]'`.strip
       year.empty? ? nil : year
     end
   end
