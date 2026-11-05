@@ -67,6 +67,9 @@ module Wile
 
     def handle_error
       case @error
+      when Errno::EPIPE
+        # Downstream reader closed output pipe early, e.g. piping to head.
+        exit EX_OK
       when UsageError
         handle_usage_error
       when RuntimeError
