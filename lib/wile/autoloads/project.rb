@@ -6,7 +6,9 @@ module Wile
   module Project
     using UtilitiesRefinements
 
+    # :reek:TooManyStatements
     def self.archive(pkg)
+      pkg.weird_filename!
       version = pkg.scan(/\d+\.\d+\.\d+/).first
       File.rename pkg, "pkg/#{pkg}"
       File.open('History.txt', 'a') do |file|
