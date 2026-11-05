@@ -9,7 +9,7 @@ module Wile
     refine Array do
       # :reek:TooManyStatements
       # :reek:DuplicateMethodCall it.to_s
-      def display(width: `tput cols`.to_i, padding: 2, io: $stdout)
+      def display(width: `tput cols 2>/dev/null`.to_i, padding: 2, io: $stdout)
         return if empty?
 
         max = map { it.to_s.length }.max + padding

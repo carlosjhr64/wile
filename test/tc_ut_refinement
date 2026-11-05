@@ -30,6 +30,16 @@ class TestUtRefinement < Test::Unit::TestCase
     assert_empty io.string
   end
 
+  def test_array_display_with_unset_term
+    orig = ENV.fetch('TERM', nil)
+    ENV.delete('TERM')
+    io = StringIO.new
+    %w[one two].display(io: io)
+    assert_equal "one  \ntwo  \n", io.string
+  ensure
+    ENV['TERM'] = orig if orig
+  end
+
   # :reek:FeatureEnvy
   def test_enumerable_first_truthy_value
     numbers = [1, 2, 3, 4]
