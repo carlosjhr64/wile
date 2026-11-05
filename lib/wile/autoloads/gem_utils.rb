@@ -62,15 +62,18 @@ module Wile
     end
 
     def installed?(project = @info.project, version = @info.version)
+      project.weird_filename!
       `gem list #{project.sw} --exact`
         .scan(/\d+\.\d+\.\d+/).any? { it == version }
     end
 
     def push!(pkg)
+      pkg.weird_filename!
       raise 'gem push failed' unless system2("gem push #{pkg.sw}")
     end
 
     def uninstall(project = @info.project, version = @info.version)
+      project.weird_filename!
       opts = "--version #{version.sw} --executables"
       system2 "gem uninstall #{project.sw} #{opts}"
     end
