@@ -295,6 +295,7 @@ checks
 chmod
 chomp
 chunk
+class
 clean
 clear
 clear_paths

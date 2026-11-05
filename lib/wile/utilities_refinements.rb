@@ -9,6 +9,7 @@ module Wile
     # category: array
 
     refine Array do
+      # Returns self, the array.
       def weird_filename!
         each(&:weird_filename!)
       end
@@ -18,7 +19,7 @@ module Wile
 
     refine Object do
       def weird_filename!
-        raise "Weird filename: #{self}"
+        raise "Expected a String filename, got #{self.class} instead"
       end
     end
 
