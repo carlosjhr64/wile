@@ -46,8 +46,9 @@ module Wile
       [/^\s*#\s*`([-\w.]+)`$/, :os, 1],
       [%r{^[^#]* `([-\w.]+)\b[^/]}, :os, 1],
       [%r{\b(system|spawn)[\s(]["'](\w[-\w]+)\b[^/]}, :os, 2],
-      [%r{\brequire\s*'([-\w/]+)'}, :gem, 1],
-      [%r{\bautoload\s+:\w+,\s*'([-\w/]+)'}, :gem, 1]
+      [%r{^\s*#\s*wile:\s*require\s*'([-\w/]+)'}, :gem, 1],
+      [%r{^[^#]*\brequire\s*'([-\w/]+)'}, :gem, 1],
+      [%r{^[^#]*\bautoload\s+:\w+,\s*'([-\w/]+)'}, :gem, 1]
     ].freeze
 
     LIB_TYPE = {
