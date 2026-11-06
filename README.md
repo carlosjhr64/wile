@@ -84,7 +84,7 @@ Options:
   -s --strict	Enable strict mode
   -t --trace	Trace execution
 
-Reserved flags for customs tasks:
+Reserved flags for custom tasks:
 
   -a --all	Apply to all targets
   --archive	Archive mode; preserve file attributes and permissions
