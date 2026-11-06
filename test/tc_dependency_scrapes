@@ -1,0 +1,104 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require_relative 'test_helper'
+
+# Lints require, require_relative, autoload, and `# wile: require`
+# statements to ensure compatibility with Wile's dependency scraper.
+class TestDependencyScrapes < Test::Unit::TestCase
+  DIRECTIVE = /^\s*#\s*wile:\s*require\b/
+  VALID_DIRECTIVE = /^\s*#\s*wile:\s*require\s+'[-\w]+'/
+  DOUBLE_QUOTE_REQUIRE = /\brequire(_relative)?\s*"/
+  AUTOLOAD_CONST = /\bautoload\s+['"][A-Z]/
+  AUTOLOAD_DOUBLE_QUOTE = /\bautoload\s+:\w+,\s*"/
+
+  def test_require_lines
+    errors = ruby_files.flat_map { check_file(it) }
+    assert_empty errors, "Malformed require lines:\n#{errors.join("\n").red}"
+  end
+
+  def test_valid_lines
+    assert_nil check_line('f.rb', 1, "require 'json'")
+    assert_nil check_line('f.rb', 2, "require_relative 'test_helper'")
+    assert_nil check_line('f.rb', 3, 'require_relative "tasks/\#{task}"')
+    assert_nil check_line('f.rb', 4, "# wile: require 'tmuxinator'")
+    assert_nil check_line('f.rb', 5, "#   wile:   require   'colora'")
+    assert_nil check_line('f.rb', 6, "autoload :JSON, 'json'")
+    assert_nil check_line('f.rb', 7, "autoload :Run, File.join(__dir__, 'run')")
+  end
+
+  def test_invalid_require_lines
+    assert_match 'must use single quotes',
+                 check_line('f.rb', 1, 'require "json"')
+    assert_match 'must use single quotes',
+                 check_line('f.rb', 2, 'require_relative "test_helper"')
+    assert_match 'must use single quotes',
+                 check_line('f.rb', 3, '# wile: require "tmuxinator"')
+    assert_match "must not contain '/'",
+                 check_line('f.rb', 4, "# wile: require 'irbtools/configure'")
+    assert_match 'malformed',
+                 check_line('f.rb', 5, '# wile: require tmuxinator')
+  end
+
+  def test_invalid_autoload_lines
+    assert_match 'constant must be a symbol',
+                 check_line('f.rb', 1, "autoload 'JSON', 'json'")
+    assert_match 'must use single quotes',
+                 check_line('f.rb', 2, 'autoload :JSON, "json"')
+  end
+
+  private
+
+  def ruby_files
+    files = `git ls-files`.lines.map(&:chomp)
+                          .reject { it.end_with?('tc_dependency_scrapes') }
+                          .select { /\.rb$/.match?(it) || bang_ruby?(it) }
+    files << '.irbrc' if File.file?('.irbrc')
+    files
+  end
+
+  def bang_ruby?(filename)
+    return false if /\.\w*$/.match?(filename) ||
+                    File.directory?(filename) ||
+                    File.empty?(filename) ||
+                    !File.executable?(filename)
+
+    /^#!.*\bruby$/.match?(File.read(filename, 80).lines[0].rstrip)
+  end
+
+  def check_file(filename)
+    File.readlines(filename).filter_map.with_index(1) do |line, lineno|
+      check_line(filename, lineno, line)
+    end
+  end
+
+  def check_line(filename, lineno, line)
+    if line.match?(DIRECTIVE)
+      check_directive(filename, lineno, line)
+    elsif !line.match?(/^\s*#/) && line.match?(DOUBLE_QUOTE_REQUIRE)
+      return if line.include?('#{')
+
+      "#{filename}:#{lineno}: require must use single quotes: #{line.strip}"
+    elsif !line.match?(/^\s*#/) && line.match?(/\bautoload\b/)
+      check_autoload(filename, lineno, line)
+    end
+  end
+
+  def check_autoload(filename, lineno, line)
+    if line.match?(AUTOLOAD_CONST)
+      "#{filename}:#{lineno}: autoload constant must be a symbol"
+    elsif line.match?(AUTOLOAD_DOUBLE_QUOTE) && !line.include?('#{')
+      "#{filename}:#{lineno}: autoload must use single quotes"
+    end
+  end
+
+  def check_directive(filename, lineno, line)
+    if line.include?('"')
+      "#{filename}:#{lineno}: # wile: require must use single quotes"
+    elsif line.include?('/')
+      "#{filename}:#{lineno}: # wile: require must not contain '/'"
+    elsif !line.match?(VALID_DIRECTIVE)
+      "#{filename}:#{lineno}: # wile: require malformed: #{line.strip}"
+    end
+  end
+end
