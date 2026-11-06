@@ -1,0 +1,20 @@
+
+# ./features/fixtures/sample.rb
+
+A::B::C lambda
+A::B.mth 2
+  .new
+A::B#initialize 2
+  C.call
+A::B#mth 1
+A::B#mth! 2
+  #mth?
+A::B#mth? 3
+X::Y::Q str
+X::Y.abc 2
+  Q.upcase
+X::R array
+X::Z#abc 2
+  R.sort
+OK.ok? 2
+OK.ok?
