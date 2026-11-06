@@ -2,22 +2,20 @@
 
 # ## wile dictionary ##
 # Usage:
-#   wile dictionary [--check] # view changes and update dictionary
+#   wile dictionary [--check] [--yes] # view changes and update dictionary
 module Wile
   # This file is loaded upon a :dictionary task request.
   class Tasks
     DICTIONARY_USAGE = ['dictionary: Takes no arguments.',
-                        0, Set['check']].freeze
+                        0, Set['check', 'yes']].freeze
 
     def dictionary(options)
       Utilities.verify_project_root!
       Usage.new(options, *DICTIONARY_USAGE)
-      if dictionary_ok?(options)
-        puts 'OK'.green
-      else
-        puts 'Fail'.red
-        exit(EX_FAIL)
-      end
+      return puts 'OK'.green if dictionary_ok?(options)
+
+      puts 'Fail'.red
+      exit(EX_FAIL)
     end
 
     private
@@ -26,12 +24,14 @@ module Wile
     def dictionary_ok?(options)
       return true if system 'test/tc_dictionary --verbose=silent'
 
-      diff = String.disable_colorization ? 'diff' : 'diff --color'
-      system "#{diff} .dictionary tmp/dictionary"
+      diff = String.disable_colorization ? %w[diff] : %w[diff --color]
+      system(*diff, '.dictionary', 'tmp/dictionary')
       return false if options.check? # Just checking
 
-      print 'Update dictionary(Yes/No)?: '.yellow
-      return false unless $stdin.gets&.match?(/^[Yy]/)
+      unless options.yes?
+        print 'Update dictionary (Yes/No)?: '.yellow
+        return false unless $stdin.gets&.match?(/^[Yy]/)
+      end
 
       FileUtils.cp 'tmp/dictionary', '.dictionary'
       true
