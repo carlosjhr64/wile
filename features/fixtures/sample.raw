@@ -1,0 +1,36 @@
+
+# ./features/fixtures/sample.rb
+
+{"A::B.mth" => 2,
+ "A::B#initialize" => 2,
+ "A::B#mth" => 1,
+ "A::B#mth!" => 2,
+ "A::B#mth?" => 3,
+ "X::Y.abc" => 2,
+ "X::Z#abc" => 2,
+ "OK.ok?" => 2}
+casgn A::B::C lambda
+def A::B.mth
+  .new
+end
+def A::B#initialize
+  C.call
+end
+def A::B#mth
+end
+def A::B#mth!
+  #mth?
+end
+def A::B#mth?
+end
+casgn X::Y::Q str
+def X::Y.abc
+  Q.upcase
+end
+casgn X::R array
+def X::Z#abc
+  R.sort
+end
+def OK.ok?
+end
+OK.ok?
