@@ -16,8 +16,10 @@ module Wile
       Utilities.verify_project_root!
       Usage.new(options, *INSTALL_USAGE)
       gmu = GemUtils.new
-      Git.clean! && gmu.clean! unless options.force?
-      gmu.ready!
+      unless options.force?
+        Git.clean! && gmu.clean!
+        gmu.ready!
+      end
       gmu.build!
 
       gmu.uninstall if gmu.installed?
