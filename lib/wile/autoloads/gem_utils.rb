@@ -31,6 +31,7 @@ module Wile
     end
 
     def build!
+      gemspec.weird_filename!
       raise 'gem build failed!' unless system2 "gem build #{gemspec.sw}"
 
       gempkg
@@ -57,12 +58,15 @@ module Wile
     end
 
     def install(project = @info.project, version = @info.version)
+      project.weird_filename!
+      version.weird_filename!
       pkg = "./#{project}-#{version}.gem".sw
       system2 "gem install --no-document --local #{pkg}"
     end
 
     def installed?(project = @info.project, version = @info.version)
       project.weird_filename!
+      version.weird_filename!
       `gem list #{project.sw} --exact`
         .scan(/\d+\.\d+\.\d+/).any? { it == version }
     end
@@ -74,6 +78,7 @@ module Wile
 
     def uninstall(project = @info.project, version = @info.version)
       project.weird_filename!
+      version.weird_filename!
       opts = "--version #{version.sw} --executables"
       system2 "gem uninstall #{project.sw} #{opts}"
     end
