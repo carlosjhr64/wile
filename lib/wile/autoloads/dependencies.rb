@@ -11,10 +11,10 @@ module Wile
 
     def initialize(info = Info.info)
       @info = info
+      @missing_gems = Set.new
     end
 
     # :reek:TooManyStatements
-    # rubocop:disable Metrics/MethodLength
     # :reek:DuplicateMethodCall Set['ruby'] are new distinct instances of set
     def dependencies(token = nil)
       run = Set.new
@@ -23,15 +23,11 @@ module Wile
       dos = Set['ruby'] # dev os
       ignore = @info.gemignore
       project_files(token).each do |rbfile|
-        if ignore.match?(rbfile)
-          dependencies_populate(rbfile, dev, dos)
-        else
-          dependencies_populate(rbfile, run, ros)
-        end
+        gemset, osset = ignore.match?(rbfile) ? [dev, dos] : [run, ros]
+        dependencies_populate(rbfile, gemset, osset)
       end
       [run, dev, ros, dos]
     end
-    # rubocop:enable Metrics/MethodLength
 
     def geminfo(libs)
       libs.map { gem_which(it) }.select { it.type == :gem }.uniq(&:name)
@@ -44,9 +40,7 @@ module Wile
     private
 
     def project_files(token)
-      files = Project.rbfiles(token)
-      files << '.irbrc' if irbrc?(token)
-      files
+      Project.rbfiles(token).tap { it << '.irbrc' if irbrc?(token) }
     end
 
     # :reek:ControlParameter :reek:UtilityFunction
@@ -58,7 +52,7 @@ module Wile
       [/^\s*#\s*`([-\w.]+)`$/, :os, 1],
       [%r{^[^#]* `([-\w.]+)\b[^/]}, :os, 1],
       [%r{\b(system|spawn)[\s(]["'](\w[-\w]+)\b[^/]}, :os, 2],
-      [%r{^\s*#\s*wile:\s*require\s*'([-\w/]+)'}, :gem, 1],
+      [/^\s*#\s*wile:\s*require\s*'([-\w]+)'/, :gem, 1],
       [%r{^[^#]*\brequire\s*'([-\w/]+)'}, :gem, 1],
       [%r{^[^#]*\bautoload\s+:\w+,\s*'([-\w/]+)'}, :gem, 1]
     ].freeze
@@ -98,13 +92,18 @@ module Wile
     def gem_which(name)
       fn = `gem which -q #{name.sw}`.strip
       if (mdt = %r{/gems/([-\w]+)-(\d+\.\d+\.\d+)}.match(fn))
-        return GemInfo.new(mdt[1], mdt[2], :gem, fn, name)
+        GemInfo.new(mdt[1], mdt[2], :gem, fn, name)
       elsif (type, = LIB_TYPE.detect { |_, rgx| rgx.match? fn })
-        return GemInfo.new(::Regexp.last_match(1), nil, type, fn, name)
+        GemInfo.new(::Regexp.last_match(1), nil, type, fn, name)
+      else
+        missing_gem(name)
       end
+    end
 
-      warn "Missing gem: #{name}".red
-      GemInfo.new(nil, nil, nil, nil, name)
+    def missing_gem(name)
+      gem = name.split('/').first
+      warn "Missing gem: #{gem}".red if @missing_gems.add?(gem)
+      GemInfo.new(nil, nil, nil, nil, gem)
     end
 
     # :reek:TooManyStatements

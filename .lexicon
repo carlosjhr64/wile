@@ -654,6 +654,8 @@ missed_required
 missed_required_notice
 missing
 missing_commands
+missing_gem
+missing_gems
 missing_packages
 missing_postamble_gems
 missing_preamble_gems
