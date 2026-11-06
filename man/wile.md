@@ -63,7 +63,7 @@ Run `wile list` to list all tasks, or `wile help <task>` for details.
 - **lexicon**: View and update vocabulary whitelist (see **LEXICON**).
 - **list**: List all tasks or filter by pattern (see **LIST**).
 - **mkdir**: Create project directory from template.
-- **note**: Scrape ruby files for NOTE comments.
+- **note**: Scrape ruby files for NOTE comments (see **NOTE**).
 - **nvim**: Open project files in Neovim.
 - **order**: Suggest method ordering in ruby files.
 - **publish**: Publish new version to RubyGems.
@@ -129,6 +129,19 @@ Formats:
 - **DICTIONARY**: Concise list in `+ <task>: <description>` format.
 - **NAME**: Bare task names only, suitable for shell completion and scripts.
 - **CODE**: Unformatted usage comment lines extracted from task source files.
+
+## NOTE
+
+Wile scrapes project Ruby source files and prints every line containing
+a `# NOTE` comment:
+
+    $ wile note                     # Scrape NOTE comments in all Ruby files
+    $ wile note order               # Scrape NOTE comments in matching files
+
+Arguments:
+
+- `<match>...`: Optional patterns filtering Ruby file paths. When omitted,
+  all project Ruby files are inspected.
 
 ## TESTING
 

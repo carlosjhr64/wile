@@ -3,7 +3,7 @@
 # ## wile note ##
 # Puts each NOTE line.
 # Usage:
-#   wile note [<match>+] # scrape ruby files for note's
+#   wile note [<match>+] # scrape ruby files for NOTE comments
 module Wile
   # This file is loaded upon a :note task request.
   class Tasks
@@ -18,11 +18,8 @@ module Wile
       Project.rbfiles.weird_filename!.each do |fn|
         next if match&.none? { fn.match? it }
 
-        string = `egrep '#\s*NOTE' #{fn.sw}`
-        next if string.empty?
-
-        puts fn.blue
-        puts string
+        lines = File.foreach(fn).grep(/#\s*NOTE/)
+        puts fn.blue, lines unless lines.empty?
       end
     end
   end

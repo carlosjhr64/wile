@@ -110,7 +110,8 @@ for details.
 .IP \[bu] 2
 \f[B]mkdir\f[R]: Create project directory from template.
 .IP \[bu] 2
-\f[B]note\f[R]: Scrape ruby files for NOTE comments.
+\f[B]note\f[R]: Scrape ruby files for NOTE comments (see
+\f[B]NOTE\f[R]).
 .IP \[bu] 2
 \f[B]nvim\f[R]: Open project files in Neovim.
 .IP \[bu] 2
@@ -214,6 +215,22 @@ scripts.
 .IP \[bu] 2
 \f[B]CODE\f[R]: Unformatted usage comment lines extracted from task
 source files.
+.SH NOTE
+.PP
+Wile scrapes project Ruby source files and prints every line containing
+a \f[V]# NOTE\f[R] comment:
+.IP
+.nf
+\f[C]
+$ wile note                     # Scrape NOTE comments in all Ruby files
+$ wile note order               # Scrape NOTE comments in matching files
+\f[R]
+.fi
+.PP
+Arguments:
+.IP \[bu] 2
+\f[V]<match>...\f[R]: Optional patterns filtering Ruby file paths.
+When omitted, all project Ruby files are inspected.
 .SH TESTING
 .PP
 Wile executes project test suites located in \f[V]test/**/tc_*\f[R].
