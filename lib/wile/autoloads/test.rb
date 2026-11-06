@@ -26,6 +26,8 @@ module Wile
                    list: false, quiet: false)
       files = test_files
       files.select! { it.match?(filematch) } if filematch
+      raise "No tests matched: #{filematch}" if filematch && files.empty?
+
       return puts files if list
 
       opt = options(methodmatch, quiet)

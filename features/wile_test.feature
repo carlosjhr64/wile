@@ -26,6 +26,12 @@ Feature: Testing wile test task
     * Then stdout includes "18 tests, 19 assertions"
     * Then stdout includes "OK"
 
+  Scenario: test with non-matching filematch
+    * Given option "test nonexistent_pattern"
+    * When we run command
+    * Then exit status is "1"
+    * Then stderr includes "No tests matched: nonexistent_pattern"
+
   Scenario: test with too many arguments
     * Given option "test one two three"
     * When we run command
