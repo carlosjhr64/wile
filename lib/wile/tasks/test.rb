@@ -2,8 +2,8 @@
 
 # ## wile test ##
 # Options:
-#   -l --list    Lists tests that will run
-#   -q --quiet   Fault-only
+#   --list       Lists tests that will run
+#   --quiet      Fault-only
 # Usage:
 #   wile test [<filematch> [<methodmatch>]] [--list|--quiet] # runs tests
 module Wile

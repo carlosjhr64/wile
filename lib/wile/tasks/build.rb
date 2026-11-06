@@ -4,7 +4,7 @@
 # Builds the gem pkg.
 # Will refuse(unless forced) if git status is not clean.
 # Usage:
-#   wile build [-f|--force] # build gem pkg
+#   wile build [--force] # build gem pkg
 module Wile
   # This file is loaded upon a :build task request.
   class Tasks

@@ -6,7 +6,7 @@
 # ## wile review ##
 #   CSV is a comma separated list: content,order,reek,rubocop
 # Usage:
-#   wile review [<match>] [--strict, --only=CSV] # runs review
+#   wile review [<match>] [--strict] [--only=CSV] # runs review
 module Wile
   # This file is loaded upon a :review task request.
   # :reek:UtilityFunction :reek:LongParameterList

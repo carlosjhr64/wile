@@ -4,7 +4,7 @@
 # Installs current version of project,
 # uninstalling the version if it exists.
 # Usage:
-#   wile install [-f|--force] # install current local project
+#   wile install [--force] # install current local project
 module Wile
   # This file is loaded upon a :install task request.
   class Tasks

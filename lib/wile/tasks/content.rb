@@ -2,10 +2,10 @@
 
 # ## wile content ##
 # Options:
-#   -d, --dump   dumps AST
-#   -r, --raw    simple output
+#   --dump       dumps AST
+#   --raw        simple output
 # Usage:
-#   wile content <filename>+ [:option] # show file's contents
+#   wile content <filename>+ [--dump] [--raw] # show file's contents
 module Wile
   # This file is loaded upon a :content task request.
   class Tasks

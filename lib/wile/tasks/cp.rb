@@ -3,7 +3,7 @@
 # ## wile cp ##
 # The force option will overwrite existing files.
 # Usage:
-#   wile cp [<match>] [-f|--force|-t|--trace] # copy template files into project
+#   wile cp [<match>] [--force] [--trace] # copy template files into project
 module Wile
   # This file is loaded upon a :cp task request.
   class Tasks

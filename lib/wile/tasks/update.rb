@@ -10,7 +10,7 @@
 # You can optionally specify which if not all.
 # Git status must be clean, unless forced.
 # Usage:
-#   wile update [README|gemspec|man] [-f|--force] # update project files
+#   wile update [README|gemspec|man] [--force] # update project files
 module Wile
   # This file is loaded upon a :update task request.
   class Tasks
