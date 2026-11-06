@@ -7,6 +7,7 @@ module Wile
     using UtilitiesRefinements
 
     COMMAND_VERSION = {
+      'agy' => ['agy --version', '1.5'],
       'bash' => ['bash --version', '5.2'],
       'carlosjhr64/pkg-goto' => ["fish -c 'goto --version'", '2.1'],
       'carlosjhr64/theme-local' => [:fish_plugin, '0'],
