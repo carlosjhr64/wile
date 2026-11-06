@@ -57,6 +57,8 @@ release.
 .IP \[bu] 2
 \f[V]--format=WORD\f[R]: Output format.
 .IP \[bu] 2
+\f[V]--git\f[R]: Operate on git-tracked files.
+.IP \[bu] 2
 \f[V]-l\f[R], \f[V]--list\f[R]: List items.
 .IP \[bu] 2
 \f[V]--name=WORD\f[R]: Filter or match by name.
@@ -123,7 +125,8 @@ for details.
 .IP \[bu] 2
 \f[B]review\f[R]: Run code review checklist.
 .IP \[bu] 2
-\f[B]ruby\f[R]: List all ruby files in project or git.
+\f[B]ruby\f[R]: List all ruby files in project or git (see
+\f[B]RUBY\f[R]).
 .IP \[bu] 2
 \f[B]smell\f[R]: Classify method dependencies and smells.
 .IP \[bu] 2
@@ -249,6 +252,25 @@ Arguments:
 .IP \[bu] 2
 \f[V]<match>...\f[R]: Optional patterns filtering Ruby file paths.
 When omitted, all project Ruby files are inspected.
+.SH RUBY
+.PP
+Wile lists all Ruby files in the project, including \f[V].rb\f[R] source
+files and executable scripts with a Ruby shebang:
+.IP
+.nf
+\f[C]
+$ wile ruby                     # List all project Ruby files
+$ wile ruby --git               # List only git-tracked Ruby files
+$ wile ruby tasks               # Filter files matching tasks
+$ wile ruby tasks --git         # Filter git files matching tasks
+\f[R]
+.fi
+.PP
+Arguments and options:
+.IP \[bu] 2
+\f[V]<match>...\f[R]: Optional patterns filtering file paths.
+.IP \[bu] 2
+\f[V]--git\f[R]: Inspect only files tracked by git.
 .SH TESTING
 .PP
 Wile executes project test suites located in \f[V]test/**/tc_*\f[R].

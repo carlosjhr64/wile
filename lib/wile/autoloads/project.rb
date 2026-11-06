@@ -39,7 +39,7 @@ module Wile
     def self.bang_ruby?(filename)
       return false if /\.erb$/.match?(filename) || !File.executable?(filename)
 
-      /^#!.*\bruby$/.match? File.read(filename, 80).lines.first.rstrip
+      /^#!.*\bruby\b/.match? File.read(filename, 80).lines.first.rstrip
     end
   end
 end

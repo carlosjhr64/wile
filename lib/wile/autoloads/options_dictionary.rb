@@ -125,6 +125,11 @@ module Wile
         type: 'WORD',
         commands: %w[rubocop reek cucumber]
       },
+      'git' => {
+        desc: 'Operate on git-tracked files',
+        type: nil,
+        commands: %w[wile-ruby]
+      },
       'header' => {
         desc: 'Display or include header line',
         type: nil,

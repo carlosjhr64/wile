@@ -1,21 +1,26 @@
 # frozen_string_literal: true
 
-# ## wile ruby ###
+# ## wile ruby ##
 # List all ruby files in the project.
-# If the 'git' token is given, then
-# it list all the ruby files in git.
+# With --git, lists only ruby files in git.
 # Usage:
-#   wile ruby [git] # lists all ruby files
+#   wile ruby [<match>+] [--git] # lists all ruby files
 module Wile
   # This file is loaded upon a :ruby task request.
   class Tasks
-    RUBY_USAGE = ['ruby: May only take "git" an an argument',
-                  (..1), /^git$/, Set[]].freeze
+    RUBY_USAGE = [
+      'ruby: Optionally takes file matchers with optional git flag.',
+      Set['git']
+    ].freeze
 
+    # :reek:FeatureEnvy :reek:TooManyStatements
     def ruby(options)
       Utilities.verify_project_root!
-      token, = Usage.new(options, *RUBY_USAGE).args
-      Project.rbfiles(token&.to_sym).sort.each { puts it }
+      match = Usage.new(options, *RUBY_USAGE).args || []
+      git = options.git? || (match.first == 'git' && match.shift)
+      files = Project.rbfiles(git ? :git : nil).sort
+      files.select! { |fn| match.any? { fn.match? it } } unless match.empty?
+      files.each { puts it }
     end
   end
 end

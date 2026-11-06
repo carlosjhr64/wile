@@ -76,6 +76,7 @@ Options:
   -d --dump	Dump internal structure or data
   -f --force	Force execution without safety checks
   --format=WORD	Output format
+  --git	Operate on git-tracked files
   -l --list	List items
   --name=WORD	Filter or match by name
   --only=CSV	Select only specified items
@@ -175,7 +176,7 @@ $ wile list --format=dictionary #>>
 + lexicon: view changes and update lexicon
 + list: list tasks(by match)
 + mkdir: creates project dirname
-+ note: scrape ruby files for note's
++ note: scrape ruby files for NOTE comments
 + nvim: spawn nvim with(matching) files
 + order: suggest a methods order
 + publish: publish a new version
@@ -185,7 +186,7 @@ $ wile list --format=dictionary #>>
 + smell: classify methods in your code
 + tc: lists custom unit tests in project
 + test: runs tests
-+ todo: scrape file's TODO's
++ todo: display TODO.md or scrape TODO comments
 + update: update project files
 
 ```

@@ -35,6 +35,7 @@ testing, and release.
 - `-d`, `--dump`: Dump internal structure or data.
 - `-f`, `--force`: Force execution without safety checks.
 - `--format=WORD`: Output format.
+- `--git`: Operate on git-tracked files.
 - `-l`, `--list`: List items.
 - `--name=WORD`: Filter or match by name.
 - `--only=CSV`: Select only specified items.
@@ -69,7 +70,7 @@ Run `wile list` to list all tasks, or `wile help <task>` for details.
 - **publish**: Publish new version to RubyGems.
 - **requirements**: Verify system commands and versions.
 - **review**: Run code review checklist.
-- **ruby**: List all ruby files in project or git.
+- **ruby**: List all ruby files in project or git (see **RUBY**).
 - **smell**: Classify method dependencies and smells.
 - **tc**: List custom unit tests.
 - **test**: Run test suites (see **TESTING**).
@@ -156,6 +157,21 @@ Arguments:
 
 - `<match>...`: Optional patterns filtering Ruby file paths. When omitted,
   all project Ruby files are inspected.
+
+## RUBY
+
+Wile lists all Ruby files in the project, including `.rb` source files and
+executable scripts with a Ruby shebang:
+
+    $ wile ruby                     # List all project Ruby files
+    $ wile ruby --git               # List only git-tracked Ruby files
+    $ wile ruby tasks               # Filter files matching tasks
+    $ wile ruby tasks --git         # Filter git files matching tasks
+
+Arguments and options:
+
+- `<match>...`: Optional patterns filtering file paths.
+- `--git`: Inspect only files tracked by git.
 
 ## TESTING
 
