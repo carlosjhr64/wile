@@ -68,6 +68,7 @@ Gem::Specification.new do |s|
     cache/test/cons.gz
     cache/test/tc_comments
     cache/test/tc_cucumber
+    cache/test/tc_dependency_scrapes
     cache/test/tc_dictionary
     cache/test/tc_encoding
     cache/test/tc_lexicon
