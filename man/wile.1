@@ -96,7 +96,7 @@ for details.
 .IP \[bu] 2
 \f[B]gemfile\f[R]: Generate Gemfile from dependencies.
 .IP \[bu] 2
-\f[B]help\f[R]: Show detailed help for tasks.
+\f[B]help\f[R]: Show detailed help for tasks (see \f[B]HELP\f[R]).
 .IP \[bu] 2
 \f[B]info\f[R]: Display project metadata and configuration.
 .IP \[bu] 2
@@ -158,6 +158,24 @@ prompting.
 .IP \[bu] 2
 \f[V]-y\f[R], \f[V]--yes\f[R]: Answer yes to confirmation prompt
 (auto-accept updates).
+.SH HELP
+.PP
+Wile scrapes task documentation directly from the header comments of
+task source files in \f[V].tasks/*.rb\f[R] and
+\f[V]lib/wile/tasks/*.rb\f[R]:
+.IP
+.nf
+\f[C]
+$ wile help                     # Show help for help and list tasks
+$ wile help build               # Show detailed help for build task
+$ wile help order review        # Show help for multiple tasks
+\f[R]
+.fi
+.PP
+Arguments:
+.IP \[bu] 2
+\f[V]<task>...\f[R]: One or more task names or partial names to inspect.
+When omitted, Wile displays help for \f[V]help\f[R] and \f[V]list\f[R].
 .SH LEXICON
 .PP
 Wile enforces vocabulary control across \f[V]lib/**/*.rb\f[R] using AST

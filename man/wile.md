@@ -57,7 +57,7 @@ Run `wile list` to list all tasks, or `wile help <task>` for details.
 - **dictionary**: Manage spelling dictionary (see **DICTIONARY**).
 - **gemcheck**: Check for missing gems across rbenv Rubies.
 - **gemfile**: Generate Gemfile from dependencies.
-- **help**: Show detailed help for tasks.
+- **help**: Show detailed help for tasks (see **HELP**).
 - **info**: Display project metadata and configuration.
 - **install**: Build and install gem locally.
 - **lexicon**: View and update vocabulary whitelist (see **LEXICON**).
@@ -90,6 +90,20 @@ Options:
 
 - `-c`, `--check`: Run in check-only mode without prompting.
 - `-y`, `--yes`: Answer yes to confirmation prompt (auto-accept updates).
+
+## HELP
+
+Wile scrapes task documentation directly from the header comments of
+task source files in `.tasks/*.rb` and `lib/wile/tasks/*.rb`:
+
+    $ wile help                     # Show help for help and list tasks
+    $ wile help build               # Show detailed help for build task
+    $ wile help order review        # Show help for multiple tasks
+
+Arguments:
+
+- `<task>...`: One or more task names or partial names to inspect. When
+  omitted, Wile displays help for `help` and `list`.
 
 ## LEXICON
 

@@ -25,7 +25,7 @@ module Wile
         next unless continue ||= /^# #/.match?(line)
         break unless /^#/.match?(line)
 
-        yield line[2..]
+        yield(line[2..] || '')
       end
     end
 

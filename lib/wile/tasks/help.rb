@@ -9,9 +9,10 @@ module Wile
     HELP_USAGE = ['help: Takes one or more tasks.', Set[]].freeze
 
     def help(options)
-      tasks = Usage.new(options, *HELP_USAGE).args&.map { find it }&.compact
-      tasks ||= %i[help list]
-      raise UsageError, 'help: No tasks matched.' if tasks && tasks.empty?
+      tasks = Usage.new(options, *HELP_USAGE).args&.map do |tsk|
+        find(tsk) || warn("Missing task: #{tsk}".yellow)
+      end&.compact || %i[help list]
+      raise UsageError, 'help: No tasks matched.' if tasks.empty?
 
       display_help(tasks)
     end
