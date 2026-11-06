@@ -51,7 +51,7 @@ Run `wile list` to list all tasks, or `wile help <task>` for details.
 
 - **build**: Build gem package into pkg/.
 - **bump**: Bump project version number.
-- **compare**: Compare project files with template.
+- **compare**: Compare project files with template (see **COMPARE**).
 - **content**: Inspect ruby file structure and methods.
 - **cp**: Copy template files into project.
 - **dependencies**: List ruby dependencies.
@@ -76,6 +76,31 @@ Run `wile list` to list all tasks, or `wile help <task>` for details.
 - **test**: Run test suites (see **TESTING**).
 - **todo**: Display TODO.md or scrape files for TODO comments (see **TODO**).
 - **update**: Update project files.
+
+## COMPARE
+
+Wile compares project files against the living template in `cache/`,
+honoring `.wileignore`:
+
+    $ wile compare                  # Compare all template files
+    $ wile compare README           # Show diff for matching files
+    $ wile compare lib/ test/       # Compare multiple paths
+
+Markers indicate file status:
+
+- `✓` (green): Project file is identical to the template.
+- `Δ` (blue): Project file contains expected customizations (such as
+  `lib/`, `bin/`, `man/`, `README.md`, `Gemfile`, and dotfiles).
+- `✗` (red): Project file drifted from template outside expected changes.
+- `# Missing:` (red): Template files absent from the project.
+
+When invoked with one or more match patterns, `compare` displays unified
+diff lines indented beneath each matching file. Discrepancies are
+informational, so `compare` exits 0 on drift or missing files.
+
+Arguments:
+
+- `<match>...`: Optional patterns filtering files to compare and diff.
 
 ## DICTIONARY
 

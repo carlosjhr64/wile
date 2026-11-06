@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 # ## wile compare ##
+# Compares project files with template.
 # Usage:
 #   wile compare [<match>+] # compares project with template
 module Wile
