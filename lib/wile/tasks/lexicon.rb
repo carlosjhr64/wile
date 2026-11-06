@@ -2,21 +2,20 @@
 
 # ## wile lexicon ##
 # Usage:
-#   wile lexicon [--check] # view changes and update lexicon
+#   wile lexicon [--check] [--yes] # view changes and update lexicon
 module Wile
   # This file is loaded upon a :lexicon task request.
   class Tasks
-    LEXICON_USAGE = ['lexicon: Takes no arguments.', 0, Set['check']].freeze
+    LEXICON_USAGE = ['lexicon: Takes no arguments.',
+                     0, Set['check', 'yes']].freeze
 
     def lexicon(options)
       Utilities.verify_project_root!
       Usage.new(options, *LEXICON_USAGE)
-      if lexicon_ok?(options)
-        puts 'OK'.green
-      else
-        puts 'Fail'.red
-        exit(EX_FAIL)
-      end
+      return puts 'OK'.green if lexicon_ok?(options)
+
+      puts 'Fail'.red
+      exit(EX_FAIL)
     end
 
     private
@@ -25,12 +24,14 @@ module Wile
     def lexicon_ok?(options)
       return true if system 'test/tc_lexicon --verbose=silent'
 
-      diff = String.disable_colorization ? 'diff' : 'diff --color'
-      system "#{diff} .lexicon tmp/lexicon"
+      diff = String.disable_colorization ? %w[diff] : %w[diff --color]
+      system(*diff, '.lexicon', 'tmp/lexicon')
       return false if options.check?
 
-      print 'Update lexicon(Yes/No)?: '.yellow
-      return false unless $stdin.gets&.match?(/^[Yy]/)
+      unless options.yes?
+        print 'Update lexicon (Yes/No)?: '.yellow
+        return false unless $stdin.gets&.match?(/^[Yy]/)
+      end
 
       FileUtils.cp 'tmp/lexicon', '.lexicon'
       true
