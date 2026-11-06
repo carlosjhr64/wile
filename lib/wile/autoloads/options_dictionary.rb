@@ -203,7 +203,7 @@ module Wile
       'only' => {
         desc: 'Select only specified items',
         type: 'CSV',
-        commands: %w[rsync review]
+        commands: %w[rsync]
       },
       'output' => {
         desc: 'Write output to file',
@@ -273,7 +273,7 @@ module Wile
       'strict' => {
         desc: 'Enable strict mode',
         type: nil,
-        commands: %w[perl review]
+        commands: %w[perl]
       },
       'sync' => {
         desc: 'Synchronize data to storage before exiting',
