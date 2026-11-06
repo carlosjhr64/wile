@@ -18,6 +18,7 @@ BootstrapRubyRbenv
 BootstrapSystemCommands
 CASES
 CASGN
+CASGN_KLS
 CATEGORY
 CLASSY
 CLEAN_DIRS

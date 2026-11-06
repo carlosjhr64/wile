@@ -22,11 +22,13 @@ module Wile
 
     SCOPING = /^\s*s\(:const,$/
 
+    CASGN_KLS = /^\s*s\(:(?<key>\w+)(?:,\s*nil,\s*:(?<kls>\w+))?/
+
     FULL_SCOPE = /^\s*s\(:const,\snil,\s
                    (?<scp>:[A-Z]\w*\)(?<r>,\s:[A-Z]\w*\))*),
                    \s:(?<mth>[a-z]\w*[!=?]?)/x
 
-    private_constant :CONTENT_TYPE, :PAD, :SCOPING, :FULL_SCOPE
+    private_constant :CONTENT_TYPE, :PAD, :SCOPING, :CASGN_KLS, :FULL_SCOPE
 
     def self.generate(filename, &) = new.generate(filename, &)
 
@@ -69,14 +71,13 @@ module Wile
       [@clevel, @scope].each(&:pop) while level <= @clevel.last
     end
 
-    # :reek:DuplicateMethodCall lines_shift is shifting lines
-    # :reek:NilCheck
+    # :reek:FeatureEnvy :reek:NilCheck
     def casgn_kls
-      _, key, _, kls = lines_shift.scan(/\w+/)
-      while kls.nil? && %w[send block].include?(key)
-        _, key, _, kls = lines_shift.scan(/\w+/)
+      while (match = CASGN_KLS.match(lines_shift))
+        key = match[:key]
+        kls = match[:kls]
+        return kls || key unless %w[send block].include?(key) && kls.nil?
       end
-      kls || key
     end
 
     def definition_end

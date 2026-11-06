@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# rubocop:disable Style/OneClassPerFile
 # :reek:UncommunicativeModuleName
 module A
   # :reek:IrresponsibleModule :reek:UncommunicativeModuleName
@@ -59,3 +60,4 @@ module OK
 end
 
 OK.ok?
+# rubocop:enable Style/OneClassPerFile
