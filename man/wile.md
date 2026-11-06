@@ -72,7 +72,7 @@ Run `wile list` to list all tasks, or `wile help <task>` for details.
 - **review**: Run code review checklist.
 - **ruby**: List all ruby files in project or git (see **RUBY**).
 - **smell**: Classify method dependencies and smells.
-- **tc**: List custom unit tests.
+- **tc**: List custom unit tests (see **TC**).
 - **test**: Run test suites (see **TESTING**).
 - **todo**: Display TODO.md or scrape files for TODO comments (see **TODO**).
 - **update**: Update project files.
@@ -197,6 +197,31 @@ Arguments and options:
 
 - `<match>...`: Optional patterns filtering file paths.
 - `--git`: Inspect only files tracked by git.
+
+## TC
+
+Wile discovers and lists test cases located in `test/tc_*`:
+
+    $ wile tc                       # List project custom unit tests
+    $ wile tc wile                  # List Wile template quality gates
+    $ wile tc all                   # List project and Wile tests
+    $ wile tc all --raw             # Suppress headers and spaces
+    $ wile tc help                  # Filter project tests matching "help"
+    $ wile tc all rubo              # Filter across all tests
+
+Arguments and options:
+
+- `<scope>`: Optional target category: `project` (default), `wile`
+  (template quality gates), or `all` (both categories).
+- `<match>...`: Optional patterns filtering test file paths.
+- `-r`, `--raw`: Suppress section headings and blank lines in `all` scope
+  for piping to other commands.
+
+When listing `project` tests, domain unit tests corresponding to ranked
+`lib/` files (following the `tc_ut_<module>` convention) are listed first
+in rank order, followed by any remaining custom unit tests. When `all` is
+selected without `--raw`, tests are grouped under `# Project:` and
+`# Wile:` headings.
 
 ## TESTING
 

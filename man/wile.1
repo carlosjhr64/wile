@@ -132,7 +132,7 @@ for details.
 .IP \[bu] 2
 \f[B]smell\f[R]: Classify method dependencies and smells.
 .IP \[bu] 2
-\f[B]tc\f[R]: List custom unit tests.
+\f[B]tc\f[R]: List custom unit tests (see \f[B]TC\f[R]).
 .IP \[bu] 2
 \f[B]test\f[R]: Run test suites (see \f[B]TESTING\f[R]).
 .IP \[bu] 2
@@ -308,6 +308,38 @@ Arguments and options:
 \f[V]<match>...\f[R]: Optional patterns filtering file paths.
 .IP \[bu] 2
 \f[V]--git\f[R]: Inspect only files tracked by git.
+.SS TC
+.PP
+Wile discovers and lists test cases located in \f[V]test/tc_*\f[R]:
+.IP
+.nf
+\f[C]
+$ wile tc                       # List project custom unit tests
+$ wile tc wile                  # List Wile template quality gates
+$ wile tc all                   # List project and Wile tests
+$ wile tc all --raw             # Suppress headers and spaces
+$ wile tc help                  # Filter project tests matching \[dq]help\[dq]
+$ wile tc all rubo              # Filter across all tests
+\f[R]
+.fi
+.PP
+Arguments and options:
+.IP \[bu] 2
+\f[V]<scope>\f[R]: Optional target category: \f[V]project\f[R]
+(default), \f[V]wile\f[R] (template quality gates), or \f[V]all\f[R]
+(both categories).
+.IP \[bu] 2
+\f[V]<match>...\f[R]: Optional patterns filtering test file paths.
+.IP \[bu] 2
+\f[V]-r\f[R], \f[V]--raw\f[R]: Suppress section headings and blank lines
+in \f[V]all\f[R] scope for piping to other commands.
+.PP
+When listing \f[V]project\f[R] tests, domain unit tests corresponding to
+ranked \f[V]lib/\f[R] files (following the \f[V]tc_ut_<module>\f[R]
+convention) are listed first in rank order, followed by any remaining
+custom unit tests.
+When \f[V]all\f[R] is selected without \f[V]--raw\f[R], tests are
+grouped under \f[V]# Project:\f[R] and \f[V]# Wile:\f[R] headings.
 .SS TESTING
 .PP
 Wile executes project test suites located in \f[V]test/**/tc_*\f[R].

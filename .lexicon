@@ -409,6 +409,10 @@ display_missing
 display_p2c
 display_reused
 display_tasks
+display_tc_all
+display_tc_group
+display_tc_none
+display_tc_raw
 distance
 distance_squared
 div
@@ -457,6 +461,7 @@ exec
 executable
 executables
 exist
+existing
 exit
 exitstatus
 expand_path
@@ -479,6 +484,7 @@ filename
 filenames
 files
 files_file_match
+filter_tc_matching
 find
 find_all_by_name
 first
@@ -600,6 +606,7 @@ kls
 known_constant
 known_constants
 l
+label
 last
 last_match
 latest_version
@@ -609,6 +616,7 @@ level_pops
 lexicon
 lexicon_ok
 lib
+lib_to_tc
 libs
 light_black
 light_blue
@@ -716,6 +724,7 @@ order
 order_do
 order_report
 order_subcommands
+order_tc_custom
 ordered
 os
 os_cmd_version
@@ -880,6 +889,7 @@ scp
 scrape_help
 sections
 seen
+seg
 select
 selected
 selected_info
@@ -894,6 +904,7 @@ shared
 shared_methods
 shift
 show
+show_tc_section
 singleton_class
 size
 size_of
@@ -944,8 +955,10 @@ task
 task_file
 tasks
 tc
+tc_test_groups
 test
 test_files
+tests
 text
 tf
 title_case
@@ -1027,6 +1040,7 @@ warn
 weird_filename
 which
 width
+wile
 wileignore
 word
 write
