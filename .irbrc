@@ -15,7 +15,7 @@ begin
   klass = project.split('_').map { it.capitalize }.join
   version = Object.const_get("#{klass}::VERSION")
   message = "### #{klass}:#{version} Ruby:#{RUBY_VERSION} ###"
-rescue StandardError => e
+rescue StandardError, ScriptError => e
   message = e.message
 end
 
