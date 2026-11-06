@@ -60,7 +60,7 @@ module Wile
       probe, = COMMAND_VERSION[command]
       case probe
       when String
-        `#{probe}`.lines.first.strip.scan(/\d+\.\d+/).first
+        `#{probe}`[/\d+\.\d+/]
       when Symbol
         send(probe, command)
       end

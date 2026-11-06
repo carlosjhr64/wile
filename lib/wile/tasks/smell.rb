@@ -46,7 +46,7 @@ module Wile
     # :reek:UtilityFunction :reek:TooManyStatements
     def name2scope(smell)
       n2s = Hash.new { |hash, name| hash[name] = [] }
-      smell.methods.keys.map do |mth|
+      smell.methods.each_key do |mth|
         name, dot, scope = mth.split(/([.#])/).reverse
         n2s[name] << "#{scope}#{dot}"
       end

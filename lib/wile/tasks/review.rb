@@ -46,7 +46,8 @@ module Wile
 
     # :reek:ControlParameter
     def initialize(options, match: nil, files: nil, file: nil)
-      @files = files || NvimFiles.new.nvim_files.drop(1)
+      nvim_files = NvimFiles.new.nvim_files
+      @files = files || nvim_files.drop(1)
       @files.unshift(file) if file && !@files.include?(file)
       @files.weird_filename!
       @index = target_index(file, match)

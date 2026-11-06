@@ -52,7 +52,8 @@ module Wile
     end
 
     def options_empty?
-      (@options.to_h.keys.grep(String) - %w[task args]).empty?
+      keys = @options.to_h.keys
+      (keys.grep(String) - %w[task args]).empty?
     end
 
     def man

@@ -429,6 +429,7 @@ dup
 e
 each
 each_cons
+each_key
 each_pair
 each_slice
 each_with_index

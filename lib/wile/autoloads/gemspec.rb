@@ -68,10 +68,10 @@ module Wile
       @gemspec << <<-GEMSPEC
   ## DESCRIPTION ##
   s.summary  = <<~SUMMARY
-    #{@readme.summary.lines.join('    ')}
+    #{@readme.summary.gsub("\n", "\n    ")}
   SUMMARY
   s.description = <<~DESCRIPTION
-    #{@readme.description.lines.join('    ')}
+    #{@readme.description.gsub("\n", "\n    ")}
   DESCRIPTION
       GEMSPEC
     end
