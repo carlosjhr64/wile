@@ -1,0 +1,15 @@
+
+# ./features/fixtures/sample_methods.rb
+
+SampleMethods::Worker.build 2
+  .new
+SampleMethods::Worker#initialize 2
+SampleMethods::Worker#run 1
+SampleMethods::Worker#[] 2
+SampleMethods::Worker#valid? 2
+SampleMethods::Worker#reset! 2
+#private
+SampleMethods::Worker#secret 2
+SampleMethods::Uninitialized.spawn 2
+  .new
+SampleMethods::Uninitialized#status 2

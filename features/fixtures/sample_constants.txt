@@ -1,0 +1,14 @@
+
+# ./features/fixtures/sample_constants.rb
+
+SampleConstants::LAMBDA lambda
+SampleConstants::STR str
+SampleConstants::TEXT str
+SampleConstants::RATE float
+SampleConstants::COUNT int
+SampleConstants::MAP hash
+SampleConstants::REGEX regexp
+SampleConstants::LIST array
+SampleConstants::STATUS sym
+SampleConstants::Pair Struct
+SampleConstants::CUSTOM Object

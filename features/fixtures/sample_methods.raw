@@ -1,0 +1,33 @@
+
+# ./features/fixtures/sample_methods.rb
+
+{"SampleMethods::Worker.build" => 2,
+ "SampleMethods::Worker#initialize" => 2,
+ "SampleMethods::Worker#run" => 1,
+ "SampleMethods::Worker#[]" => 2,
+ "SampleMethods::Worker#valid?" => 2,
+ "SampleMethods::Worker#reset!" => 2,
+ "SampleMethods::Worker#secret" => 2,
+ "SampleMethods::Uninitialized.spawn" => 2,
+ "SampleMethods::Uninitialized#status" => 2}
+def SampleMethods::Worker.build
+  .new
+end
+def SampleMethods::Worker#initialize
+end
+def SampleMethods::Worker#run
+end
+def SampleMethods::Worker#[]
+end
+def SampleMethods::Worker#valid?
+end
+def SampleMethods::Worker#reset!
+end
+#private
+def SampleMethods::Worker#secret
+end
+def SampleMethods::Uninitialized.spawn
+  .new
+end
+def SampleMethods::Uninitialized#status
+end

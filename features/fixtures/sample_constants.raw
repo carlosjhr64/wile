@@ -1,0 +1,15 @@
+
+# ./features/fixtures/sample_constants.rb
+
+{}
+casgn SampleConstants::LAMBDA lambda
+casgn SampleConstants::STR str
+casgn SampleConstants::TEXT str
+casgn SampleConstants::RATE float
+casgn SampleConstants::COUNT int
+casgn SampleConstants::MAP hash
+casgn SampleConstants::REGEX regexp
+casgn SampleConstants::LIST array
+casgn SampleConstants::STATUS sym
+casgn SampleConstants::Pair Struct
+casgn SampleConstants::CUSTOM Object

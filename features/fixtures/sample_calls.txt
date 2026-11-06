@@ -1,0 +1,13 @@
+
+# ./features/fixtures/sample_calls.rb
+
+SampleCalls::CONFIG hash
+SampleCalls::PATTERN regexp
+SampleCalls::Caller#perform 7
+  File.exist?
+  #puts
+  #warn
+  CONFIG.fetch
+  PATTERN.match?
+SampleCalls::Caller#validate 2
+  #perform
