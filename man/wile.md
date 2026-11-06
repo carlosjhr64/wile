@@ -73,7 +73,7 @@ Run `wile list` to list all tasks, or `wile help <task>` for details.
 - **smell**: Classify method dependencies and smells.
 - **tc**: List custom unit tests.
 - **test**: Run test suites (see **TESTING**).
-- **todo**: Scrape files for TODO comments.
+- **todo**: Display TODO.md or scrape files for TODO comments (see **TODO**).
 - **update**: Update project files.
 
 ## DICTIONARY
@@ -147,6 +147,24 @@ Arguments and options:
 - `<methodmatch>`: Optional pattern filtering test method names.
 - `-l`, `--list`: Print matching test files without running them.
 - `-q`, `--quiet`: Run with fault-only progress style.
+
+## TODO
+
+Wile displays project tasks from `TODO.md` or scrapes `# TODO` comments
+from Ruby source files:
+
+    $ wile todo                     # Display TODO.md items
+    $ wile todo order               # Scrape TODO comments in matching files
+    $ wile todo .                   # Scrape TODO comments across all files
+
+When invoked without arguments, Wile displays `TODO.md` formatted with
+`colora`. When invoked with one or more match patterns, Wile inspects
+project Ruby files matching the patterns and prints their `# TODO` comments.
+
+Arguments:
+
+- `<match>...`: Optional patterns filtering Ruby file paths. When omitted,
+  `TODO.md` is displayed.
 
 ## OPTIONS DICTIONARY
 

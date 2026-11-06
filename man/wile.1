@@ -130,7 +130,8 @@ for details.
 .IP \[bu] 2
 \f[B]test\f[R]: Run test suites (see \f[B]TESTING\f[R]).
 .IP \[bu] 2
-\f[B]todo\f[R]: Scrape files for TODO comments.
+\f[B]todo\f[R]: Display TODO.md or scrape files for TODO comments (see
+\f[B]TODO\f[R]).
 .IP \[bu] 2
 \f[B]update\f[R]: Update project files.
 .SH DICTIONARY
@@ -239,6 +240,28 @@ Arguments and options:
 running them.
 .IP \[bu] 2
 \f[V]-q\f[R], \f[V]--quiet\f[R]: Run with fault-only progress style.
+.SH TODO
+.PP
+Wile displays project tasks from \f[V]TODO.md\f[R] or scrapes
+\f[V]# TODO\f[R] comments from Ruby source files:
+.IP
+.nf
+\f[C]
+$ wile todo                     # Display TODO.md items
+$ wile todo order               # Scrape TODO comments in matching files
+$ wile todo .                   # Scrape TODO comments across all files
+\f[R]
+.fi
+.PP
+When invoked without arguments, Wile displays \f[V]TODO.md\f[R]
+formatted with \f[V]colora\f[R].
+When invoked with one or more match patterns, Wile inspects project Ruby
+files matching the patterns and prints their \f[V]# TODO\f[R] comments.
+.PP
+Arguments:
+.IP \[bu] 2
+\f[V]<match>...\f[R]: Optional patterns filtering Ruby file paths.
+When omitted, \f[V]TODO.md\f[R] is displayed.
 .SH OPTIONS DICTIONARY
 .PP
 Wile maintains a canonical dictionary of CLI options and conventions.
