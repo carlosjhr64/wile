@@ -65,6 +65,7 @@ pattern validation, an error is reported.
 - `-r`, `--raw`: Raw / unformatted output.
 - `-s`, `--strict`: Enable strict mode.
 - `-t`, `--trace`: Trace execution.
+- `-y`, `--yes`: Answer yes to all prompts.
 
 ## TASKS
 
