@@ -61,7 +61,7 @@ Run `wile list` to list all tasks, or `wile help <task>` for details.
 - **info**: Display project metadata and configuration.
 - **install**: Build and install gem locally.
 - **lexicon**: View and update vocabulary whitelist (see **LEXICON**).
-- **list**: List all tasks or filter by pattern.
+- **list**: List all tasks or filter by pattern (see **LIST**).
 - **mkdir**: Create project directory from template.
 - **note**: Scrape ruby files for NOTE comments.
 - **nvim**: Open project files in Neovim.
@@ -105,6 +105,30 @@ Options:
 
 - `-c`, `--check`: Run in check-only mode without prompting.
 - `-y`, `--yes`: Answer yes to confirmation prompt (auto-accept updates).
+
+## LIST
+
+Wile lists available built-in and custom tasks with optional pattern
+filtering and multiple output formats:
+
+    $ wile list                     # List all tasks with usage syntax
+    $ wile list dict lex            # Filter tasks matching patterns
+    $ wile list --format=name       # Print task names only
+    $ wile list --format=dictionary # Print dictionary-style task summaries
+
+Arguments and options:
+
+- `<match>...`: Optional patterns filtering task names.
+- `--format=WORD`: Output format (`USAGE`, `DICTIONARY`, `NAME`, or `CODE`).
+  Defaults to `USAGE`.
+
+Formats:
+
+- **USAGE**: Formatted task usage header with brief description comment
+  (default).
+- **DICTIONARY**: Concise list in `+ <task>: <description>` format.
+- **NAME**: Bare task names only, suitable for shell completion and scripts.
+- **CODE**: Unformatted usage comment lines extracted from task source files.
 
 ## TESTING
 

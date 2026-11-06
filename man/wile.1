@@ -105,7 +105,8 @@ for details.
 \f[B]lexicon\f[R]: View and update vocabulary whitelist (see
 \f[B]LEXICON\f[R]).
 .IP \[bu] 2
-\f[B]list\f[R]: List all tasks or filter by pattern.
+\f[B]list\f[R]: List all tasks or filter by pattern (see
+\f[B]LIST\f[R]).
 .IP \[bu] 2
 \f[B]mkdir\f[R]: Create project directory from template.
 .IP \[bu] 2
@@ -177,6 +178,41 @@ prompting.
 .IP \[bu] 2
 \f[V]-y\f[R], \f[V]--yes\f[R]: Answer yes to confirmation prompt
 (auto-accept updates).
+.SH LIST
+.PP
+Wile lists available built-in and custom tasks with optional pattern
+filtering and multiple output formats:
+.IP
+.nf
+\f[C]
+$ wile list                     # List all tasks with usage syntax
+$ wile list dict lex            # Filter tasks matching patterns
+$ wile list --format=name       # Print task names only
+$ wile list --format=dictionary # Print dictionary-style task summaries
+\f[R]
+.fi
+.PP
+Arguments and options:
+.IP \[bu] 2
+\f[V]<match>...\f[R]: Optional patterns filtering task names.
+.IP \[bu] 2
+\f[V]--format=WORD\f[R]: Output format (\f[V]USAGE\f[R],
+\f[V]DICTIONARY\f[R], \f[V]NAME\f[R], or \f[V]CODE\f[R]).
+Defaults to \f[V]USAGE\f[R].
+.PP
+Formats:
+.IP \[bu] 2
+\f[B]USAGE\f[R]: Formatted task usage header with brief description
+comment (default).
+.IP \[bu] 2
+\f[B]DICTIONARY\f[R]: Concise list in \f[V]+ <task>: <description>\f[R]
+format.
+.IP \[bu] 2
+\f[B]NAME\f[R]: Bare task names only, suitable for shell completion and
+scripts.
+.IP \[bu] 2
+\f[B]CODE\f[R]: Unformatted usage comment lines extracted from task
+source files.
 .SH TESTING
 .PP
 Wile executes project test suites located in \f[V]test/**/tc_*\f[R].
