@@ -65,7 +65,7 @@ Run `wile list` to list all tasks, or `wile help <task>` for details.
 - **list**: List all tasks or filter by pattern (see **LIST**).
 - **mkdir**: Create project directory from template.
 - **note**: Scrape ruby files for NOTE comments (see **NOTE**).
-- **nvim**: Open project files in Neovim.
+- **nvim**: Open project files in Neovim (see **NVIM**).
 - **order**: Suggest method ordering in ruby files.
 - **publish**: Publish new version to RubyGems.
 - **requirements**: Verify system commands and versions.
@@ -182,6 +182,22 @@ Arguments:
 
 - `<match>...`: Optional patterns filtering Ruby file paths. When omitted,
   all project Ruby files are inspected.
+
+## NVIM
+
+Wile opens the project's standard files in Neovim, ordered by internal
+dependency rank (`README.md`, executable `bin/*` scripts, then `lib/**/*.rb`
+in load order):
+
+    $ wile nvim                     # Open all standard files in Neovim
+    $ wile nvim tasks               # Open files matching "tasks"
+    $ wile nvim --list              # List matching files without opening
+    $ wile nvim tasks --list        # List files matching "tasks"
+
+Arguments and options:
+
+- `<match>...`: Optional patterns filtering file paths.
+- `-l`, `--list`: Print file paths to stdout instead of launching Neovim.
 
 ## RUBY
 

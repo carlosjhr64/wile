@@ -117,7 +117,7 @@ for details.
 \f[B]note\f[R]: Scrape ruby files for NOTE comments (see
 \f[B]NOTE\f[R]).
 .IP \[bu] 2
-\f[B]nvim\f[R]: Open project files in Neovim.
+\f[B]nvim\f[R]: Open project files in Neovim (see \f[B]NVIM\f[R]).
 .IP \[bu] 2
 \f[B]order\f[R]: Suggest method ordering in ruby files.
 .IP \[bu] 2
@@ -289,6 +289,27 @@ Arguments:
 .IP \[bu] 2
 \f[V]<match>...\f[R]: Optional patterns filtering Ruby file paths.
 When omitted, all project Ruby files are inspected.
+.SS NVIM
+.PP
+Wile opens the project\[cq]s standard files in Neovim, ordered by
+internal dependency rank (\f[V]README.md\f[R], executable
+\f[V]bin/*\f[R] scripts, then \f[V]lib/**/*.rb\f[R] in load order):
+.IP
+.nf
+\f[C]
+$ wile nvim                     # Open all standard files in Neovim
+$ wile nvim tasks               # Open files matching \[dq]tasks\[dq]
+$ wile nvim --list              # List matching files without opening
+$ wile nvim tasks --list        # List files matching \[dq]tasks\[dq]
+\f[R]
+.fi
+.PP
+Arguments and options:
+.IP \[bu] 2
+\f[V]<match>...\f[R]: Optional patterns filtering file paths.
+.IP \[bu] 2
+\f[V]-l\f[R], \f[V]--list\f[R]: Print file paths to stdout instead of
+launching Neovim.
 .SS RUBY
 .PP
 Wile lists all Ruby files in the project, including \f[V].rb\f[R] source

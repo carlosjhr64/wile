@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
 # ## wile nvim ##
-# nvim with the standard(matching) files:
-# README.md, bin/*, lib/**.rb
+# Opens project standard files in Neovim.
+# Options:
+#   --list # list files instead of launching Neovim
 # Usage:
 #   wile nvim [<match>+] [--list] # spawn nvim with(matching) files
 module Wile
@@ -18,6 +19,12 @@ module Wile
       files = NvimFiles.new.nvim_files
       files.select! { |fn| match.any? { fn.match? it } } if match
       return puts files if options.list?
+
+      if files.empty?
+        raise "No files matched: #{match.join(', ')}" if match
+
+        raise 'No files found.'
+      end
 
       exec('nvim', *files)
     end
