@@ -83,6 +83,7 @@ Options:
   -r --raw	Raw / unformatted output
   -s --strict	Enable strict mode
   -t --trace	Trace execution
+  -y --yes	Assume yes to confirmation prompts
 
 Reserved flags for custom tasks:
 
@@ -131,7 +132,6 @@ Reserved flags for custom tasks:
   --target=FILE	Target file, directory, or architecture
   --timeout=DECIMAL	Maximum time to wait before timing out
   --user=USER	Run as or filter by user
-  -y --yes	Assume yes to confirmation prompts
 
 Types:
   WORD      /\A[\w-]+\z/

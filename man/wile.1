@@ -43,35 +43,6 @@ release.
 \f[V]wile help [<task>]\f[R]: Show help for task(s).
 .IP \[bu] 2
 \f[V]wile test [<file> [<method>]]\f[R]: Run project test suites.
-.SH OPTIONS DICTIONARY
-.PP
-Wile maintains a canonical dictionary of CLI options and conventions.
-When invoked with one or more options and no task, Wile queries this
-dictionary:
-.IP
-.nf
-\f[C]
-$ wile --format=json
---format=json
-  Description: Output format
-  Pattern:     WORD (/\[rs]A[\[rs]w-]+\[rs]z/)
-  Commands:    rubocop, reek, cucumber
-\f[R]
-.fi
-.PP
-For each flag, the dictionary reports:
-.IP \[bu] 2
-\f[B]Description\f[R]: The standard purpose of the flag.
-.IP \[bu] 2
-\f[B]Pattern\f[R]: The type name and regular expression (for flags
-taking a value).
-.IP \[bu] 2
-\f[B]Commands\f[R]: Established Linux tools that use the flag.
-.PP
-Both active task flags and reserved flags for custom tasks can be
-inspected.
-If an unrecognized flag is passed or an option value fails pattern
-validation, an error is reported.
 .SH GLOBAL OPTIONS
 .IP \[bu] 2
 \f[V]-h\f[R], \f[V]--help\f[R]: Show help summary.
@@ -118,7 +89,8 @@ for details.
 .IP \[bu] 2
 \f[B]dependencies\f[R]: List ruby dependencies.
 .IP \[bu] 2
-\f[B]dictionary\f[R]: Manage spelling dictionary.
+\f[B]dictionary\f[R]: Manage spelling dictionary (see
+\f[B]DICTIONARY\f[R]).
 .IP \[bu] 2
 \f[B]gemcheck\f[R]: Check for missing gems across rbenv Rubies.
 .IP \[bu] 2
@@ -130,7 +102,8 @@ for details.
 .IP \[bu] 2
 \f[B]install\f[R]: Build and install gem locally.
 .IP \[bu] 2
-\f[B]lexicon\f[R]: View and update vocabulary whitelist.
+\f[B]lexicon\f[R]: View and update vocabulary whitelist (see
+\f[B]LEXICON\f[R]).
 .IP \[bu] 2
 \f[B]list\f[R]: List all tasks or filter by pattern.
 .IP \[bu] 2
@@ -159,6 +132,51 @@ for details.
 \f[B]todo\f[R]: Scrape files for TODO comments.
 .IP \[bu] 2
 \f[B]update\f[R]: Update project files.
+.SH DICTIONARY
+.PP
+Wile provides trigram-based spell checking across \f[V]README.md\f[R],
+\f[V]bin/*\f[R], and \f[V]lib/**/*.rb\f[R] via
+\f[V]test/tc_dictionary\f[R].
+Words not recognized by the trigram model are compared against the
+\f[V].dictionary\f[R] whitelist:
+.IP
+.nf
+\f[C]
+$ wile dictionary               # Check spelling and prompt to update
+$ wile dictionary --check       # Check only; exit 1 on unrecognized words
+$ wile dictionary --yes         # Auto-accept new words into .dictionary
+\f[R]
+.fi
+.PP
+Options:
+.IP \[bu] 2
+\f[V]-c\f[R], \f[V]--check\f[R]: Run in check-only mode without
+prompting.
+.IP \[bu] 2
+\f[V]-y\f[R], \f[V]--yes\f[R]: Answer yes to confirmation prompt
+(auto-accept updates).
+.SH LEXICON
+.PP
+Wile enforces vocabulary control across \f[V]lib/**/*.rb\f[R] using AST
+parsing in \f[V]test/tc_lexicon\f[R].
+Every method name, identifier, and symbol is tracked in
+\f[V].lexicon\f[R] to prevent unintended API drift and subtle typos:
+.IP
+.nf
+\f[C]
+$ wile lexicon                  # Inspect vocabulary drift and prompt
+$ wile lexicon --check          # Check only; exit 1 on new vocabulary
+$ wile lexicon --yes            # Auto-accept new vocabulary into .lexicon
+\f[R]
+.fi
+.PP
+Options:
+.IP \[bu] 2
+\f[V]-c\f[R], \f[V]--check\f[R]: Run in check-only mode without
+prompting.
+.IP \[bu] 2
+\f[V]-y\f[R], \f[V]--yes\f[R]: Answer yes to confirmation prompt
+(auto-accept updates).
 .SH TESTING
 .PP
 Wile executes project test suites located in \f[V]test/**/tc_*\f[R].
@@ -185,6 +203,35 @@ Arguments and options:
 running them.
 .IP \[bu] 2
 \f[V]-q\f[R], \f[V]--quiet\f[R]: Run with fault-only progress style.
+.SH OPTIONS DICTIONARY
+.PP
+Wile maintains a canonical dictionary of CLI options and conventions.
+When invoked with one or more options and no task, Wile queries this
+dictionary:
+.IP
+.nf
+\f[C]
+$ wile --format=json
+--format=json
+  Description: Output format
+  Pattern:     WORD (/\[rs]A[\[rs]w-]+\[rs]z/)
+  Commands:    rubocop, reek, cucumber
+\f[R]
+.fi
+.PP
+For each flag, the dictionary reports:
+.IP \[bu] 2
+\f[B]Description\f[R]: The standard purpose of the flag.
+.IP \[bu] 2
+\f[B]Pattern\f[R]: The type name and regular expression (for flags
+taking a value).
+.IP \[bu] 2
+\f[B]Commands\f[R]: Established Linux tools that use the flag.
+.PP
+Both active task flags and reserved flags for custom tasks can be
+inspected.
+If an unrecognized flag is passed or an option value fails pattern
+validation, an error is reported.
 .SH SEE ALSO
 .PP
 \f[V]ruby\f[R](1), \f[V]fish\f[R](1), \f[V]tmux\f[R](1)

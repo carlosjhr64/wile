@@ -27,29 +27,6 @@ testing, and release.
 - `wile help [<task>]`: Show help for task(s).
 - `wile test [<file> [<method>]]`: Run project test suites.
 
-## OPTIONS DICTIONARY
-
-Wile maintains a canonical dictionary of CLI options and conventions.
-When invoked with one or more options and no task, Wile queries this
-dictionary:
-
-    $ wile --format=json
-    --format=json
-      Description: Output format
-      Pattern:     WORD (/\A[\w-]+\z/)
-      Commands:    rubocop, reek, cucumber
-
-For each flag, the dictionary reports:
-
-- **Description**: The standard purpose of the flag.
-- **Pattern**: The type name and regular expression (for flags taking a
-  value).
-- **Commands**: Established Linux tools that use the flag.
-
-Both active task flags and reserved flags for custom tasks can be
-inspected. If an unrecognized flag is passed or an option value fails
-pattern validation, an error is reported.
-
 ## GLOBAL OPTIONS
 
 - `-h`, `--help`: Show help summary.
@@ -77,13 +54,13 @@ Run `wile list` to list all tasks, or `wile help <task>` for details.
 - **content**: Inspect ruby file structure and methods.
 - **cp**: Copy template files into project.
 - **dependencies**: List ruby dependencies.
-- **dictionary**: Manage spelling dictionary.
+- **dictionary**: Manage spelling dictionary (see **DICTIONARY**).
 - **gemcheck**: Check for missing gems across rbenv Rubies.
 - **gemfile**: Generate Gemfile from dependencies.
 - **help**: Show detailed help for tasks.
 - **info**: Display project metadata and configuration.
 - **install**: Build and install gem locally.
-- **lexicon**: View and update vocabulary whitelist.
+- **lexicon**: View and update vocabulary whitelist (see **LEXICON**).
 - **list**: List all tasks or filter by pattern.
 - **mkdir**: Create project directory from template.
 - **note**: Scrape ruby files for NOTE comments.
@@ -98,6 +75,36 @@ Run `wile list` to list all tasks, or `wile help <task>` for details.
 - **test**: Run test suites (see **TESTING**).
 - **todo**: Scrape files for TODO comments.
 - **update**: Update project files.
+
+## DICTIONARY
+
+Wile provides trigram-based spell checking across `README.md`, `bin/*`, and
+`lib/**/*.rb` via `test/tc_dictionary`. Words not recognized by the trigram
+model are compared against the `.dictionary` whitelist:
+
+    $ wile dictionary               # Check spelling and prompt to update
+    $ wile dictionary --check       # Check only; exit 1 on unrecognized words
+    $ wile dictionary --yes         # Auto-accept new words into .dictionary
+
+Options:
+
+- `-c`, `--check`: Run in check-only mode without prompting.
+- `-y`, `--yes`: Answer yes to confirmation prompt (auto-accept updates).
+
+## LEXICON
+
+Wile enforces vocabulary control across `lib/**/*.rb` using AST parsing in
+`test/tc_lexicon`. Every method name, identifier, and symbol is tracked in
+`.lexicon` to prevent unintended API drift and subtle typos:
+
+    $ wile lexicon                  # Inspect vocabulary drift and prompt
+    $ wile lexicon --check          # Check only; exit 1 on new vocabulary
+    $ wile lexicon --yes            # Auto-accept new vocabulary into .lexicon
+
+Options:
+
+- `-c`, `--check`: Run in check-only mode without prompting.
+- `-y`, `--yes`: Answer yes to confirmation prompt (auto-accept updates).
 
 ## TESTING
 
@@ -116,6 +123,29 @@ Arguments and options:
 - `<methodmatch>`: Optional pattern filtering test method names.
 - `-l`, `--list`: Print matching test files without running them.
 - `-q`, `--quiet`: Run with fault-only progress style.
+
+## OPTIONS DICTIONARY
+
+Wile maintains a canonical dictionary of CLI options and conventions.
+When invoked with one or more options and no task, Wile queries this
+dictionary:
+
+    $ wile --format=json
+    --format=json
+      Description: Output format
+      Pattern:     WORD (/\A[\w-]+\z/)
+      Commands:    rubocop, reek, cucumber
+
+For each flag, the dictionary reports:
+
+- **Description**: The standard purpose of the flag.
+- **Pattern**: The type name and regular expression (for flags taking a
+  value).
+- **Commands**: Established Linux tools that use the flag.
+
+Both active task flags and reserved flags for custom tasks can be
+inspected. If an unrecognized flag is passed or an option value fails
+pattern validation, an error is reported.
 
 ## SEE ALSO
 
