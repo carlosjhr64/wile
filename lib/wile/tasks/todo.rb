@@ -4,7 +4,7 @@
 # Puts TODO.md's bullet lines.
 # If match, greps matching ruby files for TODO's.
 # Usage:
-#   wile todo [<match>+] # scrape file's TODO's
+#   wile todo [<match>+] # display TODO.md or scrape TODO comments
 module Wile
   # This file is loaded upon a :todo task request.
   class Tasks
@@ -14,29 +14,26 @@ module Wile
 
     def todo(options)
       Utilities.verify_project_root!
-      if (match = Usage.new(options, *TODO_USAGE).args)
-        do_todo_in_files(match)
-      else
-        do_todo
-      end
+      match = Usage.new(options, *TODO_USAGE).args
+      return do_todo_in_files(match) if match
+
+      do_todo
     end
 
     private
 
     def do_todo
-      system "colora --on='^#\\sTODO' --off='^#' TODO.md"
+      return warn('TODO.md not found.'.yellow) unless File.file?('TODO.md')
+
+      system('colora', '--on=^#\\sTODO', '--off=^#', 'TODO.md')
     end
 
-    # :reek:TooManyStatements
     def do_todo_in_files(match)
       Project.rbfiles.weird_filename!.each do |fn|
         next if match.none? { fn.match? it }
 
-        string = `egrep '#\s+TODO' #{fn.sw}`
-        next if string.empty?
-
-        puts fn.blue
-        puts string
+        lines = File.foreach(fn).grep(/#\s*TODO/)
+        puts fn.blue, lines unless lines.empty?
       end
     end
   end
