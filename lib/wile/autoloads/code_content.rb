@@ -12,7 +12,7 @@ module Wile
     CONTENT_TYPE = {
       yield_method_name: /^\s*s\(:send, nil, :(?<name>\w+[!=?]?|\[\])/,
       invocation: /^\s*s\(:send,$/,
-      method_def: /^(?<pad>\s*)s\(:def, :(?<name>\w+[!=?]?|\[\])/,
+      method_def: /^(?<pad>\s*)s\(:def,\s+:"?(?<name>[^,"\s]+)"?,/,
       module_defs: /^(?<pad>\s*)s\(:defs,/,
       push_scope: /^(?<pad>\s*)s\(:(?<_>module|class),/,
       casgn: /^(?<pad>\s*)s\(:casgn, nil, :(?<name>\w+)/
@@ -120,14 +120,13 @@ module Wile
       @block["def #{@scope[0..@clevel.last].join('::')}#{@dot}#{name}"]
     end
 
-    # :reek:NilCheck
     def module_defs(mdt = nil, level: mdt[:pad].length)
-      slf, name, wut = @lines.shift.scan(/:\w+[!=?]?|:\[\]/)
-      return unless wut.nil? && slf == ':self'
+      pattern = /^\s*s\(:self\),\s+:"?(?<name>[^,"\s]+)"?,/
+      return unless (match = pattern.match(@lines.shift))
 
       @dlevel = level
       @dot = '.'
-      @block["def #{@scope[0..@clevel.last].join('::')}#{@dot}#{name[1..]}"]
+      @block["def #{@scope[0..@clevel.last].join('::')}#{@dot}#{match[:name]}"]
     end
 
     def push_scope(mdt = nil, level: mdt[:pad].length)

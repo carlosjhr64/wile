@@ -753,6 +753,7 @@ pascal_case
 passed
 path
 paths
+pattern
 permutation
 permutations
 pf
@@ -1046,7 +1047,6 @@ wileignore
 word
 write
 write_cons
-wut
 x
 year
 yellow

@@ -86,11 +86,14 @@ module Wile
     end
 
     MODULE_NAME = /^(?<pad>\s*)(?<_>module|class)\s+(?<scope>\w+)/
-    METHOD_NAME = /^(?<pad>\s*)def\s+(?<slf>self\.)?(?<name>\w+[!=?]?|\[\])/
+    METHOD_NAME = %r{^(?<pad>\s*)def\s+(?<slf>self\.)?
+                     (?<name>\[\]=?|<=>|===?|!=|<<|>>|\*\*|[+\-!]@|
+                     [<>]=?|[+\-*/%&|^~]|\w+[!=?]?)}x
     SCOPE_END   = /^(?<pad>\s*)end$/
     CATEGORY    = /^\s*(?<cat>private|public|protected|# category: \w+)$/
     CASGN       = /^(?<pad>\s*)[A-Z]\w*\s*=[^=~<>]/
-    private_constant :MODULE_NAME, :METHOD_NAME, :SCOPE_END, :CATEGORY, :CASGN
+    private_constant :MODULE_NAME, :METHOD_NAME, :SCOPE_END,
+                     :CATEGORY, :CASGN
 
     # :reek:UncommunicativeVariableName
     def msh_populate
