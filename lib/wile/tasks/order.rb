@@ -25,7 +25,7 @@ module Wile
 
     # :reek:TooManyStatements
     def order(options)
-      filename, sort = Usage.new(options, ORDER_USAGE).args
+      filename, sort = Usage.new(options, *ORDER_USAGE).args
       sort = sort&.to_sym || :bcmv
       raise "does not exist: #{filename}" unless File.exist?(filename)
 

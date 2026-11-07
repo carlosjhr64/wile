@@ -132,7 +132,6 @@ OUTPUT_FILE
 Object
 OptionsDictionary
 OrderOptimizer
-OrderSwap
 PAD
 PASCAL_KEY
 PATH_SEPARATOR

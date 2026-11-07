@@ -101,7 +101,6 @@ Gem::Specification.new do |s|
     lib/wile/autoloads/nvim_files.rb
     lib/wile/autoloads/options_dictionary.rb
     lib/wile/autoloads/order_optimizer.rb
-    lib/wile/autoloads/order_swap.rb
     lib/wile/autoloads/project.rb
     lib/wile/autoloads/readme.rb
     lib/wile/autoloads/responds.rb
