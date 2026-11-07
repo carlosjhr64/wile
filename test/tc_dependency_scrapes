@@ -57,15 +57,6 @@ class TestDependencyScrapes < Test::Unit::TestCase
     files
   end
 
-  def bang_ruby?(filename)
-    return false if /\.\w*$/.match?(filename) ||
-                    File.directory?(filename) ||
-                    File.empty?(filename) ||
-                    !File.executable?(filename)
-
-    /^#!.*\bruby$/.match?(File.read(filename, 80).lines[0].rstrip)
-  end
-
   def check_file(filename)
     File.readlines(filename).filter_map.with_index(1) do |line, lineno|
       check_line(filename, lineno, line)

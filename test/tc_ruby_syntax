@@ -16,7 +16,7 @@ class TestRubySyntax < Test::Unit::TestCase
 
   def ruby_files
     `git ls-files`.lines.map(&:chomp)
-                  .select { /\.rb$/.match?(it) || _bang_ruby?(it) }
+                  .select { /\.rb$/.match?(it) || bang_ruby?(it) }
   end
 
   def check_syntax(filename)
@@ -27,14 +27,5 @@ class TestRubySyntax < Test::Unit::TestCase
       flunk "# SYNTAX: #{filename}\n#{err}".red
     end
     assert res
-  end
-
-  def _bang_ruby?(filename)
-    return false if /\.\w*$/.match?(filename) ||
-                    File.directory?(filename) ||
-                    File.empty?(filename) ||
-                    !File.executable?(filename)
-
-    /^#!.*\bruby$/.match?(File.read(filename, 80).lines[0].rstrip)
   end
 end

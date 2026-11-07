@@ -179,3 +179,24 @@ module TestModule
     system('rubocop', file)
   end
 end
+
+# :reek:IrresponsibleModule
+module Test
+  # :reek:IrresponsibleModule
+  module Unit
+    # Shared test case helpers for unit tests.
+    # :reek:IrresponsibleModule
+    class TestCase
+      # :reek:UtilityFunction
+      def bang_ruby?(filename)
+        return false if /\.\w*$/.match?(filename) ||
+                        File.directory?(filename) ||
+                        File.empty?(filename) ||
+                        !File.executable?(filename)
+
+        /^#!.*\bruby\b/.match?(File.read(filename, 80).lines[0].rstrip)
+      end
+      alias _bang_ruby? bang_ruby?
+    end
+  end
+end
