@@ -37,6 +37,21 @@ Then(/(?:Then )?stdout is ("[^"]*")/) do |string|
   end
 end
 
+# Then stdout is fixture '<filename>'
+Then(/(?:Then )?stdout is fixture ['"]([^'"]*)['"]/) do |filename|
+  path = File.file?(filename) ? filename : "features/fixtures/#{filename}"
+  raise "Fixture not found: #{filename}" unless File.file?(path)
+
+  expected = File.read(path).chomp
+  unless @stdout == expected
+    FileUtils.mkdir_p('tmp')
+    tmp_path = File.join('tmp', File.basename(filename))
+    File.write(tmp_path, "#{@stdout}\n")
+    diff = IO.popen(['diff', '-u', '-d', path, tmp_path], &:read)
+    raise "stdout differs from fixture '#{filename}':\n#{diff}"
+  end
+end
+
 # Then stderr is "<string>"
 Then(/(?:Then )?stderr is "([^"]*)"/) do |string|
   unless @stderr == string
