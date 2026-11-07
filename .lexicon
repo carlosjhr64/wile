@@ -345,6 +345,7 @@ content_def
 content_display
 content_dump
 content_end
+content_files
 content_heading
 content_initialize
 content_level

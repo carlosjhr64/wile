@@ -37,3 +37,16 @@ Feature: Testing wile content task with sample fixture
     * When we run command
     * Then exit status is "64"
     * Then stderr includes "Takes one or more filenames."
+
+  Scenario: content on directory
+    * Given option "content lib/"
+    * When we run command
+    * Then exit status is "1"
+    * Then stderr includes "File not found: lib/"
+    * Then stderr includes "No files selected."
+
+  Scenario: content with conflicting dump and raw options
+    * Given option "content features/fixtures/sample.rb --dump --raw"
+    * When we run command
+    * Then exit status is "64"
+    * Then stderr includes "Cannot combine --dump and --raw."

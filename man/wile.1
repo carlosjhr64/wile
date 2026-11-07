@@ -86,7 +86,8 @@ for details.
 \f[B]compare\f[R]: Compare project files with template (see
 \f[B]COMPARE\f[R]).
 .IP \[bu] 2
-\f[B]content\f[R]: Inspect ruby file structure and methods.
+\f[B]content\f[R]: Inspect ruby file structure and methods (see
+\f[B]CONTENT\f[R]).
 .IP \[bu] 2
 \f[B]cp\f[R]: Copy template files into project.
 .IP \[bu] 2
@@ -174,6 +175,37 @@ Arguments:
 .IP \[bu] 2
 \f[V]<match>...\f[R]: Optional patterns filtering files to compare and
 diff.
+.SH CONTENT
+.PP
+Wile inspects Ruby source files, displaying class, module, and method
+definitions alongside their line counts and referenced dependency calls:
+.IP
+.nf
+\f[C]
+$ wile content lib/foo.rb       # Inspect method line counts and calls
+$ wile content lib/foo.rb --raw # Display raw line counts and definitions
+$ wile content lib/foo.rb --dump # Dump parse tree as S-expressions
+\f[R]
+.fi
+.PP
+Output details:
+.IP \[bu] 2
+\f[B]Method line counts\f[R]: Beside each method definition, Wile
+displays the number of lines in the method (in green).
+.IP \[bu] 2
+\f[B]Referenced dependencies\f[R]: Indented lines beneath a method show
+calls and constants referenced within its body, color-coded by
+resolution.
+.PP
+Arguments and options:
+.IP \[bu] 2
+\f[V]<filename>+\f[R]: One or more Ruby source files to inspect.
+.IP \[bu] 2
+\f[V]--raw\f[R]: Display plain method line counts and definitions
+without color.
+.IP \[bu] 2
+\f[V]--dump\f[R]: Dump internal S-expression AST structure to stdout
+with source header on stderr.
 .SH DICTIONARY
 .PP
 Wile provides trigram-based spell checking across \f[V]README.md\f[R],

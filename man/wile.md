@@ -52,7 +52,7 @@ Run `wile list` to list all tasks, or `wile help <task>` for details.
 - **build**: Build gem package into pkg/.
 - **bump**: Bump project version number.
 - **compare**: Compare project files with template (see **COMPARE**).
-- **content**: Inspect ruby file structure and methods.
+- **content**: Inspect ruby file structure and methods (see **CONTENT**).
 - **cp**: Copy template files into project.
 - **dependencies**: List ruby dependencies.
 - **dictionary**: Manage spelling dictionary (see **DICTIONARY**).
@@ -101,6 +101,29 @@ informational, so `compare` exits 0 on drift or missing files.
 Arguments:
 
 - `<match>...`: Optional patterns filtering files to compare and diff.
+
+## CONTENT
+
+Wile inspects Ruby source files, displaying class, module, and method
+definitions alongside their line counts and referenced dependency calls:
+
+    $ wile content lib/foo.rb       # Inspect method line counts and calls
+    $ wile content lib/foo.rb --raw # Display raw line counts and definitions
+    $ wile content lib/foo.rb --dump # Dump parse tree as S-expressions
+
+Output details:
+
+- **Method line counts**: Beside each method definition, Wile displays the
+  number of lines in the method (in green).
+- **Referenced dependencies**: Indented lines beneath a method show calls
+  and constants referenced within its body, color-coded by resolution.
+
+Arguments and options:
+
+- `<filename>+`: One or more Ruby source files to inspect.
+- `--raw`: Display plain method line counts and definitions without color.
+- `--dump`: Dump internal S-expression AST structure to stdout with source
+  header on stderr.
 
 ## DICTIONARY
 
