@@ -5,7 +5,13 @@
 module A
   # :reek:IrresponsibleModule :reek:UncommunicativeModuleName
   class B
-    C = ->(arg) { arg + 1 }
+    # :reek:IrresponsibleModule :reek:UncommunicativeModuleName
+    class C
+      def self.call(arg) = arg + 1
+
+      # :reek:UtilityFunction
+      def run = :ok
+    end
 
     def self.mth
       new.mth

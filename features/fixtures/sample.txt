@@ -1,7 +1,8 @@
 
 # ./features/fixtures/sample.rb
 
-A::B::C lambda
+A::B::C.call 1
+A::B::C#run 1
 A::B.mth 2
   .new
 A::B#initialize 2
