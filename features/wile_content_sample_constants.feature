@@ -21,6 +21,6 @@ Feature: Testing wile content task with sample_constants fixture
   Scenario: content sample_constants.rb --dump
     * Given option "content ./features/fixtures/sample_constants.rb --dump"
     * When we run command
-    * Then stdout is fixture 'sample_constants.dump'
+    * Then stdout is fixture 'sample_constants.sexp'
     * Then exit status is "0"
     * Then stderr is "# ./features/fixtures/sample_constants.rb"

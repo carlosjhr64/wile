@@ -21,6 +21,6 @@ Feature: Testing wile content task with sample_methods fixture
   Scenario: content sample.rb --dump
     * Given option "content ./features/fixtures/sample_methods.rb --dump"
     * When we run command
-    * Then stdout is fixture 'sample_methods.dump'
+    * Then stdout is fixture 'sample_methods.sexp'
     * Then exit status is "0"
     * Then stderr is "# ./features/fixtures/sample_methods.rb"

@@ -21,6 +21,6 @@ Feature: Testing wile content task with sample_calls fixture
   Scenario: content sample_calls.rb --dump
     * Given option "content ./features/fixtures/sample_calls.rb --dump"
     * When we run command
-    * Then stdout is fixture 'sample_calls.dump'
+    * Then stdout is fixture 'sample_calls.sexp'
     * Then exit status is "0"
     * Then stderr is "# ./features/fixtures/sample_calls.rb"

@@ -21,6 +21,6 @@ Feature: Testing wile content task with sample_scopes fixture
   Scenario: content sample.rb --dump
     * Given option "content ./features/fixtures/sample_scopes.rb --dump"
     * When we run command
-    * Then stdout is fixture 'sample_scopes.dump'
+    * Then stdout is fixture 'sample_scopes.sexp'
     * Then exit status is "0"
     * Then stderr is "# ./features/fixtures/sample_scopes.rb"

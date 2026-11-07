@@ -21,7 +21,7 @@ Feature: Testing wile content task with sample fixture
   Scenario: content sample.rb --dump
     * Given option "content ./features/fixtures/sample.rb --dump"
     * When we run command
-    * Then stdout is fixture 'sample.dump'
+    * Then stdout is fixture 'sample.sexp'
     * Then exit status is "0"
     * Then stderr is "# ./features/fixtures/sample.rb"
 
