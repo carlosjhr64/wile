@@ -28,8 +28,11 @@ module Wile
       system('colora', '--on=^#\\sTODO', '--off=^#', 'TODO.md')
     end
 
+    # :reek:TooManyStatements
     def do_todo_in_files(match)
-      Project.rbfiles.weird_filename!.each do |fn|
+      files = Project.rbfiles.weird_filename!
+      files = files.reject { it.start_with?('features/fixtures/') } unless match
+      files.each do |fn|
         next if match.none? { fn.match? it }
 
         lines = File.foreach(fn).grep(/#\s*TODO/)
