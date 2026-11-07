@@ -44,6 +44,7 @@ Then(/(?:Then )?stdout is fixture ['"]([^'"]*)['"]/) do |filename|
 
   expected = File.read(path).chomp
   unless @stdout == expected
+    FileUtils.mkdir_p('tmp')
     tmp_path = File.join('tmp', File.basename(filename))
     File.write(tmp_path, "#{@stdout}\n")
     diff = IO.popen(['diff', '-u', '-d', path, tmp_path], &:read)
