@@ -50,9 +50,7 @@ class TestDependencyScrapes < Test::Unit::TestCase
   private
 
   def ruby_files
-    files = `git ls-files`.lines.map(&:chomp)
-                          .reject { it.end_with?('tc_dependency_scrapes') }
-                          .select { /\.rb$/.match?(it) || bang_ruby?(it) }
+    files = super.reject { it.end_with?('tc_dependency_scrapes') }
     files << '.irbrc' if File.file?('.irbrc')
     files
   end

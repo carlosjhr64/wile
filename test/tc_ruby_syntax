@@ -14,11 +14,6 @@ class TestRubySyntax < Test::Unit::TestCase
 
   private
 
-  def ruby_files
-    `git ls-files`.lines.map(&:chomp)
-                  .select { /\.rb$/.match?(it) || bang_ruby?(it) }
-  end
-
   def check_syntax(filename)
     res = system('ruby', '-c', filename, out: File::NULL, err: File::NULL)
     flunk 'ruby command not found!'.red if res.nil?

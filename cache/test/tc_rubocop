@@ -9,10 +9,7 @@ class TestRuboCop < Test::Unit::TestCase
   RUBOCOP = %w[rubocop --format quiet --config .rubocop.yml].freeze
 
   def test_rubocop
-    files = `git ls-files`
-            .lines.map(&:chomp)
-            .reject { it.start_with?('cache/') }
-            .select { /\.rb$/.match?(it) || bang_ruby?(it) }
+    files = ruby_files.reject { it.start_with?('cache/') }
     flunk 'No files found for rubocop scan!'.red if files.empty?
 
     res = system(*RUBOCOP, *files)

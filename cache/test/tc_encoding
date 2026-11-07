@@ -20,10 +20,6 @@ class TestEncoding < Test::Unit::TestCase
                   .reject { binary?(it) }
   end
 
-  def binary?(filename)
-    File.open(filename, 'rb') { |io| io.read(8192)&.include?("\x00") }
-  end
-
   def scan_file(filename, invalid)
     File.foreach(filename, chomp: true).with_index(1) do |line, lno|
       unless line.valid_encoding?

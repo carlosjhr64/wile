@@ -19,11 +19,6 @@ class TestLexicon < Test::Unit::TestCase
 
   private
 
-  def diff_output(file1, file2)
-    cmd = String.disable_colorization ? 'diff' : 'diff --color=always'
-    `#{cmd} #{file1} #{file2}`.strip
-  end
-
   def lexicon_words
     files = FILES.select { File.file?(it) }
     flunk 'No files found for lexicon scan!'.red if files.empty?

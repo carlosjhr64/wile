@@ -23,14 +23,4 @@ class TestLongChains < Test::Unit::TestCase
       puts "#{filename}:#{idx + 1}: #{raw_lines[idx].strip.yellow}"
     end
   end
-
-  def strip_comments(source)
-    clean = source.dup
-    Prism.parse_comments(source).reverse_each do |comment|
-      loc = comment.location
-      blank = loc.slice.gsub(/[^\r\n]/, ' ')
-      clean.bytesplice(loc.start_offset, loc.length, blank)
-    end
-    clean
-  end
 end

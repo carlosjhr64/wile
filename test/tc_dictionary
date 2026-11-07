@@ -28,11 +28,6 @@ class TestDictionary < Test::Unit::TestCase
     !word.chars.each_cons(3).all? { VALID.include? it.join }
   end
 
-  def diff_output(file1, file2)
-    cmd = String.disable_colorization ? 'diff' : 'diff --color=always'
-    `#{cmd} #{file1} #{file2}`.strip
-  end
-
   def words_from_files
     FILES.flat_map do |path|
       next [] unless File.file?(path)

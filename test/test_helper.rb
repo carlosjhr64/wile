@@ -4,12 +4,67 @@ Encoding.default_external = Encoding::UTF_8
 
 require 'test/unit'
 require 'colorize'
+require 'prism'
 # wile: require 'reek'
 # wile: require 'rubocop'
 
 String.disable_colorization = true unless $stdout.tty? &&
                                           ENV['NO_COLOR'].to_s.empty? &&
                                           ENV['TERM'] != 'dumb'
+
+# :reek:IrresponsibleModule
+module Test
+  # :reek:IrresponsibleModule
+  module Unit
+    # Shared test case helpers for unit tests.
+    # :reek:IrresponsibleModule
+    class TestCase
+      # :reek:UtilityFunction
+      def bang_ruby?(filename)
+        return false if /\.\w*$/.match?(filename) ||
+                        File.directory?(filename) ||
+                        File.empty?(filename) ||
+                        !File.executable?(filename)
+
+        /^#!.*\bruby\b/.match?(File.read(filename, 80).lines[0].rstrip)
+      end
+
+      # :reek:UtilityFunction
+      def binary?(filename)
+        File.open(filename, 'rb') { |io| io.read(8192)&.include?("\x00") }
+      end
+
+      # :reek:UtilityFunction
+      def diff_output(source_file, target_file)
+        cmd = String.disable_colorization ? 'diff' : 'diff --color=always'
+        `#{cmd} #{source_file} #{target_file}`.strip
+      end
+
+      # :reek:UtilityFunction
+      def ruby?(filename)
+        /\.rb$/.match?(filename) || bang_ruby?(filename)
+      end
+
+      def ruby_files
+        `git ls-files`.lines.map(&:chomp)
+                      .select { File.file?(it) }
+                      .select { ruby?(it) }
+      end
+
+      # :reek:TooManyStatements
+      # :reek:UtilityFunction
+      def strip_comments(source)
+        clean = source.dup
+        Prism.parse_comments(source).reverse_each do |comment|
+          loc = comment.location
+          blank = loc.slice.gsub(/[^\r\n]/, ' ')
+          clean.bytesplice(loc.start_offset, loc.length, blank)
+        end
+        clean
+      end
+    end
+  end
+end
 
 # Shared helpers for unit tests in Wile projects. Verifies that every
 # method on a target class has a corresponding test method (method-level
@@ -177,26 +232,5 @@ module TestModule
   def rubocop(file)
     puts "Rubocop #{file}".blue
     system('rubocop', file)
-  end
-end
-
-# :reek:IrresponsibleModule
-module Test
-  # :reek:IrresponsibleModule
-  module Unit
-    # Shared test case helpers for unit tests.
-    # :reek:IrresponsibleModule
-    class TestCase
-      # :reek:UtilityFunction
-      def bang_ruby?(filename)
-        return false if /\.\w*$/.match?(filename) ||
-                        File.directory?(filename) ||
-                        File.empty?(filename) ||
-                        !File.executable?(filename)
-
-        /^#!.*\bruby\b/.match?(File.read(filename, 80).lines[0].rstrip)
-      end
-      alias _bang_ruby? bang_ruby?
-    end
   end
 end

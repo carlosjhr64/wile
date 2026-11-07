@@ -22,12 +22,6 @@ class TestComments < Test::Unit::TestCase
 
   private
 
-  def ruby_files
-    `git ls-files`.lines.map(&:chomp)
-                  .select { File.file?(it) }
-                  .select { /\.rb$/.match?(it) || bang_ruby?(it) }
-  end
-
   def check_file(filename)
     source = File.read(filename)
     lines = source.lines
