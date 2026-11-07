@@ -14,18 +14,17 @@
 . ftr VB CB
 . ftr VBI CBI
 .\}
-.TH "" "" "" "" ""
+.TH "WILE" "1" "November 2026" "wile 0.3.261107" "User Commands"
 .hy
-.SH wile
-.SS NAME
+.SH NAME
 .PP
 wile \[en] prescriptive task dispatcher for Ruby gem projects
-.SS SYNOPSIS
+.SH SYNOPSIS
 .PP
 \f[V]wile [<task>] [<args>...] [:<options>...]\f[R]
 .PP
 \f[V]wile <options>...\f[R]
-.SS DESCRIPTION
+.SH DESCRIPTION
 .PP
 \f[B]Wile\f[R] is a prescriptive task dispatcher for Ruby gem projects,
 built around a living project template.
@@ -33,7 +32,7 @@ built around a living project template.
 It scaffolds new projects from the template, keeps existing ones aligned
 with it, and automates workflow steps \[en] gemspec upkeep, testing, and
 release.
-.SS GET STARTED
+.SH GET STARTED
 .IP \[bu] 2
 \f[V]wile\f[R]: Display manual page.
 .IP \[bu] 2
@@ -44,7 +43,7 @@ release.
 \f[V]wile help [<task>]\f[R]: Show help for task(s).
 .IP \[bu] 2
 \f[V]wile test [<file> [<method>]]\f[R]: Run project test suites.
-.SS GLOBAL OPTIONS
+.SH GLOBAL OPTIONS
 .IP \[bu] 2
 \f[V]-h\f[R], \f[V]--help\f[R]: Show help summary.
 .IP \[bu] 2
@@ -75,7 +74,7 @@ release.
 \f[V]-t\f[R], \f[V]--trace\f[R]: Trace execution.
 .IP \[bu] 2
 \f[V]-y\f[R], \f[V]--yes\f[R]: Answer yes to all prompts.
-.SS TASKS
+.SH TASKS
 .PP
 Run \f[V]wile list\f[R] to list all tasks, or \f[V]wile help <task>\f[R]
 for details.
@@ -140,7 +139,7 @@ for details.
 \f[B]TODO\f[R]).
 .IP \[bu] 2
 \f[B]update\f[R]: Update project files.
-.SS COMPARE
+.SH COMPARE
 .PP
 Wile compares project files against the living template in
 \f[V]cache/\f[R], honoring \f[V].wileignore\f[R]:
@@ -175,7 +174,7 @@ Arguments:
 .IP \[bu] 2
 \f[V]<match>...\f[R]: Optional patterns filtering files to compare and
 diff.
-.SS DICTIONARY
+.SH DICTIONARY
 .PP
 Wile provides trigram-based spell checking across \f[V]README.md\f[R],
 \f[V]bin/*\f[R], and \f[V]lib/**/*.rb\f[R] via
@@ -198,7 +197,7 @@ prompting.
 .IP \[bu] 2
 \f[V]-y\f[R], \f[V]--yes\f[R]: Answer yes to confirmation prompt
 (auto-accept updates).
-.SS HELP
+.SH HELP
 .PP
 Wile scrapes task documentation directly from the header comments of
 task source files in \f[V].tasks/*.rb\f[R] and
@@ -216,7 +215,7 @@ Arguments:
 .IP \[bu] 2
 \f[V]<task>...\f[R]: One or more task names or partial names to inspect.
 When omitted, Wile displays help for \f[V]help\f[R] and \f[V]list\f[R].
-.SS LEXICON
+.SH LEXICON
 .PP
 Wile enforces vocabulary control across \f[V]lib/**/*.rb\f[R] using AST
 parsing in \f[V]test/tc_lexicon\f[R].
@@ -238,7 +237,7 @@ prompting.
 .IP \[bu] 2
 \f[V]-y\f[R], \f[V]--yes\f[R]: Answer yes to confirmation prompt
 (auto-accept updates).
-.SS LIST
+.SH LIST
 .PP
 Wile lists available built-in and custom tasks with optional pattern
 filtering and multiple output formats:
@@ -273,7 +272,7 @@ scripts.
 .IP \[bu] 2
 \f[B]CODE\f[R]: Unformatted usage comment lines extracted from task
 source files.
-.SS NOTE
+.SH NOTE
 .PP
 Wile scrapes project Ruby source files and prints every line containing
 a \f[V]# NOTE\f[R] comment:
@@ -289,7 +288,7 @@ Arguments:
 .IP \[bu] 2
 \f[V]<match>...\f[R]: Optional patterns filtering Ruby file paths.
 When omitted, all project Ruby files are inspected.
-.SS NVIM
+.SH NVIM
 .PP
 Wile opens the project\[cq]s standard files in Neovim, ordered by
 internal dependency rank (\f[V]README.md\f[R], executable
@@ -310,7 +309,7 @@ Arguments and options:
 .IP \[bu] 2
 \f[V]-l\f[R], \f[V]--list\f[R]: Print file paths to stdout instead of
 launching Neovim.
-.SS RUBY
+.SH RUBY
 .PP
 Wile lists all Ruby files in the project, including \f[V].rb\f[R] source
 files and executable scripts with a Ruby shebang:
@@ -329,7 +328,7 @@ Arguments and options:
 \f[V]<match>...\f[R]: Optional patterns filtering file paths.
 .IP \[bu] 2
 \f[V]--git\f[R]: Inspect only files tracked by git.
-.SS TC
+.SH TC
 .PP
 Wile discovers and lists test cases located in \f[V]test/tc_*\f[R]:
 .IP
@@ -361,7 +360,7 @@ convention) are listed first in rank order, followed by any remaining
 custom unit tests.
 When \f[V]all\f[R] is selected without \f[V]--raw\f[R], tests are
 grouped under \f[V]# Project:\f[R] and \f[V]# Wile:\f[R] headings.
-.SS TESTING
+.SH TESTING
 .PP
 Wile executes project test suites located in \f[V]test/**/tc_*\f[R].
 The \f[V]test\f[R] task supports targeted filtering by test file and
@@ -387,7 +386,7 @@ Arguments and options:
 running them.
 .IP \[bu] 2
 \f[V]-q\f[R], \f[V]--quiet\f[R]: Run with fault-only progress style.
-.SS TODO
+.SH TODO
 .PP
 Wile displays project tasks from \f[V]TODO.md\f[R] or scrapes
 \f[V]# TODO\f[R] comments from Ruby source files:
@@ -409,7 +408,7 @@ Arguments:
 .IP \[bu] 2
 \f[V]<match>...\f[R]: Optional patterns filtering Ruby file paths.
 When omitted, \f[V]TODO.md\f[R] is displayed.
-.SS OPTIONS DICTIONARY
+.SH OPTIONS DICTIONARY
 .PP
 Wile maintains a canonical dictionary of CLI options and conventions.
 When invoked with one or more options and no task, Wile queries this
@@ -438,6 +437,6 @@ Both active task flags and reserved flags for custom tasks can be
 inspected.
 If an unrecognized flag is passed or an option value fails pattern
 validation, an error is reported.
-.SS SEE ALSO
+.SH SEE ALSO
 .PP
 \f[V]ruby\f[R](1), \f[V]fish\f[R](1), \f[V]tmux\f[R](1)

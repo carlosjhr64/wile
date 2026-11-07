@@ -184,7 +184,7 @@ $ wile list --format=dictionary #>>
 + review: runs review
 + ruby: lists all ruby files
 + smell: classify methods in your code
-+ tc: lists custom unit tests in project
++ tc: lists unit tests
 + test: runs tests
 + todo: display TODO.md or scrape TODO comments
 + update: update project files
