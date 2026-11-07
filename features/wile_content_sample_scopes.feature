@@ -4,15 +4,23 @@ Feature: Testing wile content task with sample_scopes fixture
   Background:
     * Given command "./bin/wile"
 
-  Scenario: content scopes, top-level definitions, and singleton class
-    * Given option "content features/fixtures/sample_scopes.rb -r"
+  Scenario: content sample_scopes.rb
+    * Given option "content ./features/fixtures/sample_scopes.rb"
     * When we run command
     * Then exit status is "0"
     * Then stderr is ""
-    * Then stdout includes "def #toplevel_work"
-    * Then stdout includes "casgn SampleScopes::SCOPED_LIMIT int"
-    * Then stdout includes "def SampleScopes::CompactNested#perform"
-    * Then stdout includes "def SampleScopes::SingletonService.activate"
-    * Then stdout includes "def #toplevel_call"
-    * Then stdout includes "File.exist?"
-    * Then stdout includes "end"
+    * Then stdout is fixture 'sample_scopes.txt'
+
+  Scenario: content sample.rb --raw
+    * Given option "content ./features/fixtures/sample_scopes.rb --raw"
+    * When we run command
+    * Then exit status is "0"
+    * Then stderr is ""
+    * Then stdout is fixture 'sample_scopes.raw'
+
+  Scenario: content sample.rb --dump
+    * Given option "content ./features/fixtures/sample_scopes.rb --dump"
+    * When we run command
+    * Then exit status is "0"
+    * Then stderr is "# ./features/fixtures/sample_scopes.rb"
+    * Then stdout is fixture 'sample_scopes.dump'

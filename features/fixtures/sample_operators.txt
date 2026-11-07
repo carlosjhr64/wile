@@ -1,0 +1,30 @@
+
+# ./features/fixtures/sample_operators.rb
+
+SampleOperators::Calculator#== 1
+SampleOperators::Calculator#!= 1
+SampleOperators::Calculator#<=> 1
+SampleOperators::Calculator#< 1
+SampleOperators::Calculator#<= 1
+SampleOperators::Calculator#> 1
+SampleOperators::Calculator#>= 1
+SampleOperators::Calculator#=== 1
+SampleOperators::Calculator#+ 1
+SampleOperators::Calculator#- 1
+SampleOperators::Calculator#* 1
+SampleOperators::Calculator#/ 1
+SampleOperators::Calculator#% 1
+SampleOperators::Calculator#** 1
+SampleOperators::Calculator#<< 1
+SampleOperators::Calculator#>> 1
+SampleOperators::Calculator#& 1
+SampleOperators::Calculator#| 1
+SampleOperators::Calculator#^ 1
+SampleOperators::Calculator#~ 1
+SampleOperators::Calculator#+@ 1
+SampleOperators::Calculator#-@ 1
+SampleOperators::Calculator#!@ 1
+SampleOperators::Calculator#[] 1
+SampleOperators::Calculator#[]= 2
+SampleOperators::Calculator.== 1
+SampleOperators::Calculator.<< 1

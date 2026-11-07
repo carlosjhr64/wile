@@ -1,0 +1,20 @@
+
+# ./features/fixtures/sample_scopes.rb
+
+{"#toplevel_work" => 2,
+ "SampleScopes::Base#report" => 2,
+ "SampleScopes::CompactNested#perform" => 2,
+ "SampleScopes::SingletonService.activate" => 2,
+ "#toplevel_call" => 3}
+def #toplevel_work
+end
+def SampleScopes::Base#report
+end
+casgn SampleScopes::SCOPED_LIMIT int
+def SampleScopes::CompactNested#perform
+end
+def SampleScopes::SingletonService.activate
+end
+def #toplevel_call
+  File.exist?
+end
