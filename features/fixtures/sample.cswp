@@ -1,0 +1,10 @@
+A::B#mth	↑4	A::B::C.call ↓3
+A::B#initialize	↑2	A::B::C#run ↓5
+A::B.mth
+A::B::C.call	↓3	A::B#initialize ↑2
+A::B#mth?	↑2	A::B#mth ↑4
+A::B#mth!
+A::B::C#run	↓5	A::B#mth? ↑2
+X::Y.abc
+X::Z#abc
+OK.ok?
