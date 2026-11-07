@@ -4,7 +4,6 @@
 module Wile
   # OrderOptimizer class provides a way to optimize the order of elements
   # :reek:DataClump :reek:DuplicateMethodCall :reek:RepeatedConditional
-  # :reek:TooManyInstanceVariables
   # rubocop:disable-next Metrics/ClassLength
   class OrderOptimizer
     SORTS = %i[bcmv nswp cswp bnswp bcswp bprm].freeze
@@ -16,7 +15,6 @@ module Wile
       @sort      = sort
       @valuation = valuation
       @value     = @valuation.call(@order)
-      @improved  = nil
     end
 
     # :reek:DuplicateMethodCall Time.now are different times!
@@ -30,58 +28,113 @@ module Wile
       warn "# End:   #{rj[@value]}\tTime: #{elapsed}".gray
     end
 
-    def to_a
-      @order
-    end
+    def to_a = @order
 
     private
 
     # rubocop:disable Style/ParallelAssignment
 
+    # category: sorts
+
     # Best combination move
     # :reek:TooManyStatements :reek:UncommunicativeVariableName
     def bcmv
-      min, a, @improved = @value, (0...@order.size).to_a, true
-      while @improved
-        @improved, best = false, nil
-        a.combination(2).each do |i, j|
+      min, a, improved = @value, (0...@order.size).to_a, true
+      while improved
+        improved, best = false, nil
+        a.combination(2) do |i, j|
           v = move_valuation(i, j)
           min, best = v, [i, j] if v < min
         end
-        move(*best, min) if best
-      end
-    end
-
-    # :reek:UncommunicativeVariableName
-    def move_valuation(one, two)
-      move(one, two)
-      v = @valuation.call(@order)
-      move(two, one)
-      v
-    end
-
-    def move(one, two, val = nil)
-      @order.insert(two, @order.delete_at(one))
-      val ||= @valuation.call(@order)
-      if val < @value
-        @value = val
-        @improved ||= true
-      else
-        @order.insert(one, @order.delete_at(two))
+        improved = move?(*best, min) if best
       end
     end
 
     # Best neighbour swaps
     # :reek:TooManyStatements :reek:UncommunicativeVariableName
     def bnswp
-      min, n, @improved = @value, @order.size - 2, true
-      while @improved
-        @improved, best = false, nil
+      min, n, improved = @value, @order.size - 2, true
+      while improved
+        improved, best = false, nil
         0.upto(n) do |i|
           v = swap_valuation(i)
           min, best = v, i if v < min
         end
-        swap(best, best + 1, min) if best
+        improved = swap?(best, best + 1, min) if best
+      end
+    end
+
+    # Best combination swaps
+    # :reek:TooManyStatements :reek:UncommunicativeVariableName
+    def bcswp
+      min, a, improved = @value, (0...@order.size).to_a, true
+      while improved
+        improved, best = false, nil
+        a.combination(2) do |i, j|
+          v = swap_valuation(i, j)
+          min, best = v, [i, j] if v < min
+        end
+        improved = swap?(*best, min) if best
+      end
+    end
+
+    # Combination swaps
+    # :reek:TooManyStatements :reek:UncommunicativeVariableName
+    def cswp
+      a, improved = (0...@order.size).to_a, true
+      while improved
+        improved = false
+        a.combination(2) { |i, j| improved ||= swap?(i, j) }
+      end
+    end
+
+    # Neighbour swaps
+    # :reek:TooManyStatements :reek:UncommunicativeVariableName
+    def nswp
+      n, improved = @order.size - 2, true
+      while improved
+        improved = false
+        0.upto(n) { improved ||= swap?(it, it + 1) }
+        (n - 1).downto(0) { improved ||= swap?(it, it + 1) }
+      end
+    end
+
+    # Best permutation
+    # :reek:DuplicateMethodCall :reek:TooManyStatements
+    # :reek:UncommunicativeVariableName
+    def bprm
+      n, m, improved = @order.size, 7, true
+      m = n if n < m
+      while improved
+        improved = false
+        0.upto(n - m) { improved ||= permutations(it, @order[it, m]) }
+        break unless improved
+
+        improved = false
+        (n - m - 1).downto(0) { improved ||= permutations(it, @order[it, m]) }
+      end
+    end
+
+    # category: helpers
+
+    # :reek:UncommunicativeVariableName
+    def move_valuation(one, two)
+      @order.insert(two, @order.delete_at(one))
+      v = @valuation.call(@order)
+      @order.insert(one, @order.delete_at(two))
+      v
+    end
+
+    # :reek:TooManyStatements
+    def move?(one, two, val = nil)
+      @order.insert(two, @order.delete_at(one))
+      val ||= @valuation.call(@order)
+      if val < @value
+        @value = val
+        true
+      else
+        @order.insert(one, @order.delete_at(two))
+        false
       end
     end
 
@@ -93,80 +146,30 @@ module Wile
       v
     end
 
-    # Best combination swaps
-    # :reek:TooManyStatements :reek:UncommunicativeVariableName
-    def bcswp
-      min, a, @improved = @value, (0...@order.size).to_a, true
-      while @improved
-        @improved, best = false, nil
-        a.combination(2).each do |i, j|
-          v = swap_valuation(i, j)
-          min, best = v, [i, j] if v < min
-        end
-        swap(*best, min) if best
-      end
-    end
-
-    # :reek:DuplicateMethodCall :reek:UncommunicativeVariableName
-    def swap(one, two, val = nil)
+    # :reek:DuplicateMethodCall :reek:TooManyStatements
+    # :reek:UncommunicativeVariableName
+    def swap?(one, two, val = nil)
       @order[one], @order[two] = @order[two], @order[one]
       val ||= @valuation.call(@order)
       if val < @value
         @value = val
-        @improved ||= true
+        true
       else
         @order[one], @order[two] = @order[two], @order[one]
+        false
       end
     end
 
-    # Combination swaps
     # :reek:TooManyStatements :reek:UncommunicativeVariableName
-    def cswp
-      a, @improved = (0...@order.size).to_a, true
-      while @improved
-        @improved = false
-        a.combination(2).each { |i, j| swap(i, j) }
-      end
-    end
-
-    # Neighbour swaps
-    # :reek:TooManyStatements :reek:UncommunicativeVariableName
-    def nswp
-      n = @order.size - 2
-      @improved = true
-      while @improved
-        @improved = false
-        0.upto(n) { |i| swap(i, i + 1) }
-        (n - 1).downto(0) { |i| swap(i, i + 1) }
-      end
-    end
-
-    # :reek:NestedIterators :reek:TooManyStatements
-    # :reek:UncommunicativeVariableName
     def permutations(start, slice)
-      best = slice
-      slice.permutation.each do |slc|
-        slc.each_with_index { |s, j| @order[start + j] = s }
+      best, improved = slice, false
+      slice.permutation do |slc|
+        @order[start, slice.size] = slc
         v = @valuation.call(@order)
-        best, @value, @improved = slc, v, true if v < @value
+        best, @value, improved = slc, v, true if v < @value
       end
-      best.each_with_index { |s, j| @order[start + j] = s }
-    end
-
-    # Best permutation
-    # :reek:DuplicateMethodCall :reek:TooManyStatements
-    # :reek:UncommunicativeVariableName
-    def bprm
-      n, m, @improved = @order.size, 7, true
-      m = n if n < m
-      while @improved
-        @improved = false
-        0.upto(n - m) { |i| permutations(i, @order.slice(i...(i + m))) }
-        break unless @improved
-
-        @improved = false
-        (n - m - 1).downto(0) { |i| permutations(i, @order.slice(i...(i + m))) }
-      end
+      @order[start, slice.size] = best
+      improved
     end
 
     # rubocop:enable Style/ParallelAssignment
