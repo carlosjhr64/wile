@@ -64,4 +64,22 @@ class TestUtHelp < Test::Unit::TestCase
   ensure
     FileUtils.rm_f(path)
   end
+
+  def test_help_parser_csv_conversion
+    HelpParser.csv(:only)
+    help = "Options:\n  --only=CSV\nTypes:\n  CSV /\\A[\\w-]+(,[\\w-]+)*\\z/\n"
+    opts = HelpParser[Wile::VERSION, help, %w[wile --only=alpha,beta,gamma]]
+    assert_equal '["alpha", "beta", "gamma"]', opts.only.inspect
+    assert_equal %w[alpha beta gamma], opts.only
+    assert_kind_of Array, opts.only
+  end
+
+  def test_help_parser_integer_conversion
+    HelpParser.integer(:context)
+    help = "Options:\n  --context=INTEGER\nTypes:\n  INTEGER /\\A\\d+\\z/\n"
+    opts = HelpParser[Wile::VERSION, help, %w[wile --context=42]]
+    assert_equal '42', opts.context.inspect
+    assert_equal 42, opts.context
+    assert_kind_of Integer, opts.context
+  end
 end
