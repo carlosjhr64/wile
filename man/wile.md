@@ -292,7 +292,7 @@ For each flag, the dictionary reports:
 - **Description**: The standard purpose of the flag.
 - **Pattern**: The type name and regular expression (for flags taking a
   value).
-- **Commands**: Established Linux tools that use the flag.
+- **Commands**: Established tools or tasks that use the flag.
 
 Both active task flags and reserved flags for custom tasks can be
 inspected. If an unrecognized flag is passed or an option value fails
