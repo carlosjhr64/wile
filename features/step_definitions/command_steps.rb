@@ -44,7 +44,10 @@ Then(/(?:Then )?stdout is fixture ['"]([^'"]*)['"]/) do |filename|
 
   expected = File.read(path).chomp
   unless @stdout == expected
-    raise "stdout: Expected fixture '#{filename}'. Got '#{@stdout}'"
+    tmp_path = File.join('tmp', File.basename(filename))
+    File.write(tmp_path, "#{@stdout}\n")
+    diff = IO.popen(['diff', '-u', '-d', path, tmp_path], &:read)
+    raise "stdout differs from fixture '#{filename}':\n#{diff}"
   end
 end
 
