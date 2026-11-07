@@ -5,7 +5,8 @@ module Wile
   # CodeContent class generates code content for the Wile framework.
   # :reek:DataClump level mdt
   # :reek:InstanceVariableAssumption there's no initialize method
-  # :reek:TooManyInstanceVariables
+  # :reek:TooManyInstanceVariables :reek:TooManyMethods
+  # rubocop:disable-next Metrics/ClassLength
   class CodeContent
     using Refinement
 
@@ -14,8 +15,8 @@ module Wile
       invocation: /^\s*s\(:send,$/,
       method_def: /^(?<pad>\s*)s\(:def,\s+:"?(?<name>[^,"\s]+)"?,/,
       module_defs: /^(?<pad>\s*)s\(:defs,/,
-      push_scope: /^(?<pad>\s*)s\(:(?<_>module|class),/,
-      casgn: /^(?<pad>\s*)s\(:casgn, nil, :(?<name>\w+)/
+      push_scope: /^(?<pad>\s*)s\(:(?<type>module|class|sclass),/,
+      casgn: /^(?<pad>\s*)s\(:casgn,/
     }.freeze
 
     PAD = /^(?<pad>\s*)s\(/
@@ -24,7 +25,7 @@ module Wile
 
     CASGN_KLS = /^\s*s\(:(?<key>\w+)(?:,\s*nil,\s*:(?<kls>\w+))?/
 
-    FULL_SCOPE = /^\s*s\(:const,\snil,\s
+    FULL_SCOPE = /^\s*(?:s\(:const,\snil|s\(:cbase\)|s\(:const,\ss\(:cbase\)),\s
                    (?<scp>:[A-Z]\w*\)(?<r>,\s:[A-Z]\w*\))*),
                    \s:(?<mth>[a-z]\w*[!=?]?)/x
 
@@ -44,7 +45,7 @@ module Wile
 
     private
 
-    def block_end = @dlevel.positive? && @block['end']
+    def block_end = !@dlevel.negative? && @block['end']
 
     def vset(*args)
       @block, @clevel, @dependencies, @dlevel,
@@ -87,11 +88,21 @@ module Wile
       @block['end']
     end
 
-    def casgn(mdt = nil, length: mdt[:pad].length, name: mdt[:name])
-      kls = casgn_kls
-      @block["casgn #{@scope[0..@clevel.last].join('::')}::#{name} #{kls}"]
-      while !@lines.empty? && PAD.match(@lines.first)[:pad].length > length
-        @line = @lines.shift
+    def scope_str = @scope[0..@clevel.last].reject { it == '.' }.join('::')
+
+    # :reek:DuplicateMethodCall :reek:UncommunicativeVariableName
+    def casgn_full
+      if (md = /nil,\s:(?<name>\w+)/.match(@line))
+        scope_str.empty? ? md[:name] : "#{scope_str}::#{md[:name]}"
+      else
+        @lines.shift.scan(/:([A-Z]\w*)/).flatten.join('::')
+      end
+    end
+
+    def casgn(mdt = nil, length: mdt[:pad].length)
+      @block["casgn #{casgn_full} #{casgn_kls}"]
+      while (head = @lines.first) && PAD.match(head)[:pad].length > length
+        lines_shift
       end
     end
 
@@ -116,8 +127,8 @@ module Wile
 
     def method_def(mdt = nil, level: mdt[:pad].length, name: mdt[:name])
       @dlevel = level
-      @dot = '#'
-      @block["def #{@scope[0..@clevel.last].join('::')}#{@dot}#{name}"]
+      @dot = @scope.last == '.' ? '.' : '#'
+      @block["def #{scope_str}#{@dot}#{name}"]
     end
 
     def module_defs(mdt = nil, level: mdt[:pad].length)
@@ -126,12 +137,19 @@ module Wile
 
       @dlevel = level
       @dot = '.'
-      @block["def #{@scope[0..@clevel.last].join('::')}#{@dot}#{match[:name]}"]
+      @block["def #{scope_str}#{@dot}#{match[:name]}"]
     end
 
+    # :reek:DuplicateMethodCall @lines.shift
     def push_scope(mdt = nil, level: mdt[:pad].length)
       @clevel.push level
-      @scope.push @lines.shift.scan(/\w+/)[3]
+      if mdt[:type] == 'sclass'
+        @lines.shift
+        @scope.push '.'
+      else
+        @lines.shift while SCOPING.match?(@lines.first)
+        @scope.push @lines.shift.scan(/:([A-Z]\w*)/).flatten.join('::')
+      end
     end
   end
 end

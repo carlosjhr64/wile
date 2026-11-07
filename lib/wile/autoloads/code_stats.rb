@@ -11,17 +11,11 @@ module Wile
 
     # category: class_functions
 
-    def self.method_line_count(filename)
-      new.method_stats(filename, &:size)
-    end
+    def self.method_line_count(filename) = new.method_stats(filename, &:size)
 
-    def self.method_source(filename)
-      new.method_stats(filename) { it }
-    end
+    def self.method_source(filename) = new.method_stats(filename) { it }
 
-    def self.method_stats(filename, &)
-      new.method_stats(filename, &)
-    end
+    def self.method_stats(filename, &) = new.method_stats(filename, &)
 
     def self.source(source = [])
       def source.category(cat = nil)
@@ -61,9 +55,9 @@ module Wile
       slf = match[:slf] # Skip named defs
       return if slf.nil? && /^\s*def\s+\w+\./.match?(@line)
 
-      slf = slf.nil? ? '#' : '.'
+      dot = @scope.last == '.' || !slf.nil? ? '.' : '#'
       @dlevel = match[:pad].length
-      @name = "#{@scope.join('::')}#{slf}#{match[:name]}"
+      @name = "#{scope_str}#{dot}#{match[:name]}"
       @source = CodeStats.source(@source[-1..])
       @source.category @category
       @hash[@name] = @func[@source]
@@ -85,7 +79,9 @@ module Wile
                         /^(?<p>\s*)/.match(l)[:p].length > length)
     end
 
-    MODULE_NAME = /^(?<pad>\s*)(?<_>module|class)\s+(?<scope>\w+)/
+    MODULE_NAME = /^(?<pad>\s*)
+                  (?:(?<_>module|class)\s+(?<scope>(?:::)?\w+(?:::\w+)*)|
+                  (?<sclass>class\s*<<\s*self))/x
     METHOD_NAME = %r{^(?<pad>\s*)def\s+(?<slf>self\.)?
                      (?<name>\[\]=?|<=>|===?|!=|<<|>>|\*\*|[+\-!]@|
                      [<>]=?|[+\-*/%&|^~]|\w+[!=?]?)}x
@@ -105,9 +101,11 @@ module Wile
       end
     end
 
+    def scope_str = @scope.reject { it == '.' }.join('::')
+
     def category_set(match)
       @category = match[:cat].split.last
-      @category = "#{@scope.join('::')}.#{@category}"
+      @category = "#{scope_str}.#{@category}"
     end
 
     def scope_end(match)
@@ -120,8 +118,11 @@ module Wile
 
     def module_name(match)
       @clevel.push match[:pad].length
-      @scope.push match[:scope]
-      @category = "#{@scope.join('::')}.public"
+      if match[:sclass] then @scope.push '.'
+      else
+        @scope.push match[:scope]
+        @category = "#{scope_str}.public"
+      end
     end
 
     def level_pops

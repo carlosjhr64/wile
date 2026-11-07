@@ -23,7 +23,7 @@ module Wile
 
     private
 
-    MTHD = { content_end: /^end$/, content_def: /^def \w/,
+    MTHD = { content_end: /^end$/, content_def: /^def [#.\w]/,
              content_casgn: /^casgn \w/, content_methods: /^  / }.freeze
 
     TYPES = { 'array' => Array, 'hash' => Hash, 'regexp' => Regexp,

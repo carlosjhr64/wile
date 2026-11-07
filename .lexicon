@@ -278,10 +278,12 @@ capitalize
 cases
 casgn
 casgn_const
+casgn_full
 casgn_kls
 cat
 category
 category_set
+cbase
 cc
 cdt
 cf
@@ -557,6 +559,7 @@ handle_runtime_error
 handle_software_error
 handle_usage_error
 hash
+head
 heading
 help
 hexdigest
@@ -767,7 +770,6 @@ popen
 populate_dependants
 populate_dependencies
 port
-positive
 pp
 ppid
 prb
@@ -884,8 +886,10 @@ run_fish
 rungems
 s
 scan
+sclass
 scope
 scope_end
+scope_str
 scopes
 scp
 scrape_help
