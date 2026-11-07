@@ -15,7 +15,9 @@ module Wile
     def note(options)
       Utilities.verify_project_root!
       match = Usage.new(options, *NOTE_USAGE).args
-      Project.rbfiles.weird_filename!.each do |fn|
+      files = Project.rbfiles.weird_filename!
+      files = files.reject { it.start_with?('features/fixtures/') } unless match
+      files.each do |fn|
         next if match&.none? { fn.match? it }
 
         lines = File.foreach(fn).grep(/#\s*NOTE/)
