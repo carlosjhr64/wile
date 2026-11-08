@@ -5,8 +5,6 @@ require_relative 'test_helper'
 
 # Encoding Test reports non-ASCII characters and verifies valid UTF-8.
 class TestEncoding < Test::Unit::TestCase
-  FAULT_ONLY = ARGV.include?('--progress-style=fault-only')
-
   def test_encoding
     invalid = []
     text_files.each { scan_file(it, invalid) }
@@ -28,7 +26,7 @@ class TestEncoding < Test::Unit::TestCase
         invalid << "#{filename}:#{lno}: #{line.scrub}".red
         next
       end
-      next if line.ascii_only? || FAULT_ONLY
+      next if line.ascii_only? || quiet?
 
       puts "#{filename}:#{lno}: #{line}".gray
     end

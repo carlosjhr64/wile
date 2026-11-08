@@ -9,6 +9,8 @@ class TestLongChains < Test::Unit::TestCase
   PATTERN = /\w+\.\w+\.\w+\.\w+/
 
   def test_long_chains
+    return if quiet?
+
     Dir.glob('lib/**/*.rb').each { scan_file(it) }
   end
 

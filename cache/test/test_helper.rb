@@ -19,6 +19,8 @@ module Test
     # Shared test case helpers for unit tests.
     # :reek:IrresponsibleModule
     class TestCase
+      FAULT_ONLY = ARGV.include?('--progress-style=fault-only')
+
       # :reek:UtilityFunction
       def bang_ruby?(filename)
         return false if /\.\w*$/.match?(filename) ||
@@ -39,6 +41,9 @@ module Test
         cmd = String.disable_colorization ? 'diff' : 'diff --color=always'
         `#{cmd} #{source_file} #{target_file}`.strip
       end
+
+      # :reek:UtilityFunction
+      def quiet? = FAULT_ONLY
 
       # :reek:UtilityFunction
       def ruby?(filename)
