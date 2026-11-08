@@ -134,8 +134,9 @@ module Wile
 
     # :reek:ControlParameter and :reek:UtilityFunction
     def color(mth)
-      if /^[A-Z]\w*\.(?<name>\w+[!=?]?)$/ =~ mth && CLASSY.include?(name.to_sym)
-        :normal
+      if /^(?:[A-Z]\w*::)*[A-Z]\w*\.(?<name>\w+[!=?]?)$/ =~ mth &&
+         CLASSY.include?(name.to_sym)
+        :magenta
       else
         :red
       end
