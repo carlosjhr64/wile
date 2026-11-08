@@ -15,25 +15,23 @@ module Wile
     def todo(options)
       Utilities.verify_project_root!
       match = Usage.new(options, *TODO_USAGE).args
-      return do_todo_in_files(match) if match
+      return do_todo if File.file?('TODO.md') && !match
 
-      do_todo
+      do_todo_files(match)
     end
 
     private
 
     def do_todo
-      return warn('TODO.md not found.'.yellow) unless File.file?('TODO.md')
-
       system('colora', '--on=^#\\sTODO', '--off=^#', 'TODO.md')
     end
 
-    # :reek:TooManyStatements
-    def do_todo_in_files(match)
+    # :reek:ControlParameter :reek:TooManyStatements
+    def do_todo_files(match)
       files = Project.rbfiles.weird_filename!
       files = files.reject { it.start_with?('features/fixtures/') } unless match
       files.each do |fn|
-        next if match.none? { fn.match? it }
+        next if match&.none? { fn.match? it }
 
         lines = File.foreach(fn).grep(/#\s*TODO/)
         puts fn.blue, lines unless lines.empty?

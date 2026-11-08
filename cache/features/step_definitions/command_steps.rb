@@ -10,6 +10,16 @@ Given(/(?:Given )?options? "([^"]*)"/) do |options|
   @options = options
 end
 
+# Given fixture link "<target>"
+Given(/(?:Given )?fixture link "([^"]*)"/) do |target|
+  fixture = "features/fixtures/#{target}"
+  if !File.exist?(target) && !File.symlink?(target)
+    File.symlink(fixture, target)
+    @temp_symlinks ||= []
+    @temp_symlinks << target
+  end
+end
+
 # When we run command
 When(/(?:When )?we run command/) do
   @stdout, @stderr, @status = Open3.capture3("#{@command} #{@options}")
@@ -148,4 +158,10 @@ Then(/(?:Then )?digest is "(.*)"/) do |v|
   # making the use of piped md5sum output possible.
   digest = Digest::MD5.hexdigest("#{@stdout}\n")
   raise "Digest is not #{v}, it's #{digest}" unless digest == v
+end
+
+After do
+  @temp_symlinks&.each do |symlink|
+    File.unlink(symlink) if File.symlink?(symlink)
+  end
 end

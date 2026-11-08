@@ -5,6 +5,7 @@ Feature: Testing wile todo task
     * Given command "./bin/wile"
 
   Scenario: todo
+    * Given fixture link "TODO.md"
     * Given option "todo"
     * When we run command
     * Then exit status is "0"

@@ -421,7 +421,7 @@ distance_squared
 div
 dlevel
 do_todo
-do_todo_in_files
+do_todo_files
 do_update
 do_update_report
 dos

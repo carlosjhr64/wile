@@ -1,8 +1,8 @@
-TODO.*
+/TODO.*
 *.swp
-pkg/*.gem
-tags
+/pkg/*.gem
+/tags
 tmp/*
 !tmp/README.md
-.git-backup-*
-.solargraph.yml
+/.git-backup-*
+/.solargraph.yml
