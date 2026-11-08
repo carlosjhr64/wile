@@ -624,6 +624,7 @@ latest_version
 length
 level
 level_pops
+level_push
 lexicon
 lexicon_ok
 lib
@@ -853,6 +854,7 @@ record_dep
 red
 reek
 refine
+refine_scope
 regexp
 reject
 rename

@@ -1,0 +1,8 @@
+
+# ./features/fixtures/sample_refinements.rb
+
+SampleRefinements::Array#report 2
+SampleRefinements::String#report 2
+  #perform
+SampleRefinements::String#perform 2
+SampleRefinements::File.activate 2

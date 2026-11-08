@@ -1,0 +1,16 @@
+
+# ./features/fixtures/sample_refinements.rb
+
+{"SampleRefinements::Array#report" => 2,
+ "SampleRefinements::String#report" => 2,
+ "SampleRefinements::String#perform" => 2,
+ "SampleRefinements::File.activate" => 2}
+def SampleRefinements::Array#report
+end
+def SampleRefinements::String#report
+  #perform
+end
+def SampleRefinements::String#perform
+end
+def SampleRefinements::File.activate
+end

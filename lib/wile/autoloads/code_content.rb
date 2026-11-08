@@ -11,6 +11,7 @@ module Wile
     using WileRefinements
 
     CONTENT_TYPE = {
+      refine_scope: /^(?<pad>\s*)s\(:send, nil, :refine,$/,
       yield_method_name: /^\s*s\(:send, nil, :(?<name>\w+[!=?]?|\[\])/,
       invocation: /^\s*s\(:send,$/,
       method_def: /^(?<pad>\s*)s\(:def,\s+:"?(?<name>[^,"\s]+)"?,/,
@@ -140,8 +141,17 @@ module Wile
       @block["def #{scope_str}#{@dot}#{match[:name]}"]
     end
 
+    def refine_scope(mdt = nil, level: mdt[:pad].length - 2)
+      sclass = lines_shift if CONTENT_TYPE[:invocation].match?(@lines.first)
+      push_scope(level:)
+      return unless sclass
+
+      @clevel.push level
+      @scope.push '.'
+    end
+
     # :reek:DuplicateMethodCall @lines.shift
-    def push_scope(mdt = nil, level: mdt[:pad].length)
+    def push_scope(mdt = {}, level: mdt[:pad].length)
       @clevel.push level
       if mdt[:type] == 'sclass'
         @lines.shift

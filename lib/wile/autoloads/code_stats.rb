@@ -6,7 +6,8 @@ module Wile
   # :reek:InstanceVariableAssumption :reek:TooManyInstanceVariables
   class CodeStats
     MODULE_NAME = /^(?<pad>\s*)
-                  (?:(?<_>module|class)\s+(?<scope>(?:::)?\w+(?:::\w+)*)|
+                  (?:(?:module|class|refine)\s+(?<scope>(?:::)?\w+(?:::\w+)*)
+                  (?<sclass>\.singleton_class)?|
                   (?<sclass>class\s*<<\s*self))/x
     METHOD_NAME = %r{^(?<pad>\s*)def\s+(?<slf>self\.)?
                      (?<name>\[\]=?|<=>|===?|!=|[!=]~|<<|>>|\*\*|[+\-!~]@|
@@ -110,19 +111,22 @@ module Wile
       end
     end
 
-    def module_name(match)
-      @clevel.push match[:pad].length
-      if match[:sclass]
-        @scope.push '.'
-      else
-        @scope.push match[:scope]
+    def module_name(match, pad = match[:pad].length)
+      if (scope = match[:scope])
+        level_push(pad, scope)
         @category = "#{scope_str}.public"
       end
+      level_push(pad, '.') if match[:sclass]
     end
 
     def level_pops
       @clevel.pop
       @scope.pop
+    end
+
+    def level_push(pad, scope)
+      @clevel.push pad
+      @scope.push scope
     end
   end
 end
