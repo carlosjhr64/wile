@@ -229,6 +229,7 @@ add_undefined_methods
 alias_method
 all
 allowed_opt
+alphabetical
 already_published
 any
 apt_fish_available
@@ -360,11 +361,10 @@ cp
 cp_r
 csv
 cswp
+curr
 current
 custom
 cyan
-d0
-d2
 data
 date
 def
@@ -377,6 +377,8 @@ delete_at
 delete_if
 delete_prefix
 dep
+dep_idx
+dep_sum
 dependant
 dependants
 dependencies
@@ -500,7 +502,6 @@ fisher_version
 flag
 flatten
 flg
-flipped
 float
 flush
 fmt
@@ -777,6 +778,7 @@ prb
 pre
 prefix
 pretty_generate
+prev
 print
 print_manual_rbenv_init
 private

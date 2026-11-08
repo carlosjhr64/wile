@@ -14,22 +14,16 @@ module Wile
     end
 
     # category: public
-    # :reek:TooManyStatements
-    # :reek:UncommunicativeVariableName
     def total(order)
-      # Reject if the sections is different
+      # Reject if the sections are different
       return Float::INFINITY unless @sections == get_sections(order)
 
-      # Preference of alphabetical order:
-      sum = order.each_cons(2).sum { |a, b| a > b ? 1 : 0 }
-      warn "Alphabetical: #{sum}".gray if @trace
-      # Want to minimize the distance from the dependencies:
-      (@order = order).each_with_index do |name, start|
-        d2 = dependencies_sum(name, start, @data.dependencies(name))
-        warn "#{name}: #{d2}".gray if @trace
-        sum += d2
+      # Sum alphabetical and dependency distances:
+      (@order = order).each_with_index.sum(alphabetical(order)) do |name, start|
+        dep_sum = dependencies_sum(name, start)
+        warn "#{name}: #{dep_sum}".gray if @trace
+        dep_sum
       end
-      sum
     end
 
     private
@@ -38,20 +32,25 @@ module Wile
       order.map { @data.category it }.chunk { it }.map(&:first)
     end
 
-    # :reek:TooManyStatements
-    # :reek:UncommunicativeVariableName d0
-    def dependencies_sum(name, start, dependencies)
-      dependencies.sum do |dependency|
-        j = @order.index(dependency)
-        # rubocop:disable-next Style/ParallelAssignment
-        (flipped = j < start) ? (i, j = j, start) : (i = start)
-        d0 = flipped ? dflipped(name, dependency) : dinit(name, dependency)
-        distance_squared(d0, i, j)
+    def alphabetical(order)
+      sum = order.each_cons(2).count { |prev, curr| prev > curr }
+      warn "Alphabetical: #{sum}".gray if @trace
+      sum
+    end
+
+    def dependencies_sum(name, start)
+      @data.dependencies(name).sum do |dep|
+        dep_idx = @order.index(dep)
+        if dep_idx < start
+          distance_squared(dflipped(name, dep), dep_idx, start)
+        else
+          distance_squared(dinit(name, dep), start, dep_idx)
+        end
       end
     end
 
-    def dflipped(nme, dpc) = @data.dependency_index(nme, dpc)
-    def dinit(nme, dpc) = 1 + @data.size(nme) - dflipped(nme, dpc)
+    def dflipped(name, dep) = @data.dependency_index(name, dep)
+    def dinit(name, dep) = 1 + @data.size(name) - dflipped(name, dep)
 
     def distance_squared(distance, start, stop)
       distance += (start + 1).upto(stop - 1).sum { @data.size @order[it] }
