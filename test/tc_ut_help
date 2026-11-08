@@ -82,4 +82,16 @@ class TestUtHelp < Test::Unit::TestCase
     assert_equal 42, opts.context
     assert_kind_of Integer, opts.context
   end
+
+  def test_help_parser_float_conversion
+    HelpParser.float(:interval, :timeout)
+    help = "Options:\n  --interval=DECIMAL\n  --timeout=DECIMAL\n" \
+           "Types:\n  DECIMAL /\\A\\d+(\\.\\d+)?\\z/\n"
+    opts = HelpParser[Wile::VERSION, help,
+                      %w[wile --interval=1.5 --timeout=2.0]]
+    assert_equal 1.5, opts.interval
+    assert_kind_of Float, opts.interval
+    assert_equal 2.0, opts.timeout
+    assert_kind_of Float, opts.timeout
+  end
 end

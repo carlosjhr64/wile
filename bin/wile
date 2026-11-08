@@ -7,6 +7,7 @@ require_relative '../lib/wile'
 
 HelpParser.csv(:only)
 HelpParser.integer(:context, :jobs, :limit, :maxdepth, :port)
+HelpParser.float(:interval, :timeout)
 
 Wile::Run.new(HelpParser[Wile::VERSION, <<~HELP])
   ## wile ##

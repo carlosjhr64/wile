@@ -501,6 +501,7 @@ flag
 flatten
 flg
 flipped
+float
 flush
 fmt
 fn
@@ -588,6 +589,7 @@ installed
 installed_version
 integer
 intersect
+interval
 invocation
 io
 irbrc
@@ -967,6 +969,7 @@ test_files
 tests
 text
 tf
+timeout
 title_case
 to_a
 to_h
