@@ -112,6 +112,7 @@ LISTS
 LIST_USAGE
 LOCAL_DIR
 LoadError
+METHOD_CALL
 METHOD_NAME
 MKDIR_USAGE
 MODULE_NAME
@@ -172,6 +173,7 @@ Run
 RuntimeError
 SCOPE_END
 SCOPING
+SCRIPT
 SHA256
 SMELL_USAGE
 SORTS
@@ -719,7 +721,6 @@ nvim_ranks
 ok
 old
 one
-oneliner
 only
 open
 opt
