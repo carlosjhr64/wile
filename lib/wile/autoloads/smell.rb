@@ -47,7 +47,8 @@ module Wile
 
     def selected_method(mth, name)
       find_method(mth.sub(/\.new$/, '#initialize'), name) ||
-        find_method(mth.sub(/^.*#/, 'Kernel#'), name)
+        find_method(mth.sub(/^.*#/, 'Kernel#'), name) ||
+        find_method(mth.sub('.', '#'), name)
     end
 
     def add_undefined_methods(name, info)

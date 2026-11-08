@@ -136,7 +136,7 @@ module Wile
     def color(mth)
       if /^(?:[A-Z]\w*::)*[A-Z]\w*\.(?<name>\w+[!=?]?)$/ =~ mth &&
          CLASSY.include?(name.to_sym)
-        :magenta
+        :cyan
       else
         :red
       end

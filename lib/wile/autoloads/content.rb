@@ -32,7 +32,8 @@ module Wile
               'lambda' => Proc }.freeze
 
     # pp is autoloaded
-    RESERVED_WORDS = %i[private protected public pp using refine].freeze
+    RESERVED_WORDS = %i[private protected public pp using refine
+                        module_function].freeze
 
     CLRS = %i[color_here_def color_here_casgn color_stdlib color_kernel].freeze
 
@@ -70,9 +71,8 @@ module Wile
       if name == '.new'
         return @mlc.key?("#{@scope}#initialize") ? :green : :magenta
       end
-      if /^[#.]/.match?(name)
-        return @mlc.key?("#{@scope}#{name}") ? :green : nil
-      end
+      return @mlc.key?("#{@scope}#{name}") ? :green : nil if
+        /^[#.]/.match?(name)
 
       sub_scopes(name)
     end
