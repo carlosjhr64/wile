@@ -2,6 +2,7 @@
 
 # Wile namespace.
 module Wile
+  # rubocop:disable-next Metrics/ClassLength
   # Project module provides methods to manage project files.
   class Dependencies
     using Refinement
@@ -72,20 +73,35 @@ module Wile
 
     OS_CMDS = %w[which].freeze
 
-    private_constant :DEPENDENCY_SCRAPES, :GemInfo, :LIB_TYPE, :OS_CMDS
+    PROJECT_DIRS = %w[bin .bin cache/bin cache/.bin].freeze
 
-    # :reek:ControlParameter :reek:LongParameterList :reek:NestedIterators
-    def dependencies_populate(rbfile, gemset, osset, project = @info.project)
+    private_constant :DEPENDENCY_SCRAPES, :GemInfo, :LIB_TYPE, :OS_CMDS,
+                     :PROJECT_DIRS
+
+    # :reek:NestedIterators
+    def dependencies_populate(rbfile, gemset, osset)
       File.readlines(rbfile).each do |line|
         DEPENDENCY_SCRAPES.first_truthy_value do |rgx, type, index|
-          if (md = rgx.match(line)) && (name = md[index])
-            unless name.split('/').first == project
-              type == :os ? osset << name : gemset << name
-            end
-            true
-          end
+          next unless (md = rgx.match(line)) && (name = md[index])
+
+          record_dep(type, name, gemset, osset)
+          true
         end
       end
+    end
+
+    # :reek:ControlParameter :reek:LongParameterList
+    def record_dep(type, name, gemset, osset)
+      if type == :os
+        osset << name unless project_command?(name)
+      elsif name.split('/').first != @info.project
+        gemset << name
+      end
+    end
+
+    def project_command?(cmd)
+      cmd == @info.project ||
+        PROJECT_DIRS.any? { File.executable?("#{it}/#{cmd}") }
     end
 
     # :reek:FeatureEnvy :reek:TooManyStatements

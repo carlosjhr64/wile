@@ -169,7 +169,6 @@ Gem::Specification.new do |s|
   s.requirements << 'md5sum: 9.1'
   s.requirements << 'ncal: 2019'
   s.requirements << 'pandoc: 2.17'
-  s.requirements << 'panes: -'
   s.requirements << 'rbenv: 1.3'
   s.required_ruby_version = '>= 4.0'
   s.requirements << 'sudo: 1.9'

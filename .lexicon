@@ -137,6 +137,7 @@ PASCAL_KEY
 PATH_SEPARATOR
 PATTERNS
 PLUGINS
+PROJECT_DIRS
 PUBLISH_USAGE
 Parser
 ParserError
@@ -788,6 +789,7 @@ private_class_method
 private_constant
 probe
 project
+project_command
 project_files
 project_rb
 project_ready
@@ -845,6 +847,7 @@ readme_console_insert
 readme_copyright_check
 readme_version_check
 ready
+record_dep
 red
 reek
 refine
