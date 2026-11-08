@@ -13,15 +13,8 @@ module Wile
       puts JSON.pretty_generate data.index
     end
 
-    # :reek:NestedIterators
-    # :reek:UncommunicativeVariableName i is just index
     def self.index(data)
-      data.names.each do |name|
-        data.dependencies(name).each do |dep|
-          i = data.dependency_index(name, dep)
-          puts "#{name}-#{dep}:\t#{i}"
-        end
-      end
+      data.names.each { print_dependencies(it, data) }
     end
 
     def self.isolate(data)
@@ -36,57 +29,50 @@ module Wile
       puts valuation.total(data.names)
     end
 
-    # :reek:TooManyStatements
     def self.qc(data)
-      ok = true
-      data.names.each do |name|
-        qc_circular(name, data)     or ok = false
-        qc_dependencies(name, data) or ok = false
-        qc_dependants(name, data)   or ok = false
-      end
-      exit(EX_DATAERR) unless ok
+      exit(EX_DATAERR) unless data.names.map { qc_name?(it, data) }.all?
       puts 'OK'.green
     end
 
     # category: private
 
-    # :reek:TooManyStatements
-    def self.qc_dependencies(name, data)
-      ok = true
-      data.dependencies(name).each do |dependency|
-        next if data.dependants(dependency).include?(name)
-
-        warn "#{name} => #{dependency}".red
-        ok = false
+    def self.print_dependencies(name, data)
+      data.dependencies(name).each do |dep|
+        idx = data.dependency_index(name, dep)
+        puts "#{name}-#{dep}:\t#{idx}"
       end
-      ok
     end
 
-    # :reek:TooManyStatements
-    def self.qc_dependants(name, data)
-      ok = true
-      data.dependants(name).each do |dependant|
-        next if data.dependencies(dependant).include?(name)
-
-        warn "#{name} <= #{dependant}".red
-        ok = false
-      end
-      ok
+    def self.qc_name?(name, data)
+      [
+        qc_circular?(name, data),
+        qc_dependencies?(name, data),
+        qc_dependants?(name, data)
+      ].all?
     end
 
-    # :reek:TooManyStatements :reek:UncommunicativeVariableName
-    def self.qc_circular(name, data)
-      ok = true
-      a = Set.new data.dependencies(name)
-      b = Set.new data.dependants(name)
-      c = a & b
-      unless c.empty?
-        warn "#{name}: #{c.join(', ')}".red
-        ok = false
-      end
-      ok
+    def self.qc_dependencies?(name, data)
+      qc_symmetric?(name, data.dependencies(name), '=>') { data.dependants(it) }
     end
 
-    private_class_method :qc_circular, :qc_dependencies, :qc_dependants
+    def self.qc_dependants?(name, data)
+      qc_symmetric?(name, data.dependants(name), '<=') { data.dependencies(it) }
+    end
+
+    def self.qc_symmetric?(name, targets, arrow)
+      missing = targets.reject { yield(it).include?(name) }
+      missing.each { warn "#{name} #{arrow} #{it}".red }.empty?
+    end
+
+    def self.qc_circular?(name, data)
+      circular = data.dependencies(name) & data.dependants(name)
+      return true if circular.empty?
+
+      warn "#{name}: #{circular.join(', ')}".red
+      false
+    end
+
+    private_class_method :print_dependencies, :qc_name?, :qc_symmetric?,
+                         :qc_circular?, :qc_dependencies?, :qc_dependants?
   end
 end

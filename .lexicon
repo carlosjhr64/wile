@@ -239,6 +239,7 @@ archive
 arg
 args
 args_size
+arrow
 as
 asset
 assets
@@ -300,6 +301,7 @@ checks
 chmod
 chomp
 chunk
+circular
 class
 clean
 clear
@@ -379,7 +381,6 @@ delete_prefix
 dep
 dep_idx
 dep_sum
-dependant
 dependants
 dependencies
 dependencies_populate
@@ -780,6 +781,7 @@ prefix
 pretty_generate
 prev
 print
+print_dependencies
 print_manual_rbenv_init
 private
 private_class_method
@@ -819,6 +821,8 @@ qc
 qc_circular
 qc_dependants
 qc_dependencies
+qc_name
+qc_symmetric
 quiet
 raise
 ranks
