@@ -5,7 +5,7 @@ module Wile
   # rubocop:disable-next Metrics/ClassLength
   # Project module provides methods to manage project files.
   class Dependencies
-    using Refinement
+    using WileRefinements
     using UtilitiesRefinements
 
     attr_reader :info

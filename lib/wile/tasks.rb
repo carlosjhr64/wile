@@ -4,7 +4,7 @@
 module Wile
   # Tasks class manages the tasks available in the Wile framework.
   class Tasks
-    using Refinement
+    using WileRefinements
     include Sysexits
 
     def initialize

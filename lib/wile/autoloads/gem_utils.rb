@@ -6,7 +6,7 @@ module Wile
   # :reek:DataClump project, version
   # :reek:MissingSafeMethod build!, clean!, push!, ready!
   class GemUtils
-    using Refinement
+    using WileRefinements
     using UtilitiesRefinements
 
     # :reek:NilCheck

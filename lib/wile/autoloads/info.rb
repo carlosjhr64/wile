@@ -6,7 +6,7 @@ module Wile
   # :reek:InstanceVariableAssumption :reek:TooManyInstanceVariables
   # :reek:MissingSafeMethod
   class Info
-    using Refinement
+    using WileRefinements
 
     attr_reader :dirname, :cache, :now, :readme,
                 :project, :gemspec, :module, :project_rb,

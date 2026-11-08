@@ -6,7 +6,7 @@ module Wile
   # :reek:DuplicateMethodCall on attributes
   # :reek:MissingSafeMethod
   class Readme
-    using Refinement
+    using WileRefinements
 
     attr_reader :readme
 

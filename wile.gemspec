@@ -1,7 +1,7 @@
 Gem::Specification.new do |s|
   ## INFO ##
   s.name     = 'wile'
-  s.version  = '0.3.261108'
+  s.version  = '0.4.261108'
   s.homepage = 'https://github.com/carlosjhr64/wile'
   s.author   = 'CarlosJHR64'
   s.email    = 'carlosjhr64@gmail.com'
@@ -107,7 +107,6 @@ Gem::Specification.new do |s|
     lib/wile/autoloads/smell.rb
     lib/wile/autoloads/test.rb
     lib/wile/help.rb
-    lib/wile/refinement.rb
     lib/wile/requires.rb
     lib/wile/run.rb
     lib/wile/sysexits.rb
@@ -142,6 +141,7 @@ Gem::Specification.new do |s|
     lib/wile/usage.rb
     lib/wile/utilities.rb
     lib/wile/utilities_refinements.rb
+    lib/wile/wile_refinements.rb
     man/wile.1
     man/wile.md
     pkg/README.md

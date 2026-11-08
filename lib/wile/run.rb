@@ -2,7 +2,7 @@
 
 # Wile namespace.
 module Wile
-  using Refinement
+  using WileRefinements
 
   PASCAL_KEY = ->(str) { str.pascal_case.to_sym }
 

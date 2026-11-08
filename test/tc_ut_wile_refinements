@@ -5,11 +5,11 @@ require_relative 'test_helper'
 require 'stringio'
 require 'tempfile'
 require_relative '../lib/wile'
-require_relative '../lib/wile/refinement'
+require_relative '../lib/wile/wile_refinements'
 
-# Unit tests for Wile::Refinement.
-class TestUtRefinement < Test::Unit::TestCase
-  using Wile::Refinement
+# Unit tests for Wile::WileRefinements.
+class TestUtWileRefinements < Test::Unit::TestCase
+  using Wile::WileRefinements
 
   def test_array_unique
     assert_equal 'a', ['a'].unique

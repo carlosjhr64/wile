@@ -7,7 +7,7 @@ module Wile
   # :reek:TooManyInstanceVariables :reek:TooManyMethods
   # :reek:UncommunicativeVariableName @v
   class CodeData
-    using Refinement
+    using WileRefinements
 
     attr_reader :constants, :data, :filename, :index, :responds
 

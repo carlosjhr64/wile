@@ -15,7 +15,7 @@ module Wile
   # :reek:UncommunicativeVariableName :reek:NilCheck
   # :reek:DataClump match smell
   class Tasks
-    using Refinement
+    using WileRefinements
 
     SMELL_USAGE = ['smell: Optionally takes one or more arguments.',
                    Set['name']].freeze

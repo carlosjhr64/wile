@@ -6,7 +6,7 @@
 module Wile
   # This file is loaded upon a :bump task request.
   class Tasks
-    using Refinement
+    using WileRefinements
 
     BUMP_USAGE = ['bump: Takes one argument(major|minor|build).',
                   (..1), /^(major|minor|build)$/, Set[]].freeze

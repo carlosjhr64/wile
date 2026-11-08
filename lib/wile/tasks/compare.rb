@@ -8,7 +8,7 @@ module Wile
   # This file is loaded upon a :compare task request.
   # :reek:MissingSafeMethod
   class Tasks
-    using Refinement
+    using WileRefinements
     using UtilitiesRefinements
 
     COMPARE_USAGE = [

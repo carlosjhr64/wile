@@ -5,7 +5,7 @@ module Wile
   # Displays information on methods in a file.
   # :reek:TooManyInstanceVariables :reek:TooManyMethods
   class Content
-    using Refinement
+    using WileRefinements
 
     def red? = @red == :red
 

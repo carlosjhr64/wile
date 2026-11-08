@@ -9,7 +9,7 @@
 module Wile
   # This file is loaded upon a :tc task request.
   class Tasks
-    using Refinement
+    using WileRefinements
 
     TC_USAGE = [
       'tc: Optionally takes scope (project, wile, all), matchers, and --raw.',

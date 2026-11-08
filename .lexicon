@@ -164,7 +164,6 @@ RUBY_VERSION
 Range
 RbConfig
 Readme
-Refinement
 Regexp
 Responds
 Review
@@ -213,6 +212,7 @@ VERSION
 Version
 WILES_USAGE
 Wile
+WileRefinements
 Zlib
 _
 __dir__

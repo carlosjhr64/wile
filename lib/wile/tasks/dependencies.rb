@@ -8,7 +8,7 @@
 module Wile
   # This file is loaded upon a :dependencies task request.
   class Tasks
-    using Refinement
+    using WileRefinements
 
     DEPENDENCIES_USAGE = ['dependencies: Optionally only "git" as an argument.',
                           (..1), /^git$/].freeze

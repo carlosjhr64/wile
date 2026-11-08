@@ -8,7 +8,7 @@ module Wile
   # :reek:TooManyInstanceVariables :reek:TooManyMethods
   # rubocop:disable-next Metrics/ClassLength
   class CodeContent
-    using Refinement
+    using WileRefinements
 
     CONTENT_TYPE = {
       yield_method_name: /^\s*s\(:send, nil, :(?<name>\w+[!=?]?|\[\])/,
