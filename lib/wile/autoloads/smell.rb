@@ -7,54 +7,51 @@ module Wile
     attr_reader :known_constants, :methods, :undefined_methods
 
     # This struct keeps information about a method.
-    Info = Struct.new(:filename, :dependencies, :dependants, :external)
+    Info = Struct.new(:filename, :dependencies, :dependants, :external) do
+      def initialize(cdt, name)
+        super(cdt.filename, [], [], cdt.external(name))
+        dependencies << filename unless cdt.dependencies(name).empty?
+        dependants << filename unless cdt.dependants(name).empty?
+      end
+
+      def add_dependency(other)
+        dependencies << other.filename
+        other.dependants << filename
+      end
+    end
+    private_constant :Info
 
     def initialize(dir = 'lib')
       @methods = {}
       @known_constants = Set.new
       @undefined_methods = Set.new
       get_code_data(dir)
-      add_undefined_methods
+      @methods.each { |name, info| add_undefined_methods(name, info) }
     end
 
     private
 
-    # :reek:TooManyStatements
     def get_code_data(dir)
-      Find.find(dir) do |filename|
-        next unless /\.rb$/.match?(filename)
-
+      Find.find(dir).grep(/\.rb$/) do |filename|
         cdt = CodeData.new(filename)
-        cdt.constants.each { @known_constants << it }
-        cdt.names.each { @methods[it] = info(cdt, filename, it) }
+        @known_constants.merge(cdt.constants)
+        cdt.names.each { @methods[it] = Info.new(cdt, it) }
       end
     end
 
-    # :reek:UtilityFunction :reek:TooManyStatements
-    def info(cdt, filename, name)
-      dependencies = cdt.dependencies(name).empty? ? [] : [filename]
-      dependants = cdt.dependants(name).empty? ? [] : [filename]
-      external = cdt.external(name)
-      Info.new(filename, dependencies, dependants, external)
+    def selected_method(mth, name)
+      target = mth.sub(/\.new$/, '#initialize')
+      @methods.each_key
+              .select { it.end_with?(target) }
+              .detect { name.start_with?(it.delete_suffix(target)) }
     end
 
-    # :reek:FeatureEnvy
-    def add(selected, info)
-      selected_info = @methods[selected]
-      info.dependencies << selected_info.filename
-      selected_info.dependants << info.filename
-    end
-
-    # :reek:UncommunicativeVariableName m is method
-    def add_undefined_methods
-      @methods.each do |name, info|
-        next if (external = info.external).empty?
-
-        while (m = external.shift)
-          if (selected = selected_method(m, name)) then add(selected, info)
-          else
-            @undefined_methods << m unless known_constant?(m, name)
-          end
+    def add_undefined_methods(name, info)
+      info.external.each do |mth|
+        if (selected = selected_method(mth, name))
+          info.add_dependency(@methods[selected])
+        elsif !known_constant?(mth, name)
+          @undefined_methods << mth
         end
       end
     end
@@ -65,15 +62,6 @@ module Wile
       const, = const_dot_mth.split('.')
       ["#{scope}::#{const}", "#{mod}::#{const}", const]
         .any? { @known_constants.include?(it) }
-    end
-
-    def selected_method(mth, name)
-      mth = mth.sub(/\.new$/, '#initialize')
-      return nil if (names = @methods.keys.select { it.end_with?(mth) }).empty?
-
-      names.detect do |candidate|
-        candidate == mth || name.start_with?(candidate.sub(mth, ''))
-      end
     end
   end
 end
