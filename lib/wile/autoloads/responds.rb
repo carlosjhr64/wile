@@ -7,12 +7,12 @@ module Wile
   class Responds
     # One-liner script that checks if a given class is defined and
     # responds to a given method in a pristine Ruby environment.
-    SCRIPT = 'a, b = $_.strip.split(".", 2).map(&:to_sym); ' \
-             'puts (Object.const_defined?(a) && ' \
-             'Object.const_get(a).respond_to?(b)); ' \
-             '$stdout.flush'
+    SCRIPT = 'a, s, b = $_.strip.partition(/[.#]/); ' \
+             'c = Object.const_defined?(a) && Object.const_get(a); ' \
+             'puts (c && (s == "." ? c.respond_to?(b) : ' \
+             'c.method_defined?(b))); $stdout.flush'
     ONELINER = ['ruby', '-n', '-e', SCRIPT].freeze
-    METHOD_CALL = /^[A-Z]\w*\.\w+[!=?]?$/
+    METHOD_CALL = /^[A-Z]\w*[.#]\w+[!=?]?$/
 
     private_constant :METHOD_CALL, :ONELINER, :SCRIPT
 

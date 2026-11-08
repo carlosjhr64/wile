@@ -91,10 +91,11 @@ module Wile
       @index[key] = lines(@v.fullname).index { namex.match? it }
     end
 
-    def known_constant?(name, pre = @v.prefix)
-      const, = name.split('.')
-      ["#{pre}::#{const}", "#{pre.split('::')[0]}::#{const}", const]
-        .any? { @constants.include?(it) }
+    def known_constant?(name, pre = @v.prefix, const = name.split('.').first)
+      return true if @constants.include?(const)
+
+      @constants.select { it.end_with?("::#{const}") }
+                .any? { pre.start_with?(it.delete_suffix("::#{const}")) }
     end
 
     def method_content(match)
@@ -119,10 +120,16 @@ module Wile
       if /^[A-Z]\w*\.\w+[!=?]?$/.match?(name)
         @responds.ok?(name) ? (@v.stdlib << name) : (@v.external << name)
       elsif /^[.#]/.match?(name)
-        @v.external << "#{@v.prefix}#{name}" unless KERNEL.include?(name[1..])
+        add_scoped_external("#{@v.prefix}#{name}") unless
+          KERNEL.include?(name[1..])
       else
         @v.external << name
       end
+    end
+
+    def add_scoped_external(full)
+      kls_mth = full.split('::').last
+      @responds.ok?(kls_mth) ? (@v.stdlib << kls_mth) : (@v.external << full)
     end
 
     def casgn_const(match) = @constants << match[:fullname]

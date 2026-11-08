@@ -19,7 +19,8 @@ module Wile
         other.dependants << filename
       end
     end
-    private_constant :Info
+    REF = /\w+Refinements::/
+    private_constant :Info, :REF
 
     def initialize(dir = 'lib')
       @methods = {}
@@ -39,11 +40,14 @@ module Wile
       end
     end
 
+    def find_method(target, name)
+      keys = @methods.keys.select { it.end_with?(target) }
+      keys.detect { name.start_with?(it.sub(REF, '').delete_suffix(target)) }
+    end
+
     def selected_method(mth, name)
-      target = mth.sub(/\.new$/, '#initialize')
-      @methods.each_key
-              .select { it.end_with?(target) }
-              .detect { name.start_with?(it.delete_suffix(target)) }
+      find_method(mth.sub(/\.new$/, '#initialize'), name) ||
+        find_method(mth.sub(/^.*#/, 'Kernel#'), name)
     end
 
     def add_undefined_methods(name, info)
@@ -56,12 +60,11 @@ module Wile
       end
     end
 
-    def known_constant?(const_dot_mth, name)
-      scope, = name.split(/[.#]/)
-      mod = scope.split('::').first
-      const, = const_dot_mth.split('.')
-      ["#{scope}::#{const}", "#{mod}::#{const}", const]
-        .any? { @known_constants.include?(it) }
+    def known_constant?(mth, name, const = mth.split('.').first)
+      return true if @known_constants.include?(const)
+
+      @known_constants.select { it.end_with?("::#{const}") }
+                      .any? { name.start_with?(it.delete_suffix("::#{const}")) }
     end
   end
 end

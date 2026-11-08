@@ -80,16 +80,16 @@ module Wile
     # :reek:FeatureEnvy
     def sub_scopes(name, scopes = @scope.split('::'))
       until scopes.empty?
-        mth = "#{scopes.join('::')}::#{name}"
-        return :green if @mlc.key?(mth)
+        return :green if @mlc.key?("#{scopes.join('::')}::#{name}")
 
         scopes.pop
       end
-
-      nil
     end
 
-    def color_stdlib(name) = @responds.ok?(name) ? :light_blue : nil
+    def color_stdlib(name)
+      kls = "#{@scope&.split('::')&.last}#{name}" if /^[.#]/.match?(name)
+      @responds.ok?(kls || name) ? :light_blue : nil
+    end
 
     # :reek:FeatureEnvy :reek:TooManyStatements
     # :reek:UncommunicativeVariableName
@@ -122,8 +122,7 @@ module Wile
 
       scopes = @scope.split('::')
       until scopes.empty?
-        k = "#{scopes.join('::')}::#{const}"
-        return type if (type = @casgn[k])
+        return type if (type = @casgn["#{scopes.join('::')}::#{const}"])
 
         scopes.pop
       end
