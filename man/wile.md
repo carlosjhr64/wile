@@ -114,7 +114,8 @@ definitions alongside their line counts and referenced dependency calls:
 Output details:
 
 - **Method line counts**: Beside each method definition, Wile displays the
-  number of lines in the method (in green).
+  number of lines in the method (in green). The count includes the `def` header
+  and all body lines, excluding only the closing `end` keyword.
 - **Referenced dependencies**: Indented lines beneath a method show calls
   and constants referenced within its body, color-coded by resolution.
 
