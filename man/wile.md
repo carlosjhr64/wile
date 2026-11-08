@@ -66,7 +66,7 @@ Run `wile list` to list all tasks, or `wile help <task>` for details.
 - **mkdir**: Create project directory from template.
 - **note**: Scrape ruby files for NOTE comments (see **NOTE**).
 - **nvim**: Open project files in Neovim (see **NVIM**).
-- **order**: Suggest method ordering in ruby files.
+- **order**: Suggest method ordering in ruby files (see **ORDER**).
 - **publish**: Publish new version to RubyGems.
 - **requirements**: Verify system commands and versions.
 - **review**: Run code review checklist.
@@ -222,6 +222,64 @@ Arguments and options:
 
 - `<match>...`: Optional patterns filtering file paths.
 - `-l`, `--list`: Print file paths to stdout instead of launching Neovim.
+
+## ORDER
+
+Wile analyzes call dependencies and method line lengths within a Ruby
+source file to suggest an optimal top-to-bottom method order. The
+optimization minimizes the line distance between callers and their
+dependencies (preferring callees above callers) and breaks ties with
+alphabetical ordering:
+
+    $ wile order lib/foo.rb         # Suggest method order using default (bcmv)
+    $ wile order lib/foo.rb bprm    # Suggest order using best permutation
+    $ wile order lib/foo.rb dump    # Dump method data and index as JSON
+    $ wile order lib/foo.rb qc      # Check dependency integrity and cycles
+
+When suggestions are found, Wile prints each method name alongside
+movement indicators:
+
+- `↑N` (arrow up): Method moved up by N positions from its original place.
+- `↓N` (arrow down): Method moved down by N positions from its original place.
+
+Wile exits 0 when the file is already in optimal order, or 1 when reordering
+is suggested.
+
+Sort methods:
+
+- **bcmv** (default): Best combination move. Evaluates relocating any
+  method to any position (insert and shift), committing the single best
+  move per round until no move reduces total distance.
+- **nswp**: Neighbour swap. Fast first-improvement pass that sweeps
+  forward and backward through adjacent method pairs, swapping immediately
+  upon any score improvement.
+- **cswp**: Combination swap. First-improvement pass that tests all pairs
+  `(i, j)` and swaps them immediately upon any score improvement.
+- **bnswp**: Best neighbour swap. Evaluates all adjacent pairs `(i, i+1)`
+  and commits the single best adjacent swap per round.
+- **bcswp**: Best combination swap. Evaluates all possible pairs `(i, j)`
+  across the file and commits the single best swap per round.
+- **bprm**: Best permutation. Exhaustive search across a sliding window of
+  7 methods (5,040 permutations per step) sweeping forward and backward
+  until convergence. Reaches global optimum for files with <= 7 methods.
+
+Special subcommands:
+
+- **dump**: Print parsed method definitions, sizes, and dependency index
+  as formatted JSON.
+- **index**: Print method call-site line offsets for each dependency.
+- **isolate**: Print methods that neither call nor are called by other
+  methods in the file.
+- **total**: Print the file's total valuation score with a detailed trace
+  of alphabetical and dependency distances.
+- **qc**: Quality check dependency symmetry and detect circular
+  dependencies. Exits 65 (EX_DATAERR) if errors are found.
+
+Arguments:
+
+- `<filename>`: Path to the Ruby source file to analyze.
+- `<sort-type|special>`: Optional sort algorithm or special subcommand.
+  Defaults to `bcmv`.
 
 ## RUBY
 

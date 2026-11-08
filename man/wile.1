@@ -119,7 +119,8 @@ for details.
 .IP \[bu] 2
 \f[B]nvim\f[R]: Open project files in Neovim (see \f[B]NVIM\f[R]).
 .IP \[bu] 2
-\f[B]order\f[R]: Suggest method ordering in ruby files.
+\f[B]order\f[R]: Suggest method ordering in ruby files (see
+\f[B]ORDER\f[R]).
 .IP \[bu] 2
 \f[B]publish\f[R]: Publish new version to RubyGems.
 .IP \[bu] 2
@@ -343,6 +344,88 @@ Arguments and options:
 .IP \[bu] 2
 \f[V]-l\f[R], \f[V]--list\f[R]: Print file paths to stdout instead of
 launching Neovim.
+.SH ORDER
+.PP
+Wile analyzes call dependencies and method line lengths within a Ruby
+source file to suggest an optimal top-to-bottom method order.
+The optimization minimizes the line distance between callers and their
+dependencies (preferring callees above callers) and breaks ties with
+alphabetical ordering:
+.IP
+.nf
+\f[C]
+$ wile order lib/foo.rb         # Suggest method order using default (bcmv)
+$ wile order lib/foo.rb bprm    # Suggest order using best permutation
+$ wile order lib/foo.rb dump    # Dump method data and index as JSON
+$ wile order lib/foo.rb qc      # Check dependency integrity and cycles
+\f[R]
+.fi
+.PP
+When suggestions are found, Wile prints each method name alongside
+movement indicators:
+.IP \[bu] 2
+\f[V]\[ua]N\f[R] (arrow up): Method moved up by N positions from its
+original place.
+.IP \[bu] 2
+\f[V]\[da]N\f[R] (arrow down): Method moved down by N positions from its
+original place.
+.PP
+Wile exits 0 when the file is already in optimal order, or 1 when
+reordering is suggested.
+.PP
+Sort methods:
+.IP \[bu] 2
+\f[B]bcmv\f[R] (default): Best combination move.
+Evaluates relocating any method to any position (insert and shift),
+committing the single best move per round until no move reduces total
+distance.
+.IP \[bu] 2
+\f[B]nswp\f[R]: Neighbour swap.
+Fast first-improvement pass that sweeps forward and backward through
+adjacent method pairs, swapping immediately upon any score improvement.
+.IP \[bu] 2
+\f[B]cswp\f[R]: Combination swap.
+First-improvement pass that tests all pairs \f[V](i, j)\f[R] and swaps
+them immediately upon any score improvement.
+.IP \[bu] 2
+\f[B]bnswp\f[R]: Best neighbour swap.
+Evaluates all adjacent pairs \f[V](i, i+1)\f[R] and commits the single
+best adjacent swap per round.
+.IP \[bu] 2
+\f[B]bcswp\f[R]: Best combination swap.
+Evaluates all possible pairs \f[V](i, j)\f[R] across the file and
+commits the single best swap per round.
+.IP \[bu] 2
+\f[B]bprm\f[R]: Best permutation.
+Exhaustive search across a sliding window of 7 methods (5,040
+permutations per step) sweeping forward and backward until convergence.
+Reaches global optimum for files with <= 7 methods.
+.PP
+Special subcommands:
+.IP \[bu] 2
+\f[B]dump\f[R]: Print parsed method definitions, sizes, and dependency
+index as formatted JSON.
+.IP \[bu] 2
+\f[B]index\f[R]: Print method call-site line offsets for each
+dependency.
+.IP \[bu] 2
+\f[B]isolate\f[R]: Print methods that neither call nor are called by
+other methods in the file.
+.IP \[bu] 2
+\f[B]total\f[R]: Print the file\[cq]s total valuation score with a
+detailed trace of alphabetical and dependency distances.
+.IP \[bu] 2
+\f[B]qc\f[R]: Quality check dependency symmetry and detect circular
+dependencies.
+Exits 65 (EX_DATAERR) if errors are found.
+.PP
+Arguments:
+.IP \[bu] 2
+\f[V]<filename>\f[R]: Path to the Ruby source file to analyze.
+.IP \[bu] 2
+\f[V]<sort-type|special>\f[R]: Optional sort algorithm or special
+subcommand.
+Defaults to \f[V]bcmv\f[R].
 .SH RUBY
 .PP
 Wile lists all Ruby files in the project, including \f[V].rb\f[R] source
