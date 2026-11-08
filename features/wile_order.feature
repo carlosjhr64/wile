@@ -13,56 +13,56 @@ Feature: Testing wile order task
     * Then stdout includes "TestComments#test_comments"
 
   Scenario: order sample with default sort (bcmv)
-    * Given option "order features/fixtures/sample.rb"
+    * Given option "order features/fixtures/order.rb"
     * When we run command
-    * Then stdout is fixture 'sample.bcmv'
+    * Then stdout is fixture 'order.bcmv'
     * Then exit status is "1"
     * Then stderr includes "Sort: bcmv"
 
   Scenario: order sample with bprm
-    * Given option "order features/fixtures/sample.rb bprm"
+    * Given option "order features/fixtures/order.rb bprm"
     * When we run command
-    * Then stdout is fixture 'sample.bprm'
+    * Then stdout is fixture 'order.bprm'
     * Then exit status is "1"
     * Then stderr includes "Sort: bprm"
 
   Scenario: order sample with bcmv
-    * Given option "order features/fixtures/sample.rb bcmv"
+    * Given option "order features/fixtures/order.rb bcmv"
     * When we run command
-    * Then stdout is fixture 'sample.bcmv'
+    * Then stdout is fixture 'order.bcmv'
     * Then exit status is "1"
     * Then stderr includes "Sort: bcmv"
 
   Scenario: order sample with cswp
-    * Given option "order features/fixtures/sample.rb cswp"
+    * Given option "order features/fixtures/order.rb cswp"
     * When we run command
-    * Then stdout is fixture 'sample.cswp'
+    * Then stdout is fixture 'order.cswp'
     * Then exit status is "1"
     * Then stderr includes "Sort: cswp"
 
   Scenario: order sample with bnswp
-    * Given option "order features/fixtures/sample.rb bnswp"
+    * Given option "order features/fixtures/order.rb bnswp"
     * When we run command
-    * Then stdout is fixture 'sample.bnswp'
+    * Then stdout is fixture 'order.bnswp'
     * Then exit status is "1"
     * Then stderr includes "Sort: bnswp"
 
   Scenario: order sample with bcswp
-    * Given option "order features/fixtures/sample.rb bcswp"
+    * Given option "order features/fixtures/order.rb bcswp"
     * When we run command
-    * Then stdout is fixture 'sample.bcswp'
+    * Then stdout is fixture 'order.bcswp'
     * Then exit status is "1"
     * Then stderr includes "Sort: bcswp"
 
   Scenario: order sample with nswp
-    * Given option "order features/fixtures/sample.rb nswp"
+    * Given option "order features/fixtures/order.rb nswp"
     * When we run command
-    * Then stdout is fixture 'sample.nswp'
+    * Then stdout is fixture 'order.nswp'
     * Then exit status is "1"
     * Then stderr includes "Sort: nswp"
 
   Scenario: order with qc special subcommand
-    * Given option "order features/fixtures/sample.rb qc"
+    * Given option "order features/fixtures/order.rb qc"
     * When we run command
     * Then exit status is "0"
     * Then stdout is "OK"
@@ -74,19 +74,19 @@ Feature: Testing wile order task
     * Then stderr includes "does not exist: nonexistent_file.rb"
 
   Scenario: order with invalid sort type
-    * Given option "order features/fixtures/sample.rb invalid_sort"
+    * Given option "order features/fixtures/order.rb invalid_sort"
     * When we run command
     * Then exit status is "1"
     * Then stderr includes "invalid sort: invalid_sort"
 
   Scenario: order with too many arguments
-    * Given option "order features/fixtures/sample.rb bnswp extra"
+    * Given option "order features/fixtures/order.rb bnswp extra"
     * When we run command
     * Then exit status is "64"
     * Then stderr includes "Takes one or two arguments."
 
   Scenario: order with disallowed option
-    * Given option "order features/fixtures/sample.rb --force"
+    * Given option "order features/fixtures/order.rb --force"
     * When we run command
     * Then exit status is "64"
     * Then stderr includes "Takes one or two arguments."
