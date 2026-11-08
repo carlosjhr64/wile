@@ -16,6 +16,8 @@ module SampleOperators
     def >(other) = false
     def >=(other) = true
     def ===(other) = true
+    def =~(other) = false
+    def !~(other) = true
     def +(other) = other
     def -(other) = other
     def *(other) = other
@@ -31,6 +33,7 @@ module SampleOperators
     def +@ = self
     def -@ = self
     def !@ = false
+    def ~@ = self
     def [](key) = key
 
     def []=(key, val)

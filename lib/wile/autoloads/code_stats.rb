@@ -83,7 +83,7 @@ module Wile
                   (?:(?<_>module|class)\s+(?<scope>(?:::)?\w+(?:::\w+)*)|
                   (?<sclass>class\s*<<\s*self))/x
     METHOD_NAME = %r{^(?<pad>\s*)def\s+(?<slf>self\.)?
-                     (?<name>\[\]=?|<=>|===?|!=|<<|>>|\*\*|[+\-!]@|
+                     (?<name>\[\]=?|<=>|===?|!=|[!=]~|<<|>>|\*\*|[+\-!~]@|
                      [<>]=?|[+\-*/%&|^~]|\w+[!=?]?)}x
     SCOPE_END   = /^(?<pad>\s*)end$/
     CATEGORY    = /^\s*(?<cat>private|public|protected|# category: \w+)$/

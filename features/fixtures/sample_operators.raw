@@ -9,6 +9,8 @@
  "SampleOperators::Calculator#>" => 1,
  "SampleOperators::Calculator#>=" => 1,
  "SampleOperators::Calculator#===" => 1,
+ "SampleOperators::Calculator#=~" => 1,
+ "SampleOperators::Calculator#!~" => 1,
  "SampleOperators::Calculator#+" => 1,
  "SampleOperators::Calculator#-" => 1,
  "SampleOperators::Calculator#*" => 1,
@@ -24,6 +26,7 @@
  "SampleOperators::Calculator#+@" => 1,
  "SampleOperators::Calculator#-@" => 1,
  "SampleOperators::Calculator#!@" => 1,
+ "SampleOperators::Calculator#~@" => 1,
  "SampleOperators::Calculator#[]" => 1,
  "SampleOperators::Calculator#[]=" => 2,
  "SampleOperators::Calculator.==" => 1,
@@ -43,6 +46,10 @@ end
 def SampleOperators::Calculator#>=
 end
 def SampleOperators::Calculator#===
+end
+def SampleOperators::Calculator#=~
+end
+def SampleOperators::Calculator#!~
 end
 def SampleOperators::Calculator#+
 end
@@ -73,6 +80,8 @@ end
 def SampleOperators::Calculator#-@
 end
 def SampleOperators::Calculator#!@
+end
+def SampleOperators::Calculator#~@
 end
 def SampleOperators::Calculator#[]
 end
