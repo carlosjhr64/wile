@@ -5,9 +5,17 @@ module Wile
   # CodeStats class supplements CodeContent with method source and line counts.
   # :reek:InstanceVariableAssumption :reek:TooManyInstanceVariables
   class CodeStats
-    def initialize
-      # Nothing to do here
-    end
+    MODULE_NAME = /^(?<pad>\s*)
+                  (?:(?<_>module|class)\s+(?<scope>(?:::)?\w+(?:::\w+)*)|
+                  (?<sclass>class\s*<<\s*self))/x
+    METHOD_NAME = %r{^(?<pad>\s*)def\s+(?<slf>self\.)?
+                     (?<name>\[\]=?|<=>|===?|!=|[!=]~|<<|>>|\*\*|[+\-!~]@|
+                     [<>]=?|[+\-*/%&|^~]|\w+[!=?]?)}x
+    SCOPE_END   = /^(?<pad>\s*)end$/
+    CATEGORY    = /^\s*(?<cat>private|public|protected|# category: \w+)$/
+    CASGN       = /^(?<pad>\s*)[A-Z]\w*\s*=[^=~<>]/
+    private_constant :MODULE_NAME, :METHOD_NAME, :SCOPE_END,
+                     :CATEGORY, :CASGN
 
     # category: class_functions
 
@@ -46,16 +54,17 @@ module Wile
     end
 
     def lines_shift
-      (@line = @lines.shift) ? (@source << @line) : nil
+      return unless (@line = @lines.shift)
+
+      @source << @line
     end
 
-    # :reek:DuplicateMethodCall slf.nil :reek:NilCheck
     # :reek:TooManyStatements
     def method_name(match)
       slf = match[:slf] # Skip named defs
-      return if slf.nil? && /^\s*def\s+\w+\./.match?(@line)
+      return if !slf && /^\s*def\s+\w+\./.match?(@line)
 
-      dot = @scope.last == '.' || !slf.nil? ? '.' : '#'
+      dot = @scope.last == '.' || slf ? '.' : '#'
       @dlevel = match[:pad].length
       @name = "#{scope_str}#{dot}#{match[:name]}"
       @source = CodeStats.source(@source[-1..])
@@ -73,39 +82,24 @@ module Wile
       @source = CodeStats.source
     end
 
-    # :reek:UncommunicativeVariableName
     def casgn(length)
-      lines_shift while (l = @lines[0]) && (l.strip.empty? ||
-                        /^(?<p>\s*)/.match(l)[:p].length > length)
+      lines_shift while (line = @lines[0]) && (line.strip.empty? ||
+                        line[/^\s*/].length > length)
     end
 
-    MODULE_NAME = /^(?<pad>\s*)
-                  (?:(?<_>module|class)\s+(?<scope>(?:::)?\w+(?:::\w+)*)|
-                  (?<sclass>class\s*<<\s*self))/x
-    METHOD_NAME = %r{^(?<pad>\s*)def\s+(?<slf>self\.)?
-                     (?<name>\[\]=?|<=>|===?|!=|[!=]~|<<|>>|\*\*|[+\-!~]@|
-                     [<>]=?|[+\-*/%&|^~]|\w+[!=?]?)}x
-    SCOPE_END   = /^(?<pad>\s*)end$/
-    CATEGORY    = /^\s*(?<cat>private|public|protected|# category: \w+)$/
-    CASGN       = /^(?<pad>\s*)[A-Z]\w*\s*=[^=~<>]/
-    private_constant :MODULE_NAME, :METHOD_NAME, :SCOPE_END,
-                     :CATEGORY, :CASGN
-
-    # :reek:UncommunicativeVariableName
     def msh_populate
-      if (m = MODULE_NAME.match @line) then module_name(m)
-      elsif (m = METHOD_NAME.match @line) then method_name(m)
-      elsif (m = SCOPE_END.match @line) then scope_end(m)
-      elsif (m = CATEGORY.match @line) then category_set(m)
-      elsif (m = CASGN.match @line) then casgn(m[:pad].length)
+      if (match = MODULE_NAME.match(@line)) then module_name(match)
+      elsif (match = METHOD_NAME.match(@line)) then method_name(match)
+      elsif (match = SCOPE_END.match(@line)) then scope_end(match)
+      elsif (match = CATEGORY.match(@line)) then category_set(match)
+      elsif (match = CASGN.match(@line)) then casgn(match[:pad].length)
       end
     end
 
     def scope_str = @scope.reject { it == '.' }.join('::')
 
     def category_set(match)
-      @category = match[:cat].split.last
-      @category = "#{scope_str}.#{@category}"
+      @category = "#{scope_str}.#{match[:cat].split.last}"
     end
 
     def scope_end(match)
@@ -118,7 +112,8 @@ module Wile
 
     def module_name(match)
       @clevel.push match[:pad].length
-      if match[:sclass] then @scope.push '.'
+      if match[:sclass]
+        @scope.push '.'
       else
         @scope.push match[:scope]
         @category = "#{scope_str}.public"
