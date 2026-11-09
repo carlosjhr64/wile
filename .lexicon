@@ -156,6 +156,7 @@ RELEASES_URL
 REQUIRED_BOOTSTRAP_GEMS
 REQUIRED_COMMANDS
 REQUIREMENTS_USAGE
+REQ_RGX
 RESERVED_WORDS
 ROOT
 ROOT_FILES
@@ -279,7 +280,6 @@ bprm
 build
 bump
 bumped
-c
 c2p
 cache
 cached
@@ -776,6 +776,7 @@ pascal_case
 passed
 path
 paths
+pattern
 permutation
 permutations
 pf
