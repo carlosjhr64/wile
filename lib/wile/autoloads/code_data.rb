@@ -11,6 +11,7 @@ module Wile
 
     attr_reader :constants, :data, :filename, :index, :responds
 
+    # pp is autloaded:
     KERNEL = Kernel.public_methods.map(&:to_s) + ['pp']
 
     # This class provides iteration variables for the CodeData class.
@@ -37,8 +38,11 @@ module Wile
     def dependency_index(name, dependency) = @index["#{name}-#{dependency}"]
     # category: table
     def names              = @data.keys
+    # Source/Code lines of the method:
     def lines(name)        = @data[name][0]
+    # Number of lines in the method:
     def size(name)         = @data[name][1]
+    # Set by category comment, private, or defaulted to public:
     def category(name)     = @data[name][2]
     def dependencies(name) = @data[name][3]
     def dependants(name)   = @data[name][4]
