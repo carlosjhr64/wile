@@ -232,7 +232,6 @@ add
 add_dependency
 add_dict_trigrams
 add_external
-add_scope
 add_scoped_external
 add_stdlib_trigrams
 add_undefined_methods
@@ -582,6 +581,7 @@ idx
 ignore
 implicit
 implicit_methods
+implicit_new
 improved
 in
 in_range
@@ -771,7 +771,6 @@ pandoc
 pandoc_args
 parse
 parse_file
-part
 pascal_case
 passed
 path
@@ -865,7 +864,6 @@ readme_version_check
 ready
 receiver
 record_dep
-record_method
 red
 reek
 refine

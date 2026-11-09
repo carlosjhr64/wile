@@ -41,20 +41,7 @@ module Wile
     def process_file(filename)
       cdt = CodeData.new(filename)
       @known_constants.merge(cdt.constants)
-      cdt.names.each { record_method(cdt, it) }
-    end
-
-    def record_method(cdt, name)
-      @methods[name] = Info.new(cdt, name)
-      add_scope(name.split(/[.#]/).first)
-    end
-
-    def add_scope(scope)
-      pre = nil
-      scope.split('::').each do |part|
-        pre = pre ? "#{pre}::#{part}" : part
-        @known_constants << pre
-      end
+      cdt.names.each { @methods[it] = Info.new(cdt, it) }
     end
 
     def find_method(target, name)
@@ -68,13 +55,20 @@ module Wile
         find_method(mth.sub('.', '#'), name)
     end
 
+    def implicit_new?(mth)
+      return false unless mth.end_with?('.new')
+
+      target = mth.delete_suffix('.new')
+      @methods.each_key.any? { it.split(/[.#]/).first.end_with?(target) }
+    end
+
     def add_undefined_methods(name, info)
       info.external.each do |mth|
         if (selected = selected_method(mth, name))
           info.add_dependency(@methods[selected])
-        elsif known_constant?(mth, name)
-          @implicit_methods << mth if mth.end_with?('.new')
-        else
+        elsif implicit_new?(mth)
+          @implicit_methods << mth
+        elsif !known_constant?(mth, name)
           @undefined_methods << mth
         end
       end

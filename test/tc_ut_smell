@@ -12,14 +12,12 @@ class TestUtSmell < Test::Unit::TestCase
     @smell = Wile::Smell.new
   end
 
-  def test_known_constants_include_project_scopes
-    assert_true @smell.known_constants.include?('Wile')
-    assert_true @smell.known_constants.include?('Wile::CodeContent')
-    assert_true @smell.known_constants.include?('Wile::CodeStats')
-    assert_true @smell.known_constants.include?('Wile::Tasks')
+  def test_known_constants_include_constant_assignments
+    assert_true @smell.known_constants.include?('Wile::CASGN_TYPES')
+    assert_true @smell.known_constants.include?('Wile::OrderOptimizer::SORTS')
   end
 
-  def test_undefined_methods_exclude_project_classes
+  def test_undefined_methods_exclude_implicit_constructors
     assert_false @smell.undefined_methods.include?('Wile::CodeContent.new')
     assert_false @smell.undefined_methods.include?('Wile::CodeStats.new')
   end
@@ -27,5 +25,25 @@ class TestUtSmell < Test::Unit::TestCase
   def test_implicit_methods_include_default_constructors
     assert_true @smell.implicit_methods.include?('Wile::CodeContent.new')
     assert_true @smell.implicit_methods.include?('Wile::CodeStats.new')
+  end
+
+  def test_undefined_methods_include_nonexistent_methods
+    info_class = Wile::Smell.const_get(:Info)
+    info = info_class.new(mock_cdt, 'Fake#test')
+    @smell.send(:add_undefined_methods, 'Wile::Tasks#fake', info)
+    assert_true @smell.undefined_methods.include?(
+      'CodeData.not_a_method_anywhere'
+    )
+  end
+
+  private
+
+  def mock_cdt
+    mock = Object.new
+    def mock.filename = 'test.rb'
+    def mock.external(_name) = ['CodeData.not_a_method_anywhere']
+    def mock.dependencies(_name) = []
+    def mock.dependants(_name) = []
+    mock
   end
 end
