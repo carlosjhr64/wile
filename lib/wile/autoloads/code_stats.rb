@@ -9,7 +9,8 @@ module Wile
                   (?:(?:module|class|refine)\s+(?<scope>(?:::)?\w+(?:::\w+)*)
                   (?<sclass>\.singleton_class)?|
                   (?<sclass>class\s*<<\s*self))/x
-    METHOD_NAME = %r{^(?<pad>\s*)def\s+(?<slf>self\.)?
+    METHOD_NAME = %r{^(?<pad>\s*)def\s+
+                     (?<rcvr>(?:self|[A-Z]\w*(?:::[A-Z]\w*)*)\.)?
                      (?<name>\[\]=?|<=>|===?|!=|[!=]~|<<|>>|\*\*|[+\-!~]@|
                      [<>]=?|[+\-*/%&|^~]|\w+[!=?]?)}x
     SCOPE_END   = /^(?<pad>\s*)end$/
@@ -62,15 +63,25 @@ module Wile
 
     # :reek:TooManyStatements
     def method_name(match)
-      slf = match[:slf] # Skip named defs
-      return if !slf && /^\s*def\s+\w+\./.match?(@line)
+      rcvr = match[:rcvr]
+      return if !rcvr && /^\s*def\s+\S+\./.match?(@line)
 
-      dot = @scope.last == '.' || slf ? '.' : '#'
+      dot = @scope.last == '.' || rcvr ? '.' : '#'
       @dlevel = match[:pad].length
-      @name = "#{scope_str}#{dot}#{match[:name]}"
+      @name = "#{def_scope(rcvr)}#{dot}#{match[:name]}"
       @source = CodeStats.source(@source[-1..])
       @source.category @category
       @hash[@name] = @func[@source]
+    end
+
+    def def_scope(rcvr)
+      return scope_str unless rcvr && rcvr != 'self.'
+
+      named = rcvr.delete_suffix('.')
+      return scope_str if scope_str.split('::').last == named
+      return named if scope_str.empty? || named.start_with?(scope_str)
+
+      "#{scope_str}::#{named}"
     end
 
     # :reek:TooManyStatements
@@ -119,14 +130,7 @@ module Wile
       level_push(pad, '.') if match[:sclass]
     end
 
-    def level_pops
-      @clevel.pop
-      @scope.pop
-    end
-
-    def level_push(pad, scope)
-      @clevel.push pad
-      @scope.push scope
-    end
+    def level_pops = [@clevel.pop, @scope.pop]
+    def level_push(pad, scope) = [@clevel.push(pad), @scope.push(scope)]
   end
 end

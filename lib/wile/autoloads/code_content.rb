@@ -2,23 +2,23 @@
 
 # Wile namespace.
 module Wile
+  CASGN_TYPES = {
+    array_node: 'array', float_node: 'float', hash_node: 'hash',
+    integer_node: 'int', interpolated_regular_expression_node: 'regexp',
+    interpolated_string_node: 'dstr', interpolated_symbol_node: 'sym',
+    keyword_hash_node: 'hash', lambda_node: 'lambda',
+    regular_expression_node: 'regexp', string_node: 'str', symbol_node: 'sym'
+  }.freeze
+
+  CALL_NAME = /\A(?:\w+[!=?]?|\[\])\z/
+  CONST_NODES = [Prism::ConstantReadNode, Prism::ConstantPathNode].freeze
+
+  private_constant :CASGN_TYPES, :CALL_NAME, :CONST_NODES
+
   # CodeContent class generates code content for the Wile framework.
   # :reek:InstanceVariableAssumption
   # :reek:TooManyInstanceVariables :reek:TooManyMethods
   class CodeContent < Prism::Visitor
-    CASGN_TYPES = {
-      array_node: 'array', float_node: 'float', hash_node: 'hash',
-      integer_node: 'int', interpolated_regular_expression_node: 'regexp',
-      interpolated_string_node: 'dstr', interpolated_symbol_node: 'sym',
-      keyword_hash_node: 'hash', lambda_node: 'lambda',
-      regular_expression_node: 'regexp', string_node: 'str', symbol_node: 'sym'
-    }.freeze
-
-    CALL_NAME = /\A(?:\w+[!=?]?|\[\])\z/
-    CONST_NODES = [Prism::ConstantReadNode, Prism::ConstantPathNode].freeze
-
-    private_constant :CASGN_TYPES, :CALL_NAME, :CONST_NODES
-
     def self.ast(fnm) = Prism::Translation::Parser.parse_file(fnm).inspect.lines
 
     def self.generate(filename, &) = new.generate(filename, &)
@@ -31,10 +31,11 @@ module Wile
     end
 
     def visit_def_node(node, receiver = node.receiver)
-      return if receiver && !receiver.is_a?(Prism::SelfNode)
+      return super(node) if receiver && !receiver.is_a?(Prism::SelfNode) &&
+                            !CONST_NODES.include?(receiver.class)
 
       @dot = '.' if receiver || @scope.last == '.'
-      def_body(node.name_loc.slice) { super(node) }
+      def_body(node.name_loc.slice, def_scope(receiver)) { super(node) }
     end
 
     def visit_module_node(node)
@@ -88,9 +89,19 @@ module Wile
 
     def scope_str = @scope.reject { it == '.' }.join('::')
 
-    def def_body(name)
+    def def_scope(receiver)
+      return scope_str unless CONST_NODES.include?(receiver&.class)
+
+      named = receiver.slice.delete_prefix('::')
+      return scope_str if scope_str.split('::').last == named
+      return named if scope_str.empty? || named.start_with?(scope_str)
+
+      "#{scope_str}::#{named}"
+    end
+
+    def def_body(name, target = scope_str)
       @dependencies = Set.new
-      @block["def #{scope_str}#{@dot}#{name}"]
+      @block["def #{target}#{@dot}#{name}"]
       yield
     ensure
       @dot = '#'

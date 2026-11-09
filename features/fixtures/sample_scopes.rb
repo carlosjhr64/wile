@@ -37,6 +37,11 @@ class SampleScopes::SingletonService
 end
 
 # :reek:IrresponsibleModule :reek:UtilityFunction
+def SampleScopes.service_helper
+  SingletonService.activate
+end
+
+# :reek:IrresponsibleModule :reek:UtilityFunction
 def toplevel_call
   ::File.exist?('test')
   nil

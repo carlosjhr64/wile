@@ -377,6 +377,7 @@ data
 date
 def_body
 def_method
+def_scope
 default_external
 delete
 delete_at
@@ -714,6 +715,7 @@ name2scope
 name_loc
 name_split
 name_version
+named
 names
 namex
 new
@@ -845,6 +847,7 @@ rbenv_dir
 rbenv_root
 rbfile
 rbfiles
+rcvr
 re_run
 re_run_hint
 read
@@ -919,6 +922,7 @@ seg
 select
 selected
 selected_method
+self
 send
 sep
 set
@@ -933,7 +937,6 @@ singleton_class
 size
 size_of
 slc
-slf
 slice
 smell
 snake_case

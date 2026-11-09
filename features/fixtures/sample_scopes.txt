@@ -6,5 +6,7 @@ SampleScopes::Base#report 2
 SampleScopes::SCOPED_LIMIT int
 SampleScopes::CompactNested#perform 2
 SampleScopes::SingletonService.activate 2
+SampleScopes.service_helper 2
+  SingletonService.activate
 #toplevel_call 3
   File.exist?

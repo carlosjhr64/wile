@@ -5,6 +5,7 @@
  "SampleScopes::Base#report" => 2,
  "SampleScopes::CompactNested#perform" => 2,
  "SampleScopes::SingletonService.activate" => 2,
+ "SampleScopes.service_helper" => 2,
  "#toplevel_call" => 3}
 def #toplevel_work
 end
@@ -14,6 +15,9 @@ casgn SampleScopes::SCOPED_LIMIT int
 def SampleScopes::CompactNested#perform
 end
 def SampleScopes::SingletonService.activate
+end
+def SampleScopes.service_helper
+  SingletonService.activate
 end
 def #toplevel_call
   File.exist?
