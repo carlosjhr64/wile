@@ -767,7 +767,6 @@ pandoc
 pandoc_args
 parse
 parse_file
-parts
 pascal_case
 passed
 path
@@ -896,6 +895,7 @@ roff_path
 root
 root_files
 ros
+rpartition
 rqs
 rstrip
 rubocop

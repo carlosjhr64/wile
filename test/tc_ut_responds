@@ -1,0 +1,38 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require_relative 'test_helper'
+require_relative '../lib/wile'
+require_relative '../lib/wile/run'
+
+# Unit tests for Wile::Responds.
+class TestUtResponds < Test::Unit::TestCase
+  def setup
+    Wile.autoloads
+  end
+
+  def test_responds_top_level_methods
+    Wile::Responds.new do |resp|
+      assert_true resp.ok?('String#upcase')
+      assert_true resp.ok?('Array#[]')
+      assert_true resp.ok?('String.new')
+      assert_true resp.ok?('File.exist?')
+    end
+  end
+
+  def test_responds_namespaced_methods
+    Wile::Responds.new do |resp|
+      assert_true resp.ok?('Gem::Version.new')
+      assert_true resp.ok?('File::Stat#size')
+      assert_true resp.ok?('Process::Status#exitstatus')
+    end
+  end
+
+  def test_responds_nonexistent_methods
+    Wile::Responds.new do |resp|
+      assert_false resp.ok?('String#bogus_method_xyz')
+      assert_false resp.ok?('Nonexistent::Class.foo')
+      assert_false resp.ok?('invalid format')
+    end
+  end
+end

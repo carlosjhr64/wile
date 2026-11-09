@@ -26,10 +26,11 @@ module Wile
     MTHD = { content_end: /^end$/, content_def: /^def [#.\w]/,
              content_casgn: /^casgn \w/, content_methods: /^  / }.freeze
 
-    TYPES = { 'array' => Array, 'hash' => Hash, 'regexp' => Regexp,
-              'str' => String, 'dstr' => String, 'sym' => Symbol,
-              'int' => Integer, 'float' => Float, 'Struct' => Class,
-              'lambda' => Proc }.freeze
+    TYPES = {
+      'array' => Array, 'hash' => Hash, 'regexp' => Regexp,
+      'str' => String, 'dstr' => String, 'sym' => Symbol,
+      'int' => Integer, 'float' => Float, 'Struct' => Class, 'lambda' => Proc
+    }.freeze
 
     # pp is autoloaded
     RESERVED_WORDS = %i[private protected public pp using refine
@@ -71,8 +72,7 @@ module Wile
       if name == '.new'
         return @mlc.key?("#{@scope}#initialize") ? :green : :magenta
       end
-      return @mlc.key?("#{@scope}#{name}") ? :green : nil if
-        /^[#.]/.match?(name)
+      return :green if /^[#.]/.match?(name) && @mlc.key?("#{@scope}#{name}")
 
       sub_scopes(name)
     end
@@ -87,8 +87,9 @@ module Wile
     end
 
     def color_stdlib(name)
-      kls = "#{@scope&.split('::')&.last}#{name}" if /^[.#]/.match?(name)
-      @responds.ok?(kls || name) ? :light_blue : nil
+      kls = "#{@scope}#{name}" if @scope && /^[.#]/.match?(name)
+      targets = kls ? [kls, "#{@scope.split('::').last}#{name}"] : [name]
+      :light_blue if targets.any? { @responds.ok?(it) }
     end
 
     # :reek:FeatureEnvy :reek:TooManyStatements
@@ -96,17 +97,16 @@ module Wile
     def content_casgn(line)
       _, fullname, type = line.split
       @casgn[fullname] = type
-      parts = fullname.split('::')
-      name = parts.pop
-      prefix = parts.empty? ? '' : "#{parts.join('::')}::"
-      c = TYPES.key?(type) ? :green : :magenta
-      puts "#{prefix.light_blue}#{name.bold} #{type.colorize(c)}"
+      prefix, _, name = fullname.rpartition('::')
+      prefix = "#{prefix}::" unless prefix.empty?
+      color = TYPES.key?(type) ? :green : :magenta
+      puts "#{prefix.light_blue}#{name.bold} #{type.colorize(color)}"
     end
 
     def content_def(line, fnm = line.split.last)
       name, sep, @scope = fnm.split(/([#.])/).reverse
       print "#{@scope&.light_blue}#{sep&.light_blue}#{name.bold}"
-      @mlc.key?(fnm) ? puts(" #{@mlc[fnm].to_s.green}") : puts(' ??'.red)
+      puts @mlc.key?(fnm) ? " #{@mlc[fnm].to_s.green}" : ' ??'.red
     end
 
     # :reek:ManualDispatch and :reek:UtilityFunction
@@ -131,8 +131,8 @@ module Wile
 
     # :reek:ControlParameter
     def color_here_casgn(name)
-      return nil unless /^(?<const>[A-Z]\w*)\.(?<mth>\w+[!=?]?|\[\])$/ =~ name
-      return nil unless (type = constant_type(const))
+      const, mth = name.split('.')
+      return nil unless mth && (type = constant_type(const))
       return :magenta unless (kls = TYPES[type])
 
       color kls.public_method_defined?(mth.to_sym) ? :green : nil

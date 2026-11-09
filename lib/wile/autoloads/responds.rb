@@ -12,7 +12,7 @@ module Wile
              'puts (c && (s == "." ? c.respond_to?(b) : ' \
              'c.method_defined?(b))); $stdout.flush'
     ONELINER = ['ruby', '-n', '-e', SCRIPT].freeze
-    METHOD_CALL = /^[A-Z]\w*[.#](?:\w+[!=?]?|\[\])$/
+    METHOD_CALL = /^[A-Z]\w*(?:::[A-Z]\w*)*[.#](?:\w+[!=?]?|\[\])$/
 
     private_constant :METHOD_CALL, :ONELINER, :SCRIPT
 
