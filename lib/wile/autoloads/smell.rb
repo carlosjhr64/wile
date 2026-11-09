@@ -33,10 +33,25 @@ module Wile
     private
 
     def get_code_data(dir)
-      Find.find(dir).grep(/\.rb$/) do |filename|
-        cdt = CodeData.new(filename)
-        @known_constants.merge(cdt.constants)
-        cdt.names.each { @methods[it] = Info.new(cdt, it) }
+      Find.find(dir).grep(/\.rb$/).each { process_file(it) }
+    end
+
+    def process_file(filename)
+      cdt = CodeData.new(filename)
+      @known_constants.merge(cdt.constants)
+      cdt.names.each { record_method(cdt, it) }
+    end
+
+    def record_method(cdt, name)
+      @methods[name] = Info.new(cdt, name)
+      add_scope(name.split(/[.#]/).first)
+    end
+
+    def add_scope(scope)
+      pre = nil
+      scope.split('::').each do |part|
+        pre = pre ? "#{pre}::#{part}" : part
+        @known_constants << pre
       end
     end
 

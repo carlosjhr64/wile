@@ -1,0 +1,26 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require_relative 'test_helper'
+require_relative '../lib/wile'
+require_relative '../lib/wile/run'
+
+# Unit tests for Wile::Smell.
+class TestUtSmell < Test::Unit::TestCase
+  def setup
+    Wile.autoloads
+    @smell = Wile::Smell.new
+  end
+
+  def test_known_constants_include_project_scopes
+    assert_true @smell.known_constants.include?('Wile')
+    assert_true @smell.known_constants.include?('Wile::CodeContent')
+    assert_true @smell.known_constants.include?('Wile::CodeStats')
+    assert_true @smell.known_constants.include?('Wile::Tasks')
+  end
+
+  def test_undefined_methods_exclude_project_classes
+    assert_false @smell.undefined_methods.include?('Wile::CodeContent.new')
+    assert_false @smell.undefined_methods.include?('Wile::CodeStats.new')
+  end
+end
