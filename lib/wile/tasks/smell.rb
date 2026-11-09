@@ -3,6 +3,7 @@
 # ## wile smell ##
 # Classify methods in your code:
 # * Undefined: methods that are not defined in your code
+# * Implicit: constructors that are called but not defined
 # * Unused: methods that are defined but not used
 # * Independent: methods that are used but do not depend on other methods
 # * Isolate: methods that are not used and do not depend on other methods
@@ -11,14 +12,19 @@
 # Usage:
 #   wile smell [match+] [--name=list-name] # classify methods in your code
 module Wile
+  LISTS = %i[
+    undefined implicit unused independent isolate shared reused
+  ].freeze
+  SMELL_USAGE = ['smell: Optionally takes one or more arguments.',
+                 Set['name']].freeze
+
+  private_constant :LISTS, :SMELL_USAGE
+
   # This file is loaded upon a :smell task request.
   # :reek:UncommunicativeVariableName :reek:NilCheck
   # :reek:DataClump match smell
   class Tasks
     using WileRefinements
-
-    SMELL_USAGE = ['smell: Optionally takes one or more arguments.',
-                   Set['name']].freeze
 
     # :reek:TooManyStatements
     def smell(options)
@@ -31,9 +37,6 @@ module Wile
     end
 
     private
-
-    LISTS = %i[undefined unused independent isolate shared reused].freeze
-    private_constant :LISTS
 
     def display(smell, matches)
       puts "# Matching: #{matches.map(&:inspect).join(', ')}".blue if matches
@@ -125,21 +128,13 @@ module Wile
     def undefined(smell, match)
       list = smell.undefined_methods
                   .select { |m| match.nil? || match.any? { it.match? m } }.sort
-                  .map { it.colorize(color(it)) }
       display_list(list, '## Undefined ##'.blue)
     end
 
-    CLASSY = Class.public_methods
-    private_constant :CLASSY
-
-    # :reek:ControlParameter and :reek:UtilityFunction
-    def color(mth)
-      if /^(?:[A-Z]\w*::)*[A-Z]\w*\.(?<name>\w+[!=?]?)$/ =~ mth &&
-         CLASSY.include?(name.to_sym)
-        :cyan
-      else
-        :red
-      end
+    def implicit(smell, match)
+      list = smell.implicit_methods
+                  .select { |m| match.nil? || match.any? { it.match? m } }.sort
+      display_list(list, '## Implicit ##'.blue)
     end
   end
 end

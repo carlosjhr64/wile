@@ -21,7 +21,6 @@ CASES
 CASGN
 CASGN_TYPES
 CATEGORY
-CLASSY
 CLEAN_DIRS
 CLRS
 COMMAND_VERSION
@@ -581,6 +580,8 @@ hexdigest
 i
 idx
 ignore
+implicit
+implicit_methods
 improved
 in
 in_range

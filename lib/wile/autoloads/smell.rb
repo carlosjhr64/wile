@@ -4,7 +4,8 @@
 module Wile
   # Categorizes methods
   class Smell
-    attr_reader :known_constants, :methods, :undefined_methods
+    attr_reader :implicit_methods, :known_constants, :methods,
+                :undefined_methods
 
     # This struct keeps information about a method.
     Info = Struct.new(:filename, :dependencies, :dependants, :external) do
@@ -24,6 +25,7 @@ module Wile
 
     def initialize(dir = 'lib')
       @methods = {}
+      @implicit_methods = Set.new
       @known_constants = Set.new
       @undefined_methods = Set.new
       get_code_data(dir)
@@ -70,7 +72,9 @@ module Wile
       info.external.each do |mth|
         if (selected = selected_method(mth, name))
           info.add_dependency(@methods[selected])
-        elsif !known_constant?(mth, name)
+        elsif known_constant?(mth, name)
+          @implicit_methods << mth if mth.end_with?('.new')
+        else
           @undefined_methods << mth
         end
       end

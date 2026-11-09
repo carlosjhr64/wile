@@ -23,4 +23,9 @@ class TestUtSmell < Test::Unit::TestCase
     assert_false @smell.undefined_methods.include?('Wile::CodeContent.new')
     assert_false @smell.undefined_methods.include?('Wile::CodeStats.new')
   end
+
+  def test_implicit_methods_include_default_constructors
+    assert_true @smell.implicit_methods.include?('Wile::CodeContent.new')
+    assert_true @smell.implicit_methods.include?('Wile::CodeStats.new')
+  end
 end
