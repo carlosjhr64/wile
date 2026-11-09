@@ -117,7 +117,7 @@ module Wile
 
     # :reek:DuplicateMethodCall of attributes
     def add_external(name)
-      if /^[A-Z]\w*\.\w+[!=?]?$/.match?(name)
+      if /^[A-Z]\w*\.(?:\w+[!=?]?|\[\])$/.match?(name)
         @responds.ok?(name) ? (@v.stdlib << name) : (@v.external << name)
       elsif /^[.#]/.match?(name)
         add_scoped_external("#{@v.prefix}#{name}") unless

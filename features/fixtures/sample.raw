@@ -17,6 +17,7 @@ def A::B::C#run
 end
 def A::B.mth
   .new
+  #mth
 end
 def A::B#initialize
   C.call

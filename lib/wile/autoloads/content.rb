@@ -131,7 +131,7 @@ module Wile
 
     # :reek:ControlParameter
     def color_here_casgn(name)
-      return nil unless /^(?<const>[A-Z]\w*)\.(?<mth>\w+[!=?]?)$/ =~ name
+      return nil unless /^(?<const>[A-Z]\w*)\.(?<mth>\w+[!=?]?|\[\])$/ =~ name
       return nil unless (type = constant_type(const))
       return :magenta unless (kls = TYPES[type])
 

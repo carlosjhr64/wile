@@ -5,6 +5,7 @@ A::B::C.call 1
 A::B::C#run 1
 A::B.mth 2
   .new
+  #mth
 A::B#initialize 2
   C.call
 A::B#mth 1

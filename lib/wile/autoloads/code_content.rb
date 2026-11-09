@@ -15,10 +15,9 @@ module Wile
     }.freeze
 
     CALL_NAME = /\A(?:\w+[!=?]?|\[\])\z/
-    CONST_CALL = /\A[a-z]\w*[!=?]?\z/
     CONST_NODES = [Prism::ConstantReadNode, Prism::ConstantPathNode].freeze
 
-    private_constant :CASGN_TYPES, :CALL_NAME, :CONST_CALL, :CONST_NODES
+    private_constant :CASGN_TYPES, :CALL_NAME, :CONST_NODES
 
     def self.ast(fnm) = Prism::Translation::Parser.parse_file(fnm).inspect.lines
 
@@ -52,17 +51,17 @@ module Wile
       name = node.name
       return visit_refine(node) if !receiver && name == :refine && node.block
 
-      handle_call(receiver, name)
+      handle_call(receiver, name) if CALL_NAME.match?(name)
       super
-    end
-
-    def visit_constant_path_write_node(node)
-      emit_casgn(node.target.slice.delete_prefix('::'), node)
     end
 
     def visit_lambda_node(node)
       emit_call("#{@dot}lambda")
       super
+    end
+
+    def visit_constant_path_write_node(node)
+      emit_casgn(node.target.slice.delete_prefix('::'), node)
     end
 
     def visit_constant_write_node(node)
@@ -84,7 +83,7 @@ module Wile
 
     def visit_refine(node, target = node.arguments.arguments.first.slice)
       scopes = target.delete_prefix('::').sub('.singleton_class', ' .').split
-      with_scope(*scopes) { visit(node.block) }
+      with_scope(*scopes) { node.block.accept(self) }
     end
 
     def scope_str = @scope.reject { it == '.' }.join('::')
@@ -111,14 +110,6 @@ module Wile
       @block["casgn #{full} #{type}"]
     end
 
-    def handle_call(receiver, name)
-      if !receiver && CALL_NAME.match?(name)
-        emit_call("#{@dot}#{name}")
-      elsif CONST_NODES.include?(receiver.class) && CONST_CALL.match?(name)
-        emit_call("#{receiver.slice.delete_prefix('::')}.#{name}")
-      end
-    end
-
     def emit_call(name)
       if @dependencies
         @block["  #{name}"] unless @dependencies.include?(name)
@@ -126,6 +117,17 @@ module Wile
       else
         @block[name] unless @main.include?(name)
         @main.add(name)
+      end
+    end
+
+    def handle_call(receiver, name, slice = receiver&.slice)
+      if !receiver
+        emit_call("#{@dot}#{name}")
+      elsif CONST_NODES.include?(receiver.class)
+        emit_call("#{slice.delete_prefix('::')}.#{name}")
+      elsif slice == 'new'
+        emit_call("#{@dot}new")
+        emit_call("##{name}")
       end
     end
   end

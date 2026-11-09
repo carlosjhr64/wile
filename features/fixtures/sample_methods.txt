@@ -3,6 +3,7 @@
 
 SampleMethods::Worker.build 2
   .new
+  #run
 SampleMethods::Worker#initialize 2
 SampleMethods::Worker#run 1
 SampleMethods::Worker#[] 2
@@ -12,4 +13,5 @@ SampleMethods::Worker#reset! 2
 SampleMethods::Worker#secret 2
 SampleMethods::Uninitialized.spawn 2
   .new
+  #status
 SampleMethods::Uninitialized#status 2

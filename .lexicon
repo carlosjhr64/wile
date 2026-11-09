@@ -27,7 +27,6 @@ CLRS
 COMMAND_VERSION
 COMPARE_USAGE
 CONFIG
-CONST_CALL
 CONST_NODES
 CONTENT_USAGE
 CP_USAGE
@@ -1062,7 +1061,6 @@ version
 version_file
 version_ok
 versions
-visit
 visit_call_node
 visit_class_node
 visit_constant_path_write_node

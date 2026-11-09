@@ -12,6 +12,7 @@
  "SampleMethods::Uninitialized#status" => 2}
 def SampleMethods::Worker.build
   .new
+  #run
 end
 def SampleMethods::Worker#initialize
 end
@@ -28,6 +29,7 @@ def SampleMethods::Worker#secret
 end
 def SampleMethods::Uninitialized.spawn
   .new
+  #status
 end
 def SampleMethods::Uninitialized#status
 end
