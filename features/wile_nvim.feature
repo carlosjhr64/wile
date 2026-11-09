@@ -37,4 +37,4 @@ Feature: Testing wile nvim task
     * Given option "nvim --check"
     * When we run command
     * Then exit status is "64"
-    * Then stderr includes "Optionally takes one or more arguments."
+    * Then stderr includes "Optionally takes one or more arguments with optional list flag."

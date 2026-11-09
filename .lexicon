@@ -498,6 +498,7 @@ filename
 filenames
 files
 files_file_match
+filter_nvim_files
 filter_tc_matching
 find
 find_all_by_name
@@ -636,6 +637,7 @@ lambda_node
 last
 last_match
 latest_version
+launch_nvim
 length
 level_pops
 level_push

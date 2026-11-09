@@ -9,17 +9,29 @@
 module Wile
   # This file is loaded upon a :nvim task request.
   class Tasks
-    NVIM_USAGE = ['nvim: Optionally takes one or more arguments.',
+    NVIM_USAGE = ['nvim: Optionally takes one or more arguments ' \
+                  'with optional list flag.',
                   Set['list']].freeze
 
-    # :reek:TooManyStatements
     def nvim(options)
       Utilities.verify_project_root!
       match = Usage.new(options, *NVIM_USAGE).args
-      files = NvimFiles.new.nvim_files
-      files.select! { |fn| match.any? { fn.match? it } } if match
+      files = filter_nvim_files(match)
       return puts files if options.list?
 
+      launch_nvim(files, match)
+    end
+
+    private
+
+    def filter_nvim_files(match)
+      files = NvimFiles.new.nvim_files
+      return files unless match
+
+      files.select { |fn| match.any? { fn.match?(it) } }
+    end
+
+    def launch_nvim(files, match)
       if files.empty?
         raise "No files matched: #{match.join(', ')}" if match
 
