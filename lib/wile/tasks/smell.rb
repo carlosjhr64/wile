@@ -12,54 +12,62 @@
 # Usage:
 #   wile smell [match+] [--name=list-name] # classify methods in your code
 module Wile
-  LISTS = %i[
-    undefined implicit unused independent isolate shared reused
-  ].freeze
-  SMELL_USAGE = ['smell: Optionally takes one or more arguments.',
-                 Set['name']].freeze
-
-  private_constant :LISTS, :SMELL_USAGE
-
   # This file is loaded upon a :smell task request.
-  # :reek:UncommunicativeVariableName :reek:NilCheck
-  # :reek:DataClump match smell
   class Tasks
-    using WileRefinements
+    SMELL_USAGE = ['smell: Optionally takes one or more arguments.',
+                   Set['name']].freeze
 
-    # :reek:TooManyStatements
     def smell(options)
       Utilities.verify_project_root!
       matches = Usage.new(options, *SMELL_USAGE).args&.map { Regexp.new(it) }
-      smell = Smell.new
-      select = options.name&.downcase
-      list = select ? ->(name) { name.match? select } : ->(_) { true }
-      display(smell, matches, &list)
+      DisplayLists.new(matches, select: options.name).display
+    end
+  end
+
+  # Displays categorized smell lists.
+  # :reek:NilCheck
+  class DisplayLists
+    using WileRefinements
+
+    LISTS = %i[
+      undefined implicit unused independent isolate shared reused
+    ].freeze
+
+    def initialize(matches = nil, select: nil, smell: Smell.new)
+      @matches = matches
+      @select = select&.downcase
+      @smell = smell
+    end
+
+    def display
+      puts "# Matching: #{@matches.map(&:inspect).join(', ')}".blue if @matches
+      puts
+      LISTS.each { send(it) if selected?(it) }
     end
 
     private
 
-    def display(smell, matches)
-      puts "# Matching: #{matches.map(&:inspect).join(', ')}".blue if matches
-      puts
-      LISTS.each do |list|
-        method(list).call(smell, matches) if yield list
-      end
+    def selected?(name)
+      @select.nil? || name.match?(@select)
     end
 
-    # :reek:UtilityFunction :reek:TooManyStatements
-    def name2scope(smell)
-      n2s = Hash.new { |hash, name| hash[name] = [] }
-      smell.methods.each_key do |mth|
+    def match?(name)
+      @matches.nil? || @matches.any? { it.match?(name) }
+    end
+
+    # :reek:TooManyStatements
+    def name2scope
+      scopes = Hash.new { |hash, name| hash[name] = [] }
+      @smell.methods.each_key do |mth|
         name, dot, scope = mth.split(/([.#])/).reverse
-        n2s[name] << "#{scope}#{dot}"
+        scopes[name] << "#{scope}#{dot}"
       end
-      n2s
+      scopes
     end
 
-    def reused(smell, match)
-      reused = name2scope(smell).select! do |name, scopes|
-        scopes.size > 1 and name != 'initialize' and
-          (match.nil? || match.any? { it.match? name })
+    def reused
+      reused = name2scope.select! do |name, scopes|
+        scopes.size > 1 and name != 'initialize' and match?(name)
       end
       display_reused(reused) unless reused.empty?
     end
@@ -73,39 +81,52 @@ module Wile
       puts
     end
 
-    # :reek:UtilityFunction
-    def isolate_methods(smell)
-      smell.methods
-           .select { |_, i| i.dependencies.empty? && i.dependants.empty? }
-           .map { |m,| m }
-    end
-
-    # :reek:FeatureEnvy
-    def shared_methods(smell)
-      smell.methods
-           .select { |_, i| i.dependants.any? { it != i.filename } }
-           .map { |m,| m }
-    end
-
-    def isolate(smell, match)
-      list = isolate_methods(smell).sort
-      list.select! { |m| match.any? { it.match? m } } if match
+    def isolate
+      list = @smell.methods
+                   .select do |name, info|
+                     match?(name) && info.dependencies.empty? &&
+                       info.dependants.empty?
+                   end
+                   .keys.sort
       display_list(list, '## Isolate ##'.blue)
     end
 
-    def shared(smell, match)
-      list = shared_methods(smell).sort
-      list.select! { |m| match.any? { it.match? m } } if match
+    def shared
+      list = @smell.methods
+                   .select do |name, info|
+                     match?(name) &&
+                       info.dependants.any? { it != info.filename }
+                   end
+                   .keys.sort
       display_list(list, '## Shared ##'.blue)
     end
 
-    # :reek:TooManyStatements
-    def unused(smell, match)
-      list = smell.methods
-                  .select { |m,| match.nil? || match.any? { it.match? m } }
-                  .select { |_, i| i.dependants.empty? }
-                  .map { |m,| m }.sort
+    def unused
+      list = @smell.methods
+                   .select do |name, info|
+                     match?(name) && info.dependants.empty?
+                   end
+                   .keys.sort
       display_list(list, '## Unused ##'.blue)
+    end
+
+    def independent
+      list = @smell.methods
+                   .select do |name, info|
+                     match?(name) && info.dependencies.empty?
+                   end
+                   .keys.sort
+      display_list(list, '## Independent ##'.blue)
+    end
+
+    def undefined
+      list = @smell.undefined_methods.select { match?(it) }.sort
+      display_list(list, '## Undefined ##'.blue)
+    end
+
+    def implicit
+      list = @smell.implicit_methods.select { match?(it) }.sort
+      display_list(list, '## Implicit ##'.blue)
     end
 
     def display_list(list, heading = nil)
@@ -114,27 +135,6 @@ module Wile
       puts heading if heading
       list.display
       puts
-    end
-
-    # :reek:TooManyStatements
-    def independent(smell, match)
-      list = smell.methods
-                  .select { |m,| match.nil? || match.any? { it.match? m } }
-                  .select { |_, i| i.dependencies.empty? }
-                  .map { |m,| m }.sort
-      display_list(list, '## Independent ##'.blue)
-    end
-
-    def undefined(smell, match)
-      list = smell.undefined_methods
-                  .select { |m| match.nil? || match.any? { it.match? m } }.sort
-      display_list(list, '## Undefined ##'.blue)
-    end
-
-    def implicit(smell, match)
-      list = smell.implicit_methods
-                  .select { |m| match.nil? || match.any? { it.match? m } }.sort
-      display_list(list, '## Implicit ##'.blue)
     end
   end
 end

@@ -50,6 +50,7 @@ DOWNLOAD_URL
 Dependencies
 Digest
 Dir
+DisplayLists
 ENV
 EPIPE
 ERB
@@ -613,7 +614,6 @@ io
 irbrc
 is_a
 isolate
-isolate_methods
 it
 item
 iterate
@@ -711,7 +711,6 @@ msh_populate
 mth
 mtime
 n
-n2s
 name
 name2scope
 name_loc
@@ -932,7 +931,6 @@ set
 set_project
 settings
 shared
-shared_methods
 shift
 show
 show_tc_section
