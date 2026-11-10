@@ -1,0 +1,100 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'tmpdir'
+require_relative 'test_helper'
+require_relative '../lib/wile'
+require_relative '../lib/wile/run'
+
+# Unit tests for Wile::Gemspec.
+class TestUtGemspec < Test::Unit::TestCase
+  def setup
+    Wile.autoloads
+    Wile::Info.reset!
+    with_quiet_io do
+      @info = Wile::Info.new
+      @gemspec = Wile::Gemspec.new(@info)
+    end
+  end
+
+  def teardown
+    Wile::Info.reset!
+  end
+
+  def test_attributes
+    assert_kind_of Array, @gemspec.rungems
+    assert_kind_of Array, @gemspec.devgems
+    assert_kind_of Array, @gemspec.ros
+    assert_kind_of Array, @gemspec.dos
+    assert_kind_of Array, @gemspec.files
+    assert_kind_of Array, @gemspec.executables
+  end
+
+  def test_files_and_executables
+    assert_includes @gemspec.files, 'lib/wile.rb'
+    assert_includes @gemspec.files, '.version'
+    assert_includes @gemspec.executables, 'wile'
+    refute_includes @gemspec.executables, 'lib/wile.rb'
+  end
+
+  def test_to_s_structure
+    content = @gemspec.to_s
+    assert_equal @gemspec.gemspec, content
+    verify_to_s_metadata(content)
+    verify_to_s_sections(content)
+  end
+
+  def test_token_normalization
+    with_quiet_io do
+      spec_sym = Wile::Gemspec.new(@info, token: :git)
+      spec_str = Wile::Gemspec.new(@info, token: 'git')
+      assert_equal spec_sym.rungems.map(&:name), spec_str.rungems.map(&:name)
+    end
+  end
+
+  def test_update_bang
+    with_quiet_io do
+      Dir.mktmpdir { |tmp| verify_update_in_dir(tmp) }
+    end
+  end
+
+  private
+
+  def verify_to_s_metadata(content)
+    assert_match(/\AGem::Specification\.new do \|s\|\n/, content)
+    assert_match(/s\.name\s+= '#{@info.project}'/, content)
+    assert_match(/s\.version\s+= '#{@info.version}'/, content)
+  end
+
+  def verify_to_s_sections(content)
+    assert_match(/## DESCRIPTION ##/, content)
+    assert_match(/s\.require_paths = \['lib'\]/, content)
+    assert_match(/^\s{2}s\.executables << 'wile'$/, content)
+    assert_match(/s\.add_runtime_dependency 'colorize'/, content)
+    assert_match(/\nend\n\z/, content)
+  end
+
+  def verify_update_in_dir(tmp)
+    dest = File.join(tmp, 'sample')
+    info = Wile::Info.new(dirname: dest)
+    Wile::Cache.new(info).make
+    spec = Wile::Gemspec.new(info)
+    spec_file = File.join(dest, info.gemspec)
+    assert_nothing_raised { spec.update! }
+    assert File.file?(spec_file)
+    assert_equal spec.to_s, File.read(spec_file)
+  end
+
+  def with_quiet_io
+    orig_out = $stdout.dup
+    orig_err = $stderr.dup
+    $stdout.reopen(File::NULL)
+    $stderr.reopen(File::NULL)
+    yield
+  ensure
+    $stdout.reopen(orig_out)
+    $stderr.reopen(orig_err)
+    orig_out.close
+    orig_err.close
+  end
+end

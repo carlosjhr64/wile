@@ -242,6 +242,7 @@ all
 allowed_opt
 alphabetical
 any
+append_os_requirement
 apt_fish_available
 apt_install
 arch
@@ -392,6 +393,7 @@ dependencies_populate
 dependencies_sum
 dependency
 dependency_index
+deps
 desc
 description
 dest
@@ -540,15 +542,15 @@ gemfile
 gemignore
 geminfo
 gempkg
+gems
 gemset
 gemspec
+gemspec_deps
 gemspec_description
-gemspec_dev
 gemspec_files
 gemspec_info
 gemspec_os
 gemspec_requirements
-gemspec_run
 generate
 get_code_data
 get_fullname
@@ -651,6 +653,7 @@ lines
 lines_shift
 list
 ljust
+load_dependencies
 loop
 m
 magenta
@@ -697,6 +700,7 @@ mkdir
 mkdir_p
 mktmpdir
 mlc
+mm
 mode
 module
 module_function
@@ -875,6 +879,7 @@ rename
 reply
 report
 report_dependencies
+req
 require
 require_in_path
 require_relative

@@ -5,7 +5,7 @@ Gem::Specification.new do |s|
   s.homepage = 'https://github.com/carlosjhr64/wile'
   s.author   = 'CarlosJHR64'
   s.email    = 'carlosjhr64@gmail.com'
-  s.date     = '2026-11-09'
+  s.date     = '2026-11-10'
   s.licenses = ['MIT']
   ## DESCRIPTION ##
   s.summary  = <<~SUMMARY
@@ -38,6 +38,7 @@ Gem::Specification.new do |s|
     cache/.greeting.erb
     cache/.irbrc
     cache/.lexicon
+    cache/.memory.md
     cache/.prompt.erb
     cache/.reek-strict.yml
     cache/.reek.yml
@@ -146,7 +147,7 @@ Gem::Specification.new do |s|
     man/wile.md
     pkg/README.md
   ]
-    s.executables << 'wile'
+  s.executables << 'wile'
   ## REQUIREMENTS ##
   s.add_runtime_dependency 'colora', '~> 1.0', '>= 1.0.250401'
   s.add_runtime_dependency 'colorize', '~> 1.1', '>= 1.1.0'
