@@ -52,7 +52,26 @@ module Wile
       'xdg-open' => ['xdg-open --version', '1.1']
     }.freeze
 
+    extend Enumerable
+
+    def self.commands
+      COMMAND_VERSION.keys
+    end
+
+    def self.expected(command)
+      COMMAND_VERSION[command]&.last
+    end
+
+    def self.key?(command)
+      COMMAND_VERSION.key?(command)
+    end
+    class << self
+      alias include? key?
+    end
+
     def self.each
+      return to_enum(__method__) unless block_given?
+
       COMMAND_VERSION.each do |command, (_, expected)|
         yield(command, expected)
       end
@@ -72,12 +91,14 @@ module Wile
 
     def self.fish_plugin(plugin)
       path = File.expand_path('~/.config/fish/fish_plugins')
-      system('egrep', '-q', "^#{plugin}$", path) ? '0' : nil
+      return nil unless File.file?(path)
+
+      File.read(path).lines(chomp: true).include?(plugin) ? '0' : nil
     end
 
     def self.man(cmd)
-      year = `man #{cmd.sw} | tail -n 1 | egrep -o '[12][0-9][0-9][0-9]'`.strip
-      year.empty? ? nil : year
+      last_line = `man #{cmd.sw} 2>/dev/null`.lines.last
+      last_line&.slice(/[12]\d{3}/)
     end
   end
 end

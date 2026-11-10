@@ -221,6 +221,7 @@ WileRefinements
 Zlib
 _
 __dir__
+__method__
 _args
 _cmd
 _node
@@ -273,6 +274,7 @@ bin
 binding
 blk
 block
+block_given
 blue
 bnswp
 bold
@@ -486,6 +488,7 @@ expected
 expected_prefix
 expected_sha256
 explain_fish
+extend
 external
 extract_archive
 extract_sha256
@@ -637,6 +640,7 @@ known_constants
 label
 lambda_node
 last
+last_line
 last_match
 latest_version
 launch_nvim
@@ -1012,6 +1016,7 @@ timeout
 times
 title_case
 to_a
+to_enum
 to_h
 to_i
 to_s
