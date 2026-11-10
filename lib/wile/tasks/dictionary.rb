@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# wile: os `diff`
+
 # ## wile dictionary ##
 # Usage:
 #   wile dictionary [--check] [--yes] # view changes and update dictionary

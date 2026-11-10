@@ -4,6 +4,7 @@
 Encoding.default_external = Encoding::UTF_8
 
 require_relative '../lib/wile'
+# wile: os `diff`
 
 HelpParser[Wile::VERSION, <<~HELP]
   # ## bootstrap_system_commands ##
@@ -23,7 +24,6 @@ class BootstrapSystemCommands
   include Wile::Utilities
 
   UTILITIES         = %w[apt-get sudo].freeze
-  # wile: os `diff`
   REQUIRED_COMMANDS = %w[diff pandoc].freeze
   OPTIONAL_COMMANDS = %w[tmux ncal].freeze
 

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# wile: os `diff`
+
 # ## wile lexicon ##
 # Usage:
 #   wile lexicon [--check] [--yes] # view changes and update lexicon

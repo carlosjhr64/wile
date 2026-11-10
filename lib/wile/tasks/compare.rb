@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# wile: os `diff`
+
 # ## wile compare ##
 # Compares project files with template.
 # Usage:

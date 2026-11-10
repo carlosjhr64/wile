@@ -7,6 +7,7 @@ require 'colorize'
 require 'prism'
 # wile: require 'reek'
 # wile: require 'rubocop'
+# wile: os `diff`
 
 String.disable_colorization = true unless $stdout.tty? &&
                                           ENV['NO_COLOR'].to_s.empty? &&
@@ -36,7 +37,6 @@ module Test
         File.open(filename, 'rb') { |io| io.read(8192)&.include?("\x00") }
       end
 
-      # wile: os `diff`
       # :reek:UtilityFunction
       def diff_output(source_file, target_file)
         cmd = String.disable_colorization ? 'diff' : 'diff --color=always'
