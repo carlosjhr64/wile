@@ -9,7 +9,8 @@ module Wile
     end
 
     def self.clean?
-      `git status --porcelain`.empty?
+      out = `git status --porcelain 2>/dev/null`
+      $CHILD_STATUS.exitstatus.zero? && out.empty?
     end
 
     def self.clean!
