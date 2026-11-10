@@ -1,0 +1,109 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'tmpdir'
+require_relative 'test_helper'
+require_relative '../lib/wile'
+require_relative '../lib/wile/run'
+
+# Unit tests for Wile::Info.
+class TestUtInfo < Test::Unit::TestCase
+  def setup
+    Wile.autoloads
+    Wile::Info.reset!
+    @info = Wile::Info.new
+  end
+
+  def teardown
+    Wile::Info.reset!
+  end
+
+  def test_default_attributes
+    verify_default_project
+    verify_default_git_user
+    verify_default_dates
+  end
+
+  def test_custom_dirname
+    info = Wile::Info.new(dirname: '/tmp/sample_project')
+    assert_equal '/tmp/sample_project', info.dirname
+    assert_equal 'sample_project', info.project
+    assert_equal 'SampleProject', info.module
+    assert_equal 'sample_project.gemspec', info.gemspec
+    assert_equal 'lib/sample_project.rb', info.project_rb
+  end
+
+  def test_verify_version
+    assert_nothing_raised { @info.verify_version!(Wile::VERSION) }
+    assert_raise(RuntimeError) { @info.verify_version!('0.0.0') }
+  end
+
+  def test_ignore_regexps
+    assert_kind_of Regexp, @info.wileignore
+    assert_kind_of Regexp, @info.gemignore
+    assert_match @info.wileignore, 'examples/'
+  end
+
+  def test_erb_result
+    Dir.mktmpdir do |tmp|
+      path = File.join(tmp, 'sample.erb')
+      File.write(path, '<%=@project%>:<%=@module%>:<%=@year%>')
+      expected = "#{@info.project}:#{@info.module}:#{@info.year}"
+      assert_equal expected, @info.erb_result(path)
+    end
+  end
+
+  def test_cache_fallback_and_singleton
+    with_quiet_io do
+      Dir.mktmpdir do |tmp|
+        info = Wile::Info.new(dirname: tmp)
+        assert_kind_of Regexp, info.wileignore
+      end
+    end
+    verify_singleton
+  end
+
+  private
+
+  def verify_default_project
+    assert_equal File.expand_path('.'), @info.dirname
+    assert_equal 'wile', @info.project
+    assert_equal 'Wile', @info.module
+    assert_equal 'wile.gemspec', @info.gemspec
+    assert_equal 'lib/wile.rb', @info.project_rb
+    assert_equal 'README.md', @info.readme
+    assert_equal Wile::VERSION, @info.version
+  end
+
+  def verify_default_git_user
+    assert_kind_of String, @info.username
+    assert_false @info.username.empty?
+    assert_kind_of String, @info.email
+  end
+
+  def verify_default_dates
+    assert_equal Time.now.year, @info.year
+    assert_equal Time.now.strftime('%Y-%m-%d'), @info.date
+  end
+
+  def verify_singleton
+    first = Wile::Info.info
+    second = Wile::Info.info
+    assert_same first, second
+    Wile::Info.reset!
+    assert_not_same first, Wile::Info.info
+  end
+
+  def with_quiet_io
+    orig_out = $stdout.dup
+    orig_err = $stderr.dup
+    $stdout.reopen(File::NULL)
+    $stderr.reopen(File::NULL)
+    yield
+  ensure
+    $stdout.reopen(orig_out)
+    $stderr.reopen(orig_err)
+    orig_out.close
+    orig_err.close
+  end
+end

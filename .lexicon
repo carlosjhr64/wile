@@ -880,6 +880,7 @@ require_in_path
 require_relative
 requirements
 res
+reset
 resolve_format
 respond_to
 responds

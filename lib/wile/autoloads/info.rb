@@ -21,6 +21,10 @@ module Wile
       @info ||= new(...)
     end
 
+    def self.reset!
+      @info = nil
+    end
+
     def initialize(dirname: File.expand_path('.'), root: ROOT, now: Time.now)
       @dirname = dirname
       @cache   = File.join(root, 'cache')
@@ -41,7 +45,7 @@ module Wile
     end
 
     def version
-      @version ||= File.read("#{@dirname}/.version").chomp
+      @version ||= File.read(File.join(@dirname, '.version')).chomp
     end
 
     private
@@ -65,8 +69,9 @@ module Wile
     end
 
     def set_git_user
-      @username = `git config user.name`.strip
-      @email    = `git config user.email`.strip
+      @username = `git config user.name 2>/dev/null`.strip
+      @username = ENV['USER'].to_s if @username.empty?
+      @email    = `git config user.email 2>/dev/null`.strip
     end
 
     def set_date
@@ -75,10 +80,10 @@ module Wile
     end
 
     def read(filename)
-      File.read(filename)
+      File.read(File.join(@dirname, filename))
     rescue StandardError
       warn "Warning: using cache #{filename}".yellow
-      File.read("#{@cache}/#{filename}")
+      File.read(File.join(@cache, filename))
     end
   end
 end
