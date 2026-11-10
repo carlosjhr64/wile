@@ -393,6 +393,7 @@ dependencies_populate
 dependencies_sum
 dependency
 dependency_index
+dependency_sets
 deps
 desc
 description
@@ -1094,6 +1095,7 @@ visit_singleton_class_node
 vrs
 vset
 warn
+warn_missing_version
 weird_filename
 which
 width

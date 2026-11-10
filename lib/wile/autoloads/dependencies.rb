@@ -4,26 +4,26 @@
 module Wile
   # rubocop:disable-next Metrics/ClassLength
   # Project module provides methods to manage project files.
+  # :reek:TooManyMethods
   class Dependencies
     using WileRefinements
     using UtilitiesRefinements
 
     attr_reader :info
 
-    def initialize(info = Info.info)
+    # :reek:BooleanParameter
+    def initialize(info = Info.info, verbose: false)
       @info = info
+      @verbose = verbose
       @missing_gems = Set.new
     end
 
     # :reek:TooManyStatements
     # :reek:DuplicateMethodCall Set['ruby'] are new distinct instances of set
     def dependencies(token = nil)
-      run = Set.new
-      dev = Set.new
-      ros = Set['ruby'] # run os
-      dos = Set['ruby'] # dev os
+      run, dev, ros, dos = dependency_sets
       ignore = @info.gemignore
-      project_files(token).each do |rbfile|
+      project_files(token&.to_sym).each do |rbfile|
         gemset, osset = ignore.match?(rbfile) ? [dev, dos] : [run, ros]
         dependencies_populate(rbfile, gemset, osset)
       end
@@ -40,18 +40,25 @@ module Wile
 
     private
 
+    # :reek:DuplicateMethodCall Set['ruby'] are new distinct instances
+    # :reek:UtilityFunction
+    def dependency_sets
+      [Set.new, Set.new, Set['ruby'], Set['ruby']]
+    end
+
     def project_files(token)
       Project.rbfiles(token).tap { it << '.irbrc' if irbrc?(token) }
     end
 
     # :reek:ControlParameter :reek:UtilityFunction
     def irbrc?(token)
-      File.file?('.irbrc') && (token != :git || Git.files.include?('.irbrc'))
+      File.file?('.irbrc') &&
+        (token&.to_sym != :git || Git.files.include?('.irbrc'))
     end
 
     DEPENDENCY_SCRAPES = [
-      [/^\s*#\s*`([-\w.]+)`$/, :os, 1],
-      [%r{^[^#]* `([-\w.]+)\b[^/]}, :os, 1],
+      [/^\s*#\s*wile:\s*os\s*`(\w[-\w.]*)`/, :os, 1],
+      [%r{^[^#]* `(\w[-\w.]*)\b[^/]}, :os, 1],
       [%r{\b(system|spawn)[\s(]["'](\w[-\w]+)\b[^/]}, :os, 2],
       [/^\s*#\s*wile:\s*require\s*'([-\w]+)'/, :gem, 1],
       [%r{^[^#]*\brequire\s*'([-\w/]+)'}, :gem, 1],
@@ -118,7 +125,7 @@ module Wile
 
     def missing_gem(name)
       gem = name.split('/').first
-      warn "Missing gem: #{gem}".red if @missing_gems.add?(gem)
+      warn "Missing gem: #{gem}".red if @verbose && @missing_gems.add?(gem)
       GemInfo.new(nil, nil, nil, nil, gem)
     end
 
@@ -126,20 +133,22 @@ module Wile
     def os_which(cmd)
       fn = `which #{cmd.sw}`.strip
       if fn.empty?
-        warn "Missing command: #{cmd}".red
-      elsif (version = CommandVersion[cmd] || os_cmd_version(cmd))
-        return GemInfo.new(cmd, version, :os, fn, cmd)
-      else
-        warn "Missing command version: #{cmd}".gray unless OS_CMDS.include? cmd
-        return GemInfo.new(cmd, nil, :os, fn, cmd)
+        warn "Missing command: #{cmd}".red if @verbose
+        return GemInfo.new(nil, nil, nil, nil, cmd)
       end
-      GemInfo.new(nil, nil, nil, nil, cmd)
+      version = CommandVersion[cmd] || os_cmd_version(cmd)
+      warn_missing_version(cmd) if @verbose && !version
+      GemInfo.new(cmd, version, :os, fn, cmd)
+    end
+
+    # :reek:UtilityFunction
+    def warn_missing_version(cmd)
+      warn "Missing command version: #{cmd}".gray unless OS_CMDS.include? cmd
     end
 
     # :reek:UtilityFunction
     def os_cmd_version(cmd)
       ['--version', '-v', '-V'].each do |flag|
-        warn "trying `#{cmd} #{flag}`".gray
         version = `#{cmd.sw} #{flag} 2>&1`.strip.scan(/\d+\.\d+/)&.first
         return version if version
       end

@@ -8,6 +8,8 @@ require_relative 'test_helper'
 class TestDependencyScrapes < Test::Unit::TestCase
   DIRECTIVE = /^\s*#\s*wile:\s*require\b/
   VALID_DIRECTIVE = /^\s*#\s*wile:\s*require\s+'[-\w]+'/
+  OS_DIRECTIVE = /^\s*#\s*wile:\s*os\b/
+  VALID_OS_DIRECTIVE = /^\s*#\s*wile:\s*os\s*`[-\w.]+`/
   DOUBLE_QUOTE_REQUIRE = /\brequire(_relative)?\s*"/
   AUTOLOAD_CONST = /\bautoload\s+['"][A-Z]/
   AUTOLOAD_DOUBLE_QUOTE = /\bautoload\s+:\w+,\s*"/
@@ -18,36 +20,43 @@ class TestDependencyScrapes < Test::Unit::TestCase
   end
 
   def test_valid_lines
-    assert_nil check_line('f.rb', 1, "require 'json'")
-    assert_nil check_line('f.rb', 2, "require_relative 'test_helper'")
-    assert_nil check_line('f.rb', 3, 'require_relative "tasks/\#{task}"')
-    assert_nil check_line('f.rb', 4, "# wile: require 'tmuxinator'")
-    assert_nil check_line('f.rb', 5, "#   wile:   require   'colora'")
-    assert_nil check_line('f.rb', 6, "autoload :JSON, 'json'")
-    assert_nil check_line('f.rb', 7, "autoload :Run, File.join(__dir__, 'run')")
+    assert_nil chk("require 'json'")
+    assert_nil chk("require_relative 'test_helper'")
+    assert_nil chk('require_relative "tasks/\#{task}"')
+    assert_nil chk("autoload :JSON, 'json'")
+    assert_nil chk("autoload :Run, File.join(__dir__, 'run')")
+  end
+
+  def test_valid_directive_lines
+    assert_nil chk("# wile: require 'tmuxinator'")
+    assert_nil chk("#   wile:   require   'colora'")
+    assert_nil chk('# wile: os `diff`')
+    assert_nil chk('#   wile:   os   `dpkg-query`')
   end
 
   def test_invalid_require_lines
-    assert_match 'must use single quotes',
-                 check_line('f.rb', 1, 'require "json"')
-    assert_match 'must use single quotes',
-                 check_line('f.rb', 2, 'require_relative "test_helper"')
-    assert_match 'must use single quotes',
-                 check_line('f.rb', 3, '# wile: require "tmuxinator"')
+    assert_match 'must use single quotes', chk('require "json"')
+    assert_match 'must use single quotes', chk('require_relative "test_helper"')
+    assert_match 'must use single quotes', chk('# wile: require "tmuxinator"')
     assert_match "must not contain '/'",
-                 check_line('f.rb', 4, "# wile: require 'irbtools/configure'")
-    assert_match 'malformed',
-                 check_line('f.rb', 5, '# wile: require tmuxinator')
+                 chk("# wile: require 'irbtools/configure'")
+    assert_match 'malformed', chk('# wile: require tmuxinator')
+  end
+
+  def test_invalid_os_directive_lines
+    assert_match 'must use backticks', chk("# wile: os 'diff'")
+    assert_match 'must use backticks', chk('# wile: os "diff"')
+    assert_match 'malformed', chk('# wile: os diff')
   end
 
   def test_invalid_autoload_lines
-    assert_match 'constant must be a symbol',
-                 check_line('f.rb', 1, "autoload 'JSON', 'json'")
-    assert_match 'must use single quotes',
-                 check_line('f.rb', 2, 'autoload :JSON, "json"')
+    assert_match 'constant must be a symbol', chk("autoload 'JSON', 'json'")
+    assert_match 'must use single quotes', chk('autoload :JSON, "json"')
   end
 
   private
+
+  def chk(line) = check_line('f.rb', 1, line)
 
   def ruby_files
     files = super.reject { it.end_with?('tc_dependency_scrapes') }
@@ -62,13 +71,23 @@ class TestDependencyScrapes < Test::Unit::TestCase
   end
 
   def check_line(filename, lineno, line)
-    if line.match?(DIRECTIVE)
-      check_directive(filename, lineno, line)
-    elsif !line.match?(/^\s*#/) && line.match?(DOUBLE_QUOTE_REQUIRE)
+    return check_wile_directive(filename, lineno, line) if line.match?(/^\s*#/)
+
+    check_code_line(filename, lineno, line)
+  end
+
+  def check_wile_directive(filename, lineno, line)
+    return check_directive(filename, lineno, line) if line.match?(DIRECTIVE)
+
+    check_os_directive(filename, lineno, line) if line.match?(OS_DIRECTIVE)
+  end
+
+  def check_code_line(filename, lineno, line)
+    if line.match?(DOUBLE_QUOTE_REQUIRE)
       return if line.include?('#{')
 
       "#{filename}:#{lineno}: require must use single quotes: #{line.strip}"
-    elsif !line.match?(/^\s*#/) && line.match?(/\bautoload\b/)
+    elsif line.match?(/\bautoload\b/)
       check_autoload(filename, lineno, line)
     end
   end
@@ -88,6 +107,14 @@ class TestDependencyScrapes < Test::Unit::TestCase
       "#{filename}:#{lineno}: # wile: require must not contain '/'"
     elsif !line.match?(VALID_DIRECTIVE)
       "#{filename}:#{lineno}: # wile: require malformed: #{line.strip}"
+    end
+  end
+
+  def check_os_directive(filename, lineno, line)
+    if line.include?("'") || line.include?('"')
+      "#{filename}:#{lineno}: # wile: os must use backticks"
+    elsif !line.match?(VALID_OS_DIRECTIVE)
+      "#{filename}:#{lineno}: # wile: os malformed: #{line.strip}"
     end
   end
 end

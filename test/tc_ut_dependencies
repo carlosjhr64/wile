@@ -1,0 +1,87 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'tmpdir'
+require_relative 'test_helper'
+require_relative '../lib/wile'
+require_relative '../lib/wile/run'
+
+# Unit tests for Wile::Dependencies.
+class TestUtDependencies < Test::Unit::TestCase
+  def setup
+    Wile.autoloads
+    @deps = Wile::Dependencies.new
+  end
+
+  def test_attributes
+    assert_kind_of Wile::Info, @deps.info
+  end
+
+  def test_dependencies_sets
+    run, dev, ros, dos = @deps.dependencies
+    assert_kind_of Set, run
+    assert_kind_of Set, dev
+    assert_kind_of Set, ros
+    assert_kind_of Set, dos
+    assert_includes ros, 'ruby'
+    assert_includes dos, 'ruby'
+    assert_includes run, 'colorize'
+  end
+
+  def test_token_normalization
+    sym_result = @deps.dependencies(:git)
+    str_result = @deps.dependencies('git')
+    assert_equal sym_result, str_result
+  end
+
+  def test_geminfo
+    geminfo = @deps.geminfo(['colorize'])
+    assert_equal 1, geminfo.size
+    assert_equal 'colorize', geminfo.first.name
+    assert_equal :gem, geminfo.first.type
+  end
+
+  def test_osinfo
+    osinfo = @deps.osinfo(['git'])
+    assert_equal 1, osinfo.size
+    assert_equal 'git', osinfo.first.name
+    assert_equal :os, osinfo.first.type
+  end
+
+  def test_os_which_known_and_missing
+    known = @deps.send(:os_which, 'git')
+    assert_equal 'git', known.name
+    assert_equal :os, known.type
+
+    missing = @deps.send(:os_which, 'nonexistent_command_12345')
+    assert_nil missing.name
+    assert_equal 'nonexistent_command_12345', missing.require
+  end
+
+  def test_scrapes_os_directive
+    scrapes = Wile::Dependencies.send(:const_get, :DEPENDENCY_SCRAPES)
+    regex = scrapes[0][0]
+    assert_nil regex.match('# `diff`')
+    assert_nil regex.match("# 'diff'")
+    assert_nil regex.match("# wile: require 'tmuxinator'")
+    match = regex.match('# wile: os `diff`')
+    assert_not_nil match
+    assert_equal 'diff', match[1]
+  end
+
+  def test_scrapes_regex_ignores_dotfiles
+    scrapes = Wile::Dependencies.send(:const_get, :DEPENDENCY_SCRAPES)
+    regex = scrapes[1][0]
+    assert_nil regex.match('using `.version` as reference')
+    assert_nil regex.match('using `.prompt` in fish')
+    match = regex.match('out = `git status`')
+    assert_not_nil match
+    assert_equal 'git', match[1]
+  end
+
+  def test_missing_gem
+    info = @deps.send(:missing_gem, 'nonexistent_gem_xyz/sub')
+    assert_nil info.name
+    assert_equal 'nonexistent_gem_xyz', info.require
+  end
+end

@@ -161,6 +161,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency 'tmuxinator', '~> 3.4', '>= 3.4.2'
   s.requirements << 'agy: 1.5'
   s.requirements << 'clear: 6.4'
+  s.requirements << 'diff: 3.8'
   s.requirements << 'dpkg-query: 1.21'
   s.requirements << 'egrep: 3.8'
   s.requirements << 'fish: 4.9'

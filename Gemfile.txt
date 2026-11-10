@@ -24,6 +24,7 @@ agy          1.5
 clear        6.4
 colora       1.0
 cucumber     12.0
+diff         3.8
 dpkg-query   1.21
 egrep        3.8
 fish         4.9
