@@ -25,7 +25,7 @@ module Wile
     # :reek:UtilityFunction
     def verify_version!(version)
       Info.info.verify_version! version
-      Git.already_published! version
+      Git.verify_unpublished! version
     end
 
     # :reek:UtilityFunction

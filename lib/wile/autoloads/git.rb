@@ -30,9 +30,9 @@ module Wile
         system('git', 'tag', '-a', version, '-m', version)
     end
 
-    def self.already_published!(version)
-      raise "#{version} found in git tag list... already published!" if
-      `git tag --list`.split.include?(version)
+    def self.verify_unpublished!(version)
+      raise "#{version} found in git tag list... already published!" unless
+        `git tag -l #{version}`.strip.empty?
     end
 
     def self.commit!(version)

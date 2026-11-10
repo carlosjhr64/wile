@@ -241,7 +241,6 @@ alias_method
 all
 allowed_opt
 alphabetical
-already_published
 any
 apt_fish_available
 apt_install
@@ -1063,6 +1062,7 @@ verify_project_root
 verify_rbenv
 verify_ruby_min_version
 verify_ruby_project_version
+verify_unpublished
 verify_utilities
 verify_version
 version
