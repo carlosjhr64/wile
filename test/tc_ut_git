@@ -1,0 +1,118 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'tmpdir'
+require_relative 'test_helper'
+require_relative '../lib/wile'
+require_relative '../lib/wile/run'
+
+# Unit tests for Wile::Git.
+class TestUtGit < Test::Unit::TestCase
+  def setup
+    Wile.autoloads
+  end
+
+  def test_outside_repo
+    with_quiet_io do
+      Dir.mktmpdir do |dir|
+        Dir.chdir(dir) do
+          assert_false Wile::Git.clean?
+          assert_raise(RuntimeError) { Wile::Git.clean! }
+          assert_equal [], Wile::Git.files
+        end
+      end
+    end
+  end
+
+  def test_init_failure
+    with_quiet_io do
+      assert_raise(RuntimeError) { Wile::Git.init!('/dev/null/impossible') }
+    end
+  end
+
+  def test_repo_workflow
+    with_quiet_io do
+      Dir.mktmpdir do |remote|
+        system('git', 'init', '--bare', remote)
+        with_local_repo { verify_workflow(remote) }
+      end
+    end
+  end
+
+  private
+
+  def with_local_repo(&)
+    Dir.mktmpdir do |local|
+      setup_git_repo(local)
+      Dir.chdir(local, &)
+    end
+  end
+
+  def setup_git_repo(path)
+    Wile::Git.init!(path)
+    Dir.chdir(path) do
+      system('git', 'config', 'user.name', 'TestUser')
+      system('git', 'config', 'user.email', 'test@example.com')
+      system('git', 'config', 'commit.gpgsign', 'false')
+    end
+  end
+
+  def verify_workflow(remote)
+    verify_clean_state
+    verify_file_lifecycle
+    verify_diff
+    verify_tagging_and_push(remote)
+  end
+
+  def verify_clean_state
+    assert_true File.directory?('.git')
+    assert_true Wile::Git.clean?
+    assert_nothing_raised { Wile::Git.clean! }
+  end
+
+  def verify_file_lifecycle
+    File.write('file.txt', "initial\n")
+    assert_false Wile::Git.clean?
+    assert_raise(RuntimeError) { Wile::Git.clean! }
+
+    system('git', 'add', 'file.txt')
+    Wile::Git.commit!('1.0.0')
+    assert_true Wile::Git.clean?
+    assert_equal ['file.txt'], Wile::Git.files
+  end
+
+  def verify_diff
+    File.write('file.txt', "modified\n")
+    assert_false Wile::Git.clean?
+    assert_true Wile::Git.diff('file.txt')
+    system('git', 'checkout', 'file.txt')
+  end
+
+  def verify_tagging_and_push(remote)
+    verify_tags
+    system('git', 'remote', 'add', 'origin', remote)
+    system('git', 'push', '-u', 'origin', 'HEAD:main')
+    Wile::Git.push!
+    assert_include `git ls-remote --tags origin`, 'refs/tags/1.0.0'
+  end
+
+  def verify_tags
+    assert_nothing_raised { Wile::Git.verify_unpublished!('1.0.0') }
+    Wile::Git.tag!('1.0.0')
+    assert_raise(RuntimeError) { Wile::Git.verify_unpublished!('1.0.0') }
+    assert_nothing_raised { Wile::Git.verify_unpublished!('1.0.1') }
+  end
+
+  def with_quiet_io
+    orig_out = $stdout.dup
+    orig_err = $stderr.dup
+    $stdout.reopen(File::NULL)
+    $stderr.reopen(File::NULL)
+    yield
+  ensure
+    $stdout.reopen(orig_out)
+    $stderr.reopen(orig_err)
+    orig_out.close
+    orig_err.close
+  end
+end
