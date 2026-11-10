@@ -14,8 +14,8 @@ class TestDictionary < Test::Unit::TestCase
   def test_dictionary
     FileUtils.mkdir_p('tmp')
     unrecognized = words_from_files.select { unrecognized?(it) }.sort
-    File.open('tmp/dictionary', 'w') { it.puts unrecognized }
-    diff = diff_output('.dictionary', 'tmp/dictionary')
+    File.open('tmp/.dictionary', 'w') { it.puts unrecognized }
+    diff = diff_output('.dictionary', 'tmp/.dictionary')
     assert_empty(diff, "#{'Dictionary changed:'.colorize(:blue)}\n#{diff}")
   end
 

@@ -25,7 +25,7 @@ module Wile
       return true if system 'test/tc_dictionary --verbose=silent'
 
       diff = String.disable_colorization ? %w[diff] : %w[diff --color]
-      system(*diff, '.dictionary', 'tmp/dictionary')
+      system(*diff, '.dictionary', 'tmp/.dictionary')
       return false if options.check? # Just checking
 
       unless options.yes?
@@ -33,7 +33,7 @@ module Wile
         return false unless $stdin.gets&.match?(/^[Yy]/)
       end
 
-      FileUtils.cp 'tmp/dictionary', '.dictionary'
+      FileUtils.cp 'tmp/.dictionary', '.dictionary'
       true
     end
   end
