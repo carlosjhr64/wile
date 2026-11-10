@@ -9,9 +9,7 @@ Feature: Testing wile nvim task
     * When we run command
     * Then exit status is "0"
     * Then stderr is ""
-    * Then stdout includes "README.md"
-    * Then stdout includes "bin/wile"
-    * Then stdout includes "lib/wile.rb"
+    * Then stdout is fixture 'wile-nvim-list.txt'
 
   Scenario: nvim with match pattern and list option
     * Given option "nvim tasks --list"

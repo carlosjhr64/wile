@@ -28,8 +28,10 @@ module Wile
   autoload :Run,       File.join(__dir__, 'wile/run')
   autoload :Sysexits,  File.join(__dir__, 'wile/sysexits')
   autoload :Utilities, File.join(__dir__, 'wile/utilities')
+  # autoload 'wile/utilities_refinements'
   autoload :UtilitiesRefinements,
            File.join(__dir__, 'wile/utilities_refinements')
+  # autoload 'wile/wile_refinements'
   autoload :WileRefinements,
            File.join(__dir__, 'wile/wile_refinements')
 end
