@@ -25,7 +25,8 @@ module Wile
     end
 
     def self.tag!(version)
-      raise 'git tag failed' unless system('git', 'tag', version)
+      raise 'git tag failed' unless
+        system('git', 'tag', '-a', version, '-m', version)
     end
 
     def self.already_published!(version)
@@ -40,7 +41,7 @@ module Wile
     end
 
     def self.push!
-      raise 'git push failed' unless system('git push')
+      raise 'git push failed' unless system('git', 'push', '--follow-tags')
     end
   end
 end
