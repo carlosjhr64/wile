@@ -505,6 +505,7 @@ find
 find_all_by_name
 find_method
 first
+first_line
 first_truthy_value
 fish_path
 fish_plugin
@@ -558,6 +559,7 @@ get_sections
 gets
 git
 git_init
+git_non_hook
 glob
 gmu
 gray
@@ -773,6 +775,7 @@ pandoc
 pandoc_args
 parse
 parse_file
+parts
 pascal_case
 passed
 path
@@ -900,6 +903,7 @@ review_file
 review_next
 review_response_cases
 rgx
+rindex
 rj
 rjust
 rm_pkg

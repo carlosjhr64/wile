@@ -9,7 +9,12 @@ module Wile
     # :reek:TooManyStatements
     def self.archive(pkg)
       pkg.weird_filename!
+      raise "Package not found: #{pkg}" unless File.file?(pkg)
+
       version = pkg.scan(/\d+\.\d+\.\d+/).first
+      raise "Cannot extract version from: #{pkg}" unless version
+
+      FileUtils.mkdir_p('pkg')
       File.rename pkg, "pkg/#{pkg}"
       File.open('History.txt', 'a') do |file|
         file.puts "# #{version} / #{Time.now}"
@@ -18,7 +23,15 @@ module Wile
     end
 
     def self.find(dir)
-      Find.find(dir).select { File.file? it }
+      found = []
+      Find.find(dir) do |path|
+        if git_non_hook?(path)
+          Find.prune
+        elsif File.file?(path)
+          found << path
+        end
+      end
+      found
     end
 
     def self.files(dir)
@@ -32,14 +45,28 @@ module Wile
 
     # :reek:ControlParameter
     def self.rbfiles(mode = nil)
-      (mode == :git ? Git.files : pfiles)
-        .select { /\.rb$/.match? it or bang_ruby? it }
+      (mode&.to_sym == :git ? Git.files : pfiles)
+        .select { /\.rb$/.match?(it) || bang_ruby?(it) }
     end
 
     def self.bang_ruby?(filename)
-      return false if /\.erb$/.match?(filename) || !File.executable?(filename)
+      return false unless File.file?(filename) &&
+                          !File.empty?(filename) &&
+                          File.executable?(filename) &&
+                          !/\.erb$/.match?(filename)
 
-      /^#!.*\bruby\b/.match? File.read(filename, 80).lines.first.rstrip
+      first_line = File.read(filename, 80).lines.first
+      first_line ? /^#!.*\bruby\b/.match?(first_line.rstrip) : false
+    end
+
+    def self.git_non_hook?(path)
+      return false unless File.directory?(path)
+
+      parts = path.split('/')
+      return false unless (idx = parts.rindex('.git'))
+      return false if idx == parts.length - 1
+
+      parts[idx + 1] != 'hooks'
     end
   end
 end

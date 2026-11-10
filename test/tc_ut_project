@@ -1,0 +1,101 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'tmpdir'
+require_relative 'test_helper'
+require_relative '../lib/wile'
+require_relative '../lib/wile/run'
+
+# Unit tests for Wile::Project.
+class TestUtProject < Test::Unit::TestCase
+  def setup
+    Wile.autoloads
+  end
+
+  def test_find_and_files
+    found = Wile::Project.find('lib/wile/autoloads')
+    files = Wile::Project.files('lib/wile/autoloads')
+    assert_kind_of Array, found
+    assert_kind_of Array, files
+    assert_includes files, 'project.rb'
+    assert_includes files, 'info.rb'
+    assert_equal files.size, found.size
+  end
+
+  def test_pfiles
+    pfiles = Wile::Project.pfiles
+    assert_kind_of Array, pfiles
+    assert_includes pfiles, 'lib/wile.rb'
+    assert_includes pfiles, '.gitignore'
+    assert_includes pfiles, '.git/hooks/pre-commit'
+    refute(pfiles.any? { it.include?('.git/objects') })
+    refute(pfiles.any? { it.include?('.git/refs') })
+  end
+
+  def test_rbfiles_modes
+    rbfiles_default = Wile::Project.rbfiles
+    rbfiles_sym = Wile::Project.rbfiles(:git)
+    rbfiles_str = Wile::Project.rbfiles('git')
+    assert_equal rbfiles_sym, rbfiles_str
+    assert_includes rbfiles_default, 'lib/wile.rb'
+    assert_includes rbfiles_default, 'bin/wile'
+  end
+
+  def test_bang_ruby_existing_files
+    assert_true Wile::Project.bang_ruby?('bin/wile')
+    assert_false Wile::Project.bang_ruby?('lib/wile.rb')
+    assert_false Wile::Project.bang_ruby?('.version')
+    assert_false Wile::Project.bang_ruby?('lib')
+  end
+
+  def test_bang_ruby_edge_cases
+    Dir.mktmpdir { |tmp| verify_bang_ruby_fixtures(tmp) }
+  end
+
+  def test_archive_success
+    Dir.mktmpdir { |tmp| verify_archive_flow(tmp) }
+  end
+
+  def test_archive_guards
+    Dir.mktmpdir do |tmp|
+      Dir.chdir(tmp) do
+        assert_raise(RuntimeError) { Wile::Project.archive('bad;name') }
+        assert_raise(RuntimeError) { Wile::Project.archive('missing-1.gem') }
+        File.write('noversion.gem', 'data')
+        assert_raise(RuntimeError) { Wile::Project.archive('noversion.gem') }
+      end
+    end
+  end
+
+  private
+
+  def verify_bang_ruby_fixtures(tmp)
+    empty_exe = make_fixture(tmp, 'empty', '', executable: true)
+    sh_exe = make_fixture(tmp, 'sh', "#!/bin/sh\necho 1\n", executable: true)
+    rb_exe = make_fixture(tmp, 'rb', "#!/usr/bin/env ruby\n", executable: true)
+    erb_file = make_fixture(tmp, 't.erb', "#!/usr/bin/ruby\n", executable: true)
+    assert_false Wile::Project.bang_ruby?(empty_exe)
+    assert_false Wile::Project.bang_ruby?(sh_exe)
+    assert_true Wile::Project.bang_ruby?(rb_exe)
+    assert_false Wile::Project.bang_ruby?(erb_file)
+  end
+
+  def verify_archive_flow(tmp)
+    Dir.chdir(tmp) do
+      pkg = 'sample-1.2.3.gem'
+      File.write(pkg, 'gem data')
+      Wile::Project.archive(pkg)
+      assert_true File.file?("pkg/#{pkg}")
+      assert_false File.exist?(pkg)
+      assert_true File.file?('History.txt')
+      assert_match(%r{# 1\.2\.3 /}, File.read('History.txt'))
+    end
+  end
+
+  def make_fixture(dir, name, content, executable: false)
+    path = File.join(dir, name)
+    File.write(path, content)
+    File.chmod(0o755, path) if executable
+    path
+  end
+end
