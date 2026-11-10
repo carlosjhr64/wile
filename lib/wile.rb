@@ -24,7 +24,7 @@ String.disable_colorization = true unless $stdout.tty? &&
 # The Wile module is the main namespace for the Wile application.
 module Wile
   ROOT = File.expand_path('..', __dir__)
-  VERSION = '0.4.261109' # Must match .version
+  VERSION = '0.4.261110' # Must match .version
   autoload :Run,       File.join(__dir__, 'wile/run')
   autoload :Sysexits,  File.join(__dir__, 'wile/sysexits')
   autoload :Utilities, File.join(__dir__, 'wile/utilities')
