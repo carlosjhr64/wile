@@ -14,7 +14,7 @@
 . ftr VB CB
 . ftr VBI CBI
 .\}
-.TH "WILE" "1" "November 2026" "wile 0.4.261109" "User Commands"
+.TH "WILE" "1" "November 2026" "wile 0.4.261110" "User Commands"
 .hy
 .SH NAME
 .PP
@@ -112,7 +112,8 @@ for details.
 \f[B]list\f[R]: List all tasks or filter by pattern (see
 \f[B]LIST\f[R]).
 .IP \[bu] 2
-\f[B]mkdir\f[R]: Create project directory from template.
+\f[B]mkdir\f[R]: Create project directory from template (see
+\f[B]MKDIR\f[R]).
 .IP \[bu] 2
 \f[B]note\f[R]: Scrape ruby files for NOTE comments (see
 \f[B]NOTE\f[R]).
@@ -307,6 +308,45 @@ scripts.
 .IP \[bu] 2
 \f[B]CODE\f[R]: Unformatted usage comment lines extracted from task
 source files.
+.SH MKDIR
+.PP
+Wile creates a new Ruby gem project directory scaffolded from the living
+template in \f[V]cache/\f[R]:
+.IP
+.nf
+\f[C]
+$ wile mkdir my_gem             # Create new project directory
+\f[R]
+.fi
+.PP
+Arguments:
+.IP \[bu] 2
+\f[V]<dirname>\f[R]: Exactly one argument specifying the new project
+directory name.
+Must contain only letters, numbers, underscores, or hyphens
+(\f[V][a-zA-Z0-9_-]\f[R]).
+.PP
+Scaffolding steps:
+.IP "1." 3
+\f[B]Safety Check\f[R]: Verifies that \f[V]<dirname>\f[R] does not
+already exist in the target path.
+.IP "2." 3
+\f[B]Template Copy\f[R]: Copies the template structure from
+\f[V]cache/\f[R] into the new project directory.
+.IP "3." 3
+\f[B]Template Evaluation\f[R]: Evaluates all \f[V].erb\f[R] files (such
+as \f[V]README.md.erb\f[R], \f[V]bin/project.erb\f[R], and
+\f[V]lib/project.rb.erb\f[R]), substituting the project name, PascalCase
+module name, Git author credentials, year, and date.
+.IP "4." 3
+\f[B]Path Renaming\f[R]: Renames template source and executable files
+(e.g.
+\f[V]bin/project\f[R] and \f[V]lib/project.rb\f[R]) to match the project
+name, and deletes the \f[V].erb\f[R] templates.
+.IP "5." 3
+\f[B]Git Initialization\f[R]: Initializes a new Git repository
+(\f[V]git init\f[R]) and installs template Git hooks (such as
+\f[V].git/hooks/pre-commit\f[R]).
 .SH NOTE
 .PP
 Wile scrapes project Ruby source files and prints every line containing

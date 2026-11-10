@@ -3,11 +3,18 @@
 
 require_relative 'test_helper'
 require_relative '../lib/wile'
+require_relative '../lib/wile/run'
+require_relative '../lib/wile/requires'
 require_relative '../lib/wile/tasks'
+require_relative '../lib/wile/tasks/mkdir'
 
 # Unit tests for Wile::Tasks.
 class TestUtTasks < Test::Unit::TestCase
   TASKS = Wile::Tasks.new
+
+  def setup
+    Wile.autoloads
+  end
 
   def test_find_exact
     assert_equal :help, TASKS.find('help')
@@ -54,5 +61,20 @@ class TestUtTasks < Test::Unit::TestCase
   def test_find_unmatched_returns_nil
     assert_nil TASKS.find('xyz')
     assert_nil TASKS.find('nonexistent')
+  end
+
+  def test_mkdir_validation
+    assert_raise(Wile::UsageError) { TASKS.mkdir(fake_options([])) }
+    assert_raise(Wile::UsageError) { TASKS.mkdir(fake_options(['bad!name'])) }
+  end
+
+  def test_mkdir_existing
+    assert_raise(RuntimeError) { TASKS.mkdir(fake_options(['lib'])) }
+  end
+
+  private
+
+  def fake_options(args)
+    Struct.new(:args).new(args)
   end
 end

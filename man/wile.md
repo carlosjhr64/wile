@@ -63,7 +63,7 @@ Run `wile list` to list all tasks, or `wile help <task>` for details.
 - **install**: Build and install gem locally.
 - **lexicon**: View and update vocabulary whitelist (see **LEXICON**).
 - **list**: List all tasks or filter by pattern (see **LIST**).
-- **mkdir**: Create project directory from template.
+- **mkdir**: Create project directory from template (see **MKDIR**).
 - **note**: Scrape ruby files for NOTE comments (see **NOTE**).
 - **nvim**: Open project files in Neovim (see **NVIM**).
 - **order**: Suggest method ordering in ruby files (see **ORDER**).
@@ -193,6 +193,34 @@ Formats:
 - **DICTIONARY**: Concise list in `+ <task>: <description>` format.
 - **NAME**: Bare task names only, suitable for shell completion and scripts.
 - **CODE**: Unformatted usage comment lines extracted from task source files.
+
+## MKDIR
+
+Wile creates a new Ruby gem project directory scaffolded from the living
+template in `cache/`:
+
+    $ wile mkdir my_gem             # Create new project directory
+
+Arguments:
+
+- `<dirname>`: Exactly one argument specifying the new project directory
+  name. Must contain only letters, numbers, underscores, or hyphens
+  (`[a-zA-Z0-9_-]`).
+
+Scaffolding steps:
+
+1. **Safety Check**: Verifies that `<dirname>` does not already exist in the
+   target path.
+2. **Template Copy**: Copies the template structure from `cache/` into the
+   new project directory.
+3. **Template Evaluation**: Evaluates all `.erb` files (such as `README.md.erb`,
+   `bin/project.erb`, and `lib/project.rb.erb`), substituting the project name,
+   PascalCase module name, Git author credentials, year, and date.
+4. **Path Renaming**: Renames template source and executable files (e.g.
+   `bin/project` and `lib/project.rb`) to match the project name, and deletes
+   the `.erb` templates.
+5. **Git Initialization**: Initializes a new Git repository (`git init`) and
+   installs template Git hooks (such as `.git/hooks/pre-commit`).
 
 ## NOTE
 
