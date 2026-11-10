@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-# wile: os `diff`
-
 # Wile namespace.
 module Wile
   # Git module provides functions to interact with git.

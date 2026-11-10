@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# wile: os `diff`
+
 # Given command "<command>"
 Given(/(?:Given )?command "([^"]*)"/) do |command|
   @command = command

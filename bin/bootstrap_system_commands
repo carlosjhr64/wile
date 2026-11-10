@@ -4,7 +4,6 @@
 Encoding.default_external = Encoding::UTF_8
 
 require_relative '../lib/wile'
-# wile: os `diff`
 
 HelpParser[Wile::VERSION, <<~HELP]
   # ## bootstrap_system_commands ##
