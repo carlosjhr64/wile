@@ -22,7 +22,7 @@ module Wile
     end
 
     def self.files
-      `git ls-files`.lines.map(&:strip)
+      `git ls-files`.lines(chomp: true)
     end
 
     def self.tag!(version)
@@ -36,9 +36,8 @@ module Wile
     end
 
     def self.commit!(version)
-      return if system('git', 'commit', '-a', '-m', version)
-
-      raise 'git commit failed'
+      raise 'git commit failed' unless
+        system('git', 'commit', '-a', '-m', version)
     end
 
     def self.push!
