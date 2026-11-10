@@ -490,7 +490,6 @@ extract_words
 fallback
 fetch
 fetch_latest_release
-fh
 file
 file_ranks
 filematch
@@ -504,7 +503,6 @@ find
 find_all_by_name
 find_method
 first
-first_match
 first_truthy_value
 fish_path
 fish_plugin
@@ -931,7 +929,10 @@ self
 send
 sep
 set
+set_date
+set_git_user
 set_project
+set_project_names
 settings
 shared
 shift

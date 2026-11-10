@@ -50,17 +50,28 @@ module Wile
       Regexp.new read(filename).strip, Regexp::EXTENDED
     end
 
-    # :reek:TooManyStatements
     def set_project!
+      set_project_names
+      set_git_user
+      set_date
+    end
+
+    def set_project_names
       @readme     = 'README.md'
       @project    = File.basename(@dirname)
       @gemspec    = "#{@project}.gemspec"
       @module     = @project.pascal_case
       @project_rb = "lib/#{@project}.rb"
-      @username   = `git config user.name`.strip
-      @email      = `git config user.email`.strip
-      @year       = @now.year
-      @date       = @now.strftime('%Y-%m-%d')
+    end
+
+    def set_git_user
+      @username = `git config user.name`.strip
+      @email    = `git config user.email`.strip
+    end
+
+    def set_date
+      @year = @now.year
+      @date = @now.strftime('%Y-%m-%d')
     end
 
     def read(filename)
@@ -68,17 +79,6 @@ module Wile
     rescue StandardError
       warn "Warning: using cache #{filename}".yellow
       File.read("#{@cache}/#{filename}")
-    end
-
-    def first_match(filename, regexp)
-      md = nil
-      File.open(filename, 'r') do |fh|
-        while (line = fh.gets)
-          return md if (md = regexp.match line)
-        end
-      end
-      warn "no line match: #{regexp} #{filename}".red
-      nil
     end
   end
 end
