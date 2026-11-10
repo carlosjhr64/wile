@@ -1,0 +1,108 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'tmpdir'
+require_relative 'test_helper'
+require_relative '../lib/wile'
+require_relative '../lib/wile/run'
+
+# Unit tests for Wile::Cache.
+class TestUtCache < Test::Unit::TestCase
+  def setup
+    Wile.autoloads
+    @cache = Wile::Cache.new
+  end
+
+  def test_cfile2pfile
+    verify_pfile_mappings
+  end
+
+  def test_p2c_hash
+    p2c = @cache.p2c_hash
+    assert_kind_of Hash, p2c
+    assert_equal 'README.md.erb', p2c['README.md']
+    assert_equal 'git/hooks/pre-commit', p2c['.git/hooks/pre-commit']
+    assert_equal "bin/#{@cache.info.project}",
+                 @cache.send(:cfile2pfile, 'bin/project.erb')
+  end
+
+  def test_pfiles
+    pfiles = @cache.pfiles
+    assert_include pfiles, 'README.md'
+    assert_include pfiles, 'lib/wile.rb'
+    assert_false(pfiles.any? { |f| non_hook_git?(f) })
+  end
+
+  def test_copy2project
+    with_quiet_io do
+      Dir.mktmpdir do |dir|
+        verify_copy_lifecycle(dir)
+      end
+    end
+  end
+
+  def test_make_in_git_named_path
+    with_quiet_io do
+      Dir.mktmpdir do |tmp|
+        dest = File.join(tmp, 'git', 'sandbox')
+        info = Wile::Info.new(dirname: dest)
+        Wile::Cache.new(info).make
+        verify_make_output(dest)
+      end
+    end
+  end
+
+  private
+
+  def non_hook_git?(path)
+    path.start_with?('.git/') && !path.start_with?('.git/hooks/')
+  end
+
+  def verify_pfile_mappings
+    assert_equal 'README.md', @cache.send(:cfile2pfile, 'README.md.erb')
+    assert_equal '.git/hooks/pre-commit',
+                 @cache.send(:cfile2pfile, 'git/hooks/pre-commit')
+    assert_equal "lib/#{@cache.info.project}.rb",
+                 @cache.send(:cfile2pfile, 'lib/project.rb.erb')
+  end
+
+  def verify_copy_lifecycle(dir)
+    pfile = File.join(dir, 'nested', 'test.txt')
+    cfile = '.version'
+    assert_equal pfile, @cache.copy2project(cfile, pfile)
+    assert_true File.file?(pfile)
+    assert_false @cache.copy2project(cfile, pfile)
+    assert_equal pfile, @cache.copy2project(cfile, pfile, force: true)
+  end
+
+  def verify_make_output(dest)
+    verify_make_git(dest)
+    verify_make_files(dest)
+  end
+
+  def verify_make_git(dest)
+    assert_true File.directory?(File.join(dest, '.git'))
+    assert_true File.file?(File.join(dest, '.git', 'hooks', 'pre-commit'))
+    assert_false File.exist?(File.join(dest, 'git'))
+  end
+
+  def verify_make_files(dest)
+    assert_true File.file?(File.join(dest, 'bin', 'sandbox'))
+    assert_true File.file?(File.join(dest, 'lib', 'sandbox.rb'))
+    assert_false File.exist?(File.join(dest, 'README.md.erb'))
+    assert_true File.file?(File.join(dest, 'README.md'))
+  end
+
+  def with_quiet_io
+    orig_out = $stdout.dup
+    orig_err = $stderr.dup
+    $stdout.reopen(File::NULL)
+    $stderr.reopen(File::NULL)
+    yield
+  ensure
+    $stdout.reopen(orig_out)
+    $stderr.reopen(orig_err)
+    orig_out.close
+    orig_err.close
+  end
+end

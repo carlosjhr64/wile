@@ -394,6 +394,7 @@ dependency
 dependency_index
 desc
 description
+dest
 detail
 detect
 detect_user_shell
@@ -508,7 +509,6 @@ fish_plugin
 fish_version
 fisher_version
 flag
-flatten
 flg
 float
 float_node
@@ -813,6 +813,7 @@ prompt_configure_shell
 prompt_install
 prompt_target_ruby_install
 protected
+prune
 public
 public_method_defined
 public_methods
@@ -869,6 +870,7 @@ refine
 regexp
 regular_expression_node
 reject
+rel
 rename
 reply
 report
@@ -877,6 +879,7 @@ require
 require_in_path
 require_relative
 requirements
+res
 resolve_format
 respond_to
 responds

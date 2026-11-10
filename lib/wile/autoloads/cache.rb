@@ -21,11 +21,11 @@ module Wile
         return false
       end
 
-      c2p("#{@info.cache}/#{cfile}", pfile)
+      c2p(File.join(@info.cache, cfile), pfile)
       warn pfile.green
       pfile
     rescue StandardError => e
-      warn "#{pfile}: #{e.message}".red # returns nil
+      warn "#{pfile}: #{e.message}".red
     end
 
     def pfiles
@@ -34,24 +34,30 @@ module Wile
     end
 
     def p2c_hash
-      Hash[*cfiles.map { [cfile2pfile(it), it] }.flatten]
+      cfiles.to_h { [cfile2pfile(it), it] }
     end
 
     def make
-      FileUtils.cp_r @info.cache, @info.dirname
+      dirname = @info.dirname
+      FileUtils.mkdir_p(File.dirname(dirname))
+      FileUtils.cp_r(@info.cache, dirname)
       erb_convert
       git_init
     end
 
     private
 
-    # :reek:DuplicateMethodCall @info.dirname
+    # :reek:TooManyStatements
     def git_init
-      Git.init! @info.dirname
-      # Add template's hooks
-      git = File.join(@info.dirname, 'git')
+      dirname = @info.dirname
+      Git.init! dirname
+      git = File.join(dirname, 'git')
       Find.find(git) do |fn|
-        File.rename(fn, fn.sub('/git/', '/.git/')) if File.file?(fn)
+        next unless File.file?(fn)
+
+        dest = File.join(dirname, '.git', fn.delete_prefix("#{git}/"))
+        FileUtils.mkdir_p(File.dirname(dest))
+        File.rename(fn, dest)
       end
       FileUtils.rm_r(git)
     end
@@ -70,18 +76,25 @@ module Wile
       files(cache).grep_v(ignore)
     end
 
+    # :reek:UtilityFunction
     def find(dir)
-      Find.find(dir).select { File.file? it }
+      [].tap do |res|
+        Find.find(dir) do |path|
+          if File.directory?(path) && path.start_with?("#{dir}/.git") &&
+             path != "#{dir}/.git" && !path.start_with?("#{dir}/.git/hooks")
+            Find.prune
+          end
+          res << path if File.file?(path)
+        end
+      end
     end
 
     def c2p(cfile, pfile)
-      case cfile
-      when /\.erb$/
+      FileUtils.mkdir_p(File.dirname(pfile))
+      if cfile.end_with?('.erb')
         erb_cp(cfile, pfile)
-      when /pre-commit$/
-        FileUtils.cp cfile, '.git/hooks/pre-commit'
       else
-        FileUtils.cp cfile, pfile
+        FileUtils.cp(cfile, pfile)
       end
     end
 
@@ -91,18 +104,17 @@ module Wile
     end
 
     # :reek:TooManyStatements
-    def erb_convert(dirname: @info.dirname,
-                    cache: @info.cache,
-                    project: @info.project)
-      Find.find(cache) do |cf| # cache file
-        next unless /\.erb$/.match?(cf)
+    def erb_convert
+      cache = @info.cache
+      dirname = @info.dirname
+      Find.find(cache) do |cf|
+        next unless cf.end_with?('.erb')
 
-        # Note that these are now only *.erb files...
-        erb = File.join(dirname, cf.delete_prefix(cache))
-        fn = erb.chomp('.erb')
-        erb_cp(erb, fn)
-        File.rename fn, fn.sub(/project(\.\w+)?$/, "#{project}\\1")
-        File.delete erb
+        rel = cf.delete_prefix("#{cache}/")
+        erb = File.join(dirname, rel)
+        dest = File.join(dirname, cfile2pfile(rel))
+        erb_cp(erb, dest)
+        File.delete(erb)
       end
     end
   end
