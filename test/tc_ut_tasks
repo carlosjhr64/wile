@@ -56,6 +56,13 @@ class TestUtTasks < Test::Unit::TestCase
     rev = Wile::Review.allocate
     assert_equal ['lib/wile.rb'], rev.send(:review_files, 'lib/wile.rb')
     assert_raise(RuntimeError) { rev.send(:review_files, 'nonexistent_xyz') }
+    rev.instance_variable_set(:@auto, false)
+    old_stdin = $stdin
+    $stdin = StringIO.new("q\n")
+    out = capture_stdout { rev.send(:review_choice, %i[reek rubocop]) }
+    assert_match(/Failed: reek, rubocop/, out.uncolorize)
+  ensure
+    $stdin = old_stdin
   end
 
   def test_gemcheck_logic

@@ -99,26 +99,28 @@ module Wile
     def review_do
       system('clear')
       puts "#{@index + 1}. #{file}".blue.bold
-      review_next review_file?
+      review_next review_failed
     end
 
-    def review_next(passed)
-      review_response_cases review_choice(passed)
+    def review_next(failed)
+      review_response_cases review_choice(failed)
     rescue RuntimeError => e
       puts e.message.red
       retry
     end
 
-    # :reek:ControlParameter
-    def review_choice(passed)
+    # :reek:ControlParameter :reek:TooManyStatements
+    def review_choice(failed)
+      passed = failed.empty?
       return @index + 1 < @files.size ? 'n' : 'q' if @auto && passed
 
+      puts "\nFailed: #{failed.join(', ')}".red unless passed
       print 'Next(Enter) Quit(q) Redo(r) Previous(p) or file match: '.yellow
       $stdin.gets&.strip || 'q'
     end
 
-    def review_file?
-      @checks.map { send(it) }.all?
+    def review_failed
+      @checks.reject { send(it) }
     end
 
     def content

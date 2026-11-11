@@ -497,6 +497,7 @@ external
 extract_archive
 extract_sha256
 extract_words
+failed
 fallback
 fetch
 fetch_latest_release
@@ -920,7 +921,7 @@ reverse
 review
 review_choice
 review_do
-review_file
+review_failed
 review_files
 review_next
 review_response_cases
