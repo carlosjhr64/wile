@@ -72,6 +72,7 @@ Usage:
 Options:
   -h --help	Show help summary
   -v --version	Show version number
+  -a --all	Apply to all targets
   -c --check	Run in check-only mode
   -d --dump	Dump internal structure or data
   -f --force	Force execution without safety checks
@@ -88,7 +89,6 @@ Options:
 
 Reserved flags for custom tasks:
 
-  -a --all	Apply to all targets
   --archive	Archive mode; preserve file attributes and permissions
   --backup	Make backup before removal or overwrite
   --batch	Run in non-interactive batch mode

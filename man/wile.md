@@ -31,6 +31,7 @@ testing, and release.
 
 - `-h`, `--help`: Show help summary.
 - `-v`, `--version`: Show version number.
+- `-a`, `--all`: Apply to all targets.
 - `-c`, `--check`: Run in check-only mode.
 - `-d`, `--dump`: Dump internal structure or data.
 - `-f`, `--force`: Force execution without safety checks.
