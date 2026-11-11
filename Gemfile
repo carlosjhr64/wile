@@ -12,3 +12,4 @@ gem 'rubocop'
 gem 'test-unit'
 gem 'tmuxinator'
 ## development ##
+gem 'irbtools'

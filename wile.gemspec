@@ -5,7 +5,7 @@ Gem::Specification.new do |s|
   s.homepage = 'https://github.com/carlosjhr64/wile'
   s.author   = 'CarlosJHR64'
   s.email    = 'carlosjhr64@gmail.com'
-  s.date     = '2026-11-10'
+  s.date     = '2026-11-11'
   s.licenses = ['MIT']
   ## DESCRIPTION ##
   s.summary  = <<~SUMMARY
@@ -163,7 +163,6 @@ Gem::Specification.new do |s|
   s.requirements << 'clear: 6.4'
   s.requirements << 'diff: 3.8'
   s.requirements << 'dpkg-query: 1.21'
-  s.requirements << 'egrep: 3.8'
   s.requirements << 'fish: 4.9'
   s.requirements << 'gem: 4.0'
   s.requirements << 'git: 2.39'

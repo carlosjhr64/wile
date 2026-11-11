@@ -126,7 +126,7 @@ module Wile
     # Used in: bootstrap_ruby_gems
     def verify_project_root!(root_files = ROOT_FILES)
       root_files.each do |file|
-        next if File.file?(file) && !File.empty?(file)
+        next if File.file?(file)
 
         error!(EX_NOINPUT, "Error: #{file} not found -- " \
                            "run this from a Wile project's root directory.")
