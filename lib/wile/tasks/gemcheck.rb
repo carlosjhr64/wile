@@ -61,26 +61,26 @@ module Wile
     def collect_gems(gemcmd)
       `#{gemcmd} list`.lines(chomp: true).each_with_object({}) do |line, gems|
         name, vers = line.split(' ', 2)
-        major = gem_major(vers)
-        gems[name] = major if major
+        majors = gem_majors(vers)
+        gems[name] = majors if majors
       end
     end
 
     # :reek:UtilityFunction
-    def gem_major(str)
+    def gem_majors(str)
       return unless str&.start_with?('(') && str.end_with?(')')
 
       str[1..-2].split(',').filter_map do |item|
         ver = item.sub('default:', '').strip.split.first
         Gem::Version.new(ver).segments.first if Gem::Version.correct?(ver)
-      end.max
+      end.uniq.sort
     end
 
     def gemcheck_report(missing, searched)
       puts "Current Ruby version: #{RUBY_VERSION}".gray
       puts "Searching versions:   #{searched.join(', ')}".gray
       puts 'Gems missing in current found in other versions:'.blue
-      missing.sort.each do |name, (major, versions)|
+      missing.sort.each do |(name, major), versions|
         puts "  #{name} (~> #{major}):  #{versions.join(', ')}"
       end
     end
@@ -103,7 +103,7 @@ module Wile
     end
 
     def gemcheck_install(missing)
-      missing.each do |name, (major, *)|
+      missing.each_key do |name, major|
         req = "~> #{major}"
         next if system('gem', 'list', name, '-v', req, '-i', out: File::NULL)
 
@@ -111,27 +111,30 @@ module Wile
       end
     end
 
-    # :reek:FeatureEnvy :reek:NestedIterators :reek:TooManyStatements
-    # :reek:UtilityFunction
+    # :reek:FeatureEnvy :reek:TooManyStatements :reek:UtilityFunction
     def gemcheck_missing(inventory)
       current = inventory.fetch(RUBY_VERSION, {})
-      missing = Hash.new { |hash, key| hash[key] = [-1, []] }
+      missing = Hash.new { |hash, key| hash[key] = [] }
       inventory.each_pair do |version, gems|
         next if version == RUBY_VERSION
 
-        gems.each_pair do |name, major|
-          next if current.fetch(name, -1) >= major
-
-          record_missing(missing[name], version, major)
-        end
+        record_missing(missing, version, missing_gems(gems, current))
       end
       missing
     end
 
+    # :reek:NestedIterators :reek:UtilityFunction
+    def missing_gems(gems, current)
+      gems.each_with_object([]) do |(name, majors), diff|
+        (majors - current.fetch(name, [])).each do |major|
+          diff << [name, major]
+        end
+      end
+    end
+
     # :reek:UtilityFunction
-    def record_missing(entry, version, major)
-      entry[0] = [entry[0], major].max
-      entry[1] << version
+    def record_missing(missing, version, items)
+      items.each { |key| missing[key] << version }
     end
   end
 end

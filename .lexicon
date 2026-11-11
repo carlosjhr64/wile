@@ -541,7 +541,7 @@ func
 gem
 gem_installed
 gem_label
-gem_major
+gem_majors
 gem_name
 gem_which
 gemcheck
@@ -630,6 +630,7 @@ is_a
 isolate
 it
 item
+items
 iterate
 j
 jkab
@@ -674,6 +675,7 @@ m
 magenta
 main
 major
+majors
 make
 man
 manual_fish_instructions

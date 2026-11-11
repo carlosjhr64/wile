@@ -277,10 +277,9 @@ compared to installed versions managed by \f[V]rbenv\f[R].
 By default, only the previous installed version is searched; passing
 \f[V]--all\f[R] inspects all installed Ruby versions.
 .PP
-Major versions are tracked according to Semantic Versioning: if the
-current Ruby lacks a gem or has an older major version installed than
-what was found in the searched versions, the missing latest major
-version is reported with a pessimistic requirement (such as
+Major versions are tracked according to Semantic Versioning: for each
+gem in the searched versions, each missing major version not currently
+installed is reported with a pessimistic requirement (such as
 \f[V]\[ti]> 1\f[R]):
 .IP
 .nf

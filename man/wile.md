@@ -172,10 +172,9 @@ Wile checks for missing gems in the currently running Ruby version compared to
 installed versions managed by `rbenv`. By default, only the previous installed
 version is searched; passing `--all` inspects all installed Ruby versions.
 
-Major versions are tracked according to Semantic Versioning: if the current
-Ruby lacks a gem or has an older major version installed than what was found
-in the searched versions, the missing latest major version is reported with a
-pessimistic requirement (such as `~> 1`):
+Major versions are tracked according to Semantic Versioning: for each gem in
+the searched versions, each missing major version not currently installed is
+reported with a pessimistic requirement (such as `~> 1`):
 
     $ wile gemcheck                 # Check against previous Ruby version
     $ wile gemcheck --all           # Check across all installed Rubies
