@@ -53,7 +53,7 @@ Run `wile list` to list all tasks, or `wile help <task>` for details.
 - **bump**: Bump project version number.
 - **compare**: Compare project files with template (see **COMPARE**).
 - **content**: Inspect ruby file structure and methods (see **CONTENT**).
-- **cp**: Copy template files into project.
+- **cp**: Copy template files into project (see **CP**).
 - **dependencies**: List ruby dependencies.
 - **dictionary**: Manage spelling dictionary (see **DICTIONARY**).
 - **gemcheck**: Check for missing gems across rbenv Rubies.
@@ -125,6 +125,31 @@ Arguments and options:
 - `--raw`: Display plain method line counts and definitions without color.
 - `--dump`: Dump internal S-expression AST structure to stdout with source
   header on stderr.
+
+## CP
+
+Wile copies template files from the living template cache into the project
+directory, keeping scaffolded files synchronized with upstream enhancements:
+
+    $ wile cp                       # Copy all missing template files
+    $ wile cp test                  # Copy template files matching pattern
+    $ wile cp .rubocop.yml --force  # Overwrite existing project file
+    $ wile cp --trace               # Show skipped and copied files
+
+Template behavior:
+
+- **ERB templates**: Template files ending in `.erb` are evaluated in the
+  project context, replacing project placeholders and removing the `.erb`
+  extension upon copying.
+- **Safety**: Existing project files are skipped by default. Pass `--force`
+  to overwrite existing files with fresh template copies.
+
+Arguments and options:
+
+- `<match>`: Optional pattern filtering which template files to copy.
+- `-f`, `--force`: Overwrite existing files in the project.
+- `-t`, `--trace`: Trace execution, displaying skipped files in grey and
+  copied files in green.
 
 ## DICTIONARY
 

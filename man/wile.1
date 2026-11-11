@@ -14,7 +14,7 @@
 . ftr VB CB
 . ftr VBI CBI
 .\}
-.TH "WILE" "1" "November 2026" "wile 0.4.261110" "User Commands"
+.TH "WILE" "1" "November 2026" "wile 0.4.261111" "User Commands"
 .hy
 .SH NAME
 .PP
@@ -89,7 +89,7 @@ for details.
 \f[B]content\f[R]: Inspect ruby file structure and methods (see
 \f[B]CONTENT\f[R]).
 .IP \[bu] 2
-\f[B]cp\f[R]: Copy template files into project.
+\f[B]cp\f[R]: Copy template files into project (see \f[B]CP\f[R]).
 .IP \[bu] 2
 \f[B]dependencies\f[R]: List ruby dependencies.
 .IP \[bu] 2
@@ -211,6 +211,41 @@ without color.
 .IP \[bu] 2
 \f[V]--dump\f[R]: Dump internal S-expression AST structure to stdout
 with source header on stderr.
+.SH CP
+.PP
+Wile copies template files from the living template cache into the
+project directory, keeping scaffolded files synchronized with upstream
+enhancements:
+.IP
+.nf
+\f[C]
+$ wile cp                       # Copy all missing template files
+$ wile cp test                  # Copy template files matching pattern
+$ wile cp .rubocop.yml --force  # Overwrite existing project file
+$ wile cp --trace               # Show skipped and copied files
+\f[R]
+.fi
+.PP
+Template behavior:
+.IP \[bu] 2
+\f[B]ERB templates\f[R]: Template files ending in \f[V].erb\f[R] are
+evaluated in the project context, replacing project placeholders and
+removing the \f[V].erb\f[R] extension upon copying.
+.IP \[bu] 2
+\f[B]Safety\f[R]: Existing project files are skipped by default.
+Pass \f[V]--force\f[R] to overwrite existing files with fresh template
+copies.
+.PP
+Arguments and options:
+.IP \[bu] 2
+\f[V]<match>\f[R]: Optional pattern filtering which template files to
+copy.
+.IP \[bu] 2
+\f[V]-f\f[R], \f[V]--force\f[R]: Overwrite existing files in the
+project.
+.IP \[bu] 2
+\f[V]-t\f[R], \f[V]--trace\f[R]: Trace execution, displaying skipped
+files in grey and copied files in green.
 .SH DICTIONARY
 .PP
 Wile provides trigram-based spell checking across \f[V]README.md\f[R],
