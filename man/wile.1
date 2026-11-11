@@ -81,7 +81,7 @@ release.
 Run \f[V]wile list\f[R] to list all tasks, or \f[V]wile help <task>\f[R]
 for details.
 .IP \[bu] 2
-\f[B]build\f[R]: Build gem package into pkg/.
+\f[B]build\f[R]: Build gem package (see \f[B]BUILD\f[R]).
 .IP \[bu] 2
 \f[B]bump\f[R]: Bump project version number.
 .IP \[bu] 2
@@ -147,6 +147,38 @@ for details.
 \f[B]TODO\f[R]).
 .IP \[bu] 2
 \f[B]update\f[R]: Update project files.
+.SH BUILD
+.PP
+Wile builds the gem package from the project gemspec into the working
+directory (\f[V]<project>-<version>.gem\f[R]):
+.IP
+.nf
+\f[C]
+$ wile build                    # Build gem package
+$ wile build --force            # Build package even if checks fail
+\f[R]
+.fi
+.PP
+Pre-build checks:
+.PP
+Before building, Wile verifies that:
+.IP \[bu] 2
+Git working directory is clean (\f[V]git status\f[R] shows no
+uncommitted changes).
+.IP \[bu] 2
+No stale \f[V].gem\f[R] file exists in the working directory.
+.IP \[bu] 2
+The project gemspec exists and has been modified within the last 5
+minutes.
+.PP
+Passing \f[V]--force\f[R] bypasses these verification checks and invokes
+\f[V]gem build\f[R] immediately.
+.PP
+Options:
+.IP \[bu] 2
+\f[V]-f\f[R], \f[V]--force\f[R]: Force build even if Git status is
+dirty, a stale gem package exists, or the gemspec has not been touched
+recently.
 .SH COMPARE
 .PP
 Wile compares project files against the living template in

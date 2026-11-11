@@ -50,7 +50,7 @@ testing, and release.
 
 Run `wile list` to list all tasks, or `wile help <task>` for details.
 
-- **build**: Build gem package into pkg/.
+- **build**: Build gem package (see **BUILD**).
 - **bump**: Bump project version number.
 - **compare**: Compare project files with template (see **COMPARE**).
 - **content**: Inspect ruby file structure and methods (see **CONTENT**).
@@ -77,6 +77,30 @@ Run `wile list` to list all tasks, or `wile help <task>` for details.
 - **test**: Run test suites (see **TESTING**).
 - **todo**: Display TODO.md or scrape files for TODO comments (see **TODO**).
 - **update**: Update project files.
+
+## BUILD
+
+Wile builds the gem package from the project gemspec into the working
+directory (`<project>-<version>.gem`):
+
+    $ wile build                    # Build gem package
+    $ wile build --force            # Build package even if checks fail
+
+Pre-build checks:
+
+Before building, Wile verifies that:
+
+- Git working directory is clean (`git status` shows no uncommitted changes).
+- No stale `.gem` file exists in the working directory.
+- The project gemspec exists and has been modified within the last 5 minutes.
+
+Passing `--force` bypasses these verification checks and invokes `gem build`
+immediately.
+
+Options:
+
+- `-f`, `--force`: Force build even if Git status is dirty, a stale gem
+  package exists, or the gemspec has not been touched recently.
 
 ## COMPARE
 
