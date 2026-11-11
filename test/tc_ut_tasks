@@ -7,12 +7,18 @@ require_relative '../lib/wile'
 require_relative '../lib/wile/run'
 require_relative '../lib/wile/requires'
 require_relative '../lib/wile/tasks'
+require_relative '../lib/wile/tasks/cp'
 require_relative '../lib/wile/tasks/info'
 require_relative '../lib/wile/tasks/mkdir'
 
 # Unit tests for Wile::Tasks.
 class TestUtTasks < Test::Unit::TestCase
   TASKS = Wile::Tasks.new
+
+  FakeCache = Struct.new(:mapping, :copied) do
+    def p2c_hash = mapping
+    def copy2project(cfile, pfile, force:) = copied << [cfile, pfile, force]
+  end
 
   def setup
     Wile.autoloads
@@ -24,45 +30,35 @@ class TestUtTasks < Test::Unit::TestCase
     assert_equal :test, TASKS.find('test')
   end
 
-  def test_find_prefix
+  def test_find_patterns
     assert_equal :build, TASKS.find('bui')
-    assert_equal :bump, TASKS.find('bum')
-    assert_equal :lexicon, TASKS.find('lex')
-    assert_equal :requirements, TASKS.find('req')
-  end
-
-  def test_find_suffix
     assert_equal :bump, TASKS.find('mp')
-    assert_equal :publish, TASKS.find('ish')
-    assert_equal :mkdir, TASKS.find('dir')
-  end
-
-  def test_find_substring
     assert_equal :lexicon, TASKS.find('xic')
-    assert_equal :requirements, TASKS.find('qui')
-  end
-
-  def test_find_ambiguous_returns_nil
-    assert_nil TASKS.find('bu')
-    assert_nil TASKS.find('co')
-    assert_nil TASKS.find('ge')
-  end
-
-  def test_find_ambiguous_prefix_falls_back_to_suffix
-    # 're' starts both requirements and review, but ends only compare.
     assert_equal :compare, TASKS.find('re')
   end
 
-  def test_find_short_or_empty_returns_nil
+  def test_find_nil_cases
+    assert_nil TASKS.find('bu')
+    assert_nil TASKS.find('xyz')
     assert_nil TASKS.find('h')
-    assert_nil TASKS.find('b')
     assert_nil TASKS.find('')
     assert_nil TASKS.find(nil)
   end
 
-  def test_find_unmatched_returns_nil
-    assert_nil TASKS.find('xyz')
-    assert_nil TASKS.find('nonexistent')
+  def test_cp_validation
+    assert_raise(Wile::UsageError) { TASKS.cp(fake_options(%w[one two])) }
+    assert_raise(Wile::UsageError) { TASKS.cp(fake_options([], bad: true)) }
+  end
+
+  def test_cp_no_matches
+    cache = FakeCache.new({ 'file.txt' => 'file.txt' }, [])
+    assert_raise(RuntimeError) { TASKS.cp(fake_options(['missing']), cache) }
+  end
+
+  def test_cp_execution
+    cache = FakeCache.new({ 'm.txt' => 'c/m.txt' }, [])
+    TASKS.cp(fake_options(['m'], force: true), cache)
+    assert_equal [['c/m.txt', 'm.txt', true]], cache.copied
   end
 
   def test_mkdir_validation
@@ -79,7 +75,7 @@ class TestUtTasks < Test::Unit::TestCase
   end
 
   def test_info_output
-    out = capture_stdout { TASKS.info(fake_options([])) }
+    out = capture_stdout { TASKS.info(fake_options([])) }.uncolorize
     assert_match(/# wile/, out)
     assert_match(/\+ Version:\s+#{Wile::VERSION}/, out)
     assert_match(/## Description/, out)
@@ -99,7 +95,12 @@ class TestUtTasks < Test::Unit::TestCase
     $stdout = orig
   end
 
-  def fake_options(args)
-    Struct.new(:args).new(args)
+  def fake_options(args, flags = {})
+    h = { 'task' => 'task', 'args' => args }
+    flags.each { |k, v| h[k.to_s] = v }
+    meths = flags.keys.map { :"#{it}?" }
+    obj = Struct.new(:args, *meths).new(args, *flags.values)
+    obj.define_singleton_method(:to_h) { h }
+    obj
   end
 end

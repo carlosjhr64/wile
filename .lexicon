@@ -504,6 +504,7 @@ filenames
 files
 files_file_match
 filter_nvim_files
+filter_p2c
 filter_tc_matching
 find
 find_all_by_name
