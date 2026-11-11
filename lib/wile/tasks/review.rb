@@ -26,7 +26,7 @@ module Wile
   end
 
   # This class is used to run review.
-  # :reek:TooManyInstanceVariables :reek:UncommunicativeVariableName
+  # :reek:TooManyInstanceVariables
   class Review
     using UtilitiesRefinements
     include Sysexits
@@ -37,6 +37,8 @@ module Wile
     def initialize(options, target: nil, files: nil)
       @files = files || review_files(target)
       @files.weird_filename!
+      raise 'No files to review' if @files.empty?
+
       @index = 0
       @strict = false
       @checks = AVAILABLE_CHECKS
@@ -60,9 +62,9 @@ module Wile
       all_files = all_files.select { it.start_with?('lib/') }
       return all_files unless target
       return [target] if File.file?(target)
-      return Dir.glob("#{target}/**/*.rb") if File.directory?(target)
 
-      matched = all_files.grep(/#{target}/)
+      pattern = File.directory?(target) ? File.join(target, '**/*.rb') : nil
+      matched = pattern ? Dir.glob(pattern) : all_files.grep(/#{target}/)
       raise "no match for #{target}" if matched.empty?
 
       matched
@@ -79,7 +81,8 @@ module Wile
       @auto = options.all?
       return unless (checks = options.only)
 
-      checks = checks.map(&:to_sym)
+      checks = checks.split(',') if checks.is_a?(String)
+      checks = checks.map(&:to_sym).uniq
       bad = checks - AVAILABLE_CHECKS
       raise "Unknown checks: #{bad.join(',')}" unless bad.empty?
 
@@ -91,8 +94,9 @@ module Wile
       when 'q', 'Q' then exit(EX_OK)
       when '', 'n', 'N' then @index = (@index + 1) % size
       when 'p', 'P' then @index = (@index - 1) % size
+      when 'r', 'R' then nil
       else
-        @index = index(response) unless response == 'r'
+        @index = index(response)
       end
     end
 
@@ -102,9 +106,10 @@ module Wile
       review_next review_failed
     end
 
+    # :reek:UncommunicativeVariableName
     def review_next(failed)
       review_response_cases review_choice(failed)
-    rescue RuntimeError => e
+    rescue StandardError => e
       puts e.message.red
       retry
     end

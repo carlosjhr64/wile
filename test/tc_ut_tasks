@@ -52,10 +52,18 @@ class TestUtTasks < Test::Unit::TestCase
     assert_equal [['c/m.txt', 'm.txt', true]], cache.copied
   end
 
-  def test_review_logic
+  def test_review_files
     rev = Wile::Review.allocate
     assert_equal ['lib/wile.rb'], rev.send(:review_files, 'lib/wile.rb')
     assert_raise(RuntimeError) { rev.send(:review_files, 'nonexistent_xyz') }
+    rev.instance_variable_set(:@files, ['lib/wile.rb'])
+    rev.instance_variable_set(:@index, 0)
+    rev.send(:review_response_cases, 'R')
+    assert_equal 0, rev.instance_variable_get(:@index)
+  end
+
+  def test_review_choice
+    rev = Wile::Review.allocate
     rev.instance_variable_set(:@auto, false)
     old_stdin = $stdin
     $stdin = StringIO.new("q\n")
