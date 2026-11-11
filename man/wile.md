@@ -59,7 +59,7 @@ Run `wile list` to list all tasks, or `wile help <task>` for details.
 - **gemcheck**: Check for missing gems across rbenv Rubies.
 - **gemfile**: Generate Gemfile from dependencies.
 - **help**: Show detailed help for tasks (see **HELP**).
-- **info**: Display project metadata and configuration.
+- **info**: Display project metadata and configuration (see **INFO**).
 - **install**: Build and install gem locally.
 - **lexicon**: View and update vocabulary whitelist (see **LEXICON**).
 - **list**: List all tasks or filter by pattern (see **LIST**).
@@ -155,6 +155,25 @@ Arguments:
 - `<task>...`: One or more task names or partial names to inspect. When
   omitted, Wile displays help for `help` and `list`.
 
+## INFO
+
+Wile displays project metadata, description, and dependency configuration
+synthesized from project dotfiles, `README.md`, and gemspec specifications:
+
+    $ wile info                     # Display project metadata and gems
+
+Sections displayed:
+
+- **Header**: Project name, version number, and author username.
+- **Description**: Project summary extracted from the description section of
+  `README.md`.
+- **Files**: Complete listing of tracked project files packaged into the gem.
+- **Executables**: Executables located under `bin/`.
+- **Runtime gems**: Third-party gems and versions required at runtime.
+- **Development gems**: Dependencies required during development and testing.
+
+`wile info` takes no arguments and must be executed from the project root.
+
 ## LEXICON
 
 Wile enforces vocabulary control across `lib/**/*.rb` using AST parsing in
@@ -213,9 +232,10 @@ Scaffolding steps:
    target path.
 2. **Template Copy**: Copies the template structure from `cache/` into the
    new project directory.
-3. **Template Evaluation**: Evaluates all `.erb` files (such as `README.md.erb`,
-   `bin/project.erb`, and `lib/project.rb.erb`), substituting the project name,
-   PascalCase module name, Git author credentials, year, and date.
+3. **Template Evaluation**: Evaluates all `.erb` files (such as
+   `README.md.erb`, `bin/project.erb`, and `lib/project.rb.erb`), substituting
+   the project name, PascalCase module name, Git author credentials, year, and
+   date.
 4. **Path Renaming**: Renames template source and executable files (e.g.
    `bin/project` and `lib/project.rb`) to match the project name, and deletes
    the `.erb` templates.

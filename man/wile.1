@@ -102,7 +102,8 @@ for details.
 .IP \[bu] 2
 \f[B]help\f[R]: Show detailed help for tasks (see \f[B]HELP\f[R]).
 .IP \[bu] 2
-\f[B]info\f[R]: Display project metadata and configuration.
+\f[B]info\f[R]: Display project metadata and configuration (see
+\f[B]INFO\f[R]).
 .IP \[bu] 2
 \f[B]install\f[R]: Build and install gem locally.
 .IP \[bu] 2
@@ -251,6 +252,38 @@ Arguments:
 .IP \[bu] 2
 \f[V]<task>...\f[R]: One or more task names or partial names to inspect.
 When omitted, Wile displays help for \f[V]help\f[R] and \f[V]list\f[R].
+.SH INFO
+.PP
+Wile displays project metadata, description, and dependency
+configuration synthesized from project dotfiles, \f[V]README.md\f[R],
+and gemspec specifications:
+.IP
+.nf
+\f[C]
+$ wile info                     # Display project metadata and gems
+\f[R]
+.fi
+.PP
+Sections displayed:
+.IP \[bu] 2
+\f[B]Header\f[R]: Project name, version number, and author username.
+.IP \[bu] 2
+\f[B]Description\f[R]: Project summary extracted from the description
+section of \f[V]README.md\f[R].
+.IP \[bu] 2
+\f[B]Files\f[R]: Complete listing of tracked project files packaged into
+the gem.
+.IP \[bu] 2
+\f[B]Executables\f[R]: Executables located under \f[V]bin/\f[R].
+.IP \[bu] 2
+\f[B]Runtime gems\f[R]: Third-party gems and versions required at
+runtime.
+.IP \[bu] 2
+\f[B]Development gems\f[R]: Dependencies required during development and
+testing.
+.PP
+\f[V]wile info\f[R] takes no arguments and must be executed from the
+project root.
 .SH LEXICON
 .PP
 Wile enforces vocabulary control across \f[V]lib/**/*.rb\f[R] using AST
