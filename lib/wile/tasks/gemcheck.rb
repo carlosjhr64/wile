@@ -4,15 +4,19 @@
 # Checks for missing gems in the current Ruby version that are found installed
 # in other versions on the system using `rbenv`.
 # Usage:
-#   wile gemcheck # Checks for missing gems
+#   wile gemcheck [--all] # Checks for missing gems
 module Wile
   # This file is loaded upon a :gemcheck task request.
   class Tasks
-    GEMCHECK_USAGE = ['gemcheck: Takes no parameters/options.', 0, Set[]].freeze
+    GEMCHECK_USAGE = [
+      'gemcheck: Takes no arguments with optional all flag.',
+      0,
+      Set['all']
+    ].freeze
 
     def gemcheck(options)
       Usage.new(options, *GEMCHECK_USAGE)
-      gemcheck_do(rbenv_versions_prefix)
+      gemcheck_do(rbenv_versions_prefix, all: options.all?)
     end
 
     private
@@ -27,13 +31,31 @@ module Wile
       prefix
     end
 
-    def gemcheck_inventory(prefix)
+    # :reek:BooleanParameter
+    def gemcheck_inventory(prefix, all: false)
       inventory = {}
-      `rbenv versions --bare --skip-aliases`.lines(chomp: true).each do |ver|
+      target_versions(all:).each do |ver|
         gemcmd = File.join(prefix, ver, 'bin/gem')
         inventory[ver] = collect_gems(gemcmd) if File.executable?(gemcmd)
       end
       inventory
+    end
+
+    # :reek:BooleanParameter :reek:ControlParameter :reek:UtilityFunction
+    def target_versions(all: false)
+      versions = `rbenv versions --bare --skip-aliases`.lines(chomp: true)
+      return versions if all
+
+      prev = previous_version(versions)
+      [RUBY_VERSION, prev].compact.uniq
+    end
+
+    # :reek:TooManyStatements :reek:UtilityFunction
+    def previous_version(versions, current = RUBY_VERSION)
+      valid = versions.select { Gem::Version.correct?(it) }
+      sorted = (valid + [current]).uniq.sort_by { Gem::Version.new(it) }
+      idx = sorted.index(current)
+      idx&.positive? ? sorted[idx - 1] : nil
     end
 
     # :reek:UtilityFunction
@@ -41,23 +63,26 @@ module Wile
       `#{gemcmd} list`.lines(chomp: true).map { it.split(' ', 2).first }
     end
 
-    def gemcheck_report(missing)
+    def gemcheck_report(missing, searched)
       puts "Current Ruby version: #{RUBY_VERSION}".gray
+      puts "Searching versions:   #{searched.join(', ')}".gray
       puts 'Gems missing in current found in other versions:'.blue
       missing.each do |name, versions|
         puts "  #{name}:  #{versions.join(', ')}"
       end
     end
 
-    def gemcheck_do(prefix)
-      missing = gemcheck_missing(gemcheck_inventory(prefix))
+    # :reek:BooleanParameter
+    def gemcheck_do(prefix, all: false)
+      inventory = gemcheck_inventory(prefix, all:)
+      missing = gemcheck_missing(inventory)
       return puts 'OK'.green if missing.empty?
 
-      prompt_and_install(missing)
+      prompt_and_install(missing, inventory.keys - [RUBY_VERSION])
     end
 
-    def prompt_and_install(missing)
-      gemcheck_report(missing)
+    def prompt_and_install(missing, searched)
+      gemcheck_report(missing, searched)
       puts 'Would you like to install them all? (Y/n)'.yellow
       exit(EX_NO) unless $stdin.gets&.strip&.match?(/^[Yy]/)
       gemcheck_install(missing)

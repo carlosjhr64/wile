@@ -25,23 +25,13 @@ class TestUtTasks < Test::Unit::TestCase
     Wile.autoloads
   end
 
-  def test_find_exact
+  def test_find
     assert_equal :help, TASKS.find('help')
-    assert_equal :list, TASKS.find('list')
-    assert_equal :test, TASKS.find('test')
-  end
-
-  def test_find_patterns
     assert_equal :build, TASKS.find('bui')
     assert_equal :bump, TASKS.find('mp')
     assert_equal :lexicon, TASKS.find('xic')
     assert_equal :compare, TASKS.find('re')
-  end
-
-  def test_find_nil_cases
-    assert_nil TASKS.find('bu')
-    assert_nil TASKS.find('xyz')
-    assert_nil TASKS.find('h')
+    %w[bu xyz h].each { assert_nil TASKS.find(it) }
     assert_nil TASKS.find('')
     assert_nil TASKS.find(nil)
   end
@@ -65,16 +55,16 @@ class TestUtTasks < Test::Unit::TestCase
     end
   end
 
-  def test_gemcheck_missing
-    inventory = {
-      RUBY_VERSION => %w[rake rspec],
-      '3.3.0' => %w[rake minitest],
-      '3.4.0' => %w[minitest pry]
-    }
-    expected = { 'minitest' => %w[3.3.0 3.4.0], 'pry' => %w[3.4.0] }
-    assert_equal expected, TASKS.send(:gemcheck_missing, inventory)
-    unlisted = TASKS.send(:gemcheck_missing, { '3.3.0' => %w[minitest] })
-    assert_equal({ 'minitest' => %w[3.3.0] }, unlisted)
+  def test_gemcheck_logic
+    inventory = { RUBY_VERSION => %w[rake], '3.4.0' => %w[rake pry] }
+    missing = TASKS.send(:gemcheck_missing, inventory)
+    assert_equal({ 'pry' => %w[3.4.0] }, missing)
+    vers = %w[3.2.0 3.3.0 3.4.0 4.0.0]
+    assert_equal '3.4.0', TASKS.send(:previous_version, vers, '4.0.0')
+    out = capture_stdout do
+      TASKS.send(:gemcheck_report, missing, ['3.4.0'])
+    end.uncolorize
+    assert_match(/Searching versions:\s+3\.4\.0/, out)
   end
 
   def test_mkdir

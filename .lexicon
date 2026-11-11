@@ -366,6 +366,7 @@ content_scrape
 context
 continue
 copy2project
+correct
 count
 counts
 cp
@@ -802,6 +803,7 @@ popen
 populate_dependants
 populate_dependencies
 port
+positive
 pp
 ppid
 prb
@@ -809,6 +811,7 @@ pre
 prefix
 pretty_generate
 prev
+previous_version
 print
 print_dependencies
 print_manual_rbenv_init
@@ -941,6 +944,7 @@ scope_end
 scope_str
 scopes
 scrape_help
+searched
 sections
 seen
 seg
@@ -968,6 +972,7 @@ smell
 snake_case
 sort
 sort_by
+sorted
 source
 source_set
 split
@@ -1005,6 +1010,7 @@ tap
 target
 target_index
 target_ruby
+target_versions
 targets
 task
 task_file
@@ -1057,6 +1063,7 @@ utilities
 utilities_check
 v
 val
+valid
 valid_encoding
 validate
 validator
