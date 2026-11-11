@@ -101,7 +101,8 @@ for details.
 \f[B]gemcheck\f[R]: Check for missing gems across rbenv Rubies (see
 \f[B]GEMCHECK\f[R]).
 .IP \[bu] 2
-\f[B]gemfile\f[R]: Generate Gemfile from dependencies.
+\f[B]gemfile\f[R]: Generate Gemfile from dependencies (see
+\f[B]GEMFILE\f[R]).
 .IP \[bu] 2
 \f[B]help\f[R]: Show detailed help for tasks (see \f[B]HELP\f[R]).
 .IP \[bu] 2
@@ -343,6 +344,34 @@ Options:
 .IP \[bu] 2
 \f[V]-a\f[R], \f[V]--all\f[R]: Search across all installed Ruby versions
 instead of only the previous version.
+.SH GEMFILE
+.PP
+Wile generates a \f[V]Gemfile\f[R] from project dependencies and outputs
+it to stdout.
+It classifies gems into runtime and development groups based on
+\f[V].gemignore\f[R], including the rubygems source and
+\f[V].ruby-version\f[R] constraint:
+.IP
+.nf
+\f[C]
+$ wile gemfile                  # Output Gemfile content to stdout
+$ wile gemfile > Gemfile        # Generate or overwrite project Gemfile
+\f[R]
+.fi
+.PP
+The output follows standard Bundler syntax:
+.IP
+.nf
+\f[C]
+source \[aq]https://rubygems.org\[aq]
+ruby file: \[aq].ruby-version\[aq]
+## runtime ##
+gem \[aq]rake\[aq]
+## development ##
+gem \[aq]reek\[aq]
+gem \[aq]rubocop\[aq]
+\f[R]
+.fi
 .SH HELP
 .PP
 Wile scrapes task documentation directly from the header comments of

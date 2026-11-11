@@ -58,7 +58,7 @@ Run `wile list` to list all tasks, or `wile help <task>` for details.
 - **dependencies**: List ruby dependencies.
 - **dictionary**: Manage spelling dictionary (see **DICTIONARY**).
 - **gemcheck**: Check for missing gems across rbenv Rubies (see **GEMCHECK**).
-- **gemfile**: Generate Gemfile from dependencies.
+- **gemfile**: Generate Gemfile from dependencies (see **GEMFILE**).
 - **help**: Show detailed help for tasks (see **HELP**).
 - **info**: Display project metadata and configuration (see **INFO**).
 - **install**: Build and install gem locally.
@@ -219,6 +219,25 @@ Options:
 
 - `-a`, `--all`: Search across all installed Ruby versions instead of only
   the previous version.
+
+## GEMFILE
+
+Wile generates a `Gemfile` from project dependencies and outputs it to stdout.
+It classifies gems into runtime and development groups based on `.gemignore`,
+including the rubygems source and `.ruby-version` constraint:
+
+    $ wile gemfile                  # Output Gemfile content to stdout
+    $ wile gemfile > Gemfile        # Generate or overwrite project Gemfile
+
+The output follows standard Bundler syntax:
+
+    source 'https://rubygems.org'
+    ruby file: '.ruby-version'
+    ## runtime ##
+    gem 'rake'
+    ## development ##
+    gem 'reek'
+    gem 'rubocop'
 
 ## HELP
 
