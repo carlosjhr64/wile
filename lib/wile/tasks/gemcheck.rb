@@ -33,29 +33,28 @@ module Wile
 
     # :reek:BooleanParameter
     def gemcheck_inventory(prefix, all: false)
-      inventory = {}
-      target_versions(all:).each do |ver|
+      target_versions(all:).each_with_object({}) do |ver, inventory|
         gemcmd = File.join(prefix, ver, 'bin/gem')
         inventory[ver] = collect_gems(gemcmd) if File.executable?(gemcmd)
       end
-      inventory
     end
 
     # :reek:BooleanParameter :reek:ControlParameter :reek:UtilityFunction
     def target_versions(all: false)
       versions = `rbenv versions --bare --skip-aliases`.lines(chomp: true)
-      return versions if all
+      return (versions + [RUBY_VERSION]).uniq if all
 
       prev = previous_version(versions)
       [RUBY_VERSION, prev].compact.uniq
     end
 
-    # :reek:TooManyStatements :reek:UtilityFunction
+    # :reek:UtilityFunction
     def previous_version(versions, current = RUBY_VERSION)
-      valid = versions.select { Gem::Version.correct?(it) }
-      sorted = (valid + [current]).uniq.sort_by { Gem::Version.new(it) }
-      idx = sorted.index(current)
-      idx&.positive? ? sorted[idx - 1] : nil
+      cur = Gem::Version.new(current)
+      older = versions.select do |ver|
+        Gem::Version.correct?(ver) && Gem::Version.new(ver) < cur
+      end
+      older.max_by { Gem::Version.new(it) }
     end
 
     # :reek:UtilityFunction
@@ -81,7 +80,7 @@ module Wile
       puts "Current Ruby version: #{RUBY_VERSION}".gray
       puts "Searching versions:   #{searched.join(', ')}".gray
       puts 'Gems missing in current found in other versions:'.blue
-      missing.each do |name, (major, versions)|
+      missing.sort.each do |name, (major, versions)|
         puts "  #{name} (~> #{major}):  #{versions.join(', ')}"
       end
     end
@@ -104,7 +103,7 @@ module Wile
     end
 
     def gemcheck_install(missing)
-      missing.each do |name, (major)|
+      missing.each do |name, (major, *)|
         req = "~> #{major}"
         next if system('gem', 'list', name, '-v', req, '-i', out: File::NULL)
 

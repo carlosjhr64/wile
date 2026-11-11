@@ -373,6 +373,7 @@ cp
 cp_r
 csv
 cswp
+cur
 curr
 current
 custom
@@ -680,6 +681,7 @@ map
 match
 matches
 max
+max_by
 maxdepth
 md
 md_path
@@ -751,6 +753,7 @@ nvim_lib_files
 nvim_ranks
 ok
 old
+older
 one
 only
 open
@@ -806,7 +809,6 @@ popen
 populate_dependants
 populate_dependencies
 port
-positive
 pp
 ppid
 prb
@@ -977,7 +979,6 @@ smell
 snake_case
 sort
 sort_by
-sorted
 source
 source_set
 split
@@ -1068,7 +1069,6 @@ utilities
 utilities_check
 v
 val
-valid
 valid_encoding
 validate
 validator
