@@ -4,6 +4,8 @@
 # Outputs to STDOUT a Gemfile.
 # If the 'git' token is given, then
 # it will only look at ruby files in git.
+# Primary use:
+#   wile gemfile > Gemfile
 # Usage:
 #   wile gemfile [git] # list ruby gems as in Gemfile
 module Wile
@@ -12,28 +14,30 @@ module Wile
     GEMFILE_USAGE = ['gemfile: Optionally only "git" as an argument.',
                      (..1), /^git$/, Set[]].freeze
 
-    # :reek:DuplicateMethodCall on attributes
-    # :reek:TooManyStatements
-    def gemfile(options)
+    # :reek:UtilityFunction
+    def gemfile(options, gemspec = nil, io: $stdout)
       Utilities.verify_project_root!
-      token, = Usage.new(options, *GEMFILE_USAGE).args
-      gemspec = Gemspec.new(token: token)
-      run = gemspec.rungems.map { "gem '#{it.name}'" }.uniq
-      dev = gemspec.devgems.map { "gem '#{it.name}'" }.uniq
-      dev -= run
-      output_gemfile(run, dev)
+      token = Usage.new(options, *GEMFILE_USAGE).args&.first
+      gemspec ||= Gemspec.new(token:)
+      run = format_gems(gemspec.rungems)
+      output_gemfile(run, format_gems(gemspec.devgems) - run, io:)
     end
 
     private
 
-    # :reek:TooManyStatements
-    def output_gemfile(run, dev)
-      puts "source 'https://rubygems.org'"
-      puts "ruby file: '.ruby-version'"
-      puts '## runtime ##'
-      puts run.sort
-      puts '## development ##'
-      puts dev.sort
+    # :reek:UtilityFunction
+    def format_gems(gems)
+      gems.map { "gem '#{it.name}'" }.uniq
+    end
+
+    # :reek:UtilityFunction
+    def output_gemfile(run, dev, io: $stdout)
+      io.puts "source 'https://rubygems.org'",
+              "ruby file: '.ruby-version'",
+              '## runtime ##',
+              *run.sort,
+              '## development ##',
+              *dev.sort
     end
   end
 end

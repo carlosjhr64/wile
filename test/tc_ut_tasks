@@ -10,6 +10,7 @@ require_relative '../lib/wile/tasks'
 require_relative '../lib/wile/tasks/build'
 require_relative '../lib/wile/tasks/cp'
 require_relative '../lib/wile/tasks/gemcheck'
+require_relative '../lib/wile/tasks/gemfile'
 require_relative '../lib/wile/tasks/info'
 require_relative '../lib/wile/tasks/mkdir'
 require_relative '../lib/wile/tasks/review'
@@ -25,8 +26,34 @@ FakeGmu = Struct.new(:calls) do
   def build! = calls << :build!
 end
 
+FakeGemspec = Struct.new(:rungems, :devgems)
+FakeGem = Struct.new(:name)
+
+# Helper methods for UtTasks tests.
+module UtTasksHelpers
+  def capture_stdout
+    orig = $stdout
+    $stdout = StringIO.new
+    yield
+    $stdout.string
+  ensure
+    $stdout = orig
+  end
+
+  def fake_options(args, flags = {})
+    h = { 'task' => 'task', 'args' => args }
+    flags.each { |k, v| h[k.to_s] = v }
+    meths = flags.keys.map { :"#{it}?" }
+    obj = Struct.new(:args, *meths).new(args, *flags.values)
+    obj.define_singleton_method(:to_h) { h }
+    obj
+  end
+end
+
 # Unit tests for Wile::Tasks.
 class TestUtTasks < Test::Unit::TestCase
+  include UtTasksHelpers
+
   TASKS = Wile::Tasks.new
 
   def setup
@@ -49,8 +76,19 @@ class TestUtTasks < Test::Unit::TestCase
       assert_raise(Wile::UsageError) { TASKS.review(opt) }
       assert_raise(Wile::UsageError) { TASKS.cp(opt) }
       assert_raise(Wile::UsageError) { TASKS.build(opt) }
+      assert_raise(Wile::UsageError) { TASKS.gemfile(opt) }
     end
     assert_raise(Wile::UsageError) { TASKS.mkdir(fake_options([])) }
+  end
+
+  def test_gemfile_flow
+    spec = FakeGemspec.new([FakeGem.new('a')],
+                           [FakeGem.new('a'), FakeGem.new('b')])
+    io = StringIO.new
+    TASKS.gemfile(fake_options([]), spec, io:)
+    assert_match(/gem 'a'/, io.string)
+    assert_match(/gem 'b'/, io.string)
+    assert_equal 1, io.string.scan("gem 'a'").size
   end
 
   def test_build_flow
@@ -115,25 +153,5 @@ class TestUtTasks < Test::Unit::TestCase
     ['# wile', '## Description', '## Files', '## Executables',
      '## Runtime gems'].each { |hdr| assert_match(/#{hdr}/, out) }
     assert_match(/\+ Version:\s+#{Wile::VERSION}/, out)
-  end
-
-  private
-
-  def capture_stdout
-    orig = $stdout
-    $stdout = StringIO.new
-    yield
-    $stdout.string
-  ensure
-    $stdout = orig
-  end
-
-  def fake_options(args, flags = {})
-    h = { 'task' => 'task', 'args' => args }
-    flags.each { |k, v| h[k.to_s] = v }
-    meths = flags.keys.map { :"#{it}?" }
-    obj = Struct.new(:args, *meths).new(args, *flags.values)
-    obj.define_singleton_method(:to_h) { h }
-    obj
   end
 end

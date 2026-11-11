@@ -532,6 +532,7 @@ fnm
 force
 foreach
 format
+format_gems
 formatter
 found
 freeze
