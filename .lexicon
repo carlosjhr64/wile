@@ -534,6 +534,7 @@ fullname
 func
 gem
 gem_installed
+gem_label
 gem_name
 gem_which
 gemcheck

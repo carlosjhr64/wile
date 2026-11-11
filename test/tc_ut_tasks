@@ -2,10 +2,12 @@
 # frozen_string_literal: true
 
 require_relative 'test_helper'
+require 'stringio'
 require_relative '../lib/wile'
 require_relative '../lib/wile/run'
 require_relative '../lib/wile/requires'
 require_relative '../lib/wile/tasks'
+require_relative '../lib/wile/tasks/info'
 require_relative '../lib/wile/tasks/mkdir'
 
 # Unit tests for Wile::Tasks.
@@ -72,7 +74,30 @@ class TestUtTasks < Test::Unit::TestCase
     assert_raise(RuntimeError) { TASKS.mkdir(fake_options(['lib'])) }
   end
 
+  def test_info_validation
+    assert_raise(Wile::UsageError) { TASKS.info(fake_options(['extra'])) }
+  end
+
+  def test_info_output
+    out = capture_stdout { TASKS.info(fake_options([])) }
+    assert_match(/# wile/, out)
+    assert_match(/\+ Version:\s+#{Wile::VERSION}/, out)
+    assert_match(/## Description/, out)
+    assert_match(/## Files/, out)
+    assert_match(/## Executables/, out)
+    assert_match(/## Runtime gems/, out)
+  end
+
   private
+
+  def capture_stdout
+    orig = $stdout
+    $stdout = StringIO.new
+    yield
+    $stdout.string
+  ensure
+    $stdout = orig
+  end
 
   def fake_options(args)
     Struct.new(:args).new(args)

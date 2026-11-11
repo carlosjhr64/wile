@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # ## wile info ##
-# Show much info as found in gemspec.
+# Show as much info as found in gemspec.
 # Usage:
 #   wile info # show project info
 module Wile
@@ -9,16 +9,12 @@ module Wile
   class Tasks
     INFO_USAGE = ['info: Takes no arguments.', 0, Set[]].freeze
 
-    # :reek:TooManyStatements
-    def info(options)
+    def info(options, info = Info.info)
       Utilities.verify_project_root!
       Usage.new(options, *INFO_USAGE)
-      info = Info.info
-      readme = Readme.new(info)
-      gemspec = Gemspec.new(info)
       puts_info(info)
-      puts_readme(readme)
-      puts_gemspec(gemspec)
+      puts_readme(Readme.new(info))
+      puts_gemspec(Gemspec.new(info))
     end
 
     private
@@ -42,6 +38,8 @@ module Wile
         #{'## Description'.blue}
         #{readme.description.light_black}
       README
+    rescue StandardError
+      nil
     end
 
     # category: gemspec
@@ -72,15 +70,22 @@ module Wile
     def puts_gemspec_runtime(rungems)
       puts <<~GEMSPEC_RUNTIME
         #{'## Runtime gems'.blue}
-        #{rungems.map { "* #{it.name}(#{it.version})" }.join("\n")}
+        #{rungems.map { "* #{gem_label(it)}" }.join("\n")}
       GEMSPEC_RUNTIME
     end
 
     def puts_gemspec_development(devgems)
       puts <<~GEMSPEC_DEVELOPMENT
         #{'## Development gems'.blue}
-        #{devgems.map { "* #{it.name}(#{it.version})" }.join("\n")}
+        #{devgems.map { "* #{gem_label(it)}" }.join("\n")}
       GEMSPEC_DEVELOPMENT
+    end
+
+    # :reek:UtilityFunction
+    def gem_label(gem)
+      name = gem.name
+      ver = gem.version
+      ver ? "#{name}(#{ver})" : name
     end
   end
 end
