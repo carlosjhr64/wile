@@ -20,8 +20,10 @@ class TestUtInfo < Test::Unit::TestCase
 
   def test_default_attributes
     verify_default_project
-    verify_default_git_user
-    verify_default_dates
+    assert_kind_of String, @info.username
+    assert_kind_of String, @info.email
+    assert_equal Time.now.year, @info.year
+    assert_equal Time.now.strftime('%Y-%m-%d'), @info.date
   end
 
   def test_custom_dirname
@@ -63,7 +65,28 @@ class TestUtInfo < Test::Unit::TestCase
     verify_singleton
   end
 
+  def test_git_user_resolution
+    with_quiet_io do
+      with_temp_git_repo do |tmp|
+        info = Wile::Info.new(dirname: tmp)
+        assert_equal 'TestUser', info.username
+        assert_equal 'test@example.com', info.email
+      end
+    end
+  end
+
   private
+
+  def with_temp_git_repo
+    Dir.mktmpdir do |tmp|
+      system('git', 'init', tmp)
+      Dir.chdir(tmp) do
+        system('git', 'config', 'user.name', 'TestUser')
+        system('git', 'config', 'user.email', 'test@example.com')
+        yield tmp
+      end
+    end
+  end
 
   def verify_default_project
     assert_equal File.expand_path('.'), @info.dirname
@@ -73,17 +96,6 @@ class TestUtInfo < Test::Unit::TestCase
     assert_equal 'lib/wile.rb', @info.project_rb
     assert_equal 'README.md', @info.readme
     assert_equal Wile::VERSION, @info.version
-  end
-
-  def verify_default_git_user
-    assert_kind_of String, @info.username
-    assert_false @info.username.empty?
-    assert_kind_of String, @info.email
-  end
-
-  def verify_default_dates
-    assert_equal Time.now.year, @info.year
-    assert_equal Time.now.strftime('%Y-%m-%d'), @info.date
   end
 
   def verify_singleton
