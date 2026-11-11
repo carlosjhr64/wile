@@ -121,7 +121,7 @@ module Wile
         next if version == RUBY_VERSION
 
         gems.each_pair do |name, major|
-          next if current.key?(name)
+          next if current.fetch(name, -1) >= major
 
           record_missing(missing[name], version, major)
         end
