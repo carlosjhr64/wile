@@ -4,35 +4,24 @@
 # wile: require 'rubocop'
 
 # ## wile review ##
+# Interactively reviews project files using content, order, reek, and rubocop.
+# With --all, auto-advances through passing files and stops only on issues.
 #   CSV is a comma separated list: content,order,reek,rubocop
 # Usage:
-#   wile review [<match>] [--strict] [--only=CSV] # runs review
+#   wile review [<target>] [--all] [--strict] [--only=CSV] # runs review
 module Wile
   # This file is loaded upon a :review task request.
-  # :reek:UtilityFunction :reek:LongParameterList
   class Tasks
-    WILES_USAGE = [
-      'review: May take one match with optional strict/only flags.',
-      (0..1), Set['strict', 'only']
+    REVIEW_USAGE = [
+      'review: May take one target with optional all/strict/only flags.',
+      (0..1), Set['all', 'strict', 'only']
     ].freeze
 
-    def review(options, match: nil, file: nil, files: nil)
+    # :reek:UtilityFunction
+    def review(options, target: nil)
       Utilities.verify_project_root!
-      name = Usage.new(options, *WILES_USAGE).args&.first
-      files, file, match = files_file_match(name) if name
-      Review.new(options, match:, file:, files:).run
-    end
-
-    private
-
-    def files_file_match(name)
-      if File.directory?(name)
-        [Dir.glob("#{name}/**.rb"), nil, nil]
-      elsif File.file?(name)
-        [nil, name, nil]
-      else
-        [nil, nil, name]
-      end
+      target ||= Usage.new(options, *REVIEW_USAGE).args&.first
+      Review.new(options, target:).run
     end
   end
 
@@ -45,12 +34,10 @@ module Wile
     AVAILABLE_CHECKS = %i[content order reek rubocop].freeze
 
     # :reek:ControlParameter
-    def initialize(options, match: nil, files: nil, file: nil)
-      nvim_files = NvimFiles.new.nvim_files
-      @files = files || nvim_files.drop(1)
-      @files.unshift(file) if file && !@files.include?(file)
+    def initialize(options, target: nil, files: nil)
+      @files = files || review_files(target)
       @files.weird_filename!
-      @index = target_index(file, match)
+      @index = 0
       @strict = false
       @checks = AVAILABLE_CHECKS
       @auto = false
@@ -67,11 +54,18 @@ module Wile
       @files[@index]
     end
 
-    def target_index(file, match)
-      return index(file) if file
-      return index(match) || 0 if match
+    # :reek:TooManyStatements :reek:UtilityFunction
+    def review_files(target)
+      all_files = NvimFiles.new.nvim_files
+      all_files = all_files.select { it.start_with?('lib/') }
+      return all_files unless target
+      return [target] if File.file?(target)
+      return Dir.glob("#{target}/**/*.rb") if File.directory?(target)
 
-      0
+      matched = all_files.grep(/#{target}/)
+      raise "no match for #{target}" if matched.empty?
+
+      matched
     end
 
     def index(match)
@@ -82,6 +76,7 @@ module Wile
     # :reek:TooManyStatements
     def settings(options)
       @strict = options.strict?
+      @auto = options.all?
       return unless (checks = options.only)
 
       checks = checks.map(&:to_sym)
@@ -89,7 +84,6 @@ module Wile
       raise "Unknown checks: #{bad.join(',')}" unless bad.empty?
 
       @checks = checks
-      @auto = true
     end
 
     def review_response_cases(response, size = @files.size)
@@ -120,7 +114,7 @@ module Wile
       return @index + 1 < @files.size ? 'n' : 'q' if @auto && passed
 
       print 'Next(Enter) Quit(q) Redo(r) Previous(p) or file match: '.yellow
-      $stdin.gets.strip
+      $stdin.gets&.strip || 'q'
     end
 
     def review_file?

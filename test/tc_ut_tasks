@@ -11,6 +11,7 @@ require_relative '../lib/wile/tasks/cp'
 require_relative '../lib/wile/tasks/gemcheck'
 require_relative '../lib/wile/tasks/info'
 require_relative '../lib/wile/tasks/mkdir'
+require_relative '../lib/wile/tasks/review'
 
 # Unit tests for Wile::Tasks.
 class TestUtTasks < Test::Unit::TestCase
@@ -36,9 +37,12 @@ class TestUtTasks < Test::Unit::TestCase
     assert_nil TASKS.find(nil)
   end
 
-  def test_cp_validation
-    assert_raise(Wile::UsageError) { TASKS.cp(fake_options(%w[one two])) }
-    assert_raise(Wile::UsageError) { TASKS.cp(fake_options([], bad: true)) }
+  def test_usage_validations
+    [fake_options(%w[a b]), fake_options([], bad: true)].each do |opt|
+      assert_raise(Wile::UsageError) { TASKS.review(opt) }
+      assert_raise(Wile::UsageError) { TASKS.cp(opt) }
+    end
+    assert_raise(Wile::UsageError) { TASKS.mkdir(fake_options([])) }
   end
 
   def test_cp_flow
@@ -48,11 +52,10 @@ class TestUtTasks < Test::Unit::TestCase
     assert_equal [['c/m.txt', 'm.txt', true]], cache.copied
   end
 
-  def test_gemcheck_validation
-    assert_raise(Wile::UsageError) { TASKS.gemcheck(fake_options(['extra'])) }
-    assert_raise(Wile::UsageError) do
-      TASKS.gemcheck(fake_options([], bad: true))
-    end
+  def test_review_logic
+    rev = Wile::Review.allocate
+    assert_equal ['lib/wile.rb'], rev.send(:review_files, 'lib/wile.rb')
+    assert_raise(RuntimeError) { rev.send(:review_files, 'nonexistent_xyz') }
   end
 
   def test_gemcheck_logic

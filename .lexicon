@@ -158,6 +158,7 @@ REQUIRED_COMMANDS
 REQUIREMENTS_USAGE
 REQ_RGX
 RESERVED_WORDS
+REVIEW_USAGE
 ROOT
 ROOT_FILES
 RUBY_BUILD_URL
@@ -215,7 +216,6 @@ VALIDATORS
 VERSION
 Version
 Visitor
-WILES_USAGE
 Wile
 WileRefinements
 Zlib
@@ -240,6 +240,7 @@ add_stdlib_trigrams
 add_undefined_methods
 alias_method
 all
+all_files
 allowed_opt
 alphabetical
 any
@@ -447,7 +448,6 @@ downcase
 download_archive
 downto
 dpc
-drop
 dump
 dup
 e
@@ -506,7 +506,6 @@ filematch
 filename
 filenames
 files
-files_file_match
 filter_map
 filter_nvim_files
 filter_p2c
@@ -681,6 +680,7 @@ man
 manual_fish_instructions
 map
 match
+matched
 matches
 max
 max_by
@@ -921,6 +921,7 @@ review
 review_choice
 review_do
 review_file
+review_files
 review_next
 review_response_cases
 rgx
@@ -1016,7 +1017,6 @@ system_commands_check
 tag
 tap
 target
-target_index
 target_ruby
 target_versions
 targets
@@ -1057,7 +1057,6 @@ uninstall
 uniq
 unique
 unlink
-unshift
 unused
 upcase
 update

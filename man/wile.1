@@ -131,7 +131,8 @@ for details.
 .IP \[bu] 2
 \f[B]requirements\f[R]: Verify system commands and versions.
 .IP \[bu] 2
-\f[B]review\f[R]: Run code review checklist.
+\f[B]review\f[R]: Interactively review project files (see
+\f[B]REVIEW\f[R]).
 .IP \[bu] 2
 \f[B]ruby\f[R]: List all ruby files in project or git (see
 \f[B]RUBY\f[R]).
@@ -575,6 +576,40 @@ Arguments:
 \f[V]<sort-type|special>\f[R]: Optional sort algorithm or special
 subcommand.
 Defaults to \f[V]bcmv\f[R].
+.SH REVIEW
+.PP
+Wile interactively reviews project files using \f[V]content\f[R],
+\f[V]order\f[R], \f[V]reek\f[R], and \f[V]rubocop\f[R].
+By default, it pauses after each file; passing \f[V]--all\f[R] enables
+auto-advance mode, advancing through files that pass all checks and
+stopping only when an issue or offense is detected.
+.IP
+.nf
+\f[C]
+$ wile review                   # Review all lib files interactively
+$ wile review --all             # Auto-advance, stopping only on errors
+$ wile review gemcheck          # Filter to files matching gemcheck
+$ wile review --only=rubocop    # Run only rubocop check
+$ wile review --strict          # Use strict linter configurations
+\f[R]
+.fi
+.PP
+Arguments:
+.IP \[bu] 2
+\f[V]<target>\f[R]: Optional file path, directory path, or regex pattern
+filtering the files to review.
+When omitted, all project files in \f[V]lib/\f[R] are reviewed.
+.PP
+Options:
+.IP \[bu] 2
+\f[V]-a\f[R], \f[V]--all\f[R]: Auto-advance through passing files,
+stopping only on errors.
+.IP \[bu] 2
+\f[V]-s\f[R], \f[V]--strict\f[R]: Use strict linter configurations
+(\f[V].reek-strict.yml\f[R] and \f[V].rubocop-strict.yml\f[R]).
+.IP \[bu] 2
+\f[V]--only=CSV\f[R]: Comma-separated list of checks to run
+(\f[V]content\f[R], \f[V]order\f[R], \f[V]reek\f[R], \f[V]rubocop\f[R]).
 .SH RUBY
 .PP
 Wile lists all Ruby files in the project, including \f[V].rb\f[R] source

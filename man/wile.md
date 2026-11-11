@@ -70,7 +70,7 @@ Run `wile list` to list all tasks, or `wile help <task>` for details.
 - **order**: Suggest method ordering in ruby files (see **ORDER**).
 - **publish**: Publish new version to RubyGems.
 - **requirements**: Verify system commands and versions.
-- **review**: Run code review checklist.
+- **review**: Interactively review project files (see **REVIEW**).
 - **ruby**: List all ruby files in project or git (see **RUBY**).
 - **smell**: Classify method dependencies and smells.
 - **tc**: List custom unit tests (see **TC**).
@@ -383,6 +383,32 @@ Arguments:
 - `<filename>`: Path to the Ruby source file to analyze.
 - `<sort-type|special>`: Optional sort algorithm or special subcommand.
   Defaults to `bcmv`.
+
+## REVIEW
+
+Wile interactively reviews project files using `content`, `order`, `reek`,
+and `rubocop`. By default, it pauses after each file; passing `--all` enables
+auto-advance mode, advancing through files that pass all checks and stopping
+only when an issue or offense is detected.
+
+    $ wile review                   # Review all lib files interactively
+    $ wile review --all             # Auto-advance, stopping only on errors
+    $ wile review gemcheck          # Filter to files matching gemcheck
+    $ wile review --only=rubocop    # Run only rubocop check
+    $ wile review --strict          # Use strict linter configurations
+
+Arguments:
+
+- `<target>`: Optional file path, directory path, or regex pattern filtering
+  the files to review. When omitted, all project files in `lib/` are reviewed.
+
+Options:
+
+- `-a`, `--all`: Auto-advance through passing files, stopping only on errors.
+- `-s`, `--strict`: Use strict linter configurations (`.reek-strict.yml` and
+  `.rubocop-strict.yml`).
+- `--only=CSV`: Comma-separated list of checks to run (`content`, `order`,
+  `reek`, `rubocop`).
 
 ## RUBY
 
