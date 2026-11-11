@@ -51,6 +51,7 @@ class TestUtGit < Test::Unit::TestCase
   def setup_git_repo(path)
     Wile::Git.init!(path)
     Dir.chdir(path) do
+      system('git', 'branch', '-M', 'main')
       system('git', 'config', 'user.name', 'TestUser')
       system('git', 'config', 'user.email', 'test@example.com')
       system('git', 'config', 'commit.gpgsign', 'false')
