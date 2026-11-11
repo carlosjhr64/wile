@@ -1083,6 +1083,7 @@ verbose
 verify_active_ruby
 verify_apt_packages
 verify_arch
+verify_build
 verify_checksum
 verify_commands
 verify_curl

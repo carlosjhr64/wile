@@ -7,20 +7,27 @@ require_relative '../lib/wile'
 require_relative '../lib/wile/run'
 require_relative '../lib/wile/requires'
 require_relative '../lib/wile/tasks'
+require_relative '../lib/wile/tasks/build'
 require_relative '../lib/wile/tasks/cp'
 require_relative '../lib/wile/tasks/gemcheck'
 require_relative '../lib/wile/tasks/info'
 require_relative '../lib/wile/tasks/mkdir'
 require_relative '../lib/wile/tasks/review'
 
+FakeCache = Struct.new(:mapping, :copied) do
+  def p2c_hash = mapping
+  def copy2project(cfile, pfile, force:) = copied << [cfile, pfile, force]
+end
+
+FakeGmu = Struct.new(:calls) do
+  def clean! = calls << :clean!
+  def ready! = calls << :ready!
+  def build! = calls << :build!
+end
+
 # Unit tests for Wile::Tasks.
 class TestUtTasks < Test::Unit::TestCase
   TASKS = Wile::Tasks.new
-
-  FakeCache = Struct.new(:mapping, :copied) do
-    def p2c_hash = mapping
-    def copy2project(cfile, pfile, force:) = copied << [cfile, pfile, force]
-  end
 
   def setup
     Wile.autoloads
@@ -41,8 +48,15 @@ class TestUtTasks < Test::Unit::TestCase
     [fake_options(%w[a b]), fake_options([], bad: true)].each do |opt|
       assert_raise(Wile::UsageError) { TASKS.review(opt) }
       assert_raise(Wile::UsageError) { TASKS.cp(opt) }
+      assert_raise(Wile::UsageError) { TASKS.build(opt) }
     end
     assert_raise(Wile::UsageError) { TASKS.mkdir(fake_options([])) }
+  end
+
+  def test_build_flow
+    gmu = FakeGmu.new([])
+    TASKS.build(fake_options([], force: true), gmu)
+    assert_equal [:build!], gmu.calls
   end
 
   def test_cp_flow

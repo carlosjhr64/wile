@@ -11,16 +11,21 @@ module Wile
     BUILD_USAGE = ['build: Takes no arguments with optional force flag.',
                    0, Set['force']].freeze
 
-    # :reek:UtilityFunction :reek:TooManyStatements
-    def build(options)
+    # :reek:UtilityFunction
+    def build(options, gmu = GemUtils.new)
       Utilities.verify_project_root!
       Usage.new(options, *BUILD_USAGE)
-      gmu = GemUtils.new
-      unless options.force?
-        Git.clean! && gmu.clean!
-        gmu.ready!
-      end
+      verify_build(gmu) unless options.force?
       gmu.build!
+    end
+
+    private
+
+    # :reek:UtilityFunction
+    def verify_build(gmu)
+      Git.clean!
+      gmu.clean!
+      gmu.ready!
     end
   end
 end
