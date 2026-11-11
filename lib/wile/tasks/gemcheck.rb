@@ -60,15 +60,29 @@ module Wile
 
     # :reek:UtilityFunction
     def collect_gems(gemcmd)
-      `#{gemcmd} list`.lines(chomp: true).map { it.split(' ', 2).first }
+      `#{gemcmd} list`.lines(chomp: true).each_with_object({}) do |line, gems|
+        name, vers = line.split(' ', 2)
+        major = gem_major(vers)
+        gems[name] = major if major
+      end
+    end
+
+    # :reek:UtilityFunction
+    def gem_major(str)
+      return unless str&.start_with?('(') && str.end_with?(')')
+
+      str[1..-2].split(',').filter_map do |item|
+        ver = item.sub('default:', '').strip.split.first
+        Gem::Version.new(ver).segments.first if Gem::Version.correct?(ver)
+      end.max
     end
 
     def gemcheck_report(missing, searched)
       puts "Current Ruby version: #{RUBY_VERSION}".gray
       puts "Searching versions:   #{searched.join(', ')}".gray
       puts 'Gems missing in current found in other versions:'.blue
-      missing.each do |name, versions|
-        puts "  #{name}:  #{versions.join(', ')}"
+      missing.each do |name, (major, versions)|
+        puts "  #{name} (~> #{major}):  #{versions.join(', ')}"
       end
     end
 
@@ -90,25 +104,35 @@ module Wile
     end
 
     def gemcheck_install(missing)
-      missing.each_pair do |name,|
-        next if system('gem', 'list', name, '-i') # already installed
+      missing.each do |name, (major)|
+        req = "~> #{major}"
+        next if system('gem', 'list', name, '-v', req, '-i', out: File::NULL)
 
-        system('gem', 'install', name) || exit(EX_UNAVAILABLE)
+        system('gem', 'install', name, '-v', req) || exit(EX_UNAVAILABLE)
       end
     end
 
-    # :reek:NestedIterators :reek:TooManyStatements :reek:UtilityFunction
+    # :reek:FeatureEnvy :reek:NestedIterators :reek:TooManyStatements
+    # :reek:UtilityFunction
     def gemcheck_missing(inventory)
-      current = inventory.fetch(RUBY_VERSION, [])
-      missing = Hash.new { |hash, key| hash[key] = [] }
+      current = inventory.fetch(RUBY_VERSION, {})
+      missing = Hash.new { |hash, key| hash[key] = [-1, []] }
       inventory.each_pair do |version, gems|
         next if version == RUBY_VERSION
 
-        gems.each do |name|
-          missing[name] << version unless current.include?(name)
+        gems.each_pair do |name, major|
+          next if current.key?(name)
+
+          record_missing(missing[name], version, major)
         end
       end
       missing
+    end
+
+    # :reek:UtilityFunction
+    def record_missing(entry, version, major)
+      entry[0] = [entry[0], major].max
+      entry[1] << version
     end
   end
 end

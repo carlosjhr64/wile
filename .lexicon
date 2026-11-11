@@ -456,6 +456,7 @@ each_key
 each_pair
 each_slice
 each_with_index
+each_with_object
 elapsed
 email
 emit_call
@@ -505,6 +506,7 @@ filename
 filenames
 files
 files_file_match
+filter_map
 filter_nvim_files
 filter_p2c
 filter_tc_matching
@@ -538,6 +540,7 @@ func
 gem
 gem_installed
 gem_label
+gem_major
 gem_name
 gem_which
 gemcheck
@@ -884,6 +887,7 @@ readme_version_check
 ready
 receiver
 record_dep
+record_missing
 red
 reek
 refine
@@ -948,6 +952,7 @@ searched
 sections
 seen
 seg
+segments
 select
 selected
 selected_method
@@ -1094,6 +1099,7 @@ verify_ruby_project_version
 verify_unpublished
 verify_utilities
 verify_version
+vers
 version
 version_file
 version_ok
