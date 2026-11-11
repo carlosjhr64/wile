@@ -322,6 +322,7 @@ close_write
 cmd
 cmp
 col
+collect_gems
 collect_trigrams
 color
 color_code
@@ -574,7 +575,6 @@ grep
 grep_v
 gsub
 gz
-h
 handle_call
 handle_error
 handle_runtime_error
@@ -618,6 +618,7 @@ interpolated_string_node
 interpolated_symbol_node
 intersect
 interval
+inventory
 io
 irbrc
 is_a
@@ -822,6 +823,7 @@ project_files
 project_rb
 project_ready
 prompt
+prompt_and_install
 prompt_apt_install
 prompt_configure_shell
 prompt_install
@@ -862,6 +864,7 @@ rbenv_bin
 rbenv_cmd
 rbenv_dir
 rbenv_root
+rbenv_versions_prefix
 rbfile
 rbfiles
 rcvr
@@ -947,7 +950,6 @@ selected_method
 self
 send
 sep
-set
 set_date
 set_git_user
 set_project
@@ -1054,7 +1056,6 @@ using
 utilities
 utilities_check
 v
-v2s
 val
 valid_encoding
 validate

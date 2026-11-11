@@ -7,34 +7,38 @@
 #   wile gemcheck # Checks for missing gems
 module Wile
   # This file is loaded upon a :gemcheck task request.
-  # :reek:TooManyStatements :reek:UncommunicativeVariableName
   class Tasks
     GEMCHECK_USAGE = ['gemcheck: Takes no parameters/options.', 0, Set[]].freeze
 
     def gemcheck(options)
       Usage.new(options, *GEMCHECK_USAGE)
-      root = `rbenv root 2>/dev/null`.strip
-      prefix = File.join(root, 'versions')
-      gemcmd = `rbenv which gem 2>/dev/null`.strip
-      unless File.directory?(prefix) && gemcmd.start_with?(prefix)
-        raise "Unexpected gem command: #{gemcmd}"
-      end
-
-      gemcheck_do(prefix)
+      gemcheck_do(rbenv_versions_prefix)
     end
 
     private
 
+    def rbenv_versions_prefix
+      root = `rbenv root 2>/dev/null`.strip
+      prefix = File.join(root, 'versions')
+      gemcmd = `rbenv which gem 2>/dev/null`.strip
+      raise "Unexpected gem command: #{gemcmd}" unless
+        File.directory?(prefix) && gemcmd.start_with?(prefix)
+
+      prefix
+    end
+
     def gemcheck_inventory(prefix)
-      v2s = Hash.new { |h, k| h[k] = [] }
-      `rbenv versions --bare --skip-aliases`.lines.each do |version|
-        version.strip!
-        gemcmd = "#{prefix}/#{version}/bin/gem"
-        `#{gemcmd} list`.lines.map { it.strip.split(' ', 2) }.each do |name,|
-          v2s[version] << name
-        end
+      inventory = {}
+      `rbenv versions --bare --skip-aliases`.lines(chomp: true).each do |ver|
+        gemcmd = File.join(prefix, ver, 'bin/gem')
+        inventory[ver] = collect_gems(gemcmd) if File.executable?(gemcmd)
       end
-      v2s
+      inventory
+    end
+
+    # :reek:UtilityFunction
+    def collect_gems(gemcmd)
+      `#{gemcmd} list`.lines(chomp: true).map { it.split(' ', 2).first }
     end
 
     def gemcheck_report(missing)
@@ -45,14 +49,15 @@ module Wile
       end
     end
 
-    # :reek:DuplicateMethodCall 'OK'.green
     def gemcheck_do(prefix)
-      missing = gemcheck_missing gemcheck_inventory(prefix)
-      if missing.empty?
-        puts 'OK'.green
-        exit(EX_OK)
-      end
-      gemcheck_report missing
+      missing = gemcheck_missing(gemcheck_inventory(prefix))
+      return puts 'OK'.green if missing.empty?
+
+      prompt_and_install(missing)
+    end
+
+    def prompt_and_install(missing)
+      gemcheck_report(missing)
       puts 'Would you like to install them all? (Y/n)'.yellow
       exit(EX_NO) unless $stdin.gets&.strip&.match?(/^[Yy]/)
       gemcheck_install(missing)
@@ -67,17 +72,15 @@ module Wile
       end
     end
 
-    # :reek:NestedIterators :reek:UtilityFunction
-    def gemcheck_missing(v2s)
-      current = v2s[RUBY_VERSION]
-      missing = Hash.new { |h, k| h[k] = [] }
-      v2s.each_pair do |version, set|
+    # :reek:NestedIterators :reek:TooManyStatements :reek:UtilityFunction
+    def gemcheck_missing(inventory)
+      current = inventory.fetch(RUBY_VERSION, [])
+      missing = Hash.new { |hash, key| hash[key] = [] }
+      inventory.each_pair do |version, gems|
         next if version == RUBY_VERSION
 
-        set.each do |name|
-          next if current.include?(name)
-
-          missing[name] << version
+        gems.each do |name|
+          missing[name] << version unless current.include?(name)
         end
       end
       missing

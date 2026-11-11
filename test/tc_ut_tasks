@@ -8,6 +8,7 @@ require_relative '../lib/wile/run'
 require_relative '../lib/wile/requires'
 require_relative '../lib/wile/tasks'
 require_relative '../lib/wile/tasks/cp'
+require_relative '../lib/wile/tasks/gemcheck'
 require_relative '../lib/wile/tasks/info'
 require_relative '../lib/wile/tasks/mkdir'
 
@@ -50,23 +51,35 @@ class TestUtTasks < Test::Unit::TestCase
     assert_raise(Wile::UsageError) { TASKS.cp(fake_options([], bad: true)) }
   end
 
-  def test_cp_no_matches
-    cache = FakeCache.new({ 'file.txt' => 'file.txt' }, [])
-    assert_raise(RuntimeError) { TASKS.cp(fake_options(['missing']), cache) }
-  end
-
-  def test_cp_execution
+  def test_cp_flow
     cache = FakeCache.new({ 'm.txt' => 'c/m.txt' }, [])
+    assert_raise(RuntimeError) { TASKS.cp(fake_options(['missing']), cache) }
     TASKS.cp(fake_options(['m'], force: true), cache)
     assert_equal [['c/m.txt', 'm.txt', true]], cache.copied
   end
 
-  def test_mkdir_validation
-    assert_raise(Wile::UsageError) { TASKS.mkdir(fake_options([])) }
-    assert_raise(Wile::UsageError) { TASKS.mkdir(fake_options(['bad!name'])) }
+  def test_gemcheck_validation
+    assert_raise(Wile::UsageError) { TASKS.gemcheck(fake_options(['extra'])) }
+    assert_raise(Wile::UsageError) do
+      TASKS.gemcheck(fake_options([], bad: true))
+    end
   end
 
-  def test_mkdir_existing
+  def test_gemcheck_missing
+    inventory = {
+      RUBY_VERSION => %w[rake rspec],
+      '3.3.0' => %w[rake minitest],
+      '3.4.0' => %w[minitest pry]
+    }
+    expected = { 'minitest' => %w[3.3.0 3.4.0], 'pry' => %w[3.4.0] }
+    assert_equal expected, TASKS.send(:gemcheck_missing, inventory)
+    unlisted = TASKS.send(:gemcheck_missing, { '3.3.0' => %w[minitest] })
+    assert_equal({ 'minitest' => %w[3.3.0] }, unlisted)
+  end
+
+  def test_mkdir
+    assert_raise(Wile::UsageError) { TASKS.mkdir(fake_options([])) }
+    assert_raise(Wile::UsageError) { TASKS.mkdir(fake_options(['bad!name'])) }
     assert_raise(RuntimeError) { TASKS.mkdir(fake_options(['lib'])) }
   end
 
@@ -76,12 +89,9 @@ class TestUtTasks < Test::Unit::TestCase
 
   def test_info_output
     out = capture_stdout { TASKS.info(fake_options([])) }.uncolorize
-    assert_match(/# wile/, out)
+    ['# wile', '## Description', '## Files', '## Executables',
+     '## Runtime gems'].each { |hdr| assert_match(/#{hdr}/, out) }
     assert_match(/\+ Version:\s+#{Wile::VERSION}/, out)
-    assert_match(/## Description/, out)
-    assert_match(/## Files/, out)
-    assert_match(/## Executables/, out)
-    assert_match(/## Runtime gems/, out)
   end
 
   private
