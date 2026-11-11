@@ -96,7 +96,8 @@ for details.
 \f[B]dictionary\f[R]: Manage spelling dictionary (see
 \f[B]DICTIONARY\f[R]).
 .IP \[bu] 2
-\f[B]gemcheck\f[R]: Check for missing gems across rbenv Rubies.
+\f[B]gemcheck\f[R]: Check for missing gems across rbenv Rubies (see
+\f[B]GEMCHECK\f[R]).
 .IP \[bu] 2
 \f[B]gemfile\f[R]: Generate Gemfile from dependencies.
 .IP \[bu] 2
@@ -269,6 +270,45 @@ prompting.
 .IP \[bu] 2
 \f[V]-y\f[R], \f[V]--yes\f[R]: Answer yes to confirmation prompt
 (auto-accept updates).
+.SH GEMCHECK
+.PP
+Wile checks for missing gems in the currently running Ruby version
+compared to installed versions managed by \f[V]rbenv\f[R].
+By default, only the previous installed version is searched; passing
+\f[V]--all\f[R] inspects all installed Ruby versions.
+.PP
+Major versions are tracked according to Semantic Versioning: if the
+current Ruby lacks a gem or has an older major version installed than
+what was found in the searched versions, the missing latest major
+version is reported with a pessimistic requirement (such as
+\f[V]\[ti]> 1\f[R]):
+.IP
+.nf
+\f[C]
+$ wile gemcheck                 # Check against previous Ruby version
+$ wile gemcheck --all           # Check across all installed Rubies
+\f[R]
+.fi
+.PP
+If missing gems are found, Wile displays the current Ruby version, the
+searched versions, and the missing gems, then prompts to install them
+with their respective version constraints:
+.IP
+.nf
+\f[C]
+Current Ruby version: 4.0.7
+Searching versions:   4.0.0
+Gems missing in current found in other versions:
+  reverse_markdown (\[ti]> 3):  4.0.0
+  solargraph (\[ti]> 0):  4.0.0
+Would you like to install them all? (Y/n)
+\f[R]
+.fi
+.PP
+Options:
+.IP \[bu] 2
+\f[V]-a\f[R], \f[V]--all\f[R]: Search across all installed Ruby versions
+instead of only the previous version.
 .SH HELP
 .PP
 Wile scrapes task documentation directly from the header comments of

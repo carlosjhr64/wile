@@ -56,7 +56,7 @@ Run `wile list` to list all tasks, or `wile help <task>` for details.
 - **cp**: Copy template files into project (see **CP**).
 - **dependencies**: List ruby dependencies.
 - **dictionary**: Manage spelling dictionary (see **DICTIONARY**).
-- **gemcheck**: Check for missing gems across rbenv Rubies.
+- **gemcheck**: Check for missing gems across rbenv Rubies (see **GEMCHECK**).
 - **gemfile**: Generate Gemfile from dependencies.
 - **help**: Show detailed help for tasks (see **HELP**).
 - **info**: Display project metadata and configuration (see **INFO**).
@@ -165,6 +165,36 @@ Options:
 
 - `-c`, `--check`: Run in check-only mode without prompting.
 - `-y`, `--yes`: Answer yes to confirmation prompt (auto-accept updates).
+
+## GEMCHECK
+
+Wile checks for missing gems in the currently running Ruby version compared to
+installed versions managed by `rbenv`. By default, only the previous installed
+version is searched; passing `--all` inspects all installed Ruby versions.
+
+Major versions are tracked according to Semantic Versioning: if the current
+Ruby lacks a gem or has an older major version installed than what was found
+in the searched versions, the missing latest major version is reported with a
+pessimistic requirement (such as `~> 1`):
+
+    $ wile gemcheck                 # Check against previous Ruby version
+    $ wile gemcheck --all           # Check across all installed Rubies
+
+If missing gems are found, Wile displays the current Ruby version, the searched
+versions, and the missing gems, then prompts to install them with their
+respective version constraints:
+
+    Current Ruby version: 4.0.7
+    Searching versions:   4.0.0
+    Gems missing in current found in other versions:
+      reverse_markdown (~> 3):  4.0.0
+      solargraph (~> 0):  4.0.0
+    Would you like to install them all? (Y/n)
+
+Options:
+
+- `-a`, `--all`: Search across all installed Ruby versions instead of only
+  the previous version.
 
 ## HELP
 
