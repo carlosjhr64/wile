@@ -2,23 +2,20 @@
 
 # ## wile gemfile ##
 # Outputs to STDOUT a Gemfile.
-# If the 'git' token is given, then
-# it will only look at ruby files in git.
 # Primary use:
 #   wile gemfile > Gemfile
 # Usage:
-#   wile gemfile [git] # list ruby gems as in Gemfile
+#   wile gemfile # list ruby gems as in Gemfile
 module Wile
   # This file is loaded upon a :gemfile task request.
   class Tasks
-    GEMFILE_USAGE = ['gemfile: Optionally only "git" as an argument.',
-                     (..1), /^git$/, Set[]].freeze
+    GEMFILE_USAGE = ['gemfile: Takes no arguments.', 0, Set[]].freeze
 
     # :reek:UtilityFunction
     def gemfile(options, gemspec = nil, io: $stdout)
       Utilities.verify_project_root!
-      token = Usage.new(options, *GEMFILE_USAGE).args&.first
-      gemspec ||= Gemspec.new(token:)
+      Usage.new(options, *GEMFILE_USAGE)
+      gemspec ||= Gemspec.new
       run = format_gems(gemspec.rungems)
       output_gemfile(run, format_gems(gemspec.devgems) - run, io:)
     end
