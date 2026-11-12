@@ -7,7 +7,7 @@ require 'English'
 require 'find'
 
 # ruby -c
-dirs = ['lib', ('bin' if File.directory?('bin'))].compact
+dirs = %w[lib bin].select { File.directory?(it) }
 dirs.each do |dir|
   Find.find(dir) do |fn|
     next unless File.file?(fn)
@@ -26,8 +26,8 @@ unless File.file?('.version')
   exit 1
 end
 
-MAJOR, MINOR, BUILD = File.read('.version').chomp.split(/\D+/)
-unless MAJOR && MINOR && BUILD
+major, minor, build_ver = File.read('.version').chomp.split(/\D+/)
+unless major && minor && build_ver
   puts 'Could not get VERSION.'
   exit 1
 end
@@ -42,8 +42,8 @@ build = if staged.empty? && !log.empty?
           Time.now.strftime('%y%m%d')
         end
 
-unless BUILD.start_with? build
-  puts "Unexpected BUILD(#{BUILD}) !start_with?(#{build})"
+unless build_ver.start_with?(build)
+  puts "Unexpected BUILD(#{build_ver}) !start_with?(#{build})"
   exit 1
 end
 
@@ -82,7 +82,8 @@ reply = io.gets
 io.close if io.is_a?(File)
 exit 0 unless reply&.strip&.match?(/^[Yy]([Ee][Ss])?$/)
 
-lines = IO.popen([*wile_cmd, 'test'], err: %i[child out], &:readlines)
+lines = IO.popen([*wile_cmd, 'test', '--batch'],
+                 err: %i[child out], &:readlines)
 unless $CHILD_STATUS.success?
   lines&.each { print it }
   exit 1
