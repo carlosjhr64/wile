@@ -4,6 +4,13 @@
 module Wile
   # Test module provides methods to run tests.
   module Test
+    SLOW_TESTS = %w[
+      test/tc_ut_gemspec
+      test/tc_ut_smell
+      test/tc_cucumber
+      test/tc_ut_tasks
+    ].freeze
+
     def self.test_files
       Dir['test/**/tc_*'].select do |tf|
         File.file?(tf) && %r{/tc_\w+$}.match?(tf)
@@ -20,21 +27,71 @@ module Wile
     end
     private_class_method :options
 
-    # :reek:BooleanParameter :reek:ControlParameter
-    # :reek:LongParameterList :reek:TooManyStatements
-    def self.test!(filematch = nil, methodmatch = nil,
-                   list: false, quiet: false)
+    def self.prioritized_files(files)
+      (SLOW_TESTS & files) + (files - SLOW_TESTS)
+    end
+    private_class_method :prioritized_files
+
+    def self.batch_worker(queue, opt, state)
+      while (tf = queue.pop)
+        state[:mutex].synchronize { state[:failed] << tf } unless
+          system(tf, *opt, out: File::NULL, err: File::NULL)
+      end
+    end
+    private_class_method :batch_worker
+
+    def self.run_workers(limit, queue, opt)
+      state = { failed: [], mutex: Mutex.new }
+      Array.new(limit) do
+        Thread.new { batch_worker(queue, opt, state) }
+      end.each(&:join)
+      state[:failed].sort
+    end
+    private_class_method :run_workers
+
+    # :reek:TooManyStatements
+    def self.batch_test(files, opt)
+      limit = [1, (Etc.nprocessors * 0.75).round].max
+      queue = Thread::Queue.new
+      prioritized_files(files).each { queue << it }
+      queue.close
+      failed = run_workers(limit, queue, opt)
+      return if failed.empty?
+
+      msg = failed.size == 1 ? failed.first : "\n#{failed.join("\n")}"
+      raise "failed: #{msg}"
+    end
+    private_class_method :batch_test
+
+    # :reek:TooManyStatements
+    def self.matched_files(filematch)
       files = test_files
-      files.select! { it.match?(filematch) } if filematch
-      raise "No tests matched: #{filematch}" if filematch && files.empty?
+      return files unless filematch
 
-      return puts files if list
+      files.select! { it.match?(filematch) }
+      raise "No tests matched: #{filematch}" if files.empty?
 
-      opt = options(methodmatch, quiet)
+      files
+    end
+    private_class_method :matched_files
+
+    def self.sequential_test(files, opt)
       files.each do |tf|
         puts "#{tf}: ".blue
         raise "failed: #{tf}" unless system(tf, *opt)
       end
+    end
+    private_class_method :sequential_test
+
+    # :reek:BooleanParameter :reek:ControlParameter
+    # :reek:LongParameterList
+    def self.test!(filematch = nil, methodmatch = nil,
+                   batch: false, list: false, quiet: false)
+      files = matched_files(filematch)
+      return puts files if list
+
+      opt = options(methodmatch, quiet)
+      batch ? batch_test(files, opt) : sequential_test(files, opt)
     end
   end
 end

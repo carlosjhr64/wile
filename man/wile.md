@@ -32,6 +32,7 @@ testing, and release.
 - `-h`, `--help`: Show help summary.
 - `-v`, `--version`: Show version number.
 - `-a`, `--all`: Apply to all targets.
+- `--batch`: Run in non-interactive batch mode.
 - `-c`, `--check`: Run in check-only mode.
 - `-d`, `--dump`: Dump internal structure or data.
 - `-f`, `--force`: Force execution without safety checks.
@@ -495,6 +496,7 @@ Wile executes project test suites located in `test/**/tc_*`. The `test`
 task supports targeted filtering by test file and test method name:
 
     $ wile test                     # Run all test suites
+    $ wile test --batch             # Run tests in parallel batch mode
     $ wile test usage               # Run test files matching "usage"
     $ wile test usage init          # Run test methods matching "init"
     $ wile test --list              # List matching test files only
@@ -504,6 +506,7 @@ Arguments and options:
 
 - `<filematch>`: Optional pattern filtering test file paths.
 - `<methodmatch>`: Optional pattern filtering test method names.
+- `--batch`: Run tests concurrently in a thread pool, suppressing output.
 - `-l`, `--list`: Print matching test files without running them.
 - `-q`, `--quiet`: Run with fault-only progress style.
 

@@ -51,6 +51,8 @@ release.
 .IP \[bu] 2
 \f[V]-a\f[R], \f[V]--all\f[R]: Apply to all targets.
 .IP \[bu] 2
+\f[V]--batch\f[R]: Run in non-interactive batch mode.
+.IP \[bu] 2
 \f[V]-c\f[R], \f[V]--check\f[R]: Run in check-only mode.
 .IP \[bu] 2
 \f[V]-d\f[R], \f[V]--dump\f[R]: Dump internal structure or data.
@@ -725,6 +727,7 @@ test method name:
 .nf
 \f[C]
 $ wile test                     # Run all test suites
+$ wile test --batch             # Run tests in parallel batch mode
 $ wile test usage               # Run test files matching \[dq]usage\[dq]
 $ wile test usage init          # Run test methods matching \[dq]init\[dq]
 $ wile test --list              # List matching test files only
@@ -737,6 +740,9 @@ Arguments and options:
 \f[V]<filematch>\f[R]: Optional pattern filtering test file paths.
 .IP \[bu] 2
 \f[V]<methodmatch>\f[R]: Optional pattern filtering test method names.
+.IP \[bu] 2
+\f[V]--batch\f[R]: Run tests concurrently in a thread pool, suppressing
+output.
 .IP \[bu] 2
 \f[V]-l\f[R], \f[V]--list\f[R]: Print matching test files without
 running them.

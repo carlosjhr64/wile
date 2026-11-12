@@ -4,13 +4,14 @@
 require 'English'
 require 'tmpdir'
 autoload :Digest,     'digest'
-autoload :Find,       'find'
-autoload :Shellwords, 'shellwords'
-autoload :FileUtils,  'fileutils'
-autoload :JSON,       'json'
 autoload :ERB,        'erb'
+autoload :Etc,        'etc'
+autoload :FileUtils,  'fileutils'
+autoload :Find,       'find'
+autoload :JSON,       'json'
 autoload :Prism,      'prism'
 autoload :RbConfig,   'rbconfig'
+autoload :Shellwords, 'shellwords'
 
 ## Third-party gems:
 autoload :HelpParser, 'help_parser'

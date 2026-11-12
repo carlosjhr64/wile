@@ -42,4 +42,12 @@ Feature: Testing wile test task
     * Given option "test --force"
     * When we run command
     * Then exit status is "64"
-    * Then stderr includes "optional list/quiet flags"
+    * Then stderr includes "optional batch/list/quiet flags"
+
+  Scenario: test with filematch (batch)
+    * Given option "test usage --batch"
+    * When we run command
+    * Then exit status is "0"
+    * Then stderr is ""
+    * Then stdout includes "Time:"
+    * Then stdout includes "OK"

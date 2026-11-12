@@ -77,6 +77,7 @@ EX_USAGE
 Encoding
 Enumerable
 Errno
+Etc
 FISHER_INSTALL_CMD
 FISHER_MIN_VERSION
 FISHER_REPO_URL
@@ -122,6 +123,7 @@ MODULE_NAME
 MTHD
 MaintGenerateCons
 Manpage
+Mutex
 NOTE_USAGE
 NULL
 NVIM_BIN
@@ -148,6 +150,7 @@ Prism
 Proc
 Process
 Project
+Queue
 RBENV_INFO
 RBENV_INIT_LINE
 RBENV_URL
@@ -178,6 +181,7 @@ RuntimeError
 SCOPE_END
 SCRIPT
 SHA256
+SLOW_TESTS
 SMELL_USAGE
 SORTS
 SUPPORTED_SHELLS
@@ -201,6 +205,7 @@ TOP_COUNT
 TYPES
 Tasks
 Test
+Thread
 Time
 Translation
 TrigramCounts
@@ -268,6 +273,9 @@ backtrace
 bad
 bang_ruby
 basename
+batch
+batch_test
+batch_worker
 bcmv
 bcswp
 best
@@ -319,6 +327,7 @@ clear_paths
 clevel
 clone_rbenv_if_missing
 clone_ruby_build
+close
 close_write
 cmd
 cmp
@@ -682,6 +691,7 @@ manual_fish_instructions
 map
 match
 matched
+matched_files
 matches
 max
 max_by
@@ -732,6 +742,7 @@ msg
 msh_populate
 mth
 mtime
+mutex
 n
 name
 name2scope
@@ -748,6 +759,7 @@ node
 none
 note
 now
+nprocessors
 nswp
 nvim
 nvim_bin_files
@@ -822,6 +834,7 @@ previous_version
 print
 print_dependencies
 print_manual_rbenv_init
+prioritized_files
 private
 private_class_method
 private_constant
@@ -865,6 +878,7 @@ qc_dependants
 qc_dependencies
 qc_name
 qc_symmetric
+queue
 quiet
 raise
 ranks
@@ -934,6 +948,7 @@ roff_path
 root
 root_files
 ros
+round
 rpartition
 rqs
 rstrip
@@ -944,6 +959,7 @@ ruby_path
 run
 run_cmd
 run_fish
+run_workers
 rungems
 scan
 sclass
@@ -963,6 +979,7 @@ selected_method
 self
 send
 sep
+sequential_test
 set_date
 set_git_user
 set_project
@@ -988,6 +1005,7 @@ start
 start_with
 started
 stat
+state
 stdlib
 stdlib_dir
 stdlib_files
@@ -1010,6 +1028,7 @@ swap
 swap_valuation
 sym
 symbol_node
+synchronize
 system
 system2
 system_commands_check

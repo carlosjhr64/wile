@@ -19,6 +19,7 @@ Wile::Run.new(HelpParser[Wile::VERSION, <<~HELP])
     -h --help	Show help summary
     -v --version	Show version number
     -a --all	Apply to all targets
+    --batch	Run in non-interactive batch mode
     -c --check	Run in check-only mode
     -d --dump	Dump internal structure or data
     -f --force	Force execution without safety checks
@@ -36,7 +37,6 @@ Wile::Run.new(HelpParser[Wile::VERSION, <<~HELP])
 
     --archive	Archive mode; preserve file attributes and permissions
     --backup	Make backup before removal or overwrite
-    --batch	Run in non-interactive batch mode
     --clean	Remove build artifacts and temporary files
     --color=WHEN	Control colored output (always, auto, never)
     --config=FILE	Configuration file path
