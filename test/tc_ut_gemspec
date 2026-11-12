@@ -44,14 +44,6 @@ class TestUtGemspec < Test::Unit::TestCase
     verify_to_s_sections(content)
   end
 
-  def test_token_normalization
-    with_quiet_io do
-      spec_sym = Wile::Gemspec.new(@info, token: :git)
-      spec_str = Wile::Gemspec.new(@info, token: 'git')
-      assert_equal spec_sym.rungems.map(&:name), spec_str.rungems.map(&:name)
-    end
-  end
-
   def test_update_bang
     with_quiet_io do
       Dir.mktmpdir { |tmp| verify_update_in_dir(tmp) }

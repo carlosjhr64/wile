@@ -28,12 +28,6 @@ class TestUtDependencies < Test::Unit::TestCase
     assert_includes run, 'colorize'
   end
 
-  def test_token_normalization
-    sym_result = @deps.dependencies(:git)
-    str_result = @deps.dependencies('git')
-    assert_equal sym_result, str_result
-  end
-
   def test_geminfo
     geminfo = @deps.geminfo(['colorize'])
     assert_equal 1, geminfo.size

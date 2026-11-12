@@ -1,28 +1,25 @@
 # frozen_string_literal: true
 
 # ## wile dependencies ##
-# If the 'git' token is given, then
-# it will only look at ruby file in git.
+# List ruby dependencies.
 # Usage:
-#   wile dependencies [git] # list ruby dependencies
+#   wile dependencies # list ruby dependencies
 module Wile
   # This file is loaded upon a :dependencies task request.
   class Tasks
     using WileRefinements
 
-    DEPENDENCIES_USAGE = ['dependencies: Optionally only "git" as an argument.',
-                          (..1), /^git$/].freeze
+    DEPENDENCIES_USAGE = ['dependencies: Takes no arguments.', 0, Set[]].freeze
 
     # :reek:FeatureEnvy :reek:TooManyStatements
     def dependencies(options)
       Utilities.verify_project_root!
-      token, = Usage.new(options, *DEPENDENCIES_USAGE).args
+      Usage.new(options, *DEPENDENCIES_USAGE)
       dpc = Dependencies.new
-      run, dev, ros, dos = dpc.dependencies(token&.to_sym)
-                              .as do |run, dev, ros, dos|
-        [dpc.geminfo(run), dpc.geminfo(dev), dpc.osinfo(ros), dpc.osinfo(dos)]
-      end
-      report_dependencies(run, dev, ros, dos)
+      run, dev, ros, dos = dpc.dependencies
+      report_dependencies(
+        dpc.geminfo(run), dpc.geminfo(dev), dpc.osinfo(ros), dpc.osinfo(dos)
+      )
     end
 
     private

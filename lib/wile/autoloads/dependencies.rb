@@ -19,11 +19,10 @@ module Wile
     end
 
     # :reek:TooManyStatements
-    # :reek:DuplicateMethodCall Set['ruby'] are new distinct instances of set
-    def dependencies(token = nil)
+    def dependencies
       run, dev, ros, dos = dependency_sets
       ignore = @info.gemignore
-      project_files(token&.to_sym).each do |rbfile|
+      project_files.each do |rbfile|
         gemset, osset = ignore.match?(rbfile) ? [dev, dos] : [run, ros]
         dependencies_populate(rbfile, gemset, osset)
       end
@@ -46,14 +45,13 @@ module Wile
       [Set.new, Set.new, Set['ruby'], Set['ruby']]
     end
 
-    def project_files(token)
-      Project.rbfiles(token).tap { it << '.irbrc' if irbrc?(token) }
+    def project_files
+      Project.rbfiles(:git).tap { it << '.irbrc' if irbrc? }
     end
 
-    # :reek:ControlParameter :reek:UtilityFunction
-    def irbrc?(token)
-      File.file?('.irbrc') &&
-        (token&.to_sym != :git || Git.files.include?('.irbrc'))
+    # :reek:UtilityFunction
+    def irbrc?
+      File.file?('.irbrc') && Git.files.include?('.irbrc')
     end
 
     DEPENDENCY_SCRAPES = [

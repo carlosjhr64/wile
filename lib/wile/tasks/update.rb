@@ -25,9 +25,9 @@ module Wile
 
     def update(options)
       Utilities.verify_project_root!
-      token, = Usage.new(options, *UPDATE_USAGE).args
+      target, = Usage.new(options, *UPDATE_USAGE).args
       Git.clean! unless options.force?
-      do_update(token)
+      do_update(target)
       do_update_report
     end
 
@@ -44,8 +44,8 @@ module Wile
     end
 
     # :reek:ControlParameter and :reek:UtilityFunction
-    def do_update(token)
-      targets = UPDATERS.fetch(token) { [Readme, Gemspec, Manpage] }
+    def do_update(target)
+      targets = UPDATERS.fetch(target) { [Readme, Gemspec, Manpage] }
       targets.each { it.new.update! }
     end
   end

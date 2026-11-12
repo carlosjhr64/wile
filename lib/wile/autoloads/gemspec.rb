@@ -14,9 +14,8 @@ module Wile
     end
 
     # :reek:BooleanParameter
-    def initialize(info = Info.info, token: :git, verbose: false)
+    def initialize(info = Info.info, verbose: false)
       @info = info
-      @token = token&.to_sym
       @verbose = verbose
       @rungems, @devgems, @ros, @dos = load_dependencies(info)
       @gemspec = String.new
@@ -34,10 +33,10 @@ module Wile
 
     private
 
-    # :reek:FeatureEnvy
+    # :reek:FeatureEnvy :reek:UtilityFunction
     def load_dependencies(info)
       deps = Dependencies.new(info)
-      run, dev, ros, dos = deps.dependencies(@token)
+      run, dev, ros, dos = deps.dependencies
       [
         deps.geminfo(run),
         deps.geminfo(dev),
