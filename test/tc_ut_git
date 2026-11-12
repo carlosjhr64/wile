@@ -8,8 +8,15 @@ require_relative '../lib/wile/run'
 
 # Unit tests for Wile::Git.
 class TestUtGit < Test::Unit::TestCase
+  CLEAN_ENV = %w[GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_PREFIX].freeze
+
   def setup
     Wile.autoloads
+    @saved = CLEAN_ENV.to_h { [it, ENV.delete(it)] }
+  end
+
+  def teardown
+    @saved.each { |k, v| v ? ENV[k] = v : ENV.delete(k) }
   end
 
   def test_outside_repo
@@ -52,9 +59,8 @@ class TestUtGit < Test::Unit::TestCase
     Wile::Git.init!(path)
     Dir.chdir(path) do
       system('git', 'branch', '-M', 'main')
-      system('git', 'config', 'user.name', 'TestUser')
-      system('git', 'config', 'user.email', 'test@example.com')
-      system('git', 'config', 'commit.gpgsign', 'false')
+      %w[user.name TestUser user.email test@example.com commit.gpgsign false]
+        .each_slice(2) { |k, v| system('git', 'config', k, v) }
     end
   end
 
@@ -105,15 +111,13 @@ class TestUtGit < Test::Unit::TestCase
   end
 
   def with_quiet_io
-    orig_out = $stdout.dup
-    orig_err = $stderr.dup
+    orig = [$stdout.dup, $stderr.dup]
     $stdout.reopen(File::NULL)
     $stderr.reopen(File::NULL)
     yield
   ensure
-    $stdout.reopen(orig_out)
-    $stderr.reopen(orig_err)
-    orig_out.close
-    orig_err.close
+    $stdout.reopen(orig[0])
+    $stderr.reopen(orig[1])
+    orig.each(&:close)
   end
 end

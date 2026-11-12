@@ -82,7 +82,8 @@ reply = io.gets
 io.close if io.is_a?(File)
 exit 0 unless reply&.strip&.match?(/^[Yy]([Ee][Ss])?$/)
 
-lines = IO.popen([*wile_cmd, 'test', '--batch'],
+git_env = { 'GIT_INDEX_FILE' => nil, 'GIT_DIR' => nil, 'GIT_WORK_TREE' => nil }
+lines = IO.popen([git_env, *wile_cmd, 'test', '--batch'],
                  err: %i[child out], &:readlines)
 unless $CHILD_STATUS.success?
   lines&.each { print it }
