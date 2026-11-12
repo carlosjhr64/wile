@@ -55,7 +55,9 @@ module Wile
     private
 
     def get_code_data(dir)
-      Find.find(dir).grep(/\.rb$/).each { process_file(it) }
+      prefix = "#{dir.delete_prefix('./').delete_suffix('/')}/"
+      files = Git.files.select { it.start_with?(prefix) && it.end_with?('.rb') }
+      files.each { process_file(it) }
     end
 
     def process_file(filename)
