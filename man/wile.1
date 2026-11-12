@@ -14,7 +14,7 @@
 . ftr VB CB
 . ftr VBI CBI
 .\}
-.TH "WILE" "1" "November 2026" "wile 0.4.261111" "User Commands"
+.TH "WILE" "1" "November 2026" "wile 0.4.261112" "User Commands"
 .hy
 .SH NAME
 .PP
@@ -58,8 +58,6 @@ release.
 \f[V]-f\f[R], \f[V]--force\f[R]: Force execution without safety checks.
 .IP \[bu] 2
 \f[V]--format=WORD\f[R]: Output format.
-.IP \[bu] 2
-\f[V]--git\f[R]: Operate on git-tracked files.
 .IP \[bu] 2
 \f[V]-l\f[R], \f[V]--list\f[R]: List items.
 .IP \[bu] 2
@@ -673,23 +671,19 @@ stopping only on errors.
 (\f[V]content\f[R], \f[V]order\f[R], \f[V]reek\f[R], \f[V]rubocop\f[R]).
 .SH RUBY
 .PP
-Wile lists all Ruby files in the project, including \f[V].rb\f[R] source
-files and executable scripts with a Ruby shebang:
+Wile lists all Ruby files in the project tracked by Git, including
+\f[V].rb\f[R] source files and executable scripts with a Ruby shebang:
 .IP
 .nf
 \f[C]
 $ wile ruby                     # List all project Ruby files
-$ wile ruby --git               # List only git-tracked Ruby files
 $ wile ruby tasks               # Filter files matching tasks
-$ wile ruby tasks --git         # Filter git files matching tasks
 \f[R]
 .fi
 .PP
-Arguments and options:
+Arguments:
 .IP \[bu] 2
 \f[V]<match>...\f[R]: Optional patterns filtering file paths.
-.IP \[bu] 2
-\f[V]--git\f[R]: Inspect only files tracked by git.
 .SH TC
 .PP
 Wile discovers and lists test cases located in \f[V]test/tc_*\f[R]:

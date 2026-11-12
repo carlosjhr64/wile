@@ -128,7 +128,7 @@ module Wile
       'git' => {
         desc: 'Operate on git-tracked files',
         type: nil,
-        commands: %w[wile-ruby]
+        commands: ['"reserved for custom tasks"']
       },
       'header' => {
         desc: 'Display or include header line',

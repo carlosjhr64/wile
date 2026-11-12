@@ -36,7 +36,6 @@ testing, and release.
 - `-d`, `--dump`: Dump internal structure or data.
 - `-f`, `--force`: Force execution without safety checks.
 - `--format=WORD`: Output format.
-- `--git`: Operate on git-tracked files.
 - `-l`, `--list`: List items.
 - `--name=WORD`: Filter or match by name.
 - `--only=CSV`: Select only specified items.
@@ -455,18 +454,15 @@ Options:
 
 ## RUBY
 
-Wile lists all Ruby files in the project, including `.rb` source files and
-executable scripts with a Ruby shebang:
+Wile lists all Ruby files in the project tracked by Git, including `.rb` source
+files and executable scripts with a Ruby shebang:
 
     $ wile ruby                     # List all project Ruby files
-    $ wile ruby --git               # List only git-tracked Ruby files
     $ wile ruby tasks               # Filter files matching tasks
-    $ wile ruby tasks --git         # Filter git files matching tasks
 
-Arguments and options:
+Arguments:
 
 - `<match>...`: Optional patterns filtering file paths.
-- `--git`: Inspect only files tracked by git.
 
 ## TC
 

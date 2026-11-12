@@ -23,7 +23,6 @@ Wile::Run.new(HelpParser[Wile::VERSION, <<~HELP])
     -d --dump	Dump internal structure or data
     -f --force	Force execution without safety checks
     --format=WORD	Output format
-    --git	Operate on git-tracked files
     -l --list	List items
     --name=WORD	Filter or match by name
     --only=CSV	Select only specified items
@@ -51,6 +50,7 @@ Wile::Run.new(HelpParser[Wile::VERSION, <<~HELP])
     --encoding=WORD	Character encoding to use
     --exclude=PATTERN	Exclude files or paths matching pattern
     --follow	Output appended data as file grows
+    --git	Operate on git-tracked files
     --header	Display or include header line
     --icase	Ignore case distinctions in patterns or text
     --include=PATTERN	Include only files or paths matching pattern

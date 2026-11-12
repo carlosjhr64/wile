@@ -32,13 +32,10 @@ class TestUtProject < Test::Unit::TestCase
     refute(pfiles.any? { it.include?('.git/refs') })
   end
 
-  def test_rbfiles_modes
-    rbfiles_default = Wile::Project.rbfiles
-    rbfiles_sym = Wile::Project.rbfiles(:git)
-    rbfiles_str = Wile::Project.rbfiles('git')
-    assert_equal rbfiles_sym, rbfiles_str
-    assert_includes rbfiles_default, 'lib/wile.rb'
-    assert_includes rbfiles_default, 'bin/wile'
+  def test_rbfiles
+    rbfiles = Wile::Project.rbfiles
+    assert_includes rbfiles, 'lib/wile.rb'
+    assert_includes rbfiles, 'bin/wile'
   end
 
   def test_bang_ruby_existing_files

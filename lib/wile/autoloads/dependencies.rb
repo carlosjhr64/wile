@@ -46,7 +46,7 @@ module Wile
     end
 
     def project_files
-      Project.rbfiles(:git).tap { it << '.irbrc' if irbrc? }
+      Project.rbfiles.tap { it << '.irbrc' if irbrc? }
     end
 
     # :reek:UtilityFunction

@@ -43,10 +43,8 @@ module Wile
         .select { %r{^[.]git/hooks/}.match?(it) || !/^[.]git\b/.match?(it) }
     end
 
-    # :reek:ControlParameter
-    def self.rbfiles(mode = nil)
-      (mode&.to_sym == :git ? Git.files : pfiles)
-        .select { /\.rb$/.match?(it) || bang_ruby?(it) }
+    def self.rbfiles
+      Git.files.select { /\.rb$/.match?(it) || bang_ruby?(it) }
     end
 
     def self.bang_ruby?(filename)
