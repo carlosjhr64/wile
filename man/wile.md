@@ -61,7 +61,7 @@ Run `wile list` to list all tasks, or `wile help <task>` for details.
 - **gemfile**: Generate Gemfile from dependencies (see **GEMFILE**).
 - **help**: Show detailed help for tasks (see **HELP**).
 - **info**: Display project metadata and configuration (see **INFO**).
-- **install**: Build and install gem locally.
+- **install**: Build and install gem locally (see **INSTALL**).
 - **lexicon**: View and update vocabulary whitelist (see **LEXICON**).
 - **list**: List all tasks or filter by pattern (see **LIST**).
 - **mkdir**: Create project directory from template (see **MKDIR**).
@@ -270,6 +270,26 @@ Sections displayed:
 - **Development gems**: Dependencies required during development and testing.
 
 `wile info` takes no arguments and must be executed from the project root.
+
+## INSTALL
+
+Wile builds the project gem and installs it into the local Ruby environment
+using `gem install --no-document --local`. If the current version is already
+installed, it uninstalls it first before installing the newly built gem,
+then cleans up the temporary `.gem` package file:
+
+    $ wile install                  # Build and install gem locally
+    $ wile install --force          # Bypass git cleanliness and gemspec checks
+
+By default, Wile enforces that the Git working tree is clean, no leftover
+`.gem` packages exist in the directory, and the gemspec has been updated
+within the last 5 minutes. Passing `--force` bypasses these verification
+checks.
+
+Options:
+
+- `-f`, `--force`: Force installation without requiring clean git status
+  or up-to-date gemspec checks.
 
 ## LEXICON
 

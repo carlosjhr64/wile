@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
 # ## wile install ##
-# Installs current version of project,
-# uninstalling the version if it exists.
+# Builds and installs current project locally,
+# uninstalling the version first if already installed.
+# Refuses to build unless git status is clean, unless forced.
 # Usage:
 #   wile install [--force] # install current local project
 module Wile
@@ -11,17 +12,26 @@ module Wile
     INSTALL_USAGE = ['install: Takes no arguments with optional force flag.',
                      0, Set['force']].freeze
 
-    # :reek:UtilityFunction :reek:TooManyStatements
-    def install(options)
+    # :reek:UtilityFunction
+    def install(options, gmu = GemUtils.new)
       Utilities.verify_project_root!
       Usage.new(options, *INSTALL_USAGE)
-      gmu = GemUtils.new
-      unless options.force?
-        Git.clean! && gmu.clean!
-        gmu.ready!
-      end
-      gmu.build!
+      verify_install(gmu) unless options.force?
+      reinstall(gmu)
+    end
 
+    private
+
+    # :reek:UtilityFunction
+    def verify_install(gmu)
+      Git.clean!
+      gmu.clean!
+      gmu.ready!
+    end
+
+    # :reek:UtilityFunction
+    def reinstall(gmu)
+      gmu.build!
       gmu.uninstall if gmu.installed?
       gmu.install && gmu.rm_pkg
     end

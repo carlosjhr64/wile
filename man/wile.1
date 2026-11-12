@@ -109,7 +109,8 @@ for details.
 \f[B]info\f[R]: Display project metadata and configuration (see
 \f[B]INFO\f[R]).
 .IP \[bu] 2
-\f[B]install\f[R]: Build and install gem locally.
+\f[B]install\f[R]: Build and install gem locally (see
+\f[B]INSTALL\f[R]).
 .IP \[bu] 2
 \f[B]lexicon\f[R]: View and update vocabulary whitelist (see
 \f[B]LEXICON\f[R]).
@@ -420,6 +421,30 @@ testing.
 .PP
 \f[V]wile info\f[R] takes no arguments and must be executed from the
 project root.
+.SH INSTALL
+.PP
+Wile builds the project gem and installs it into the local Ruby
+environment using \f[V]gem install --no-document --local\f[R].
+If the current version is already installed, it uninstalls it first
+before installing the newly built gem, then cleans up the temporary
+\f[V].gem\f[R] package file:
+.IP
+.nf
+\f[C]
+$ wile install                  # Build and install gem locally
+$ wile install --force          # Bypass git cleanliness and gemspec checks
+\f[R]
+.fi
+.PP
+By default, Wile enforces that the Git working tree is clean, no
+leftover \f[V].gem\f[R] packages exist in the directory, and the gemspec
+has been updated within the last 5 minutes.
+Passing \f[V]--force\f[R] bypasses these verification checks.
+.PP
+Options:
+.IP \[bu] 2
+\f[V]-f\f[R], \f[V]--force\f[R]: Force installation without requiring
+clean git status or up-to-date gemspec checks.
 .SH LEXICON
 .PP
 Wile enforces vocabulary control across \f[V]lib/**/*.rb\f[R] using AST

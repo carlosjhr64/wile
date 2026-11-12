@@ -911,6 +911,7 @@ reek
 refine
 regexp
 regular_expression_node
+reinstall
 reject
 rel
 rename
@@ -1109,6 +1110,7 @@ verify_fish
 verify_fisher_installed
 verify_gems
 verify_generic_packages
+verify_install
 verify_linux
 verify_neovim
 verify_project_root

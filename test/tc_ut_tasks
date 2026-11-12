@@ -12,6 +12,7 @@ require_relative '../lib/wile/tasks/cp'
 require_relative '../lib/wile/tasks/gemcheck'
 require_relative '../lib/wile/tasks/gemfile'
 require_relative '../lib/wile/tasks/info'
+require_relative '../lib/wile/tasks/install'
 require_relative '../lib/wile/tasks/mkdir'
 require_relative '../lib/wile/tasks/review'
 
@@ -24,6 +25,10 @@ FakeGmu = Struct.new(:calls) do
   def clean! = calls << :clean!
   def ready! = calls << :ready!
   def build! = calls << :build!
+  def installed? = true
+  def uninstall = calls << :uninstall
+  def install = calls << :install
+  def rm_pkg = calls << :rm_pkg
 end
 
 FakeGemspec = Struct.new(:rungems, :devgems)
@@ -77,6 +82,7 @@ class TestUtTasks < Test::Unit::TestCase
       assert_raise(Wile::UsageError) { TASKS.cp(opt) }
       assert_raise(Wile::UsageError) { TASKS.build(opt) }
       assert_raise(Wile::UsageError) { TASKS.gemfile(opt) }
+      assert_raise(Wile::UsageError) { TASKS.install(opt) }
     end
     assert_raise(Wile::UsageError) { TASKS.mkdir(fake_options([])) }
   end
@@ -98,6 +104,12 @@ class TestUtTasks < Test::Unit::TestCase
     gmu = FakeGmu.new([])
     TASKS.build(fake_options([], force: true), gmu)
     assert_equal [:build!], gmu.calls
+  end
+
+  def test_install_flow
+    gmu = FakeGmu.new([])
+    TASKS.install(fake_options([], force: true), gmu)
+    assert_equal %i[build! uninstall install rm_pkg], gmu.calls
   end
 
   def test_cp_flow
