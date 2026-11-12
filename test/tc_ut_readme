@@ -1,0 +1,145 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'tmpdir'
+require_relative 'test_helper'
+require_relative '../lib/wile'
+require_relative '../lib/wile/run'
+
+SAMPLE_README = <<~README
+  # Sample Project 1.0.0
+
+  ## DESCRIPTION
+
+  Sample is an awesome test tool.
+
+  It provides multiple paragraphs of detailed explanation
+  for testing description parsing.
+
+  ## HELP
+
+  ```console
+  $ sample --help #>>
+  old help output
+  ```
+
+  ## COPYRIGHT
+
+  Copyright (c) 2020 OldAuthor
+README
+
+# Unit tests for Wile::Readme.
+class TestUtReadme < Test::Unit::TestCase
+  INFO_STRUCT = Struct.new(:project, :version, :year, :username, :readme)
+
+  def setup = Wile.autoloads
+
+  def test_defaults_and_attributes
+    with_quiet_io do
+      readme = Wile::Readme.new
+      assert_equal 'README.md', readme.path
+      assert_equal readme.path, readme.readme
+      assert_not_nil readme.info
+    end
+  end
+
+  def test_description_and_summary
+    with_readme_file(SAMPLE_README) do |file|
+      info = INFO_STRUCT.new('sample', '1.2.3', 2026, 'Tester', file)
+      readme = Wile::Readme.new(info)
+      assert_equal 'Sample is an awesome test tool.', readme.summary
+      assert_include readme.description, 'for testing description parsing.'
+    end
+  end
+
+  def test_update_and_update_bang
+    with_readme_file(SAMPLE_README) do |file|
+      info = INFO_STRUCT.new('sample', '2.0.0', 2026, 'NewAuthor', file)
+      readme = Wile::Readme.new(info)
+      updated = with_quiet_io { readme.update }
+      assert_include updated, 'Copyright (c) 2026 NewAuthor'
+      with_quiet_io { readme.update! }
+      assert_equal updated, File.read(file)
+    end
+  end
+
+  def test_update_warnings
+    with_readme_file("# No version\nCopyright (c) 2020 Old\n") do |file|
+      readme = Wile::Readme.new(INFO_STRUCT.new('s', '2.0.0', 2026, 'T', file))
+      err = capture_stderr { readme.update }
+      assert_include err, 'Warning: README does not have VERSION'
+    end
+    with_readme_file("# Project 1.0.0\nNo copyright\n") do |file|
+      readme = Wile::Readme.new(INFO_STRUCT.new('s', '2.0.0', 2026, 'T', file))
+      err = capture_stderr { readme.update }
+      assert_include err, 'Warning: README does not have Copyright'
+    end
+  end
+
+  def test_console_block_warning
+    Dir.mktmpdir do |dir|
+      setup_bin(dir, 'sample', "exit 0\n")
+      File.write(File.join(dir, 'README.md'),
+                 "# Project 1.0.0\nCopyright (c) 2026 T\n")
+      readme = new_readme(dir, 'sample')
+      err = capture_stderr { Dir.chdir(dir) { readme.update } }
+      assert_include err, 'Warning: README does not have an active console'
+    end
+  end
+
+  def test_console_block_execution
+    Dir.mktmpdir do |dir|
+      setup_bin(dir, 'sample', "echo 'sample output line'\n")
+      File.write(File.join(dir, 'README.md'), SAMPLE_README)
+      readme = new_readme(dir, 'sample')
+      updated = Dir.chdir(dir) { readme.update }
+      assert_include updated, "sample output line\n"
+      assert_not_include updated, 'old help output'
+    end
+  end
+
+  private
+
+  def setup_bin(dir, name, script)
+    bin_dir = File.join(dir, 'bin')
+    FileUtils.mkdir_p(bin_dir)
+    path = File.join(bin_dir, name)
+    File.write(path, "#!/bin/sh\n#{script}")
+    File.chmod(0o755, path)
+  end
+
+  def new_readme(dir, name)
+    path = File.join(dir, 'README.md')
+    Wile::Readme.new(INFO_STRUCT.new(name, '1.2.3', 2026, 'Tester', path))
+  end
+
+  def with_readme_file(content)
+    Dir.mktmpdir do |dir|
+      path = File.join(dir, 'README.md')
+      File.write(path, content)
+      yield path
+    end
+  end
+
+  def capture_stderr
+    orig_err = $stderr.dup
+    pipe_r, pipe_w = IO.pipe
+    $stderr.reopen(pipe_w)
+    yield
+    $stderr.reopen(orig_err)
+    pipe_w.close
+    pipe_r.read
+  ensure
+    $stderr.reopen(orig_err)
+    orig_err.close
+  end
+
+  def with_quiet_io
+    orig_err = $stderr.dup
+    $stderr.reopen(File::NULL)
+    yield
+  ensure
+    $stderr.reopen(orig_err)
+    orig_err.close
+  end
+end

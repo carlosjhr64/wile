@@ -38,6 +38,7 @@ CodeDataFunction
 CodeDataValuation
 CodeStats
 CommandVersion
+ConsoleBlocks
 ConstantPathNode
 ConstantReadNode
 Content
@@ -249,6 +250,7 @@ all_files
 allowed_opt
 alphabetical
 any
+append_line
 append_os_requirement
 apt_fish_available
 apt_install
@@ -330,6 +332,7 @@ clone_ruby_build
 close
 close_write
 cmd
+cmd_index
 cmp
 col
 collect_gems
@@ -357,6 +360,7 @@ configure_default_shell
 configure_rbenv
 configure_rbenv_shell
 confirm
+console_start
 const
 constant_path
 constant_type
@@ -508,6 +512,7 @@ extract_sha256
 extract_words
 failed
 fallback
+fence
 fetch
 fetch_latest_release
 file
@@ -531,7 +536,6 @@ fish_plugin
 fish_version
 fisher_version
 flag
-flg
 float
 float_node
 flush
@@ -754,6 +758,7 @@ named
 names
 namex
 new
+next_index
 nil
 nme
 node
@@ -840,6 +845,7 @@ private_class_method
 private_constant
 probe
 process_file
+process_lines
 project
 project_command
 project_files
@@ -898,10 +904,6 @@ read
 read_rgx
 readlines
 readme
-readme_console_check
-readme_console_insert
-readme_copyright_check
-readme_version_check
 ready
 receiver
 record_dep
@@ -915,6 +917,7 @@ reinstall
 reject
 rel
 rename
+replace_block
 reply
 report
 report_dependencies
@@ -959,6 +962,7 @@ ruby_build_dir
 ruby_path
 run
 run_cmd
+run_console
 run_fish
 run_workers
 rungems
@@ -993,6 +997,7 @@ show_tc_section
 singleton_class
 size
 size_of
+skip_to_fence
 slc
 slice
 smell
@@ -1036,6 +1041,7 @@ system_commands_check
 tag
 tap
 target
+target_cmd
 target_ruby
 target_versions
 targets
@@ -1078,7 +1084,12 @@ unlink
 unused
 upcase
 update
+update_block
+update_console
+update_copyright
 update_ruby_build
+update_version
+updated
 upto
 usage
 user_shell
@@ -1137,6 +1148,7 @@ visit_singleton_class_node
 vrs
 vset
 warn
+warn_missing
 warn_missing_version
 weird_filename
 which
