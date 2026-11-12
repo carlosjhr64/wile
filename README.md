@@ -73,11 +73,11 @@ Options:
   -h --help	Show help summary
   -v --version	Show version number
   -a --all	Apply to all targets
+  --batch	Run in non-interactive batch mode
   -c --check	Run in check-only mode
   -d --dump	Dump internal structure or data
   -f --force	Force execution without safety checks
   --format=WORD	Output format
-  --git	Operate on git-tracked files
   -l --list	List items
   --name=WORD	Filter or match by name
   --only=CSV	Select only specified items
@@ -91,7 +91,6 @@ Reserved flags for custom tasks:
 
   --archive	Archive mode; preserve file attributes and permissions
   --backup	Make backup before removal or overwrite
-  --batch	Run in non-interactive batch mode
   --clean	Remove build artifacts and temporary files
   --color=WHEN	Control colored output (always, auto, never)
   --config=FILE	Configuration file path
@@ -105,6 +104,7 @@ Reserved flags for custom tasks:
   --encoding=WORD	Character encoding to use
   --exclude=PATTERN	Exclude files or paths matching pattern
   --follow	Output appended data as file grows
+  --git	Operate on git-tracked files
   --header	Display or include header line
   --icase	Ignore case distinctions in patterns or text
   --include=PATTERN	Include only files or paths matching pattern
@@ -169,7 +169,7 @@ $ wile list --format=dictionary #>>
 + dependencies: list ruby dependencies
 + dictionary: view changes and update dictionary
 + gemcheck: Checks for missing gems
-+ gemfile: list ruby gems as in Gemfile
++ gemfile: generate Gemfile from dependencies
 + help: show task's help
 + info: show project info
 + install: install current local project
@@ -182,7 +182,7 @@ $ wile list --format=dictionary #>>
 + publish: publish a new version
 + requirements: checks for missing system commands
 + review: runs review
-+ ruby: lists all ruby files
++ ruby: lists ruby files
 + smell: classify methods in your code
 + tc: lists unit tests
 + test: runs tests

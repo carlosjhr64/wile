@@ -562,6 +562,7 @@ gemcheck_missing
 gemcheck_report
 gemcmd
 gemfile
+gemfile_content
 gemignore
 geminfo
 gempkg
@@ -792,7 +793,6 @@ osset
 other
 out
 output
-output_gemfile
 p
 p2c
 p2c_and_missing

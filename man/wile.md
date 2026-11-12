@@ -222,14 +222,13 @@ Options:
 
 ## GEMFILE
 
-Wile generates a `Gemfile` from project dependencies and outputs it to stdout.
-It classifies gems into runtime and development groups based on `.gemignore`,
+Wile generates a project `Gemfile` directly from dependencies. It
+classifies gems into runtime and development groups based on `.gemignore`,
 including the rubygems source and `.ruby-version` constraint:
 
-    $ wile gemfile                  # Output Gemfile content to stdout
-    $ wile gemfile > Gemfile        # Generate or overwrite project Gemfile
+    $ wile gemfile                  # Generate or update project Gemfile
 
-The output follows standard Bundler syntax:
+The generated file follows standard Bundler syntax:
 
     source 'https://rubygems.org'
     ruby file: '.ruby-version'
