@@ -13,10 +13,8 @@ module Wile
       File.write(File.join(@info.dirname, @info.gemspec), @gemspec)
     end
 
-    # :reek:BooleanParameter
-    def initialize(info = Info.info, verbose: false)
+    def initialize(info = Info.info)
       @info = info
-      @verbose = verbose
       @rungems, @devgems, @ros, @dos = load_dependencies(info)
       @gemspec = String.new
       generate(Readme.new(info))
@@ -93,32 +91,29 @@ module Wile
       GEMSPEC
     end
 
-    # :reek:TooManyStatements
     def gemspec_requirements
       @gemspec << "  ## REQUIREMENTS ##\n"
       seen = Set.new
-      gemspec_deps(seen, @rungems, 'runtime')
-      gemspec_deps(seen, @devgems, 'development') if @verbose
-      gemspec_os(seen, @ros)
-      gemspec_os(seen, @dos) if @verbose
+      gemspec_deps(seen)
+      gemspec_os(seen)
     end
 
     # :reek:FeatureEnvy :reek:TooManyStatements
-    def gemspec_deps(seen, gems, type)
-      gems.sort.each do |gem|
+    def gemspec_deps(seen)
+      @rungems.sort.each do |gem|
         name = gem.name
         next unless seen.add?(name)
 
         version = gem.version
         mm = version.split('.')[..1].join('.')
-        @gemspec << "  s.add_#{type}_dependency '#{name}', " \
+        @gemspec << "  s.add_runtime_dependency '#{name}', " \
                     "'~> #{mm}', '>= #{version}'\n"
       end
     end
 
     # :reek:FeatureEnvy
-    def gemspec_os(seen, os = @ros)
-      os.sort.each do |cmd|
+    def gemspec_os(seen)
+      @ros.sort.each do |cmd|
         next unless seen.add?(cmd.name)
 
         append_os_requirement(cmd)
