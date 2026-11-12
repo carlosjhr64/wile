@@ -24,15 +24,12 @@ module Wile
     def nvim_bin_files
       return [] unless File.directory?('bin')
 
-      find('bin').select { File.executable? it }.sort
+      Git.files.select { it.start_with?('bin/') && File.executable?(it) }.sort
     end
 
     def nvim_lib_files
-      find('lib').grep(/\.rb$/).sort_by { [it.count('/'), it] }
-    end
-
-    def find(dir)
-      Find.find(dir).select { File.file? it }
+      Git.files.select { it.start_with?('lib/') && it.end_with?('.rb') }
+         .sort_by { [it.count('/'), it] }
     end
 
     def more_ranks(lib, rqs = "lib/#{@project}/requires.rb")

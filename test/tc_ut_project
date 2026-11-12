@@ -27,9 +27,6 @@ class TestUtProject < Test::Unit::TestCase
     assert_kind_of Array, pfiles
     assert_includes pfiles, 'lib/wile.rb'
     assert_includes pfiles, '.gitignore'
-    assert_includes pfiles, '.git/hooks/pre-commit.sample'
-    refute(pfiles.any? { it.include?('.git/objects') })
-    refute(pfiles.any? { it.include?('.git/refs') })
   end
 
   def test_rbfiles

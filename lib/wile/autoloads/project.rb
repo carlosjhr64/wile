@@ -23,24 +23,19 @@ module Wile
     end
 
     def self.find(dir)
-      found = []
-      Find.find(dir) do |path|
-        if git_non_hook?(path)
-          Find.prune
-        elsif File.file?(path)
-          found << path
-        end
-      end
-      found
+      files = Git.files
+      return files if %w[. ./].include?(dir)
+
+      prefix = "#{dir.delete_prefix('./').delete_suffix('/')}/"
+      files.select { it.start_with?(prefix) }
     end
 
     def self.files(dir)
-      find(dir).map { it.delete_prefix("#{dir}/") }
+      find(dir).map { it.delete_prefix("#{dir.delete_prefix('./')}/") }
     end
 
     def self.pfiles
-      files('.')
-        .select { %r{^[.]git/hooks/}.match?(it) || !/^[.]git\b/.match?(it) }
+      Git.files
     end
 
     def self.rbfiles
@@ -55,16 +50,6 @@ module Wile
 
       first_line = File.read(filename, 80).lines.first
       first_line ? /^#!.*\bruby\b/.match?(first_line.rstrip) : false
-    end
-
-    def self.git_non_hook?(path)
-      return false unless File.directory?(path)
-
-      parts = path.split('/')
-      return false unless (idx = parts.rindex('.git'))
-      return false if idx == parts.length - 1
-
-      parts[idx + 1] != 'hooks'
     end
   end
 end

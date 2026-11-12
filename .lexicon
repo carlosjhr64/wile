@@ -572,7 +572,6 @@ get_sections
 gets
 git
 git_init
-git_non_hook
 glob
 gmu
 gray
@@ -794,7 +793,6 @@ pandoc
 pandoc_args
 parse
 parse_file
-parts
 pascal_case
 passed
 path
@@ -927,7 +925,6 @@ review_files
 review_next
 review_response_cases
 rgx
-rindex
 rj
 rjust
 rm_pkg
