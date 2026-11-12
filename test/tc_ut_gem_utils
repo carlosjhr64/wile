@@ -1,0 +1,94 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'tmpdir'
+require_relative 'test_helper'
+require_relative '../lib/wile'
+require_relative '../lib/wile/run'
+
+# Unit tests for Wile::GemUtils.
+class TestUtGemUtils < Test::Unit::TestCase
+  def setup
+    Wile.autoloads
+    @info = Struct.new(:project, :version).new('sample', '1.0.0')
+    @gmu = Wile::GemUtils.new(@info)
+  end
+
+  def test_paths_and_names
+    assert_equal 'sample', @gmu.project
+    assert_equal '1.0.0', @gmu.version
+    assert_equal 'sample.gemspec', @gmu.gemspec
+    assert_equal 'sample-1.0.0.gem', @gmu.gempkg
+  end
+
+  def test_clean_when_empty
+    Dir.mktmpdir do |dir|
+      Dir.chdir(dir) do
+        assert @gmu.clean?
+        assert_nothing_raised { @gmu.clean! }
+      end
+    end
+  end
+
+  def test_clean_with_pkg
+    Dir.mktmpdir do |dir|
+      Dir.chdir(dir) do
+        File.write(@gmu.gempkg, 'gem')
+        assert_false @gmu.clean?
+        assert_raise(RuntimeError) { @gmu.clean! }
+        @gmu.rm_pkg
+        assert @gmu.clean?
+      end
+    end
+  end
+
+  def test_ready_missing_gemspec
+    Dir.mktmpdir do |dir|
+      Dir.chdir(dir) do
+        assert_false @gmu.ready?
+        assert_raise_message('missing gemspec!') { @gmu.ready! }
+      end
+    end
+  end
+
+  def test_ready_fresh
+    Dir.mktmpdir do |dir|
+      Dir.chdir(dir) do
+        File.write(@gmu.gemspec, 'spec')
+        assert @gmu.ready?
+        assert_nothing_raised { @gmu.ready! }
+      end
+    end
+  end
+
+  def test_ready_stale
+    Dir.mktmpdir do |dir|
+      Dir.chdir(dir) do
+        File.write(@gmu.gemspec, 'spec')
+        stale = Time.now - 600
+        File.utime(stale, stale, @gmu.gemspec)
+        assert_false @gmu.ready?(5)
+        with_quiet_io { assert_raise(RuntimeError) { @gmu.ready!(5) } }
+      end
+    end
+  end
+
+  def test_weird_filename_guards
+    bad_info = Struct.new(:project, :version).new('bad;name', '1.0.0')
+    bad_gmu = Wile::GemUtils.new(bad_info)
+    assert_raise(RuntimeError) { bad_gmu.project }
+    assert_raise(RuntimeError) { bad_gmu.build! }
+    assert_raise(RuntimeError) { @gmu.push!('bad;pkg') }
+  end
+
+  private
+
+  def with_quiet_io
+    orig_err = $stderr.dup
+    $stderr.reopen(File::NULL)
+    yield
+  ensure
+    $stderr.reopen(orig_err)
+    orig_err.close
+  end
+end
