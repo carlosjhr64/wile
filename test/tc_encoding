@@ -6,32 +6,36 @@ require 'find'
 
 # Encoding Test reports non-ASCII characters and verifies valid UTF-8.
 class TestEncoding < Test::Unit::TestCase
-  PRUNED = %w[./.git ./tmp].freeze
+  ALLOWED_BINARY = %w[.gem .gz .ico .jpeg .jpg .png].freeze
+  PRUNED         = %w[./.git ./tmp].freeze
 
   def test_encoding
     invalid = []
-    text_files.each { scan_file(it, invalid) }
+    Find.find('.') do |path|
+      Find.prune if PRUNED.include?(path)
+      check_path(path, invalid) if File.file?(path)
+    end
     assert_empty invalid,
                  "Invalid UTF-8 sequences found:\n#{invalid.join("\n")}"
   end
 
   private
 
-  def text_files
-    files = []
-    Find.find('.') do |path|
-      Find.prune if PRUNED.include?(path)
-      next unless File.file?(path)
-      next if binary?(path)
+  def check_path(path, invalid)
+    return if ALLOWED_BINARY.include?(File.extname(path))
 
-      files << path.delete_prefix('./')
+    rel = path.delete_prefix('./')
+    if binary?(path)
+      invalid << "#{rel}: Unexpected binary content in text file".red
+      return
     end
-    files
+
+    scan_file(rel, invalid)
   end
 
   def scan_file(filename, invalid)
     File.foreach(filename, chomp: true).with_index(1) do |line, lno|
-      unless line.valid_encoding?
+      unless line.valid_encoding? && !line.include?("\x00")
         invalid << "#{filename}:#{lno}: #{line.scrub}".red
         next
       end
