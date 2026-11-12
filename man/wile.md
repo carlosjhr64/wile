@@ -76,7 +76,7 @@ Run `wile list` to list all tasks, or `wile help <task>` for details.
 - **tc**: List custom unit tests (see **TC**).
 - **test**: Run test suites (see **TESTING**).
 - **todo**: Display TODO.md or scrape files for TODO comments (see **TODO**).
-- **update**: Update project files.
+- **update**: Update project files (see **UPDATE**).
 
 ## BUILD
 
@@ -546,6 +546,46 @@ Arguments:
 
 - `<match>...`: Optional patterns filtering Ruby file paths. When omitted,
   `TODO.md` is displayed.
+
+## UPDATE
+
+Wile synchronizes and regenerates project metadata files, keeping the
+`README.md` version, copyright notice, active console output blocks,
+gemspec specification, and man page documentation in sync:
+
+    $ wile update                   # Update README, gemspec, and man page
+    $ wile update README            # Update only README.md
+    $ wile update gemspec           # Update only <project>.gemspec
+    $ wile update man               # Update only man page roff files
+    $ wile update --force           # Update despite uncommitted git changes
+
+When updating `README.md`, Wile synchronizes the first version number with the
+current project version, updates the copyright year and author, and refreshes
+any active console blocks. Active console blocks are `console` code blocks
+whose first line begins with `$ <project> ` and ends with ` #>>`. When
+`bin/<project>` exists, Wile executes the command and replaces the block
+contents with the latest command output.
+
+When updating the gemspec, Wile regenerates `<project>.gemspec` from Git
+tracked files, runtime dependencies, development dependencies, and the
+summary and description parsed from `README.md`.
+
+When updating man pages, Wile compiles `man/<project>.md` to
+`man/<project>.1` using `pandoc` if available.
+
+By default, Wile requires a clean Git working tree before applying updates.
+If changes are generated, Wile displays a git diff of the modified targets
+and prompts to verify the changes.
+
+Arguments:
+
+- `[README|gemspec|man]`: Optional target file to update. When omitted, all
+  three targets are updated.
+
+Options:
+
+- `-f`, `--force`: Proceed with updates even if the Git working tree has
+  uncommitted changes.
 
 ## OPTIONS DICTIONARY
 

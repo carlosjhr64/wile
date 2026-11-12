@@ -23,30 +23,31 @@ module Wile
       'man' => [Manpage]
     }.freeze
 
-    def update(options)
+    # :reek:UtilityFunction
+    def update(options, info = Info.info)
       Utilities.verify_project_root!
       target, = Usage.new(options, *UPDATE_USAGE).args
       Git.clean! unless options.force?
-      do_update(target)
-      do_update_report
+      do_update(target, info)
+      do_update_report(info)
     end
 
     private
 
-    def do_update_report(info = Info.info)
-      if Git.clean? then puts 'up-to-date'.green
-      else
-        targets = [info.readme, info.gemspec]
-        targets << 'man' if File.directory?('man')
-        Git.diff(*targets)
-        puts 'verify updated changes'.red
-      end
+    # :reek:UtilityFunction
+    def do_update_report(info)
+      return puts 'up-to-date'.green if Git.clean?
+
+      targets = [info.readme, info.gemspec]
+      targets << 'man' if File.directory?('man')
+      Git.diff(*targets)
+      puts 'verify updated changes'.red
     end
 
     # :reek:ControlParameter and :reek:UtilityFunction
-    def do_update(target)
+    def do_update(target, info)
       targets = UPDATERS.fetch(target) { [Readme, Gemspec, Manpage] }
-      targets.each { it.new.update! }
+      targets.each { it.new(info).update! }
     end
   end
 end

@@ -5,6 +5,7 @@ require_relative 'test_helper'
 require 'stringio'
 require_relative '../lib/wile'
 require_relative '../lib/wile/run'
+Wile.autoloads
 require_relative '../lib/wile/requires'
 require_relative '../lib/wile/tasks'
 require_relative '../lib/wile/tasks/build'
@@ -15,6 +16,7 @@ require_relative '../lib/wile/tasks/info'
 require_relative '../lib/wile/tasks/install'
 require_relative '../lib/wile/tasks/mkdir'
 require_relative '../lib/wile/tasks/review'
+require_relative '../lib/wile/tasks/update'
 
 FakeCache = Struct.new(:mapping, :copied) do
   def p2c_hash = mapping
@@ -66,14 +68,10 @@ class TestUtTasks < Test::Unit::TestCase
   end
 
   def test_find
-    assert_equal :help, TASKS.find('help')
-    assert_equal :build, TASKS.find('bui')
-    assert_equal :bump, TASKS.find('mp')
-    assert_equal :lexicon, TASKS.find('xic')
-    assert_equal :compare, TASKS.find('re')
-    %w[bu xyz h].each { assert_nil TASKS.find(it) }
-    assert_nil TASKS.find('')
-    assert_nil TASKS.find(nil)
+    pairs = [['help', :help], ['bui', :build], ['mp', :bump],
+             ['xic', :lexicon], ['re', :compare]]
+    pairs.each { |str, sym| assert_equal sym, TASKS.find(str) }
+    ['bu', 'xyz', 'h', '', nil].each { assert_nil TASKS.find(it) }
   end
 
   def test_usage_validations
@@ -85,6 +83,13 @@ class TestUtTasks < Test::Unit::TestCase
       assert_raise(Wile::UsageError) { TASKS.install(opt) }
     end
     assert_raise(Wile::UsageError) { TASKS.mkdir(fake_options([])) }
+  end
+
+  def test_update_usage
+    [fake_options(%w[a b]), fake_options([], bad: true),
+     fake_options(['bad'])].each do |opt|
+      assert_raise(Wile::UsageError) { TASKS.update(opt) }
+    end
   end
 
   def test_gemfile_flow

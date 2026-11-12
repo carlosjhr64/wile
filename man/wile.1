@@ -148,7 +148,7 @@ for details.
 \f[B]todo\f[R]: Display TODO.md or scrape files for TODO comments (see
 \f[B]TODO\f[R]).
 .IP \[bu] 2
-\f[B]update\f[R]: Update project files.
+\f[B]update\f[R]: Update project files (see \f[B]UPDATE\f[R]).
 .SH BUILD
 .PP
 Wile builds the gem package from the project gemspec into the working
@@ -793,6 +793,51 @@ Arguments:
 .IP \[bu] 2
 \f[V]<match>...\f[R]: Optional patterns filtering Ruby file paths.
 When omitted, \f[V]TODO.md\f[R] is displayed.
+.SH UPDATE
+.PP
+Wile synchronizes and regenerates project metadata files, keeping the
+\f[V]README.md\f[R] version, copyright notice, active console output
+blocks, gemspec specification, and man page documentation in sync:
+.IP
+.nf
+\f[C]
+$ wile update                   # Update README, gemspec, and man page
+$ wile update README            # Update only README.md
+$ wile update gemspec           # Update only <project>.gemspec
+$ wile update man               # Update only man page roff files
+$ wile update --force           # Update despite uncommitted git changes
+\f[R]
+.fi
+.PP
+When updating \f[V]README.md\f[R], Wile synchronizes the first version
+number with the current project version, updates the copyright year and
+author, and refreshes any active console blocks.
+Active console blocks are \f[V]console\f[R] code blocks whose first line
+begins with \f[V]$ <project>\f[R] and ends with \f[V]#>>\f[R].
+When \f[V]bin/<project>\f[R] exists, Wile executes the command and
+replaces the block contents with the latest command output.
+.PP
+When updating the gemspec, Wile regenerates \f[V]<project>.gemspec\f[R]
+from Git tracked files, runtime dependencies, development dependencies,
+and the summary and description parsed from \f[V]README.md\f[R].
+.PP
+When updating man pages, Wile compiles \f[V]man/<project>.md\f[R] to
+\f[V]man/<project>.1\f[R] using \f[V]pandoc\f[R] if available.
+.PP
+By default, Wile requires a clean Git working tree before applying
+updates.
+If changes are generated, Wile displays a git diff of the modified
+targets and prompts to verify the changes.
+.PP
+Arguments:
+.IP \[bu] 2
+\f[V][README|gemspec|man]\f[R]: Optional target file to update.
+When omitted, all three targets are updated.
+.PP
+Options:
+.IP \[bu] 2
+\f[V]-f\f[R], \f[V]--force\f[R]: Proceed with updates even if the Git
+working tree has uncommitted changes.
 .SH OPTIONS DICTIONARY
 .PP
 Wile maintains a canonical dictionary of CLI options and conventions.
