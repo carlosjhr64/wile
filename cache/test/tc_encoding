@@ -2,9 +2,12 @@
 # frozen_string_literal: true
 
 require_relative 'test_helper'
+require 'find'
 
 # Encoding Test reports non-ASCII characters and verifies valid UTF-8.
 class TestEncoding < Test::Unit::TestCase
+  PRUNED = %w[./.git ./tmp].freeze
+
   def test_encoding
     invalid = []
     text_files.each { scan_file(it, invalid) }
@@ -15,9 +18,15 @@ class TestEncoding < Test::Unit::TestCase
   private
 
   def text_files
-    `git ls-files`.lines.map(&:chomp)
-                  .select { File.file?(it) }
-                  .reject { binary?(it) }
+    files = []
+    Find.find('.') do |path|
+      Find.prune if PRUNED.include?(path)
+      next unless File.file?(path)
+      next if binary?(path)
+
+      files << path.delete_prefix('./')
+    end
+    files
   end
 
   def scan_file(filename, invalid)
