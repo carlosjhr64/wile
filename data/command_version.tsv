@@ -1,13 +1,12 @@
-7z	TODO
+7z	:man
 GET	GET -v 2>&1
 R	R --version
-[	TODO
 agetty	agetty --version
 agy	agy --version
 apt	apt --version
 apt-cache	apt-cache --version
 apt-get	apt-get --version
-apt-key	TODO
+apt-key	:man
 ar	ar --version
 arp	arp --version
 as	as --version
@@ -21,15 +20,15 @@ bundle	bundle --version
 busctl	busctl --version
 bzcat	bzcat --version
 bzip2	bzip2 --version
-cal	TODO
+cal	:man
 cargo	cargo --version
 carlosjhr64/pkg-goto	fish -c 'goto --version'
-carlosjhr64/theme-local	TODO
+carlosjhr64/theme-local	:fish_plugin
 cat	cat --version
-chfn	TODO
-chpasswd	TODO
+chfn	:man
+chpasswd	:man
 chrt	chrt --version
-chsh	TODO
+chsh	:man
 cksum	cksum --version
 clear	clear -V
 cmake	cmake --version
@@ -44,7 +43,7 @@ csplit	csplit --version
 cucumber	cucumber --version
 curl	curl --version
 cut	cut --version
-dash	TODO
+dash	:man
 date	date --version
 df	df --version
 diff	diff --version
@@ -85,11 +84,11 @@ getent	getent --version
 gh	gh --version
 git	git --version
 go	go version
-gpasswd	TODO
+gpasswd	:man
 gpg	gpg --version
 grep	grep --version
 groups	groups --version
-grpck	TODO
+grpck	:man
 gunzip	gunzip --version
 gzip	gzip --version
 head	head --version
@@ -140,10 +139,10 @@ more	more --version
 mount	mount --version
 mv	mv --version
 nano	nano --version
-nc	TODO
-ncal	TODO
+nc	nc -h 2>&1
+ncal	:man
 netstat	netstat --version
-newgrp	TODO
+newgrp	:man
 nice	nice --version
 nl	nl --version
 nm	nm --version
@@ -158,7 +157,7 @@ objdump	objdump --version
 od	od --version
 openssl	openssl version
 pandoc	pandoc -v
-passwd	TODO
+passwd	:man
 paste	paste --version
 patch	patch --version
 perl	perl --version
@@ -174,7 +173,7 @@ printenv	printenv --version
 printf	printf --version
 ps	ps --version
 pstree	pstree --version
-pwck	TODO
+pwck	:man
 pwd	pwd --version
 python3	python3 --version
 rake	rake --version
@@ -195,7 +194,7 @@ ruby	ruby --version
 ruby-parse	ruby-parse --version
 runuser	runuser --version
 rustc	rustc --version
-scp	TODO
+scp	:man
 screen	screen --version
 script	script --version
 sed	sed --version
@@ -203,9 +202,9 @@ seq	seq --version
 setpriv	setpriv --version
 setsid	setsid --version
 sfdisk	sfdisk --version
-sftp	TODO
-sg	TODO
-sh	TODO
+sftp	:man
+sg	:man
+sh	:man
 sha256sum	sha256sum --version
 shred	shred --version
 shuf	shuf --version
@@ -216,7 +215,7 @@ split	split --version
 sqlite3	sqlite3 --version
 ss	ss -V
 ssh	ssh -V
-ssh-keygen	TODO
+ssh-keygen	:man
 stat	stat --version
 stree	stree version
 strings	strings --version
@@ -232,7 +231,7 @@ tar	tar --version
 taskset	taskset --version
 tc	tc -V
 tee	tee --version
-test	TODO
+test	:man
 timedatectl	timedatectl --version
 timeout	timeout --version
 tmux	tmux -V
@@ -255,19 +254,19 @@ uniq	uniq --version
 unshare	unshare --version
 unzip	unzip -v
 uptime	uptime --version
-useradd	TODO
-userdel	TODO
-usermod	TODO
+useradd	:man
+userdel	:man
+usermod	:man
 users	users --version
 vi	vi --version
-vipw	TODO
+vipw	:man
 vmstat	vmstat --version
 w	w --version
 wall	wall --version
 watch	watch --version
 wc	wc --version
 wget	wget --version
-which	TODO
+which	:man
 who	who --version
 whoami	whoami --version
 write	write --version
