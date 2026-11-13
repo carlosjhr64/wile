@@ -4,7 +4,7 @@
 # Checks for missing gems in the current Ruby version that are found installed
 # in other versions on the system using `rbenv`.
 # Usage:
-#   wile gemcheck [--all] # Checks for missing gems
+#   wile gemcheck [--all] # checks for missing gems
 module Wile
   # This file is loaded upon a :gemcheck task request.
   class Tasks

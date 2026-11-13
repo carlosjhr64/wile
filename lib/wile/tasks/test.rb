@@ -6,7 +6,7 @@
 #   --list       Lists tests that will run
 #   --quiet      Fault-only
 # Usage:
-#  wile test [<filematch> [<methodmatch>]] [--batch|--list|--quiet] # runs tests
+#   wile test [<filematch> [<methodmatch>]] [--batch|--list|--quiet] # tc tests
 module Wile
   # This file is loaded upon a :test task request.
   class Tasks

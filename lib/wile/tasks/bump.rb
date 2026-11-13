@@ -2,7 +2,7 @@
 
 # ## wile bump ##
 # Usage:
-#   wile bump [major|minor|build] # Bump the version number
+#   wile bump [major|minor|build] # bump the version number
 module Wile
   # This file is loaded upon a :bump task request.
   class Tasks

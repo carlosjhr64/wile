@@ -162,13 +162,13 @@ $ wile list --format=dictionary #>>
 
 + hello: prints Hello World
 + build: build gem pkg
-+ bump: Bump the version number
++ bump: bump the version number
 + compare: compares project with template
 + content: show file's contents
 + cp: copy template files into project
 + dependencies: list ruby dependencies
 + dictionary: view changes and update dictionary
-+ gemcheck: Checks for missing gems
++ gemcheck: checks for missing gems
 + gemfile: generate Gemfile from dependencies
 + help: show task's help
 + info: show project info
@@ -185,7 +185,7 @@ $ wile list --format=dictionary #>>
 + ruby: lists ruby files
 + smell: classify methods in your code
 + tc: lists unit tests
-+ test: runs tests
++ test: tc tests
 + todo: display TODO.md or scrape TODO comments
 + update: update project files
 
@@ -204,7 +204,8 @@ Test to verify your README rockets!
 'abc'.class #=> String
 'abc'.to_sym #=> :abc
 'Major.Minor.Build'.split('.') #=> ["Major", "Minor", "Build"]
-{a: 'abc', b: 'cde', c: 'xyz', d: 'ace'}.select{|k,v| v.include? 'c'} #=> {a: "abc", b: "cde", d: "ace"}
+{a: 'abc', b: 'cde', c: 'xyz', d: 'ace'}.select{|k,v| v.include? 'c'}
+#=> {a: "abc", b: "cde", d: "ace"}
 require 'date'
 # The twiddle rockets verifies it matches the pattern
 Date.today.to_s #~> ^\d\d\d\d-\d\d-\d\d$

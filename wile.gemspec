@@ -5,7 +5,7 @@ Gem::Specification.new do |s|
   s.homepage = 'https://github.com/carlosjhr64/wile'
   s.author   = 'CarlosJHR64'
   s.email    = 'carlosjhr64@gmail.com'
-  s.date     = '2026-11-12'
+  s.date     = '2026-11-13'
   s.licenses = ['MIT']
   ## DESCRIPTION ##
   s.summary  = <<~SUMMARY
@@ -38,7 +38,6 @@ Gem::Specification.new do |s|
     cache/.greeting.erb
     cache/.irbrc
     cache/.lexicon
-    cache/.memory.md
     cache/.prompt.erb
     cache/.reek-strict.yml
     cache/.reek.yml
