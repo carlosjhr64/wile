@@ -94,7 +94,10 @@ module Wile
       path = File.expand_path('~/.config/fish/fish_plugins')
       return nil unless File.file?(path)
 
-      File.foreach(path, chomp: true).any?(plugin) ? '0' : nil
+      name, ver = File.foreach(path, chomp: true)
+                      .map { it.split('@') }
+                      .assoc(plugin)
+      name && (ver&.slice(/\d+(\.\d+)*/) || '0')
     end
 
     def self.man(cmd)

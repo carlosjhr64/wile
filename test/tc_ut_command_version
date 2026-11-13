@@ -60,7 +60,9 @@ class TestUtCommandVersion < Test::Unit::TestCase
       config_dir = File.join(fake_home, '.config', 'fish')
       FileUtils.mkdir_p(config_dir)
       plugins_file = File.join(config_dir, 'fish_plugins')
-      File.write(plugins_file, "carlosjhr64/theme-local\nother/plugin\n")
+      content = "carlosjhr64/theme-local\nIlanCosman/tide@v6\n" \
+                "jorgebucaran/fisher@4.4.8\n"
+      File.write(plugins_file, content)
 
       test_fish_home(fake_home, dir)
     end
@@ -78,6 +80,8 @@ class TestUtCommandVersion < Test::Unit::TestCase
   def test_fish_home(fake_home, dir)
     with_home(fake_home) do
       assert_equal '0', @cv.fish_plugin('carlosjhr64/theme-local')
+      assert_equal '6', @cv.fish_plugin('IlanCosman/tide')
+      assert_equal '4.4.8', @cv.fish_plugin('jorgebucaran/fisher')
       assert_nil @cv.fish_plugin('missing/plugin')
     end
 
