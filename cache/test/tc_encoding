@@ -6,7 +6,7 @@ require 'find'
 
 # Encoding Test reports non-ASCII characters and verifies valid UTF-8.
 class TestEncoding < Test::Unit::TestCase
-  ALLOWED_BINARY = %w[.gem .gz .ico .jpeg .jpg .png].freeze
+  ALLOWED_BINARY = %w[.gem .gz .ico .jpeg .jpg .pdf .png].freeze
   PRUNED         = %w[./.git ./tmp].freeze
 
   def test_encoding
