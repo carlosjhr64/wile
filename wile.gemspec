@@ -83,6 +83,7 @@ Gem::Specification.new do |s|
     cache/test/tc_weird_filenames
     cache/test/test_helper.rb
     cache/tmp/README.md
+    data/command_version.tsv
     lib/wile.rb
     lib/wile/autoloads/cache.rb
     lib/wile/autoloads/code_content.rb

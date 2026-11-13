@@ -1,0 +1,282 @@
+7z	TODO
+GET	GET -v 2>&1
+R	R --version
+[	TODO
+agetty	agetty --version
+agy	agy --version
+apt	apt --version
+apt-cache	apt-cache --version
+apt-get	apt-get --version
+apt-key	TODO
+ar	ar --version
+arp	arp --version
+as	as --version
+awk	awk --version
+b2sum	b2sum --version
+basename	basename --version
+bash	bash --version
+blkid	blkid --version
+bridge	bridge -V
+bundle	bundle --version
+busctl	busctl --version
+bzcat	bzcat --version
+bzip2	bzip2 --version
+cal	TODO
+cargo	cargo --version
+carlosjhr64/pkg-goto	fish -c 'goto --version'
+carlosjhr64/theme-local	TODO
+cat	cat --version
+chfn	TODO
+chpasswd	TODO
+chrt	chrt --version
+chsh	TODO
+cksum	cksum --version
+clear	clear -V
+cmake	cmake --version
+cmp	cmp --version
+col	col --version
+colora	colora --version
+column	column --version
+comm	comm --version
+cp	cp --version
+cpio	cpio --version
+csplit	csplit --version
+cucumber	cucumber --version
+curl	curl --version
+cut	cut --version
+dash	TODO
+date	date --version
+df	df --version
+diff	diff --version
+diff3	diff3 --version
+dig	dig -v
+dirname	dirname --version
+dmesg	dmesg --version
+docker	docker --version
+dpkg	dpkg --version
+dpkg-query	dpkg-query --version
+du	du --version
+echo	echo --version
+egrep	egrep --version
+emacs	emacs --version
+env	env --version
+ethtool	ethtool --version
+ex	ex --version
+expand	expand --version
+expr	expr --version
+factor	factor --version
+fallocate	fallocate --version
+fdisk	fdisk --version
+ffmpeg	ffmpeg -version
+ffprobe	ffprobe -version
+file	file --version
+find	find --version
+fish	fish --version
+flatpak	flatpak --version
+flock	flock --version
+fmt	fmt --version
+fold	fold --version
+free	free --version
+g++	g++ --version
+gawk	gawk --version
+gcc	gcc --version
+gem	gem --version
+getent	getent --version
+gh	gh --version
+git	git --version
+go	go version
+gpasswd	TODO
+gpg	gpg --version
+grep	grep --version
+groups	groups --version
+grpck	TODO
+gunzip	gunzip --version
+gzip	gzip --version
+head	head --version
+hexdump	hexdump --version
+host	host -V
+hostnamectl	hostnamectl --version
+htop	htop --version
+hwclock	hwclock --version
+id	id --version
+ifconfig	ifconfig --version
+install	install --version
+ionice	ionice --version
+ip	ip -V
+iptables	iptables --version
+irb	irb --version
+java	java -version
+join	join --version
+jorgebucaran/fisher	fish -c 'fisher --version'
+journalctl	journalctl --version
+jq	jq --version
+kill	kill -V
+ld	ld --version
+ldconfig	ldconfig --version
+ldd	ldd --version
+less	less --version
+link	link --version
+ln	ln --version
+locale	locale --version
+locate	locate --version
+logger	logger --version
+loginctl	loginctl --version
+look	look --version
+ls	ls --version
+lsblk	lsblk --version
+lscpu	lscpu --version
+lslogins	lslogins --version
+lsns	lsns --version
+lua	lua -v
+machinectl	machinectl --version
+make	make --version
+man	man --version
+mawk	mawk -W version
+md5sum	md5sum --version
+mesg	mesg --version
+mkdir	mkdir --version
+mktemp	mktemp --version
+more	more --version
+mount	mount --version
+mv	mv --version
+nano	nano --version
+nc	TODO
+ncal	TODO
+netstat	netstat --version
+newgrp	TODO
+nice	nice --version
+nl	nl --version
+nm	nm --version
+node	node --version
+nohup	nohup --version
+npm	npm --version
+nsenter	nsenter --version
+nslookup	nslookup -version
+numfmt	numfmt --version
+nvim	nvim --version
+objdump	objdump --version
+od	od --version
+openssl	openssl version
+pandoc	pandoc -v
+passwd	TODO
+paste	paste --version
+patch	patch --version
+perl	perl --version
+pgrep	pgrep --version
+php	php -v
+ping	ping -V
+pip3	pip3 --version
+pkg-config	pkg-config --version
+pkill	pkill --version
+podman	podman --version
+pr	pr --version
+printenv	printenv --version
+printf	printf --version
+ps	ps --version
+pstree	pstree --version
+pwck	TODO
+pwd	pwd --version
+python3	python3 --version
+rake	rake --version
+rbenv	rbenv --version
+readelf	readelf --version
+readlink	readlink --version
+realpath	realpath --version
+reek	reek --version
+renice	renice --version
+rev	rev --version
+ripper-tags	ripper-tags --version
+rm	rm --version
+rmdir	rmdir --version
+route	route --version
+rsync	rsync --version
+rubocop	rubocop --version
+ruby	ruby --version
+ruby-parse	ruby-parse --version
+runuser	runuser --version
+rustc	rustc --version
+scp	TODO
+screen	screen --version
+script	script --version
+sed	sed --version
+seq	seq --version
+setpriv	setpriv --version
+setsid	setsid --version
+sfdisk	sfdisk --version
+sftp	TODO
+sg	TODO
+sh	TODO
+sha256sum	sha256sum --version
+shred	shred --version
+shuf	shuf --version
+sleep	sleep --version
+snap	snap version
+sort	sort --version
+split	split --version
+sqlite3	sqlite3 --version
+ss	ss -V
+ssh	ssh -V
+ssh-keygen	TODO
+stat	stat --version
+stree	stree version
+strings	strings --version
+stty	stty --version
+su	su --version
+sudo	sudo -V
+sum	sum --version
+sysctl	sysctl --version
+systemctl	systemctl --version
+tac	tac --version
+tail	tail --version
+tar	tar --version
+taskset	taskset --version
+tc	tc -V
+tee	tee --version
+test	TODO
+timedatectl	timedatectl --version
+timeout	timeout --version
+tmux	tmux -V
+tmuxinator	tmuxinator -v
+todo.sh	todo.sh -V
+top	top --version
+touch	touch --version
+tput	tput -V
+tr	tr --version
+traceroute	traceroute -V
+truncate	truncate --version
+tsort	tsort --version
+tty	tty --version
+ufw	ufw version
+ul	ul --version
+umount	umount --version
+uname	uname --version
+unexpand	unexpand --version
+uniq	uniq --version
+unshare	unshare --version
+unzip	unzip -v
+uptime	uptime --version
+useradd	TODO
+userdel	TODO
+usermod	TODO
+users	users --version
+vi	vi --version
+vipw	TODO
+vmstat	vmstat --version
+w	w --version
+wall	wall --version
+watch	watch --version
+wc	wc --version
+wget	wget --version
+which	TODO
+who	who --version
+whoami	whoami --version
+write	write --version
+xargs	xargs --version
+xdg-open	xdg-open --version
+xz	xz --version
+xzcat	xzcat --version
+yes	yes --version
+zcat	zcat --version
+zip	zip --version
+zsh	zsh --version
+zstd	zstd --version
