@@ -1,0 +1,97 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'tmpdir'
+require_relative 'test_helper'
+require_relative '../lib/wile'
+require_relative '../lib/wile/run'
+
+# Unit tests for Wile::CommandVersion.
+class TestUtCommandVersion < Test::Unit::TestCase
+  def setup
+    Wile.autoloads
+    @cv = Wile::CommandVersion
+  end
+
+  def test_commands_and_sizes
+    assert_kind_of Array, @cv.commands
+    assert_false @cv.empty?
+    assert_equal @cv.commands.size, @cv.size
+    assert_equal @cv.size, @cv.length
+    assert_includes @cv.commands, 'git'
+    assert_includes @cv.commands, 'ruby'
+  end
+
+  def test_expected_and_probe
+    assert_equal '2.39', @cv.expected('git')
+    assert_equal 'git --version', @cv.probe('git')
+    assert_nil @cv.expected('nonexistent_cmd_xyz')
+    assert_nil @cv.probe('nonexistent_cmd_xyz')
+  end
+
+  def test_membership
+    assert_true @cv.key?('ruby')
+    assert_true @cv.include?('ruby')
+    assert_false @cv.key?('nonexistent_cmd_xyz')
+    assert_false @cv.include?('nonexistent_cmd_xyz')
+  end
+
+  def test_enumerable_and_to_h
+    hash = @cv.to_h
+    assert_kind_of Hash, hash
+    assert_equal @cv.size, hash.size
+    assert_equal '4.0', hash['ruby']
+
+    pairs = @cv.map { |cmd, exp| [cmd, exp] }
+    assert_equal @cv.size, pairs.size
+    assert_equal ['git', '2.39'], pairs.assoc('git')
+  end
+
+  def test_bracket_probe_string
+    ruby_version = @cv['ruby']
+    assert_not_nil ruby_version
+    assert_match(/\A\d+\.\d+\z/, ruby_version)
+    assert_nil @cv['nonexistent_cmd_xyz']
+  end
+
+  def test_fish_plugin
+    Dir.mktmpdir do |dir|
+      fake_home = File.join(dir, 'home')
+      config_dir = File.join(fake_home, '.config', 'fish')
+      FileUtils.mkdir_p(config_dir)
+      plugins_file = File.join(config_dir, 'fish_plugins')
+      File.write(plugins_file, "carlosjhr64/theme-local\nother/plugin\n")
+
+      test_fish_home(fake_home, dir)
+    end
+  end
+
+  def test_man_probe
+    year = @cv.man('diff')
+    assert_not_nil year
+    assert_match(/\A[12]\d{3}\z/, year)
+    assert_nil @cv.man('nonexistent_man_xyz_123')
+  end
+
+  private
+
+  def test_fish_home(fake_home, dir)
+    with_home(fake_home) do
+      assert_equal '0', @cv.fish_plugin('carlosjhr64/theme-local')
+      assert_nil @cv.fish_plugin('missing/plugin')
+    end
+
+    with_home(File.join(dir, 'no_home')) do
+      assert_nil @cv.fish_plugin('carlosjhr64/theme-local')
+    end
+  end
+
+  def with_home(dir)
+    # rubocop:disable-next Style/EnvHome
+    orig = ENV.fetch('HOME', nil)
+    ENV['HOME'] = dir
+    yield
+  ensure
+    ENV['HOME'] = orig
+  end
+end

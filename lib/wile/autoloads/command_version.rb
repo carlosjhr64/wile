@@ -54,20 +54,21 @@ module Wile
 
     extend Enumerable
 
-    def self.commands
-      COMMAND_VERSION.keys
-    end
+    def self.commands = COMMAND_VERSION.keys
 
-    def self.expected(command)
-      COMMAND_VERSION[command]&.last
-    end
+    def self.empty? = COMMAND_VERSION.empty?
 
-    def self.key?(command)
-      COMMAND_VERSION.key?(command)
-    end
-    class << self
-      alias include? key?
-    end
+    def self.expected(command) = COMMAND_VERSION[command]&.last
+
+    def self.include?(command) = key?(command)
+
+    def self.key?(command) = COMMAND_VERSION.key?(command)
+
+    def self.length = size
+
+    def self.probe(command) = COMMAND_VERSION[command]&.first
+
+    def self.size = COMMAND_VERSION.size
 
     def self.each
       return to_enum(__method__) unless block_given?
@@ -93,7 +94,7 @@ module Wile
       path = File.expand_path('~/.config/fish/fish_plugins')
       return nil unless File.file?(path)
 
-      File.read(path).lines(chomp: true).include?(plugin) ? '0' : nil
+      File.foreach(path, chomp: true).any?(plugin) ? '0' : nil
     end
 
     def self.man(cmd)
