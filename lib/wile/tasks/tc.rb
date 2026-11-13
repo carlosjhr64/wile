@@ -2,8 +2,12 @@
 
 # ## wile tc ##
 # Lists custom unit tests in project, or wile template gates.
+# Scopes:
+#   * project    Custom project unit tests (default)
+#   * wile       Wile template quality gates
+#   * all        Both project and Wile tests
 # Options:
-#   --raw # suppress headers and spaces
+#   --raw        Suppress headers and spaces
 # Usage:
 #   wile tc [<scope>] [<match>+] [--raw] # lists unit tests
 module Wile
