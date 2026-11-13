@@ -12,18 +12,18 @@ module Wile
                    0, Set['force']].freeze
 
     # :reek:UtilityFunction
-    def build(options, gmu = GemUtils.new)
+    def build(options, gmu = GemUtils.new, git = Git)
       Utilities.verify_project_root!
       Usage.new(options, *BUILD_USAGE)
-      verify_build(gmu) unless options.force?
+      verify_build(gmu, git) unless options.force?
       gmu.build!
     end
 
     private
 
     # :reek:UtilityFunction
-    def verify_build(gmu)
-      Git.clean!
+    def verify_build(gmu, git)
+      git.clean!
       gmu.clean!
       gmu.ready!
     end

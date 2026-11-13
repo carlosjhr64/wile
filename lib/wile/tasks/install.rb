@@ -13,18 +13,18 @@ module Wile
                      0, Set['force']].freeze
 
     # :reek:UtilityFunction
-    def install(options, gmu = GemUtils.new)
+    def install(options, gmu = GemUtils.new, git = Git)
       Utilities.verify_project_root!
       Usage.new(options, *INSTALL_USAGE)
-      verify_install(gmu) unless options.force?
+      verify_install(gmu, git) unless options.force?
       reinstall(gmu)
     end
 
     private
 
     # :reek:UtilityFunction
-    def verify_install(gmu)
-      Git.clean!
+    def verify_install(gmu, git)
+      git.clean!
       gmu.clean!
       gmu.ready!
     end

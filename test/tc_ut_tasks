@@ -23,9 +23,27 @@ FakeCache = Struct.new(:mapping, :copied) do
   def copy2project(cfile, pfile, force:) = copied << [cfile, pfile, force]
 end
 
-FakeGmu = Struct.new(:calls) do
-  def clean! = calls << :clean!
-  def ready! = calls << :ready!
+FakeGit = Struct.new(:calls, :clean_fails) do
+  def clean!
+    raise 'git dirty' if clean_fails
+
+    calls << :git_clean!
+  end
+end
+
+FakeGmu = Struct.new(:calls, :clean_fails, :ready_fails) do
+  def clean!
+    raise 'gem dirty' if clean_fails
+
+    calls << :clean!
+  end
+
+  def ready!
+    raise 'gem not ready' if ready_fails
+
+    calls << :ready!
+  end
+
   def build! = calls << :build!
   def installed? = true
   def uninstall = calls << :uninstall
@@ -38,6 +56,8 @@ FakeGem = Struct.new(:name)
 
 # Helper methods for UtTasks tests.
 module UtTasksHelpers
+  TASKS = Wile::Tasks.new
+
   def capture_stdout
     orig = $stdout
     $stdout = StringIO.new
@@ -55,13 +75,21 @@ module UtTasksHelpers
     obj.define_singleton_method(:to_h) { h }
     obj
   end
+
+  def assert_flow_aborts(task, gmu_cases, git_cases)
+    opt = fake_options([], force: false)
+    git_cases.each do |git|
+      assert_raise(RuntimeError) { TASKS.send(task, opt, FakeGmu.new([]), git) }
+    end
+    gmu_cases.each do |gmu|
+      assert_raise(RuntimeError) { TASKS.send(task, opt, gmu, FakeGit.new([])) }
+    end
+  end
 end
 
 # Unit tests for Wile::Tasks.
 class TestUtTasks < Test::Unit::TestCase
   include UtTasksHelpers
-
-  TASKS = Wile::Tasks.new
 
   def setup
     Wile.autoloads
@@ -106,15 +134,37 @@ class TestUtTasks < Test::Unit::TestCase
   end
 
   def test_build_flow
-    gmu = FakeGmu.new([])
-    TASKS.build(fake_options([], force: true), gmu)
+    TASKS.build(fake_options([], force: true), gmu = FakeGmu.new([]),
+                git = FakeGit.new([]))
     assert_equal [:build!], gmu.calls
+    assert_empty git.calls
+    TASKS.build(fake_options([], force: false), gmu = FakeGmu.new([]),
+                git = FakeGit.new([]))
+    assert_equal %i[clean! ready! build!], gmu.calls
+    assert_equal [:git_clean!], git.calls
+  end
+
+  def test_build_short_circuit
+    assert_flow_aborts(:build,
+                       [FakeGmu.new([], true), FakeGmu.new([], false, true)],
+                       [FakeGit.new([], true)])
   end
 
   def test_install_flow
-    gmu = FakeGmu.new([])
-    TASKS.install(fake_options([], force: true), gmu)
+    TASKS.install(fake_options([], force: true), gmu = FakeGmu.new([]),
+                  git = FakeGit.new([]))
     assert_equal %i[build! uninstall install rm_pkg], gmu.calls
+    assert_empty git.calls
+    TASKS.install(fake_options([], force: false), gmu = FakeGmu.new([]),
+                  git = FakeGit.new([]))
+    assert_equal %i[clean! ready! build! uninstall install rm_pkg], gmu.calls
+    assert_equal [:git_clean!], git.calls
+  end
+
+  def test_install_short_circuit
+    assert_flow_aborts(:install,
+                       [FakeGmu.new([], true), FakeGmu.new([], false, true)],
+                       [FakeGit.new([], true)])
   end
 
   def test_cp_flow
@@ -123,6 +173,11 @@ class TestUtTasks < Test::Unit::TestCase
     TASKS.cp(fake_options(['m'], force: true), cache)
     assert_equal [['c/m.txt', 'm.txt', true]], cache.copied
   end
+end
+
+# Extra task tests (review, gemcheck, mkdir, info).
+class TestUtTasksExtra < Test::Unit::TestCase
+  include UtTasksHelpers
 
   def test_review_files
     rev = Wile::Review.allocate
