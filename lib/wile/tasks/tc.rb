@@ -58,7 +58,10 @@ module Wile
     def order_tc_custom(custom)
       nvim_files = NvimFiles.new.nvim_files
       files = nvim_files.grep(%r{^lib/})
-      ordered = files.map { lib_to_tc(it) }
+      ordered = files.flat_map do |file|
+        tc = lib_to_tc(file)
+        [tc, "#{tc}_slow"]
+      end
       ordered.select! { custom.include? it }
       ordered + (custom - ordered).sort
     end

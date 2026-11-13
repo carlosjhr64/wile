@@ -4,12 +4,10 @@
 module Wile
   # Test module provides methods to run tests.
   module Test
-    SLOW_TESTS = %w[
-      test/tc_ut_gemspec
-      test/tc_ut_smell
-      test/tc_cucumber
-      test/tc_ut_tasks
-    ].freeze
+    # Matches long-running test suites ending in '_slow'. Prioritizes them
+    # at the front of the batch queue so worker threads start them immediately,
+    # reducing overall completion time across parallel workers.
+    SLOW_TESTS = /_slow$/
 
     def self.test_files
       Dir['test/**/tc_*'].select do |tf|
@@ -28,7 +26,8 @@ module Wile
     private_class_method :options
 
     def self.prioritized_files(files)
-      (SLOW_TESTS & files) + (files - SLOW_TESTS)
+      slow, normal = files.partition { it.match?(SLOW_TESTS) }
+      slow + normal
     end
     private_class_method :prioritized_files
 

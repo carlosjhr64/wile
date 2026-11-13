@@ -536,6 +536,7 @@ fish_plugin
 fish_version
 fisher_version
 flag
+flat_map
 float
 float_node
 flush
@@ -763,6 +764,7 @@ nil
 nme
 node
 none
+normal
 note
 now
 nprocessors
@@ -810,6 +812,7 @@ pandoc
 pandoc_args
 parse
 parse_file
+partition
 pascal_case
 passed
 path
@@ -1000,6 +1003,7 @@ size_of
 skip_to_fence
 slc
 slice
+slow
 smell
 snake_case
 sort
