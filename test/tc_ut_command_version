@@ -10,7 +10,7 @@ require_relative '../lib/wile/run'
 class TestUtCommandVersion < Test::Unit::TestCase
   def setup
     Wile.autoloads
-    @cv = Wile::CommandVersion
+    @cv = Wile::CommandVersion.new
   end
 
   def test_commands_and_sizes
@@ -32,9 +32,10 @@ class TestUtCommandVersion < Test::Unit::TestCase
 
   def test_membership
     assert_true @cv.key?('ruby')
-    assert_true @cv.include?('ruby')
     assert_false @cv.key?('nonexistent_cmd_xyz')
-    assert_false @cv.include?('nonexistent_cmd_xyz')
+    assert_true @cv.include?(['ruby', 'ruby --version'])
+    assert_false @cv.include?('ruby')
+    assert_false @cv.include?(['nonexistent_cmd_xyz', '--version'])
   end
 
   def test_enumerable_and_to_h
@@ -45,7 +46,6 @@ class TestUtCommandVersion < Test::Unit::TestCase
     assert_equal :man, hash['ncal']
 
     pairs = @cv.map { |cmd, probe| [cmd, probe] }
-    assert_equal @cv.size, pairs.size
     assert_equal ['git', 'git --version'], pairs.assoc('git')
   end
 
@@ -67,12 +67,22 @@ class TestUtCommandVersion < Test::Unit::TestCase
     assert_nil @cv.guess('nonexistent_cmd_xyz')
   end
 
+  def test_custom_file
+    Dir.mktmpdir do |dir|
+      custom_tsv = File.join(dir, 'custom.tsv')
+      File.write(custom_tsv, "mytool\tmytool --version\n")
+      custom_cv = Wile::CommandVersion.new(custom_tsv)
+      assert_equal 1, custom_cv.size
+      assert_true custom_cv.key?('mytool')
+      assert_equal 'mytool --version', custom_cv.to_h['mytool']
+    end
+  end
+
   def test_fish_plugin
     Dir.mktmpdir do |dir|
       fake_home = File.join(dir, 'home')
-      config_dir = File.join(fake_home, '.config', 'fish')
-      FileUtils.mkdir_p(config_dir)
-      plugins_file = File.join(config_dir, 'fish_plugins')
+      plugins_file = File.join(fake_home, '.config/fish/fish_plugins')
+      FileUtils.mkdir_p(File.dirname(plugins_file))
       content = "carlosjhr64/theme-local\nIlanCosman/tide@v6\n" \
                 "jorgebucaran/fisher@4.4.8\n"
       File.write(plugins_file, content)

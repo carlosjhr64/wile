@@ -4,57 +4,47 @@
 
 # Wile namespace.
 module Wile
-  # This module knows how to get the version of a command.
-  module CommandVersion
+  # This class knows how to get the version of a command.
+  class CommandVersion
     using UtilitiesRefinements
+    include Enumerable
 
-    COMMAND_VERSION =
-      File.foreach(File.join(ROOT, 'data/command_version.tsv'), chomp: true)
-          .to_h do |line|
-            cmd, probe = line.split("\t")
-            [cmd, probe.start_with?(':') ? probe[1..].to_sym : probe]
-          end.freeze
+    DEFAULT_FILE = File.join(ROOT, 'data/command_version.tsv')
 
-    extend Enumerable
-
-    def self.commands = COMMAND_VERSION.keys
-
-    def self.empty? = COMMAND_VERSION.empty?
-
-    def self.probe(command)
-      case (probe = COMMAND_VERSION[command])
-      when String
-        output = `#{probe}`
-        output[/\d+\.\d+/] if $CHILD_STATUS.success?
-      when Symbol
-        send(probe, command)
-      end
+    # :reek:FeatureEnvy
+    def initialize(filename = DEFAULT_FILE)
+      @command_version =
+        File.foreach(filename, chomp: true).to_h do |line|
+          cmd, probe = line.split("\t")
+          [cmd, probe.start_with?(':') ? probe[1..].to_sym : probe]
+        end.freeze
     end
-    private_class_method :probe
 
-    def self.expected(command)
-      return nil unless COMMAND_VERSION.key?(command)
+    def commands = @command_version.keys
+
+    def empty? = @command_version.empty?
+
+    def expected(command)
+      return nil unless @command_version.key?(command)
 
       probe(command) || raise("Failed to determine version for #{command}")
     end
 
-    def self.include?(command) = key?(command)
+    def key?(command) = @command_version.key?(command)
 
-    def self.key?(command) = COMMAND_VERSION.key?(command)
+    def length = size
 
-    def self.length = size
+    def size = @command_version.size
 
-    def self.size = COMMAND_VERSION.size
+    def each(&) = @command_version.each(&)
 
-    def self.each(&) = COMMAND_VERSION.each(&)
-
-    def self.[](command)
+    def [](command)
       expected(command)
     rescue StandardError
       nil
     end
 
-    def self.guess(command)
+    def guess(command)
       %w[--version -v -V].each do |flag|
         ver = `#{command.sw} #{flag} 2>&1`[/\d+\.\d+/]
         return ver if $CHILD_STATUS.success? && ver
@@ -64,7 +54,7 @@ module Wile
       nil
     end
 
-    def self.fish_plugin(plugin)
+    def fish_plugin(plugin)
       path = File.expand_path('~/.config/fish/fish_plugins')
       return nil unless File.file?(path)
 
@@ -74,9 +64,22 @@ module Wile
       name && (ver&.slice(/\d+(\.\d+)*/) || '0')
     end
 
-    def self.man(cmd)
+    # :reek:UtilityFunction
+    def man(cmd)
       last_line = `man #{cmd.sw} 2>/dev/null`.lines.last
       last_line&.slice(/[12]\d{3}/)
+    end
+
+    private
+
+    def probe(command)
+      case (probe = @command_version[command])
+      when String
+        output = `#{probe}`
+        output[/\d+\.\d+/] if $CHILD_STATUS.success?
+      when Symbol
+        send(probe, command)
+      end
     end
   end
 end
