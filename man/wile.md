@@ -51,7 +51,7 @@ testing, and release.
 Run `wile list` to list all tasks, or `wile help <task>` for details.
 
 - **build**: Build gem package (see **BUILD**).
-- **bump**: Bump project version number.
+- **bump**: Bump project version number (see **BUMP**).
 - **compare**: Compare project files with template (see **COMPARE**).
 - **content**: Inspect ruby file structure and methods (see **CONTENT**).
 - **cp**: Copy template files into project (see **CP**).
@@ -101,6 +101,30 @@ Options:
 
 - `-f`, `--force`: Force build even if Git status is dirty, a stale gem
   package exists, or the gemspec has not been touched recently.
+
+## BUMP
+
+Wile bumps the project version number across `.version`, `lib/<project>.rb`,
+`README.md`, and `<project>.gemspec`. Versions follow a date-based convention
+of `major.minor.YYMMDD`:
+
+    $ wile bump                     # Re-stamp build segment to today
+    $ wile bump build               # Same as default
+    $ wile bump minor               # Step minor version (e.g. 0.5 -> 0.6)
+    $ wile bump major               # Step major version (e.g. 0.5 -> 1.0)
+
+Subcommands:
+
+- `build` (or no argument): Re-stamps the build segment with today's date
+  as `%y%m%d`, keeping the major and minor version numbers unchanged.
+- `minor`: Increments the minor version by 1 and updates the build segment
+  to today's date.
+- `major`: Increments the major version by 1, resets the minor version to 0,
+  and updates the build segment to today's date.
+
+The updated version is written to `.version` and substituted into the first
+matching `\d+\.\d+\.\d+` pattern found in `lib/<project>.rb`, `README.md`, and
+the project gemspec.
 
 ## COMPARE
 

@@ -83,7 +83,7 @@ for details.
 .IP \[bu] 2
 \f[B]build\f[R]: Build gem package (see \f[B]BUILD\f[R]).
 .IP \[bu] 2
-\f[B]bump\f[R]: Bump project version number.
+\f[B]bump\f[R]: Bump project version number (see \f[B]BUMP\f[R]).
 .IP \[bu] 2
 \f[B]compare\f[R]: Compare project files with template (see
 \f[B]COMPARE\f[R]).
@@ -182,6 +182,38 @@ Options:
 \f[V]-f\f[R], \f[V]--force\f[R]: Force build even if Git status is
 dirty, a stale gem package exists, or the gemspec has not been touched
 recently.
+.SH BUMP
+.PP
+Wile bumps the project version number across \f[V].version\f[R],
+\f[V]lib/<project>.rb\f[R], \f[V]README.md\f[R], and
+\f[V]<project>.gemspec\f[R].
+Versions follow a date-based convention of \f[V]major.minor.YYMMDD\f[R]:
+.IP
+.nf
+\f[C]
+$ wile bump                     # Re-stamp build segment to today
+$ wile bump build               # Same as default
+$ wile bump minor               # Step minor version (e.g. 0.5 -> 0.6)
+$ wile bump major               # Step major version (e.g. 0.5 -> 1.0)
+\f[R]
+.fi
+.PP
+Subcommands:
+.IP \[bu] 2
+\f[V]build\f[R] (or no argument): Re-stamps the build segment with
+today\[cq]s date as \f[V]%y%m%d\f[R], keeping the major and minor
+version numbers unchanged.
+.IP \[bu] 2
+\f[V]minor\f[R]: Increments the minor version by 1 and updates the build
+segment to today\[cq]s date.
+.IP \[bu] 2
+\f[V]major\f[R]: Increments the major version by 1, resets the minor
+version to 0, and updates the build segment to today\[cq]s date.
+.PP
+The updated version is written to \f[V].version\f[R] and substituted
+into the first matching \f[V]\[rs]d+\[rs].\[rs]d+\[rs].\[rs]d+\f[R]
+pattern found in \f[V]lib/<project>.rb\f[R], \f[V]README.md\f[R], and
+the project gemspec.
 .SH COMPARE
 .PP
 Wile compares project files against the living template in

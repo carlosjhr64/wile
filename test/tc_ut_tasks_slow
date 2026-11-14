@@ -9,6 +9,7 @@ Wile.autoloads
 require_relative '../lib/wile/requires'
 require_relative '../lib/wile/tasks'
 require_relative '../lib/wile/tasks/build'
+require_relative '../lib/wile/tasks/bump'
 require_relative '../lib/wile/tasks/cp'
 require_relative '../lib/wile/tasks/gemcheck'
 require_relative '../lib/wile/tasks/gemfile'
@@ -228,5 +229,35 @@ class TestUtTasksExtra < Test::Unit::TestCase
     ['# wile', '## Description', '## Files', '## Executables',
      '## Runtime gems'].each { |hdr| assert_match(/#{hdr}/, out) }
     assert_match(/\+ Version:\s+#{Wile::VERSION}/, out)
+  end
+
+  def test_bump_usage
+    [fake_options(%w[a b]), fake_options(['invalid'])].each do |opt|
+      assert_raise(Wile::UsageError) { TASKS.bump(opt) }
+    end
+  end
+
+  def test_bump_flow
+    now = Time.new(2026, 11, 14)
+    assert_equal '0.5.261114', TASKS.send(:bumped, '0.5.260101', nil, now)
+    assert_equal '0.5.261114', TASKS.send(:bumped, '0.5.260101', 'build', now)
+    assert_equal '0.6.261114', TASKS.send(:bumped, '0.5.260101', 'minor', now)
+    assert_equal '1.0.261114', TASKS.send(:bumped, '0.5.260101', 'major', now)
+    Dir.mktmpdir { |dir| verify_bump_in_dir(dir, now) }
+  end
+
+  def setup_bump_dir(dir, proj)
+    FileUtils.mkdir_p(File.join(dir, 'lib'))
+    files = ['.version', "#{proj}.gemspec", 'README.md', "lib/#{proj}.rb"]
+    files.each { File.write(File.join(dir, it), "0.1.260101\n") }
+  end
+
+  def verify_bump_in_dir(dir, now)
+    info = Wile::Info.new(dirname: dir, now: now)
+    setup_bump_dir(dir, info.project)
+    TASKS.bump(fake_options(['minor']), info)
+    files = ['.version', "#{info.project}.gemspec", 'README.md',
+             "lib/#{info.project}.rb"]
+    files.each { assert_match(/0\.2\.261114/, File.read(File.join(dir, it))) }
   end
 end
