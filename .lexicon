@@ -666,7 +666,6 @@ label
 lambda_node
 last
 last_line
-last_match
 latest_version
 launch_nvim
 length
@@ -676,6 +675,7 @@ lexicon
 lexicon_ok
 lib
 lib_to_tc
+lib_type
 libs
 light_black
 light_blue

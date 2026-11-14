@@ -80,4 +80,17 @@ class TestUtDependencies < Test::Unit::TestCase
     assert_nil info.name
     assert_equal 'nonexistent_gem_xyz', info.require
   end
+
+  def test_gem_which_stdlib
+    res = @deps.send(:gem_which, 'fileutils')
+    assert_equal 'fileutils', res.name
+    assert_equal :stdrb, res.type
+  end
+
+  def test_custom_cmd_ver_injection
+    fake_cv = Struct.new(:v) { def version(_) = v }.new('9.9')
+    deps = Wile::Dependencies.new(cmd_ver: fake_cv)
+    known = deps.send(:os_which, 'git')
+    assert_equal '9.9', known.version
+  end
 end

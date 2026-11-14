@@ -12,9 +12,11 @@ module Wile
     attr_reader :info
 
     # :reek:BooleanParameter
-    def initialize(info = Info.info, verbose: false)
+    def initialize(info = Info.info, verbose: false,
+                   cmd_ver: CommandVersion.new)
       @info = info
       @verbose = verbose
+      @cmd_ver = cmd_ver
       @missing_gems = Set.new
     end
 
@@ -50,9 +52,7 @@ module Wile
     end
 
     # :reek:UtilityFunction
-    def irbrc?
-      File.file?('.irbrc') && Git.files.include?('.irbrc')
-    end
+    def irbrc? = File.file?('.irbrc') && Git.files.include?('.irbrc')
 
     DEPENDENCY_SCRAPES = [
       [/^\s*#\s*wile:\s*os\s*`(\w[-\w.]*)`/, :os, 1],
@@ -106,7 +106,7 @@ module Wile
 
     def project_command?(cmd)
       cmd == @info.project ||
-        PROJECT_DIRS.any? { File.executable?("#{it}/#{cmd}") }
+        PROJECT_DIRS.any? { File.executable?(File.join(it, cmd)) }
     end
 
     # :reek:FeatureEnvy :reek:TooManyStatements
@@ -114,11 +114,20 @@ module Wile
       fn = `gem which -q #{name.sw}`.strip
       if (mdt = %r{/gems/([-\w]+)-(\d+\.\d+\.\d+)}.match(fn))
         GemInfo.new(mdt[1], mdt[2], :gem, fn, name)
-      elsif (type, = LIB_TYPE.detect { |_, rgx| rgx.match? fn })
-        GemInfo.new(::Regexp.last_match(1), nil, type, fn, name)
+      elsif (type, md = lib_type(fn))
+        GemInfo.new(md[1], nil, type, fn, name)
       else
         missing_gem(name)
       end
+    end
+
+    # :reek:UtilityFunction
+    def lib_type(path)
+      LIB_TYPE.each do |type, rgx|
+        md = rgx.match(path)
+        return [type, md] if md
+      end
+      nil
     end
 
     def missing_gem(name)
@@ -134,7 +143,7 @@ module Wile
         warn "Missing command: #{cmd}".red if @verbose
         return GemInfo.new(nil, nil, nil, nil, cmd)
       end
-      version = CommandVersion.new.version(cmd)
+      version = @cmd_ver.version(cmd)
       warn_missing_version(cmd) if @verbose && !version
       GemInfo.new(cmd, version, :os, fn, cmd)
     end
