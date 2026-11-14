@@ -179,8 +179,8 @@ $ wile list --format=dictionary #>>
 + note: scrape ruby files for NOTE comments
 + nvim: spawn nvim with(matching) files
 + order: suggest a methods order
++ oscheck: check system command versions
 + publish: publish a new version
-+ requirements: checks for missing system commands
 + review: runs review
 + ruby: lists ruby files
 + smell: classify methods in your code

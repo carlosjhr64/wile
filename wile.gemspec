@@ -5,7 +5,7 @@ Gem::Specification.new do |s|
   s.homepage = 'https://github.com/carlosjhr64/wile'
   s.author   = 'CarlosJHR64'
   s.email    = 'carlosjhr64@gmail.com'
-  s.date     = '2026-11-13'
+  s.date     = '2026-11-14'
   s.licenses = ['MIT']
   ## DESCRIPTION ##
   s.summary  = <<~SUMMARY
@@ -130,8 +130,8 @@ Gem::Specification.new do |s|
     lib/wile/tasks/note.rb
     lib/wile/tasks/nvim.rb
     lib/wile/tasks/order.rb
+    lib/wile/tasks/oscheck.rb
     lib/wile/tasks/publish.rb
-    lib/wile/tasks/requirements.rb
     lib/wile/tasks/review.rb
     lib/wile/tasks/ruby.rb
     lib/wile/tasks/smell.rb
