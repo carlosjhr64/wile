@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-# wile: os `diff`
-
 # Wile namespace.
 module Wile
   # This class knows how to get the version of a command.
