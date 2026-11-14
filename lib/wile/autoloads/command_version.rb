@@ -49,13 +49,7 @@ module Wile
     def self.each(&) = COMMAND_VERSION.each(&)
 
     def self.[](command)
-      probe, = COMMAND_VERSION[command]
-      case probe
-      when String
-        `#{probe}`[/\d+\.\d+/]
-      when Symbol
-        send(probe, command)
-      end
+      expected(command)
     rescue StandardError
       nil
     end
