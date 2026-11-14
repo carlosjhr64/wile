@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
 # ## wile oscheck ##
-# Checks if system commands exist.
-# Reports the version of each command.
+# Checks for system commands and reports their installed versions.
+# By default, only displays found commands.
+# Options:
+#   --all # report all commands including missing ones (exits 1 on missing)
 # Usage:
-#   wile oscheck [--all] # checks for missing system commands
+#   wile oscheck [--all] # check system command versions
 module Wile
   # This file is loaded upon a :oscheck task request.
   class Tasks

@@ -68,8 +68,8 @@ Run `wile list` to list all tasks, or `wile help <task>` for details.
 - **note**: Scrape ruby files for NOTE comments (see **NOTE**).
 - **nvim**: Open project files in Neovim (see **NVIM**).
 - **order**: Suggest method ordering in ruby files (see **ORDER**).
+- **oscheck**: Verify system commands and versions (see **OSCHECK**).
 - **publish**: Publish new version to RubyGems.
-- **requirements**: Verify system commands and versions.
 - **review**: Interactively review project files (see **REVIEW**).
 - **ruby**: List all ruby files in project or git (see **RUBY**).
 - **smell**: Classify method dependencies and smells.
@@ -445,6 +445,28 @@ Arguments:
 - `<filename>`: Path to the Ruby source file to analyze.
 - `<sort-type|special>`: Optional sort algorithm or special subcommand.
   Defaults to `bcmv`.
+
+## OSCHECK
+
+Wile checks system commands known to Wile against the host operating
+system and reports their installed versions. Probes are defined in Wile's
+command version registry and support standard command-line flags, man pages,
+and Fish plugins.
+
+By default, Wile reports only commands that are installed on the host:
+
+    $ wile oscheck                  # Report installed system commands
+
+Passing `--all` audits all known commands, displaying installed commands with
+their detected versions and missing commands with `-` in red. If any commands
+are missing in `--all` mode, Wile exits with status 1 (`EX_FAIL`):
+
+    $ wile oscheck --all        # Audit all known commands (exit 1 if missing)
+
+Options:
+
+- `--all`: Audit all known commands, including missing commands, and exit 1
+  (`EX_FAIL`) if any command is missing.
 
 ## REVIEW
 

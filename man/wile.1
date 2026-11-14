@@ -14,7 +14,7 @@
 . ftr VB CB
 . ftr VBI CBI
 .\}
-.TH "WILE" "1" "November 2026" "wile 0.4.261113" "User Commands"
+.TH "WILE" "1" "November 2026" "wile 0.5.261114" "User Commands"
 .hy
 .SH NAME
 .PP
@@ -129,9 +129,10 @@ for details.
 \f[B]order\f[R]: Suggest method ordering in ruby files (see
 \f[B]ORDER\f[R]).
 .IP \[bu] 2
-\f[B]publish\f[R]: Publish new version to RubyGems.
+\f[B]oscheck\f[R]: Verify system commands and versions (see
+\f[B]OSCHECK\f[R]).
 .IP \[bu] 2
-\f[B]requirements\f[R]: Verify system commands and versions.
+\f[B]publish\f[R]: Publish new version to RubyGems.
 .IP \[bu] 2
 \f[B]review\f[R]: Interactively review project files (see
 \f[B]REVIEW\f[R]).
@@ -660,6 +661,37 @@ Arguments:
 \f[V]<sort-type|special>\f[R]: Optional sort algorithm or special
 subcommand.
 Defaults to \f[V]bcmv\f[R].
+.SH OSCHECK
+.PP
+Wile checks system commands known to Wile against the host operating
+system and reports their installed versions.
+Probes are defined in Wile\[cq]s command version registry and support
+standard command-line flags, man pages, and Fish plugins.
+.PP
+By default, Wile reports only commands that are installed on the host:
+.IP
+.nf
+\f[C]
+$ wile oscheck                  # Report installed system commands
+\f[R]
+.fi
+.PP
+Passing \f[V]--all\f[R] audits all known commands, displaying installed
+commands with their detected versions and missing commands with
+\f[V]-\f[R] in red.
+If any commands are missing in \f[V]--all\f[R] mode, Wile exits with
+status 1 (\f[V]EX_FAIL\f[R]):
+.IP
+.nf
+\f[C]
+$ wile oscheck --all        # Audit all known commands (exit 1 if missing)
+\f[R]
+.fi
+.PP
+Options:
+.IP \[bu] 2
+\f[V]--all\f[R]: Audit all known commands, including missing commands,
+and exit 1 (\f[V]EX_FAIL\f[R]) if any command is missing.
 .SH REVIEW
 .PP
 Wile interactively reviews project files using \f[V]content\f[R],
