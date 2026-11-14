@@ -57,8 +57,8 @@ lib/wile/tasks/mkdir.rb
 lib/wile/tasks/note.rb
 lib/wile/tasks/nvim.rb
 lib/wile/tasks/order.rb
+lib/wile/tasks/oscheck.rb
 lib/wile/tasks/publish.rb
-lib/wile/tasks/requirements.rb
 lib/wile/tasks/review.rb
 lib/wile/tasks/ruby.rb
 lib/wile/tasks/smell.rb

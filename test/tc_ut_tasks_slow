@@ -97,7 +97,7 @@ class TestUtTasks < Test::Unit::TestCase
 
   def test_find
     pairs = [['help', :help], ['bui', :build], ['mp', :bump],
-             ['xic', :lexicon], ['re', :compare]]
+             ['xic', :lexicon], ['are', :compare]]
     pairs.each { |str, sym| assert_equal sym, TASKS.find(str) }
     ['bu', 'xyz', 'h', '', nil].each { assert_nil TASKS.find(it) }
   end

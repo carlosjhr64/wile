@@ -23,7 +23,6 @@ CASGN_TYPES
 CATEGORY
 CLEAN_DIRS
 CLRS
-COMMAND_VERSION
 COMPARE_USAGE
 CONFIG
 CONST_NODES
@@ -42,6 +41,7 @@ ConsoleBlocks
 ConstantPathNode
 ConstantReadNode
 Content
+DEFAULT_FILE
 DEPENDENCIES_USAGE
 DEPENDENCY_SCRAPES
 DESCRIPTION
@@ -134,6 +134,7 @@ ONELINER
 OPTIONAL_COMMANDS
 OPTIONS
 ORDER_USAGE
+OSCHECK_USAGE
 OS_CMDS
 OUTPUT_FILE
 Object
@@ -159,7 +160,6 @@ REF
 RELEASES_URL
 REQUIRED_BOOTSTRAP_GEMS
 REQUIRED_COMMANDS
-REQUIREMENTS_USAGE
 REQ_RGX
 RESERVED_WORDS
 REVIEW_USAGE
@@ -227,7 +227,6 @@ WileRefinements
 Zlib
 _
 __dir__
-__method__
 _args
 _cmd
 _node
@@ -286,7 +285,6 @@ bin
 binding
 blk
 block
-block_given
 blue
 bnswp
 bold
@@ -301,7 +299,6 @@ call
 camel_case
 candidate
 capitalize
-cases
 casgn
 casgn_const
 cat
@@ -334,6 +331,7 @@ close
 close_write
 cmd
 cmd_index
+cmd_ver
 cmp
 col
 collect_gems
@@ -350,6 +348,8 @@ combination
 comm
 command
 command_available
+command_found
+command_version
 commands
 comment
 commit
@@ -506,7 +506,6 @@ expected
 expected_prefix
 expected_sha256
 explain_fish
-extend
 external
 extract_archive
 extract_sha256
@@ -595,6 +594,7 @@ green
 grep
 grep_v
 gsub
+guess
 gz
 handle_call
 handle_error
@@ -794,8 +794,9 @@ order_subcommands
 order_tc_custom
 ordered
 os
-os_cmd_version
 os_which
+oscheck
+oscheck_do
 osinfo
 osset
 other
@@ -929,7 +930,6 @@ req
 require
 require_in_path
 require_relative
-requirements
 res
 reset
 resolve_format
@@ -1032,6 +1032,7 @@ string_node
 strip
 sub
 sub_scopes
+success
 sum
 summary
 sw
@@ -1064,7 +1065,6 @@ timeout
 times
 title_case
 to_a
-to_enum
 to_h
 to_i
 to_s
