@@ -1064,6 +1064,7 @@ text
 tf
 timeout
 times
+title
 title_case
 to_a
 to_h

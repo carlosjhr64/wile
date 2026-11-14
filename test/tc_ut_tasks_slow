@@ -11,6 +11,7 @@ require_relative '../lib/wile/tasks'
 require_relative '../lib/wile/tasks/build'
 require_relative '../lib/wile/tasks/bump'
 require_relative '../lib/wile/tasks/cp'
+require_relative '../lib/wile/tasks/dependencies'
 require_relative '../lib/wile/tasks/gemcheck'
 require_relative '../lib/wile/tasks/gemfile'
 require_relative '../lib/wile/tasks/info'
@@ -18,6 +19,12 @@ require_relative '../lib/wile/tasks/install'
 require_relative '../lib/wile/tasks/mkdir'
 require_relative '../lib/wile/tasks/review'
 require_relative '../lib/wile/tasks/update'
+
+FakeDpc = Struct.new(:deps, :gem, :os) do
+  def dependencies = deps
+  def geminfo(_) = gem
+  def osinfo(_) = os
+end
 
 FakeCache = Struct.new(:mapping, :copied) do
   def p2c_hash = mapping
@@ -259,5 +266,21 @@ class TestUtTasksExtra < Test::Unit::TestCase
     files = ['.version', "#{info.project}.gemspec", 'README.md',
              "lib/#{info.project}.rb"]
     files.each { assert_match(/0\.2\.261114/, File.read(File.join(dir, it))) }
+  end
+
+  def test_dependencies_usage
+    [fake_options(%w[a b]), fake_options([], bad: true)].each do |opt|
+      assert_raise(Wile::UsageError) { TASKS.dependencies(opt) }
+    end
+  end
+
+  def test_dependencies_task_flow
+    item = Struct.new(:name, :version, :type, :require).new('item', '1.0', :gem)
+    dpc = FakeDpc.new([[], [], [], []], [item], [])
+    out = capture_stdout do
+      TASKS.dependencies(fake_options([]), dpc)
+    end.uncolorize
+    assert_match(/## runtime ##/, out)
+    assert_match(/item\s+1\.0/, out)
   end
 end

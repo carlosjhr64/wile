@@ -93,7 +93,8 @@ for details.
 .IP \[bu] 2
 \f[B]cp\f[R]: Copy template files into project (see \f[B]CP\f[R]).
 .IP \[bu] 2
-\f[B]dependencies\f[R]: List ruby dependencies.
+\f[B]dependencies\f[R]: List ruby and system dependencies (see
+\f[B]DEPENDENCIES\f[R]).
 .IP \[bu] 2
 \f[B]dictionary\f[R]: Manage spelling dictionary (see
 \f[B]DICTIONARY\f[R]).
@@ -317,6 +318,43 @@ project.
 .IP \[bu] 2
 \f[V]-t\f[R], \f[V]--trace\f[R]: Trace execution, displaying skipped
 files in grey and copied files in green.
+.SH DEPENDENCIES
+.PP
+Wile scrapes Git-tracked Ruby files and \f[V].irbrc\f[R] to detect and
+list the project\[cq]s Ruby gem and system-command dependencies:
+.IP
+.nf
+\f[C]
+$ wile dependencies             # List project dependencies
+\f[R]
+.fi
+.PP
+Dependencies are partitioned into four sections:
+.IP \[bu] 2
+\f[V]## runtime ##\f[R]: Runtime Ruby gems resolved via
+\f[V]gem which\f[R].
+.IP \[bu] 2
+\f[V]## development ##\f[R]: Development Ruby gems (from files matched
+by \f[V].gemignore\f[R]).
+.IP \[bu] 2
+\f[V]## system-run ##\f[R]: Operating system commands executed at
+runtime.
+.IP \[bu] 2
+\f[V]## system-dev ##\f[R]: Operating system commands used during
+development.
+.PP
+Detection rules:
+.IP \[bu] 2
+\f[B]Gems\f[R]: Scraped from \f[V]require\f[R] and \f[V]autoload\f[R]
+statements in non-comment code, as well as
+\f[V]# wile: require \[aq]<gem>\[aq]\f[R] directives.
+.IP \[bu] 2
+\f[B]Commands\f[R]: Scraped from backtick executions,
+\f[V]system\f[R]/\f[V]spawn\f[R] calls, and \f[V]# wile: os\f[R]
+directives.
+Commands provided by the project\[cq]s own \f[V]bin\f[R] directories are
+excluded.
+Versions are resolved via Wile\[cq]s command version registry.
 .SH DICTIONARY
 .PP
 Wile provides trigram-based spell checking across \f[V]README.md\f[R],

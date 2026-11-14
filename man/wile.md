@@ -55,7 +55,7 @@ Run `wile list` to list all tasks, or `wile help <task>` for details.
 - **compare**: Compare project files with template (see **COMPARE**).
 - **content**: Inspect ruby file structure and methods (see **CONTENT**).
 - **cp**: Copy template files into project (see **CP**).
-- **dependencies**: List ruby dependencies.
+- **dependencies**: List ruby and system dependencies (see **DEPENDENCIES**).
 - **dictionary**: Manage spelling dictionary (see **DICTIONARY**).
 - **gemcheck**: Check for missing gems across rbenv Rubies (see **GEMCHECK**).
 - **gemfile**: Generate Gemfile from dependencies (see **GEMFILE**).
@@ -199,6 +199,30 @@ Arguments and options:
 - `-f`, `--force`: Overwrite existing files in the project.
 - `-t`, `--trace`: Trace execution, displaying skipped files in grey and
   copied files in green.
+
+## DEPENDENCIES
+
+Wile scrapes Git-tracked Ruby files and `.irbrc` to detect and list the
+project's Ruby gem and system-command dependencies:
+
+    $ wile dependencies             # List project dependencies
+
+Dependencies are partitioned into four sections:
+
+- `## runtime ##`: Runtime Ruby gems resolved via `gem which`.
+- `## development ##`: Development Ruby gems (from files matched by
+  `.gemignore`).
+- `## system-run ##`: Operating system commands executed at runtime.
+- `## system-dev ##`: Operating system commands used during development.
+
+Detection rules:
+
+- **Gems**: Scraped from `require` and `autoload` statements in non-comment
+  code, as well as `# wile: require '<gem>'` directives.
+- **Commands**: Scraped from backtick executions, `system`/`spawn` calls, and
+  `# wile: os` directives. Commands provided by the project's own `bin`
+  directories are excluded. Versions are resolved via Wile's command
+  version registry.
 
 ## DICTIONARY
 
