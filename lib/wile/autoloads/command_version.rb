@@ -21,7 +21,18 @@ module Wile
 
     def self.empty? = COMMAND_VERSION.empty?
 
-    def self.expected(command) = COMMAND_VERSION[command]&.last
+    def self.expected(command)
+      return nil unless COMMAND_VERSION.key?(command)
+
+      version = case (probe = COMMAND_VERSION[command])
+                when String
+                  output = `#{probe}`
+                  output[/\d+\.\d+/] if $CHILD_STATUS.success?
+                when Symbol
+                  send(probe, command)
+                end
+      version || raise("Failed to determine version for #{command}")
+    end
 
     def self.include?(command) = key?(command)
 
