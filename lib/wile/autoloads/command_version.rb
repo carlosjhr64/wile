@@ -54,6 +54,8 @@ module Wile
       nil
     end
 
+    def version(command) = self[command] || guess(command)
+
     def fish_plugin(plugin)
       path = File.expand_path('~/.config/fish/fish_plugins')
       return nil unless File.file?(path)

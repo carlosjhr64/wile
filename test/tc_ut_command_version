@@ -50,13 +50,17 @@ class TestUtCommandVersion < Test::Unit::TestCase
   end
 
   def test_bracket_probe_string
-    ruby_version = @cv['ruby']
-    assert_not_nil ruby_version
-    assert_match(/\A\d+\.\d+\z/, ruby_version)
+    assert_match(/\A\d+\.\d+\z/, @cv['ruby'])
     assert_nil @cv['nonexistent_cmd_xyz']
     with_home('/tmp/no_such_home_for_test_xyz') do
       assert_nil @cv['carlosjhr64/theme-local']
     end
+  end
+
+  def test_version
+    assert_match(/\A\d+\.\d+/, @cv.version('git'))
+    assert_match(/\A\d+\.\d+/, @cv.version('hostname'))
+    assert_nil @cv.version('nonexistent_cmd_xyz')
   end
 
   def test_guess
