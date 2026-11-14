@@ -963,6 +963,7 @@ rstrip
 rubocop
 ruby
 ruby_build_dir
+ruby_floor
 ruby_path
 run
 run_cmd

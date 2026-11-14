@@ -9,9 +9,7 @@ module Wile
 
     alias to_s gemspec
 
-    def update!
-      File.write(File.join(@info.dirname, @info.gemspec), @gemspec)
-    end
+    def update! = File.write(File.join(@info.dirname, @info.gemspec), @gemspec)
 
     def initialize(info = Info.info)
       @info = info
@@ -125,11 +123,14 @@ module Wile
       name = cmd.name
       version = cmd.version
       req = if name == 'ruby'
-              "s.required_ruby_version = '>= #{version}'"
+              "s.required_ruby_version = '~> #{ruby_floor(version)}'"
             else
               "s.requirements << '#{name}: #{version || '-'}'"
             end
       @gemspec << "  #{req}\n"
     end
+
+    # :reek:UtilityFunction
+    def ruby_floor(version) = "#{version.to_s[/\d+/] || '4'}.0"
   end
 end

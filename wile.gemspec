@@ -84,6 +84,7 @@ Gem::Specification.new do |s|
     cache/test/test_helper.rb
     cache/tmp/README.md
     data/command_version.tsv
+    dependencies.txt
     lib/wile.rb
     lib/wile/autoloads/cache.rb
     lib/wile/autoloads/code_content.rb
@@ -171,7 +172,7 @@ Gem::Specification.new do |s|
   s.requirements << 'ncal: 2019'
   s.requirements << 'pandoc: 2.17'
   s.requirements << 'rbenv: 1.3'
-  s.required_ruby_version = '>= 4.0'
+  s.required_ruby_version = '~> 4.0'
   s.requirements << 'sudo: 1.9'
   s.requirements << 'tmux: 3.3'
   s.requirements << 'tput: 6.4'
