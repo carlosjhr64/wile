@@ -46,13 +46,7 @@ module Wile
 
     def self.size = COMMAND_VERSION.size
 
-    def self.each
-      return to_enum(__method__) unless block_given?
-
-      COMMAND_VERSION.each do |command, (_, expected)|
-        yield(command, expected)
-      end
-    end
+    def self.each(&) = COMMAND_VERSION.each(&)
 
     def self.[](command)
       probe, = COMMAND_VERSION[command]
