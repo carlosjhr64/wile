@@ -46,9 +46,11 @@ class TestUtDependencies < Test::Unit::TestCase
     known = @deps.send(:os_which, 'git')
     assert_equal 'git', known.name
     assert_equal :os, known.type
+    assert_match(/\A\d+\.\d+/, known.version)
 
     missing = @deps.send(:os_which, 'nonexistent_command_12345')
     assert_nil missing.name
+    assert_nil missing.version
     assert_equal 'nonexistent_command_12345', missing.require
   end
 

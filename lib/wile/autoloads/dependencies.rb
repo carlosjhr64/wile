@@ -134,7 +134,7 @@ module Wile
         warn "Missing command: #{cmd}".red if @verbose
         return GemInfo.new(nil, nil, nil, nil, cmd)
       end
-      version = CommandVersion[cmd] || os_cmd_version(cmd)
+      version = CommandVersion.new.version(cmd)
       warn_missing_version(cmd) if @verbose && !version
       GemInfo.new(cmd, version, :os, fn, cmd)
     end
@@ -142,15 +142,6 @@ module Wile
     # :reek:UtilityFunction
     def warn_missing_version(cmd)
       warn "Missing command version: #{cmd}".gray unless OS_CMDS.include? cmd
-    end
-
-    # :reek:UtilityFunction
-    def os_cmd_version(cmd)
-      ['--version', '-v', '-V'].each do |flag|
-        version = `#{cmd.sw} #{flag} 2>&1`.strip.scan(/\d+\.\d+/)&.first
-        return version if version
-      end
-      nil
     end
   end
 end
