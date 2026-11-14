@@ -21,17 +21,21 @@ module Wile
 
     def self.empty? = COMMAND_VERSION.empty?
 
+    def self.probe(command)
+      case (probe = COMMAND_VERSION[command])
+      when String
+        output = `#{probe}`
+        output[/\d+\.\d+/] if $CHILD_STATUS.success?
+      when Symbol
+        send(probe, command)
+      end
+    end
+    private_class_method :probe
+
     def self.expected(command)
       return nil unless COMMAND_VERSION.key?(command)
 
-      version = case (probe = COMMAND_VERSION[command])
-                when String
-                  output = `#{probe}`
-                  output[/\d+\.\d+/] if $CHILD_STATUS.success?
-                when Symbol
-                  send(probe, command)
-                end
-      version || raise("Failed to determine version for #{command}")
+      probe(command) || raise("Failed to determine version for #{command}")
     end
 
     def self.include?(command) = key?(command)
@@ -39,8 +43,6 @@ module Wile
     def self.key?(command) = COMMAND_VERSION.key?(command)
 
     def self.length = size
-
-    def self.probe(command) = COMMAND_VERSION[command]&.first
 
     def self.size = COMMAND_VERSION.size
 
