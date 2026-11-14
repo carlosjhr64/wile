@@ -209,7 +209,7 @@ sha256sum	sha256sum --version
 shred	shred --version
 shuf	shuf --version
 sleep	sleep --version
-snap	snap version
+snap	:man
 sort	sort --version
 split	split --version
 sqlite3	sqlite3 --version

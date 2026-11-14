@@ -77,7 +77,7 @@ module Wile
     def probe(command)
       case (probe = @command_version[command])
       when String
-        output = `#{probe}`
+        output = `#{probe} 2>&1`
         output[/\d+\.\d+/] if $CHILD_STATUS.success?
       when Symbol
         send(probe, command)

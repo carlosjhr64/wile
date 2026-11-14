@@ -12,9 +12,10 @@ module Wile
 
     def requirements(options)
       Usage.new(options, *REQUIREMENTS_USAGE)
-      CommandVersion.each do |command, expected|
-        if (version = CommandVersion[command])
-          cases(command, version, expected)
+      cv = CommandVersion.new
+      cv.commands.each do |command|
+        if (version = cv[command])
+          show(command, version, :green)
         else
           show(command, '-', :red)
         end
@@ -27,14 +28,6 @@ module Wile
     def show(cmd, ver, col = :green, jst = 39)
       print "#{cmd.colorize(col)}:".ljust(jst)
       puts ver
-    end
-
-    def cases(command, version, expected)
-      case Gem::Version.new(version) <=> Gem::Version.new(expected)
-      when 0  then show(command, version, :green)
-      when 1  then show(command, "#{version} > #{expected}", :blue)
-      when -1 then show(command, "#{version} < #{expected}", :magenta)
-      end
     end
   end
 end
