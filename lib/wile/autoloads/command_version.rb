@@ -54,6 +54,16 @@ module Wile
       nil
     end
 
+    def self.guess(command)
+      %w[--version -v -V].each do |flag|
+        ver = `#{command.sw} #{flag} 2>&1`[/\d+\.\d+/]
+        return ver if $CHILD_STATUS.success? && ver
+      end
+      man(command)
+    rescue StandardError
+      nil
+    end
+
     def self.fish_plugin(plugin)
       path = File.expand_path('~/.config/fish/fish_plugins')
       return nil unless File.file?(path)

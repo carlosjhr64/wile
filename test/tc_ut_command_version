@@ -59,6 +59,14 @@ class TestUtCommandVersion < Test::Unit::TestCase
     end
   end
 
+  def test_guess
+    assert_match(/\A\d+\.\d+/, @cv.guess('git'))
+    assert_match(/\A\d+\.\d+/, @cv.guess('clear'))
+    assert_match(/\A\d+\.\d+/, @cv.guess('pandoc'))
+    assert_match(/\A[12]\d{3}\z/, @cv.guess('ncal'))
+    assert_nil @cv.guess('nonexistent_cmd_xyz')
+  end
+
   def test_fish_plugin
     Dir.mktmpdir do |dir|
       fake_home = File.join(dir, 'home')
