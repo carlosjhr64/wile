@@ -22,11 +22,12 @@ class TestUtCommandVersion < Test::Unit::TestCase
     assert_includes @cv.commands, 'ruby'
   end
 
-  def test_expected_and_probe
-    assert_equal '2.39', @cv.expected('git')
-    assert_equal 'git --version', @cv.probe('git')
+  def test_expected
+    assert_match(/\A\d+\.\d+/, @cv.expected('git'))
     assert_nil @cv.expected('nonexistent_cmd_xyz')
-    assert_nil @cv.probe('nonexistent_cmd_xyz')
+    with_home('/tmp/no_such_home_for_test_xyz') do
+      assert_raise(RuntimeError) { @cv.expected('carlosjhr64/theme-local') }
+    end
   end
 
   def test_membership
@@ -40,11 +41,12 @@ class TestUtCommandVersion < Test::Unit::TestCase
     hash = @cv.to_h
     assert_kind_of Hash, hash
     assert_equal @cv.size, hash.size
-    assert_equal '4.0', hash['ruby']
+    assert_equal 'ruby --version', hash['ruby']
+    assert_equal :man, hash['ncal']
 
-    pairs = @cv.map { |cmd, exp| [cmd, exp] }
+    pairs = @cv.map { |cmd, probe| [cmd, probe] }
     assert_equal @cv.size, pairs.size
-    assert_equal ['git', '2.39'], pairs.assoc('git')
+    assert_equal ['git', 'git --version'], pairs.assoc('git')
   end
 
   def test_bracket_probe_string
@@ -52,6 +54,9 @@ class TestUtCommandVersion < Test::Unit::TestCase
     assert_not_nil ruby_version
     assert_match(/\A\d+\.\d+\z/, ruby_version)
     assert_nil @cv['nonexistent_cmd_xyz']
+    with_home('/tmp/no_such_home_for_test_xyz') do
+      assert_nil @cv['carlosjhr64/theme-local']
+    end
   end
 
   def test_fish_plugin
