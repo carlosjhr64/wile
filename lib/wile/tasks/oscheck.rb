@@ -1,17 +1,17 @@
 # frozen_string_literal: true
 
-# ## wile requirements ##
-# Checks if required commands exist.
+# ## wile oscheck ##
+# Checks if system commands exist.
 # Reports the version of each command.
 # Usage:
-#   wile requirements # checks for missing system commands
+#   wile oscheck # checks for missing system commands
 module Wile
-  # This file is loaded upon a :requirements task request.
+  # This file is loaded upon a :oscheck task request.
   class Tasks
-    REQUIREMENTS_USAGE = ['requirements: Takes no arguments.', 0, Set[]].freeze
+    OSCHECK_USAGE = ['oscheck: Takes no arguments.', 0, Set[]].freeze
 
-    def requirements(options)
-      Usage.new(options, *REQUIREMENTS_USAGE)
+    def oscheck(options)
+      Usage.new(options, *OSCHECK_USAGE)
       cv = CommandVersion.new
       cv.commands.each do |command|
         if (version = cv[command])
