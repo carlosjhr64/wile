@@ -17,7 +17,7 @@ module Wile
       @info = info
       @verbose = verbose
       @cmd_ver = cmd_ver
-      @missing_gems = Set.new
+      @cache = { gem: {}, os: {}, missing_gems: Set.new }
     end
 
     # :reek:TooManyStatements
@@ -109,8 +109,12 @@ module Wile
         PROJECT_DIRS.any? { File.executable?(File.join(it, cmd)) }
     end
 
-    # :reek:FeatureEnvy :reek:TooManyStatements
     def gem_which(name)
+      @cache[:gem][name] ||= resolve_gem_which(name)
+    end
+
+    # :reek:FeatureEnvy :reek:TooManyStatements
+    def resolve_gem_which(name)
       fn = `gem which -q #{name.sw}`.strip
       if (mdt = %r{/gems/([-\w]+)-(\d+\.\d+\.\d+)}.match(fn))
         GemInfo.new(mdt[1], mdt[2], :gem, fn, name)
@@ -132,12 +136,17 @@ module Wile
 
     def missing_gem(name)
       gem = name.split('/').first
-      warn "Missing gem: #{gem}".red if @verbose && @missing_gems.add?(gem)
+      warn "Missing gem: #{gem}".red if
+        @verbose && @cache[:missing_gems].add?(gem)
       GemInfo.new(nil, nil, nil, nil, gem)
     end
 
-    # :reek:TooManyStatements
     def os_which(cmd)
+      @cache[:os][cmd] ||= resolve_os_which(cmd)
+    end
+
+    # :reek:TooManyStatements
+    def resolve_os_which(cmd)
       fn = `which #{cmd.sw}`.strip
       if fn.empty?
         warn "Missing command: #{cmd}".red if @verbose

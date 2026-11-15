@@ -47,7 +47,7 @@ which        2016
 agy          1.5
 apt-cache    2.6
 apt-get      2.6
-chsh         2025
+chsh         4.13
 clear        6.4
 colora       1.0
 cucumber     12.0

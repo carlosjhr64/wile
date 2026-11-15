@@ -936,6 +936,8 @@ require_relative
 res
 reset
 resolve_format
+resolve_gem_which
+resolve_os_which
 respond_to
 responds
 response

@@ -8,17 +8,40 @@ require_relative '../lib/wile/run'
 
 # Unit tests for Wile::Gemspec.
 class TestUtGemspec < Test::Unit::TestCase
-  def setup
-    Wile.autoloads
-    Wile::Info.reset!
-    with_quiet_io do
+  class << self
+    attr_reader :info, :gemspec
+
+    def startup
+      Wile.autoloads
+      Wile::Info.reset!
       @info = Wile::Info.new
-      @gemspec = Wile::Gemspec.new(@info)
+      silence_io { @gemspec = Wile::Gemspec.new(@info) }
+    end
+
+    def shutdown
+      Wile::Info.reset!
+    end
+
+    private
+
+    def silence_io
+      orig_out = $stdout.dup
+      orig_err = $stderr.dup
+      $stdout.reopen(File::NULL)
+      $stderr.reopen(File::NULL)
+      yield
+    ensure
+      $stdout.reopen(orig_out)
+      $stderr.reopen(orig_err)
+      orig_out.close
+      orig_err.close
     end
   end
 
-  def teardown
-    Wile::Info.reset!
+  def setup
+    Wile.autoloads
+    @info = self.class.info
+    @gemspec = self.class.gemspec
   end
 
   def test_attributes
