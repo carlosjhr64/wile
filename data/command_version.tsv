@@ -1,5 +1,5 @@
 7z	:man
-GET	GET -v 2>&1
+GET	GET -v
 R	R --version
 agetty	agetty --version
 agy	agy --version
@@ -55,7 +55,7 @@ docker	docker --version
 dpkg	dpkg --version
 dpkg-query	dpkg-query --version
 du	du --version
-echo	echo --version
+echo	:man
 egrep	egrep --version
 emacs	emacs --version
 env	env --version
@@ -139,7 +139,7 @@ more	more --version
 mount	mount --version
 mv	mv --version
 nano	nano --version
-nc	nc -h 2>&1
+nc	nc -h
 ncal	:man
 netstat	netstat --version
 newgrp	:man

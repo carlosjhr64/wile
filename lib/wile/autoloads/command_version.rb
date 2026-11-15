@@ -44,8 +44,10 @@ module Wile
 
     def guess(command)
       %w[--version -v -V].each do |flag|
-        ver = `#{command.sw} #{flag} 2>&1`[/\d+\.\d+/]
-        return ver if $CHILD_STATUS.success? && ver
+        if (first_line = `#{command.sw} #{flag} 2>&1`.lines.first)
+          version = first_line[/\d+(\.\d+)?/]
+          return version if version
+        end
       end
       man(command)
     rescue StandardError
@@ -66,8 +68,9 @@ module Wile
 
     # :reek:UtilityFunction
     def man(cmd)
-      last_line = `man #{cmd.sw} 2>/dev/null`.lines.last
-      last_line&.slice(/[12]\d{3}/)
+      return nil unless (last_line = `man #{cmd.sw} 2>/dev/null`.lines.last)
+
+      last_line[/\d+(\.\d+)?/]
     end
 
     private
@@ -76,7 +79,7 @@ module Wile
       case (probe = @command_version[command])
       when String
         output = `#{probe} 2>&1`
-        output[/\d+\.\d+/] if $CHILD_STATUS.success?
+        output[/\d+(\.\d+)?/]
       when Symbol
         send(probe, command)
       end
