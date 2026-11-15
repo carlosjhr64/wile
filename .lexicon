@@ -595,6 +595,7 @@ grep
 grep_v
 gsub
 guess
+guessing_flag
 gz
 handle_call
 handle_error
@@ -849,6 +850,8 @@ private
 private_class_method
 private_constant
 probe
+probing
+probing_string
 process_file
 process_lines
 project
@@ -977,6 +980,7 @@ scope
 scope_end
 scope_str
 scopes
+scrape
 scrape_help
 searched
 sections
@@ -1033,7 +1037,6 @@ string_node
 strip
 sub
 sub_scopes
-success
 sum
 summary
 sw

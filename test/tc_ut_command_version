@@ -24,7 +24,7 @@ class TestUtCommandVersion < Test::Unit::TestCase
 
   def test_expected
     assert_match(/\A\d+\.\d+/, @cv.expected('git'))
-    assert_nil @cv.expected('nonexistent_cmd_xyz')
+    assert_raise(RuntimeError) { @cv.expected('nonexistent_cmd_xyz') }
     with_home('/tmp/no_such_home_for_test_xyz') do
       assert_raise(RuntimeError) { @cv.expected('carlosjhr64/theme-local') }
     end
@@ -96,9 +96,8 @@ class TestUtCommandVersion < Test::Unit::TestCase
   end
 
   def test_man_probe
-    year = @cv.man('diff')
-    assert_not_nil year
-    assert_match(/\A[12]\d{3}\z/, year)
+    assert_match(/\A\d+\.\d+\z/, @cv.man('diff'))
+    assert_match(/\A[12]\d{3}\z/, @cv.man('kill'))
     assert_nil @cv.man('nonexistent_man_xyz_123')
   end
 
