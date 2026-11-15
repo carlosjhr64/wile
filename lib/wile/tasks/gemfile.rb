@@ -30,7 +30,6 @@ module Wile
       dev = format_gems(gemspec.devgems) - run
       [
         "source 'https://rubygems.org'",
-        "ruby file: '.ruby-version'",
         '## runtime ##',
         *run.sort,
         '## development ##',

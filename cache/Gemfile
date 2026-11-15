@@ -1,5 +1,4 @@
 source 'https://rubygems.org'
-ruby file: '.ruby-version'
 ## runtime ##
 gem 'help_parser'
 ## development ##

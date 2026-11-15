@@ -421,7 +421,7 @@ instead of only the previous version.
 Wile generates a project \f[V]Gemfile\f[R] directly from dependencies.
 It classifies gems into runtime and development groups based on
 \f[V].gemignore\f[R], including the rubygems source and
-\f[V].ruby-version\f[R] constraint:
+runtime/development gems:
 .IP
 .nf
 \f[C]
@@ -434,7 +434,6 @@ The generated file follows standard Bundler syntax:
 .nf
 \f[C]
 source \[aq]https://rubygems.org\[aq]
-ruby file: \[aq].ruby-version\[aq]
 ## runtime ##
 gem \[aq]rake\[aq]
 ## development ##

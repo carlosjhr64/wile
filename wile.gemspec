@@ -43,6 +43,7 @@ Gem::Specification.new do |s|
     cache/.reek.yml
     cache/.rubocop-strict.yml
     cache/.rubocop.yml
+    cache/.ruby-version-floor
     cache/.ruby-version.erb
     cache/.tasks/hello.rb
     cache/.title.erb

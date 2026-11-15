@@ -272,14 +272,13 @@ Options:
 
 Wile generates a project `Gemfile` directly from dependencies. It
 classifies gems into runtime and development groups based on `.gemignore`,
-including the rubygems source and `.ruby-version` constraint:
+including the rubygems source and runtime/development gems:
 
     $ wile gemfile                  # Generate or update project Gemfile
 
 The generated file follows standard Bundler syntax:
 
     source 'https://rubygems.org'
-    ruby file: '.ruby-version'
     ## runtime ##
     gem 'rake'
     ## development ##
