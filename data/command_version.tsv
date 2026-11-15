@@ -109,7 +109,7 @@ join	join --version
 jorgebucaran/fisher	fish -c 'fisher --version'
 journalctl	journalctl --version
 jq	jq --version
-kill	kill -V
+kill	:man
 ld	ld --version
 ldconfig	ldconfig --version
 ldd	ldd --version
