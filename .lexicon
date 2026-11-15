@@ -17,8 +17,8 @@ BootstrapRubyGems
 BootstrapRubyRbenv
 BootstrapSystemCommands
 CALL_NAME
-CASES
 CASGN
+CASGN_CONST
 CASGN_TYPES
 CATEGORY
 CLEAN_DIRS
@@ -42,6 +42,7 @@ ConstantPathNode
 ConstantReadNode
 Content
 DEFAULT_FILE
+DEF_METHOD
 DEPENDENCIES_USAGE
 DEPENDENCY_SCRAPES
 DESCRIPTION
@@ -107,7 +108,6 @@ INSTALL_USAGE
 IO
 Info
 Integer
-IterationVariables
 JSON
 KERNEL
 Kernel
@@ -296,15 +296,15 @@ c2p
 cache
 cached
 call
+call_name
 camel_case
 candidate
+candidates
 capitalize
 casgn
-casgn_const
 cat
 category
 category_set
-cc
 cdt
 cf
 cfg
@@ -322,6 +322,7 @@ chomp
 chunk
 circular
 class
+classify_external
 clean
 clear_paths
 clevel
@@ -396,7 +397,6 @@ cyan
 data
 date
 def_body
-def_method
 def_scope
 default_external
 delete
@@ -552,6 +552,7 @@ formatter
 found
 freeze
 full
+full_const
 fullname
 func
 gem
@@ -583,7 +584,6 @@ gemspec_os
 gemspec_requirements
 generate
 get_code_data
-get_fullname
 get_sections
 gets
 git
@@ -661,7 +661,6 @@ key
 keys
 keyword_hash_node
 kls
-kls_mth
 known_constant
 known_constants
 label
@@ -711,8 +710,6 @@ mdt
 merge
 message
 method
-method_content
-method_end
 method_line_count
 method_name
 method_source
@@ -815,6 +812,7 @@ padding
 pandoc
 pandoc_args
 parse
+parse_content_line
 parse_file
 partition
 pascal_case
@@ -838,7 +836,6 @@ port
 pp
 ppid
 prb
-pre
 prefix
 pretty_generate
 prev
@@ -915,6 +912,7 @@ readlines
 readme
 ready
 receiver
+record_call
 record_dep
 record_missing
 red
@@ -938,6 +936,7 @@ res
 reset
 resolve_format
 resolve_gem_which
+resolve_local_method
 resolve_os_which
 respond_to
 responds
@@ -983,6 +982,7 @@ sclass
 scope
 scope_end
 scope_str
+scoped_call
 scopes
 scrape
 scrape_help
@@ -1041,6 +1041,7 @@ string_node
 strip
 sub
 sub_scopes
+suffix
 sum
 summary
 sw
@@ -1095,6 +1096,7 @@ uninstall
 uniq
 unique
 unlink
+unqualified
 unused
 upcase
 update
@@ -1178,5 +1180,4 @@ x
 year
 yellow
 yes
-yourself
 zero

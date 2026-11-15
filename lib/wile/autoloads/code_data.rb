@@ -3,141 +3,135 @@
 # Wile namespace.
 module Wile
   # CodeData class provides data about the code in a file.
-  # :reek:InstanceVariableAssumption @constants @filename @index @v
   # :reek:TooManyInstanceVariables :reek:TooManyMethods
-  # :reek:UncommunicativeVariableName @v
   class CodeData
     using WileRefinements
 
-    attr_reader :constants, :data, :filename, :index, :responds
+    attr_reader :constants, :data, :filename, :index
 
-    # pp is autloaded:
-    KERNEL = Kernel.public_methods.map(&:to_s) + ['pp']
-
-    # This class provides iteration variables for the CodeData class.
-    IterationVariables = Struct.new(:yourself, :fullname, :prefix) do
-      def dependencies = yourself.dependencies(fullname)
-      def dependants = yourself.dependants(fullname)
-      def external = yourself.external(fullname)
-      def stdlib = yourself.stdlib(fullname)
-    end
-
+    # :reek:TooManyStatements
     def initialize(filename)
-      vset(filename, {}, [], IterationVariables.new(self))
+      @filename = filename
+      @index = {}
+      @constants = []
+      @fullname = @prefix = @responds = nil
       @data = CodeStats.method_stats(filename) do |stat|
-        [stat, stat.size, stat.category, [], [], [], []]
+        { lines: stat, size: stat.size, category: stat.category,
+          dependencies: [], dependants: [], external: [], stdlib: [] }
       end
-      Responds.new do |responds|
-        @responds = responds
-        populate_dependencies
-      end
+      populate_dependencies
       populate_dependants
     end
 
     # category: index
     def dependency_index(name, dependency) = @index["#{name}-#{dependency}"]
+
     # category: table
-    def names              = @data.keys
-    # Source/Code lines of the method:
-    def lines(name)        = @data[name][0]
     # Number of lines in the method:
-    def size(name)         = @data[name][1]
+    def size(name)         = @data[name][:size]
     # Set by category comment, private, or defaulted to public:
-    def category(name)     = @data[name][2]
-    def dependencies(name) = @data[name][3]
-    def dependants(name)   = @data[name][4]
-    def external(name)     = @data[name][5]
-    def stdlib(name)       = @data[name][6]
+    def category(name)     = @data[name][:category]
+    def names              = @data.keys
+    def dependants(name)   = @data[name][:dependants]
+    def external(name)     = @data[name][:external]
+    def dependencies(name) = @data[name][:dependencies]
 
     private
 
-    def vset(*args)
-      @filename, @index, @constants, @v = args
-    end
+    def stdlib(name) = @data[name][:stdlib]
+    # Source/Code lines of the method:
+    def lines(name)  = @data[name][:lines]
+
+    # category: populate
+
+    # pp is autoloaded:
+    KERNEL = [*Kernel.public_methods.map(&:to_s), 'pp'].freeze
+    DEF_METHOD = /^def\s(?<fullname>(?<prefix>[:\w]*)[.#](?:\w+[!=?]?|\[\]))$/
+    METHOD_CALL = /^\s\s(?<name>\S+)$/
+    CASGN_CONST = /^casgn\s(?<const>[:\w]+)\s\w+$/
+
+    private_constant :KERNEL, :DEF_METHOD, :METHOD_CALL, :CASGN_CONST
 
     def populate_dependants
-      names.permutation(2).each do |name, other|
+      names.permutation(2) do |name, other|
         dependants(name) << other if dependencies(other).include?(name)
       end
     end
 
-    CASES = {
-      def_method:
-        /^def\s(?<fullname>(?<prefix>[:\w]*)[.#](?<name>\w+[!=?]?|\[\]))$/x,
-      method_content: /^\s\s(?<name>\S+)$/,
-      method_end: /^end$/,
-      casgn_const: /^casgn\s(?<fullname>[:\w]+)\s(?<type>\w+)$/x
-    }.freeze
-    private_constant :CASES
-
-    # :reek:NestedIterators
     def populate_dependencies
-      CodeContent.generate(@filename) do |cc|
-        CASES.each do |key, rgx|
-          next unless (md = rgx.match(cc))
-
-          method(key).call(md)
-          break
-          # Calls:
-          # def_method(md)
-          # method_content(md)
-          # method_end(md)
-          # casgn_const(md)
-        end
+      Responds.new do |responds|
+        @responds = responds
+        CodeContent.generate(@filename) { parse_content_line(it) }
       end
     end
 
-    # :reek:DuplicateMethodCall of attributes
-    def add_dependency(dependency, name)
-      @v.dependencies << dependency
-      namex = name.namex
-      key = "#{@v.fullname}-#{dependency}"
-      @index[key] = lines(@v.fullname).index { namex.match? it }
+    def classify_external(call_name, candidate = call_name)
+      if @responds.ok?(candidate)
+        stdlib(@fullname) << candidate
+      else
+        external(@fullname) << call_name
+      end
     end
 
-    def known_constant?(name, pre = @v.prefix, const = name.split('.').first)
+    def add_dependency(dependency, call_name)
+      dependencies(@fullname) << dependency
+      pattern = call_name.namex
+      key = "#{@fullname}-#{dependency}"
+      @index[key] = lines(@fullname).index { pattern.match?(it) }
+    end
+
+    def add_scoped_external(scoped_call)
+      unqualified = scoped_call.split('::').last
+      candidate = @responds.ok?(scoped_call) ? scoped_call : unqualified
+      classify_external(scoped_call, candidate)
+    end
+
+    def add_external(call_name)
+      if call_name.start_with?('.', '#')
+        add_scoped_external("#{@prefix}#{call_name}") unless
+          KERNEL.include?(call_name[1..])
+      else
+        classify_external(call_name)
+      end
+    end
+
+    def parse_content_line(line)
+      if (match = DEF_METHOD.match(line))
+        @fullname = match[:fullname]
+        @prefix = match[:prefix]
+      elsif (match = METHOD_CALL.match(line))
+        record_call(match[:name])
+      elsif (match = CASGN_CONST.match(line))
+        @constants << match[:const]
+      end
+    end
+
+    def record_call(call_name)
+      if (dependency = resolve_local_method(call_name))
+        add_dependency(dependency, call_name)
+      else
+        add_external(call_name) unless known_constant?(call_name)
+      end
+    end
+
+    def resolve_local_method(call_name)
+      candidates = if call_name == '.new' then ["#{@prefix}#initialize"]
+                   else
+                     ["#{@prefix}#{call_name}",
+                      "#{@prefix.split('::').first}::#{call_name}", call_name]
+                   end
+      candidates.find { @data.key?(it) }
+    end
+
+    def known_constant?(call_name)
+      const = call_name.split('.').first
       return true if @constants.include?(const)
 
-      @constants.select { it.end_with?("::#{const}") }
-                .any? { pre.start_with?(it.delete_suffix("::#{const}")) }
-    end
-
-    def method_content(match)
-      name = match[:name]
-      if (dependency = get_fullname(name))
-        add_dependency(dependency, name)
-      else
-        add_external(name) unless known_constant?(name)
+      suffix = "::#{const}"
+      @constants.any? do |full_const|
+        full_const.end_with?(suffix) &&
+          @prefix.start_with?(full_const.delete_suffix(suffix))
       end
     end
-
-    def get_fullname(name, pre = @v.prefix)
-      if name == '.new' then ["#{pre}#initialize"]
-      else
-        ["#{pre}#{name}", "#{pre.split('::')[0]}::#{name}", name]
-      end.each { return it if @data.key?(it) }
-      nil
-    end
-
-    # :reek:DuplicateMethodCall of attributes
-    def add_external(name)
-      if /^[A-Z]\w*(?:::[A-Z]\w*)*\.(?:\w+[!=?]?|\[\])$/.match?(name)
-        @responds.ok?(name) ? (@v.stdlib << name) : (@v.external << name)
-      elsif /^[.#]/.match?(name)
-        add_scoped_external("#{@v.prefix}#{name}") unless
-          KERNEL.include?(name[1..])
-      else
-        @v.external << name
-      end
-    end
-
-    def add_scoped_external(full)
-      kls_mth = @responds.ok?(full) ? full : full.split('::').last
-      @responds.ok?(kls_mth) ? (@v.stdlib << kls_mth) : (@v.external << full)
-    end
-
-    def casgn_const(match) = @constants << match[:fullname]
-    def def_method(match)  = %i[prefix fullname].each { @v[it] = match[it] }
-    def method_end(_)      = %i[prefix fullname].each { @v[it] = nil }
   end
 end
