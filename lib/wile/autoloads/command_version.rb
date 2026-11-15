@@ -3,6 +3,7 @@
 # Wile namespace.
 module Wile
   # This class knows how to get the version of a command.
+  # :reek:TooManyMethods
   class CommandVersion
     using UtilitiesRefinements
     include Enumerable
@@ -42,13 +43,17 @@ module Wile
       nil
     end
 
-    def guess(command)
+    def guessing_flag(command)
       %w[--version -v -V].each do |flag|
         probe = "#{command.sw} #{flag}"
-        version = probing(probe, command)
+        version = probing_string(probe)
         return version if version
       end
-      man(command)
+      nil
+    end
+
+    def guess(command)
+      guessing_flag(command) || man(command)
     rescue StandardError
       nil
     end
@@ -72,20 +77,25 @@ module Wile
       scrape(last_line)
     end
 
+    private
+
+    # :reek:UtilityFunction
     def scrape(str)
       return nil if str.start_with?('sh:')
 
       str[/\d+\.\d+/] || str[/[12]\d\d\d/] || str[/\d+/]
     end
 
-    private
+    def probing_string(probe)
+      return nil unless (first_line = `#{probe} 2>&1`.strip.lines.first)
+
+      scrape(first_line)
+    end
 
     def probing(probe, command)
       case probe
       when String
-        return nil unless (first_line = `#{probe} 2>&1`.strip.lines.first)
-
-        scrape(first_line) || man(command)
+        probing_string(probe) || man(command)
       when Symbol
         send(probe, command)
       end
