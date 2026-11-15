@@ -1,14 +1,66 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+require 'etc'
 require_relative 'test_helper'
 # wile: require 'cucumber'
 
 # Cucumber Tests runs the feature suite and flunks if any scenario fails.
 class TestCucumber < Test::Unit::TestCase
   def test_cucumber
+    if quiet?
+      batch_cucumber
+    else
+      normal_cucumber
+    end
+  end
+
+  private
+
+  def normal_cucumber
     res = system('cucumber', '-f', 'progress')
     flunk 'cucumber command not found!'.red if res.nil?
     flunk 'Rotten cucumber!'.red unless res
+  end
+
+  # :reek:UtilityFunction
+  def batch_worker(queue, state)
+    while (ff = queue.pop)
+      res = system('cucumber', '-f', 'progress', ff,
+                   out: File::NULL, err: File::NULL)
+      state[:mutex].synchronize { state[:failed] << ff } unless res
+    end
+  end
+
+  def run_workers(limit, queue)
+    state = { failed: [], mutex: Mutex.new }
+    Array.new(limit) do
+      Thread.new { batch_worker(queue, state) }
+    end.each(&:join)
+    state[:failed].sort
+  end
+
+  # :reek:UtilityFunction
+  def feature_queue
+    queue = Thread::Queue.new
+    Dir['features/*.feature'].each { queue << it }
+    queue.close
+    queue
+  end
+
+  def report_failures(failed)
+    return if failed.empty?
+
+    msg = failed.size == 1 ? failed.first : "\n#{failed.join("\n")}"
+    flunk "Rotten cucumber in: #{msg}".red
+  end
+
+  def batch_cucumber
+    res = system('cucumber', '--version', out: File::NULL, err: File::NULL)
+    flunk 'cucumber command not found!'.red if res.nil?
+
+    limit = [1, (Etc.nprocessors * 0.5).round].max
+    failed = run_workers(limit, feature_queue)
+    report_failures(failed)
   end
 end

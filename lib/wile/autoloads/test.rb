@@ -50,7 +50,7 @@ module Wile
 
     # :reek:TooManyStatements
     def self.batch_test(files, opt)
-      limit = [1, (Etc.nprocessors * 0.75).round].max
+      limit = [1, (Etc.nprocessors * 0.5).round].max
       queue = Thread::Queue.new
       prioritized_files(files).each { queue << it }
       queue.close
