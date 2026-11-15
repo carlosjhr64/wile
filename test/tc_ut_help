@@ -16,9 +16,9 @@ class TestUtHelp < Test::Unit::TestCase
   end
 
   def test_class_brackets_custom_task
-    help = Wile::Help[:hello]
+    help = Wile::Help[:example]
     assert_not_nil help
-    assert_match(/\A## wile hello ##\n/, help)
+    assert_match(/\A## wile example ##\n/, help)
     assert_includes help, 'Usage:'
   end
 

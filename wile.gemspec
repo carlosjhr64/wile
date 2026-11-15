@@ -45,7 +45,7 @@ Gem::Specification.new do |s|
     cache/.rubocop.yml
     cache/.ruby-version-floor
     cache/.ruby-version.erb
-    cache/.tasks/hello.rb
+    cache/.tasks/example.rb
     cache/.title.erb
     cache/.version
     cache/.wileignore
