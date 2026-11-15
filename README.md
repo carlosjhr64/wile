@@ -160,7 +160,7 @@ Run `wile list` and you'll get the entire list of available tasks.
 ```console
 $ wile list --format=dictionary #>>
 
-+ hello: prints Hello World
++ example: demo task
 + build: build gem pkg
 + bump: bump the version number
 + compare: compares project with template
