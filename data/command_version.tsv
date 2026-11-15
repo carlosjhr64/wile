@@ -170,7 +170,7 @@ pkill	pkill --version
 podman	podman --version
 pr	pr --version
 printenv	printenv --version
-printf	printf --version
+printf	:man
 ps	ps --version
 pstree	pstree --version
 pwck	:man

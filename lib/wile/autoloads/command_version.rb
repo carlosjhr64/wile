@@ -23,9 +23,7 @@ module Wile
     def empty? = @command_version.empty?
 
     def expected(command)
-      return nil unless @command_version.key?(command)
-
-      probe(command) || raise("Failed to determine version for #{command}")
+      self[command] || raise("Failed to determine version for #{command}")
     end
 
     def key?(command) = @command_version.key?(command)
@@ -37,17 +35,18 @@ module Wile
     def each(&) = @command_version.each(&)
 
     def [](command)
-      expected(command)
+      return nil unless (probe = @command_version[command])
+
+      probing(probe, command)
     rescue StandardError
       nil
     end
 
     def guess(command)
       %w[--version -v -V].each do |flag|
-        if (first_line = `#{command.sw} #{flag} 2>&1`.lines.first)
-          version = first_line[/\d+(\.\d+)?/]
-          return version if version
-        end
+        probe = "#{command.sw} #{flag}"
+        version = probing(probe, command)
+        return version if version
       end
       man(command)
     rescue StandardError
@@ -70,16 +69,23 @@ module Wile
     def man(cmd)
       return nil unless (last_line = `man #{cmd.sw} 2>/dev/null`.lines.last)
 
-      last_line[/\d+(\.\d+)?/]
+      scrape(last_line)
+    end
+
+    def scrape(str)
+      return nil if str.start_with?('sh:')
+
+      str[/\d+\.\d+/] || str[/[12]\d\d\d/] || str[/\d+/]
     end
 
     private
 
-    def probe(command)
-      case (probe = @command_version[command])
+    def probing(probe, command)
+      case probe
       when String
-        output = `#{probe} 2>&1`
-        output[/\d+(\.\d+)?/]
+        return nil unless (first_line = `#{probe} 2>&1`.strip.lines.first)
+
+        scrape(first_line) || man(command)
       when Symbol
         send(probe, command)
       end
