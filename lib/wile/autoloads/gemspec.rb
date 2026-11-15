@@ -2,6 +2,7 @@
 
 # Wile namespace.
 module Wile
+  # rubocop:disable-next Metrics/ClassLength
   # Gemspec class generates a gemspec file.
   # :reek:TooManyInstanceVariables :reek:MissingSafeMethod
   class Gemspec
@@ -123,14 +124,29 @@ module Wile
       name = cmd.name
       version = cmd.version
       req = if name == 'ruby'
-              "s.required_ruby_version = '~> #{ruby_floor(version)}'"
+              "s.required_ruby_version = #{ruby_requirement(version)}"
             else
               "s.requirements << '#{name}: #{version || '-'}'"
             end
       @gemspec << "  #{req}\n"
     end
 
-    # :reek:UtilityFunction
-    def ruby_floor(version) = "#{version.to_s[/\d+/] || '4'}.0"
+    # :reek:FeatureEnvy
+    def ruby_requirement(version)
+      floor = ruby_floor(version)
+      major = floor[/\d+/] || '4'
+      if floor.split('.').size >= 3
+        "'~> #{major}.0', '>= #{floor}'"
+      else
+        "'~> #{floor}'"
+      end
+    end
+
+    def ruby_floor(version)
+      file = File.join(@info.dirname, '.ruby-version-floor')
+      return File.read(file).strip if File.file?(file)
+
+      "#{version.to_s[/\d+/] || '4'}.0"
+    end
   end
 end

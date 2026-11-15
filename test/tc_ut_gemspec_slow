@@ -67,6 +67,12 @@ class TestUtGemspec < Test::Unit::TestCase
     verify_to_s_sections(content)
   end
 
+  def test_ruby_floor_and_requirement
+    assert_equal '4.0.0', @gemspec.send(:ruby_floor, '4.0.7')
+    assert_equal "'~> 4.0', '>= 4.0.0'",
+                 @gemspec.send(:ruby_requirement, '4.0.7')
+  end
+
   def test_update_bang
     with_quiet_io do
       Dir.mktmpdir { |tmp| verify_update_in_dir(tmp) }
@@ -86,6 +92,7 @@ class TestUtGemspec < Test::Unit::TestCase
     assert_match(/s\.require_paths = \['lib'\]/, content)
     assert_match(/^\s{2}s\.executables << 'wile'$/, content)
     assert_match(/s\.add_runtime_dependency 'colorize'/, content)
+    assert_match(/s\.required_ruby_version = '~> 4\.0', '>= 4\.0\.0'/, content)
     assert_match(/\nend\n\z/, content)
   end
 

@@ -539,6 +539,7 @@ flag
 flat_map
 float
 float_node
+floor
 flush
 fmt
 fn
@@ -970,6 +971,7 @@ ruby
 ruby_build_dir
 ruby_floor
 ruby_path
+ruby_requirement
 run
 run_cmd
 run_console

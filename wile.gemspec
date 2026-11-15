@@ -5,7 +5,7 @@ Gem::Specification.new do |s|
   s.homepage = 'https://github.com/carlosjhr64/wile'
   s.author   = 'CarlosJHR64'
   s.email    = 'carlosjhr64@gmail.com'
-  s.date     = '2026-11-14'
+  s.date     = '2026-11-15'
   s.licenses = ['MIT']
   ## DESCRIPTION ##
   s.summary  = <<~SUMMARY
@@ -172,7 +172,7 @@ Gem::Specification.new do |s|
   s.requirements << 'ncal: 2019'
   s.requirements << 'pandoc: 2.17'
   s.requirements << 'rbenv: 1.3'
-  s.required_ruby_version = '~> 4.0'
+  s.required_ruby_version = '~> 4.0', '>= 4.0.0'
   s.requirements << 'sudo: 1.9'
   s.requirements << 'tmux: 3.3'
   s.requirements << 'tput: 6.4'
