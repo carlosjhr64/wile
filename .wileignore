@@ -1,4 +1,3 @@
 ^(
-  (examples/)    |
-  (test/tc_lib_tests)
+examples
 )
