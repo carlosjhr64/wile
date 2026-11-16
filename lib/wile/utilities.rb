@@ -186,9 +186,10 @@ module Wile
       Gem::Version.new(version) >= Gem::Version.new(min_version)
     end
 
-    # Used in: bootstrap_ruby_rbenv (and verify_ruby_project_version!)
+    # Used in: bootstrap_ruby_rbenv, gemcheck
+    #          (and verify_ruby_project_version!)
     def rbenv_root
-      `rbenv root`.strip
+      `rbenv root 2>/dev/null`.strip
     end
 
     # Used in: bootstrap_ruby_gems

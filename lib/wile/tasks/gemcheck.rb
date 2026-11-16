@@ -21,9 +21,8 @@ module Wile
 
     private
 
-    # reuse: rbenv_root
     def rbenv_versions_prefix
-      root = `rbenv root 2>/dev/null`.strip
+      root = Utilities.rbenv_root
       prefix = File.join(root, 'versions')
       gemcmd = `rbenv which gem 2>/dev/null`.strip
       raise "Unexpected gem command: #{gemcmd}" unless
