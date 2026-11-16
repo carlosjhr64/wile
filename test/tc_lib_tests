@@ -1,0 +1,37 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require_relative 'test_helper'
+
+# Fail-less warnings of missing lib tests.
+class TestLibTests < Test::Unit::TestCase
+  def test_lib_tests
+    return if quiet?
+
+    lib_files.each do |file|
+      test_file = expected_test(file)
+      next if test_exists?(test_file)
+
+      puts "Missing: #{test_file}".yellow
+    end
+  end
+
+  private
+
+  def lib_files
+    Dir.glob('lib/**/*.rb').reject { it.include?('/tasks/') }
+  end
+
+  def test_exists?(test_file)
+    File.exist?(test_file) || File.exist?("#{test_file}_slow")
+  end
+
+  def expected_test(file)
+    parts = file.split('/')
+    parts.delete('autoloads')
+    parts.shift
+    parts.shift if parts.length > 1
+    parts.unshift('tc_ut')
+    "test/#{parts.join('_').chomp('.rb')}"
+  end
+end

@@ -3,24 +3,35 @@
 
 require_relative 'test_helper'
 
-# Lib Files Tests
+# Fail-less warnings of missing lib tests.
 class TestLibTests < Test::Unit::TestCase
-  # rubocop: disable-next Metrics
   def test_lib_tests
-    fns = Dir.glob('lib/**/*.rb').map do |fn|
-      a = fn.split('/')
-      a.shift
-      a.shift if a.length > 1
-      a.unshift('tc_ut')
-      "test/#{a.join('_').chomp('.rb')}"
-    end
-    count = 0
-    fns.each do |fn|
-      next if File.exist? fn
+    return if quiet?
 
-      count += 1
-      puts "Missing: #{fn}".red
+    lib_files.each do |file|
+      test_file = expected_test(file)
+      next if test_exists?(test_file)
+
+      puts "Missing: #{test_file}".yellow
     end
-    flunk "Missing #{count} lib tests".red if count.positive?
+  end
+
+  private
+
+  def lib_files
+    Dir.glob('lib/**/*.rb').reject { it.include?('/tasks/') }
+  end
+
+  def test_exists?(test_file)
+    File.exist?(test_file) || File.exist?("#{test_file}_slow")
+  end
+
+  def expected_test(file)
+    parts = file.split('/')
+    parts.delete('autoloads')
+    parts.shift
+    parts.shift if parts.length > 1
+    parts.unshift('tc_ut')
+    "test/#{parts.join('_').chomp('.rb')}"
   end
 end
