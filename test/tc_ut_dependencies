@@ -65,6 +65,18 @@ class TestUtDependencies < Test::Unit::TestCase
     assert_equal 'diff', match[1]
   end
 
+  def test_record_dep_with_commas
+    scrapes = Wile::Dependencies.send(:const_get, :DEPENDENCY_SCRAPES)
+    match = scrapes[0][0].match('# wile: os `diff,apt-get`')
+    assert_equal 'diff,apt-get', match[1]
+    gemset = Set.new
+    osset = Set.new
+    @deps.send(:record_dep, :gem, 'reek,rubocop', gemset, osset)
+    assert_equal Set['reek', 'rubocop'], gemset
+    @deps.send(:record_dep, :os, 'diff,apt-get', gemset, osset)
+    assert_equal Set['diff', 'apt-get'], osset
+  end
+
   def test_scrapes_regex_ignores_dotfiles
     scrapes = Wile::Dependencies.send(:const_get, :DEPENDENCY_SCRAPES)
     regex = scrapes[1][0]

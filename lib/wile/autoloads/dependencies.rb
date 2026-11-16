@@ -55,10 +55,10 @@ module Wile
     def irbrc? = File.file?('.irbrc') && Git.files.include?('.irbrc')
 
     DEPENDENCY_SCRAPES = [
-      [/^\s*#\s*wile:\s*os\s*`(\w[-\w.]*)`/, :os, 1],
+      [/^\s*#\s*wile:\s*os\s*`(\w[-\w.,]*)`/, :os, 1],
       [%r{^[^#]* `(\w[-\w.]*)\b[^/]}, :os, 1],
       [%r{\b(system|spawn)[\s(]["'](\w[-\w]+)\b[^/]}, :os, 2],
-      [/^\s*#\s*wile:\s*require\s*'([-\w]+)'/, :gem, 1],
+      [/^\s*#\s*wile:\s*require\s*'([-\w,]+)'/, :gem, 1],
       [%r{^[^#]*\brequire\s*'([-\w/]+)'}, :gem, 1],
       [%r{^[^#]*\bautoload\s+:\w+,\s*'([-\w/]+)'}, :gem, 1]
     ].freeze
@@ -96,11 +96,13 @@ module Wile
     end
 
     # :reek:ControlParameter :reek:LongParameterList
-    def record_dep(type, name, gemset, osset)
-      if type == :os
-        osset << name unless project_command?(name)
-      elsif name.split('/').first != @info.project
-        gemset << name
+    def record_dep(type, names, gemset, osset)
+      names.split(',').each do |name|
+        if type == :os
+          osset << name unless project_command?(name)
+        elsif name.split('/').first != @info.project
+          gemset << name
+        end
       end
     end
 

@@ -7,9 +7,9 @@ require_relative 'test_helper'
 # statements to ensure compatibility with Wile's dependency scraper.
 class TestDependencyScrapes < Test::Unit::TestCase
   DIRECTIVE = /^\s*#\s*wile:\s*require\b/
-  VALID_DIRECTIVE = /^\s*#\s*wile:\s*require\s+'[-\w]+'/
+  VALID_DIRECTIVE = /^\s*#\s*wile:\s*require\s+'[-\w,]+'/
   OS_DIRECTIVE = /^\s*#\s*wile:\s*os\b/
-  VALID_OS_DIRECTIVE = /^\s*#\s*wile:\s*os\s*`[-\w.]+`/
+  VALID_OS_DIRECTIVE = /^\s*#\s*wile:\s*os\s*`[-\w.,]+`/
   DOUBLE_QUOTE_REQUIRE = /\brequire(_relative)?\s*"/
   AUTOLOAD_CONST = /\bautoload\s+['"][A-Z]/
   AUTOLOAD_DOUBLE_QUOTE = /\bautoload\s+:\w+,\s*"/
@@ -30,8 +30,10 @@ class TestDependencyScrapes < Test::Unit::TestCase
   def test_valid_directive_lines
     assert_nil chk("# wile: require 'tmuxinator'")
     assert_nil chk("#   wile:   require   'colora'")
+    assert_nil chk("# wile: require 'reek,rubocop'")
     assert_nil chk('# wile: os `diff`')
     assert_nil chk('#   wile:   os   `dpkg-query`')
+    assert_nil chk('# wile: os `diff,apt-get`')
   end
 
   def test_invalid_require_lines
