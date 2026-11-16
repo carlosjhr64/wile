@@ -22,7 +22,7 @@ class TestUtCommandVersion < Test::Unit::TestCase
     assert_includes @cv.commands, 'ruby'
   end
 
-  def test_expected
+  def test_expected!
     assert_match(/\A\d+\.\d+/, @cv.expected!('git'))
     assert_raise(RuntimeError) { @cv.expected!('nonexistent_cmd_xyz') }
     with_home('/tmp/no_such_home_for_test_xyz') do
