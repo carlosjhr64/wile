@@ -94,11 +94,10 @@ module Wile
       prompt_and_install(missing, inventory.keys - [RUBY_VERSION])
     end
 
-    # reuse: confirm?,error!
     def prompt_and_install(missing, searched)
       gemcheck_report(missing, searched)
-      puts 'Would you like to install them all? (Y/n)'.yellow
-      exit(EX_NO) unless $stdin.gets&.strip&.match?(/^[Yy]/)
+      Utilities.confirm?('Would you like to install them all?') ||
+        Utilities.error!(EX_NO, 'Aborted.')
       gemcheck_install(missing)
       puts 'OK'.green
     end

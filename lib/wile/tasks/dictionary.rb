@@ -23,18 +23,14 @@ module Wile
     private
 
     # :reek:TooManyStatements
-    # reuse: confirm?
     def dictionary_ok?(options)
       return true if system 'test/tc_dictionary --verbose=silent'
 
       diff = String.disable_colorization ? %w[diff] : %w[diff --color]
       system(*diff, '.dictionary', 'tmp/.dictionary')
       return false if options.check? # Just checking
-
-      unless options.yes?
-        print 'Update dictionary (Yes/No)?: '.yellow
-        return false unless $stdin.gets&.match?(/^[Yy]/)
-      end
+      return false unless options.yes? ||
+                          Utilities.confirm?('Update dictionary?')
 
       FileUtils.cp 'tmp/.dictionary', '.dictionary'
       true

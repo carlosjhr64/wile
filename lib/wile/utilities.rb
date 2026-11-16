@@ -82,7 +82,8 @@ module Wile
 
     # Used in: bootstrap_fish, bootstrap_fisher_plugins,
     #          bootstrap_install_neovim, bootstrap_ruby_gems,
-    #          bootstrap_ruby_rbenv, bootstrap_system_commands
+    #          bootstrap_ruby_rbenv, bootstrap_system_commands,
+    #          dictionary, gemcheck, lexicon
     def confirm?(prompt)
       print "#{prompt.yellow} [y/N]: "
       $stdout.flush
@@ -95,7 +96,7 @@ module Wile
     # Used in: bootstrap_fish, bootstrap_fisher_plugins,
     #          bootstrap_install_neovim, bootstrap_ruby_gems,
     #          bootstrap_ruby_rbenv, bootstrap_system_commands,
-    #          maint_generate_cons
+    #          gemcheck, maint_generate_cons
     def error!(val, msg)
       warn msg.red
       exit val
