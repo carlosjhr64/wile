@@ -1,0 +1,31 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require_relative 'test_helper'
+
+# Fail-less warnings of missing cucumber task features.
+class TestTasksTest < Test::Unit::TestCase
+  def test_tasks_test
+    return if quiet?
+
+    task_files.each do |file|
+      feature = expected_feature(file)
+      next if File.exist?(feature)
+
+      puts "Missing: #{feature}".yellow
+    end
+  end
+
+  private
+
+  def task_files
+    Dir.glob('lib/**/tasks/*.rb')
+  end
+
+  def expected_feature(file)
+    parts = file.split('/')
+    project = parts[1]
+    task = File.basename(file, '.rb')
+    "features/#{project}_#{task}.feature"
+  end
+end

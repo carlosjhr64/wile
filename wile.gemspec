@@ -5,7 +5,7 @@ Gem::Specification.new do |s|
   s.homepage = 'https://github.com/carlosjhr64/wile'
   s.author   = 'CarlosJHR64'
   s.email    = 'carlosjhr64@gmail.com'
-  s.date     = '2026-11-15'
+  s.date     = '2026-11-16'
   s.licenses = ['MIT']
   ## DESCRIPTION ##
   s.summary  = <<~SUMMARY
@@ -80,6 +80,7 @@ Gem::Specification.new do |s|
     cache/test/tc_rubocop
     cache/test/tc_ruby_syntax
     cache/test/tc_tags
+    cache/test/tc_tasks_test
     cache/test/tc_version
     cache/test/tc_weird_filenames
     cache/test/test_helper.rb
