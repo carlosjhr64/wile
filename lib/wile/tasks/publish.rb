@@ -43,11 +43,12 @@ module Wile
       Project.archive pkg
     end
 
-    # :reek:UtilityFunction
+    # :reek:TooManyStatements :reek:UtilityFunction
     def project_ready!
       Git.clean!
       gmu = GemUtils.new
-      gmu.clean! && gmu.ready!
+      gmu.clean!
+      gmu.ready!
       Test.test!
       gmu
     end
