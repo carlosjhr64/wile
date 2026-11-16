@@ -2,8 +2,8 @@
 
 # Wile namespace.
 module Wile
-  # rubocop:disable-next Metrics/ClassLength
   # Gemspec class generates a gemspec file.
+  # rubocop:disable-next Metrics/ClassLength
   # :reek:TooManyInstanceVariables :reek:MissingSafeMethod
   class Gemspec
     attr_reader :rungems, :devgems, :ros, :dos, :gemspec

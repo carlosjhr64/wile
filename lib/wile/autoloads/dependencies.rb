@@ -2,8 +2,8 @@
 
 # Wile namespace.
 module Wile
-  # rubocop:disable-next Metrics/ClassLength
   # Project module provides methods to manage project files.
+  # rubocop:disable-next Metrics/ClassLength
   # :reek:TooManyMethods
   class Dependencies
     using WileRefinements
