@@ -56,7 +56,7 @@ module Wile
       nil
     end
 
-    # Used in: bootstrap_system_commands
+    # Used in: bootstrap_system_commands (and verify_utilities!)
     def missing_commands(commands)
       commands.reject { |cmd| command_available?(cmd) }
     end
@@ -93,7 +93,8 @@ module Wile
 
     # Used in: bootstrap_fish, bootstrap_fisher_plugins,
     #          bootstrap_install_neovim, bootstrap_ruby_gems,
-    #          bootstrap_ruby_rbenv, bootstrap_system_commands
+    #          bootstrap_ruby_rbenv, bootstrap_system_commands,
+    #          maint_generate_cons
     def error!(val, msg)
       warn msg.red
       exit val
@@ -123,7 +124,11 @@ module Wile
              "Error: Wile is meant to be run on Linux (detected: #{os}).")
     end
 
-    # Used in: bootstrap_ruby_gems
+    # Used in: bootstrap_ruby_gems, maint_generate_cons,
+    #          tasks: build, bump, compare, cp, dependencies,
+    #          dictionary, gemfile, info, install, lexicon,
+    #          note, nvim, publish, review, ruby, smell, tc,
+    #          test, todo, update
     def verify_project_root!(root_files = ROOT_FILES)
       root_files.each do |file|
         next if File.file?(file)
