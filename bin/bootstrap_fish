@@ -112,8 +112,7 @@ class BootstrapFish
           workflows.
         - Project directories include `.config.fish`, `.greeting`, `.prompt`,
           and `.title` to configure your local project environment.
-        - `wile requirements` checks for `fish` (>= #{FISH_MIN_VERSION}) and
-          its plugins.
+          The `theme-local` plugin sources `.config.fish` at greeting.
 
     MSG
   end

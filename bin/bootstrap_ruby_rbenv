@@ -119,7 +119,6 @@ class BootstrapRubyRbenv
         `rbenv` Ruby environment without requiring root (`sudo`) privileges.
       - `wile gemcheck` inspects `~/.rbenv/versions` to compare installed gems
         across your Ruby versions.
-      - `wile requirements` checks for `rbenv` (>= 1.3).
 
   TEXT
 
