@@ -69,10 +69,8 @@ module Wile
       system2 "gem install --no-document --local #{pkg}"
     end
 
-    # reuse: gem_installed?
     def installed?
-      `gem list #{project.sw} --exact`
-        .scan(/\d+\.\d+\.\d+/).any? { it == version }
+      Utilities.gem_installed?(project, version:)
     end
 
     def uninstall

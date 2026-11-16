@@ -81,6 +81,13 @@ class TestUtGemUtils < Test::Unit::TestCase
     assert_raise(RuntimeError) { @gmu.push!('bad;pkg') }
   end
 
+  def test_installed
+    assert_false @gmu.installed?
+    require 'rake'
+    info = Struct.new(:project, :version).new('rake', Rake::VERSION)
+    assert Wile::GemUtils.new(info).installed?
+  end
+
   private
 
   def with_quiet_io

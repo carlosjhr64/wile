@@ -230,10 +230,11 @@ module Wile
       `fish -c 'fisher --version' 2>/dev/null`[/\d+\.\d+/]
     end
 
-    # Used in: bootstrap_ruby_rbenv
-    def gem_installed?(gem_name, env: {})
-      system(env, 'gem', 'list', '-i', "^#{gem_name}$",
-             out: File::NULL, err: File::NULL)
+    # Used in: bootstrap_ruby_rbenv, gem_utils, gemcheck
+    def gem_installed?(gem_name, version: nil, env: {})
+      args = ['gem', 'list', '-i', "^#{gem_name}$"]
+      args.push('-v', version) if version
+      system(env, *args, out: File::NULL, err: File::NULL)
     end
 
     # --- Subprocess Execution ---
