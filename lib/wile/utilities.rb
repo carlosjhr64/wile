@@ -72,7 +72,8 @@ module Wile
              "#{missing.join(', ')}")
     end
 
-    # Used in: bootstrap_fish, bootstrap_fisher_plugins, bootstrap_ruby_rbenv
+    # Used in: bootstrap_fish, bootstrap_fisher_plugins, bootstrap_ruby_rbenv,
+    #          manpage
     def command_available?(cmd)
       !which(cmd).nil?
     end
@@ -249,7 +250,7 @@ module Wile
     end
 
     # Used in: bootstrap_install_neovim, bootstrap_ruby_gems,
-    #          bootstrap_ruby_rbenv
+    #          bootstrap_ruby_rbenv, gemcheck
     def run_cmd!(*cmd, env: {})
       return if system(env, *cmd)
 

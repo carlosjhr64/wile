@@ -42,9 +42,9 @@ module Wile
        @md_path, '-o', @roff_path]
     end
 
-    # reuse: command_available?
+    # :reek:UtilityFunction
     def pandoc?
-      system('which pandoc', out: File::NULL, err: File::NULL)
+      Utilities.command_available?('pandoc')
     end
   end
 end

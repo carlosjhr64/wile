@@ -102,13 +102,13 @@ module Wile
       puts 'OK'.green
     end
 
-    # reuse: run_cmd!
+    # :reek:UtilityFunction
     def gemcheck_install(missing)
       missing.each_key do |name, major|
         req = "~> #{major}"
         next if Utilities.gem_installed?(name, version: req)
 
-        system('gem', 'install', name, '-v', req) || exit(EX_UNAVAILABLE)
+        Utilities.run_cmd!('gem', 'install', name, '-v', req)
       end
     end
 
