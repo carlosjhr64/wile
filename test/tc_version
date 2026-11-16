@@ -65,6 +65,26 @@ class TestVersion < Test::Unit::TestCase
     assert_equal(ruby_version, content[/Ruby version:.*?(\d+\.\d+)/, 1])
   end
 
+  def test_ruby_version
+    return unless File.exist?('.ruby-version')
+
+    content = File.read('.ruby-version').strip
+    assert_match(/\A\d+\.\d+\.\d+\z/, content)
+  end
+
+  def test_ruby_version_floor
+    return unless File.exist?('.ruby-version-floor')
+
+    floor = File.read('.ruby-version-floor').strip
+    assert_match(/\A\d+\.\d+(\.\d+)?\z/, floor)
+    active = Gem::Version.new(RUBY_VERSION)
+    assert_operator(Gem::Version.new(floor), :<=, active)
+    return unless File.exist?('.ruby-version')
+
+    pinned = Gem::Version.new(File.read('.ruby-version').strip)
+    assert_operator(Gem::Version.new(floor), :<=, pinned)
+  end
+
   private
 
   def version
