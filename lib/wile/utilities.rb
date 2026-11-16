@@ -47,7 +47,8 @@ module Wile
       end
     end
 
-    # Used in: bootstrap_fish, bootstrap_install_neovim, bootstrap_ruby_rbenv
+    # Used in: bootstrap_fish, bootstrap_install_neovim, bootstrap_ruby_rbenv,
+    #          dependencies
     def which(cmd)
       paths.each do |dir|
         bin = File.join(dir, cmd)

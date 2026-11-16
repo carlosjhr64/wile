@@ -148,10 +148,8 @@ module Wile
     end
 
     # :reek:TooManyStatements
-    # reuse: which
     def resolve_os_which(cmd)
-      fn = `which #{cmd.sw}`.strip
-      if fn.empty?
+      unless (fn = Utilities.which(cmd))
         warn "Missing command: #{cmd}".red if @verbose
         return GemInfo.new(nil, nil, nil, nil, cmd)
       end
