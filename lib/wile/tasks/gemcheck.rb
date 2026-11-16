@@ -21,6 +21,7 @@ module Wile
 
     private
 
+    # reuse: rbenv_root
     def rbenv_versions_prefix
       root = `rbenv root 2>/dev/null`.strip
       prefix = File.join(root, 'versions')
@@ -94,6 +95,7 @@ module Wile
       prompt_and_install(missing, inventory.keys - [RUBY_VERSION])
     end
 
+    # reuse: confirm?,error!
     def prompt_and_install(missing, searched)
       gemcheck_report(missing, searched)
       puts 'Would you like to install them all? (Y/n)'.yellow
@@ -102,6 +104,7 @@ module Wile
       puts 'OK'.green
     end
 
+    # reuse: gem_installed?,run_cmd!
     def gemcheck_install(missing)
       missing.each_key do |name, major|
         req = "~> #{major}"

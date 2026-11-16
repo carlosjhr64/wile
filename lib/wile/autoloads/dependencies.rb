@@ -148,6 +148,7 @@ module Wile
     end
 
     # :reek:TooManyStatements
+    # reuse: which
     def resolve_os_which(cmd)
       fn = `which #{cmd.sw}`.strip
       if fn.empty?

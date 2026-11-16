@@ -23,6 +23,7 @@ module Wile
     private
 
     # :reek:TooManyStatements
+    # reuse: confirm?
     def lexicon_ok?(options)
       return true if system 'test/tc_lexicon --verbose=silent'
 

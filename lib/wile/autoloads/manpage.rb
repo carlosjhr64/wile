@@ -42,6 +42,7 @@ module Wile
        @md_path, '-o', @roff_path]
     end
 
+    # reuse: command_available?
     def pandoc?
       system('which pandoc', out: File::NULL, err: File::NULL)
     end
