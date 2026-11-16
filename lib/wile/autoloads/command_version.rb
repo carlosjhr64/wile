@@ -4,6 +4,7 @@
 module Wile
   # This class knows how to get the version of a command.
   # :reek:TooManyMethods
+  # :reek:MissingSafeMethod
   class CommandVersion
     using UtilitiesRefinements
     include Enumerable
@@ -23,7 +24,7 @@ module Wile
 
     def empty? = @command_version.empty?
 
-    def expected(command)
+    def expected!(command)
       self[command] || raise("Failed to determine version for #{command}")
     end
 

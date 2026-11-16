@@ -23,10 +23,10 @@ class TestUtCommandVersion < Test::Unit::TestCase
   end
 
   def test_expected
-    assert_match(/\A\d+\.\d+/, @cv.expected('git'))
-    assert_raise(RuntimeError) { @cv.expected('nonexistent_cmd_xyz') }
+    assert_match(/\A\d+\.\d+/, @cv.expected!('git'))
+    assert_raise(RuntimeError) { @cv.expected!('nonexistent_cmd_xyz') }
     with_home('/tmp/no_such_home_for_test_xyz') do
-      assert_raise(RuntimeError) { @cv.expected('carlosjhr64/theme-local') }
+      assert_raise(RuntimeError) { @cv.expected!('carlosjhr64/theme-local') }
     end
   end
 
