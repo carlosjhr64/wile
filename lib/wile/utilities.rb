@@ -12,8 +12,8 @@ module Wile
 
     module_function
 
-    # category: lookup
     # --- Path & Executable Lookup ---
+    # category: lookup
 
     # Used in: missing_packages (internal helper)
     def package_installed?(pkg)
@@ -76,8 +76,8 @@ module Wile
       !which(cmd).nil?
     end
 
-    # category: prompts
     # --- User Prompts & Error Handling ---
+    # category: prompts
 
     # Used in: bootstrap_fish, bootstrap_fisher_plugins,
     #          bootstrap_install_neovim, bootstrap_ruby_gems,
@@ -99,8 +99,8 @@ module Wile
       exit val
     end
 
-    # category: environment
     # --- Platform & Environment Checks ---
+    # category: environment
 
     ROOT_FILES = %w[.version .ruby-version Gemfile].freeze
 
@@ -208,8 +208,8 @@ module Wile
       MSG
     end
 
-    # category: probing
     # --- Version Probing ---
+    # category: probing
 
     # Used in: bootstrap_fish, bootstrap_fisher_plugins
     def fish_version
@@ -229,8 +229,8 @@ module Wile
              out: File::NULL, err: File::NULL)
     end
 
-    # category: execution
     # --- Subprocess Execution ---
+    # category: execution
 
     # Used in: bootstrap_fisher_plugins
     def run_fish!(cmd)

@@ -9,6 +9,8 @@ require 'prism'
 # without quote or delimiter balancing.
 class TestComments < Test::Unit::TestCase
   FORBIDDEN = %r{['"/)\}\]]}
+  MAGIC = /^\s*# :?[a-z]\w*:/
+  COMMENT = /^\s*#/
 
   def test_comments
     errors = ruby_files.sum { check_file(it) }
@@ -20,6 +22,13 @@ class TestComments < Test::Unit::TestCase
     flunk
   end
 
+  def test_magic_comments
+    errors = ruby_files.sum { check_magic_comments(it) }
+    return if errors.zero?
+
+    flunk 'Magic comments cannot be followed by non-magic comments.'.red
+  end
+
   private
 
   def check_file(filename)
@@ -29,6 +38,16 @@ class TestComments < Test::Unit::TestCase
     comments.count do |comment|
       line = lines[comment.location.start_line - 1]
       bad_comment?(filename, comment, line)
+    end
+  end
+
+  def check_magic_comments(filename)
+    lines = File.readlines(filename)
+    lines.each_with_index.count do |line, idx|
+      next false unless MAGIC.match?(line)
+
+      next_line = lines[idx + 1]
+      bad_magic_follow?(filename, idx + 2, next_line)
     end
   end
 
@@ -44,5 +63,13 @@ class TestComments < Test::Unit::TestCase
 
   def puts_blue(filename, line_number, comment_line)
     puts "#{filename}:#{line_number}:#{comment_line.chomp}".blue
+  end
+
+  def bad_magic_follow?(filename, line_number, next_line)
+    return false unless next_line && COMMENT.match?(next_line)
+    return false if MAGIC.match?(next_line)
+
+    puts_blue(filename, line_number, next_line)
+    true
   end
 end

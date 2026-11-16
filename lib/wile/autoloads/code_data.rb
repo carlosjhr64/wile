@@ -26,8 +26,8 @@ module Wile
     # category: index
     def dependency_index(name, dependency) = @index["#{name}-#{dependency}"]
 
-    # category: table
     # Number of lines in the method:
+    # category: table
     def size(name)         = @data[name][:size]
     # Set by category comment, private, or defaulted to public:
     def category(name)     = @data[name][:category]
