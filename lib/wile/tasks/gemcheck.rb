@@ -102,13 +102,15 @@ module Wile
       puts 'OK'.green
     end
 
-    # :reek:UtilityFunction
+    # :reek:NestedIterators :reek:UtilityFunction
     def gemcheck_install(missing)
       missing.each_key do |name, major|
         req = "~> #{major}"
         next if Utilities.gem_installed?(name, version: req)
 
-        Utilities.run!('gem', 'install', name, '-v', req)
+        Utilities.run('gem', 'install', name, '-v', req) do |code, msg|
+          raise "#{EX_CODES.key(code)}: #{msg}"
+        end
       end
     end
 
