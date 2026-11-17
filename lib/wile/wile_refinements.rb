@@ -50,16 +50,6 @@ module Wile
       end
     end
 
-    # category: kernel
-
-    refine Kernel do
-      # :reek:UncommunicativeMethodName system2
-      def system2(string)
-        warn string.blue
-        system(string)
-      end
-    end
-
     # category: object
 
     refine Object do

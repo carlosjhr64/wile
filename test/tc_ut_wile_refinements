@@ -74,17 +74,6 @@ class TestUtWileRefinements < Test::Unit::TestCase
     end
   end
 
-  # Verifies Kernel#system2 prints the command to $stderr and runs system().
-  # :reek:TooManyStatements
-  def test_kernel_system2
-    orig_stderr = $stderr
-    $stderr = StringIO.new
-    assert system2('true')
-    assert_match(/true/, $stderr.string)
-  ensure
-    $stderr = orig_stderr
-  end
-
   def test_object_as
     result = 5.as { |val| val * 3 }
     assert_equal 15, result
