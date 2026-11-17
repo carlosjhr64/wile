@@ -108,7 +108,7 @@ module Wile
         req = "~> #{major}"
         next if Utilities.gem_installed?(name, version: req)
 
-        Utilities.run_cmd!('gem', 'install', name, '-v', req)
+        Utilities.run!('gem', 'install', name, '-v', req)
       end
     end
 

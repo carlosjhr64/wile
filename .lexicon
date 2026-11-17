@@ -972,7 +972,6 @@ ruby_floor
 ruby_path
 ruby_requirement
 run
-run_cmd
 run_console
 run_fish
 run_workers

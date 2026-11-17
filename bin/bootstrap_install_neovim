@@ -113,13 +113,13 @@ class BootstrapInstallNeovim
 
   def download_archive!(archive)
     puts "Downloading #{DOWNLOAD_URL}...".gray
-    run_cmd!('curl', '-fL', '--progress-bar', '-o', archive, DOWNLOAD_URL)
+    run!('curl', '-fL', '--progress-bar', '-o', archive, DOWNLOAD_URL)
   end
 
   def extract_archive!(archive)
     FileUtils.rm_rf(CLEAN_DIRS)
     FileUtils.mkdir_p(LOCAL_DIR)
-    run_cmd!('tar', '-C', LOCAL_DIR, '--strip-components=1', '-xzf', archive)
+    run!('tar', '-C', LOCAL_DIR, '--strip-components=1', '-xzf', archive)
   end
 
   def verify_checksum!(archive)

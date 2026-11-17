@@ -198,7 +198,7 @@ class BootstrapRubyRbenv
     end
 
     if confirm?("Clone #{RBENV_URL} into #{rbenv_dir}?")
-      run_cmd!('git', 'clone', RBENV_URL, rbenv_dir)
+      run!('git', 'clone', RBENV_URL, rbenv_dir)
     else
       warn 'Aborted. You can install it manually with:'
       warn "  git clone #{RBENV_URL} ~/.rbenv"
@@ -239,7 +239,7 @@ class BootstrapRubyRbenv
     prompt = "Configure #{user_shell} for rbenv via " \
              "'#{rbenv_bin} init #{user_shell}'?"
     if confirm?(prompt)
-      run_cmd!(rbenv_bin, 'init', user_shell)
+      run!(rbenv_bin, 'init', user_shell)
     else
       warn 'Aborted. Configure your shell manually:'
       print_manual_rbenv_init('~/.rbenv/bin/rbenv')
@@ -296,7 +296,7 @@ class BootstrapRubyRbenv
     TEXT
     prompt = "Clone #{RUBY_BUILD_URL} into #{ruby_build_dir}?"
     if confirm?(prompt)
-      run_cmd!('git', 'clone', RUBY_BUILD_URL, ruby_build_dir)
+      run!('git', 'clone', RUBY_BUILD_URL, ruby_build_dir)
     else
       warn "Aborted. You can install it manually with:\n  " \
            "git clone #{RUBY_BUILD_URL} \"#{ruby_build_dir}\""
@@ -340,8 +340,8 @@ class BootstrapRubyRbenv
   def prompt_target_ruby_install!(target)
     puts "Ruby #{target} (specified in .ruby-version) is not installed.".yellow
     if confirm?("Install Ruby #{target} via rbenv now?")
-      run_cmd!('rbenv', 'install', target)
-      run_cmd!('rbenv', 'rehash')
+      run!('rbenv', 'install', target)
+      run!('rbenv', 'rehash')
     else
       warn "Aborted. You can install it later with: rbenv install #{target}"
       exit EX_NO
@@ -368,6 +368,6 @@ unless missing_postamble_gems.empty?
     Wile::Utilities.error!(Wile::Sysexits::EX_NO, 'Aborted.')
   end
 
-  Wile::Utilities.run_cmd!('gem', 'install', *missing_postamble_gems, env:)
+  Wile::Utilities.run!('gem', 'install', *missing_postamble_gems, env:)
   system(env, 'rbenv', 'rehash') if Wile::Utilities.command_available?('rbenv')
 end

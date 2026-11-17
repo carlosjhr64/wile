@@ -251,7 +251,7 @@ module Wile
 
     # Used in: bootstrap_install_neovim, bootstrap_ruby_gems,
     #          bootstrap_ruby_rbenv, gemcheck
-    def run_cmd!(*cmd, env: {})
+    def run!(*cmd, env: {})
       return if system(env, *cmd)
 
       prefix = env.map { |key, val| "#{key}=#{val.sw} " }.join
