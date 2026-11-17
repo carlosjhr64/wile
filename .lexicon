@@ -334,6 +334,7 @@ cmd
 cmd_index
 cmd_ver
 cmp
+code
 col
 collect_gems
 collect_trigrams
@@ -399,6 +400,7 @@ date
 def_body
 def_scope
 default_external
+default_run_msg
 delete
 delete_at
 delete_if

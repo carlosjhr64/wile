@@ -31,7 +31,7 @@ class TestUtUtilities < Test::Unit::TestCase
       Wile::Utilities.run!('false', env: { 'FOO' => 'bar' })
     end
     assert_equal EX_OSERR, status
-    assert_match(/Error: 'FOO=bar false' failed\./, err)
+    assert_match(/Error: 'FOO=bar false' failed \(exit 1\)\./, err)
   end
 
   def test_run_custom_sysexit_and_msg
@@ -43,17 +43,19 @@ class TestUtUtilities < Test::Unit::TestCase
   end
 
   def test_run_infers_unavailable
-    _err, status = capture_exit do
+    err, status = capture_exit do
       Wile::Utilities.run!('nonexistent_cmd_xyz_123')
     end
     assert_equal EX_UNAVAILABLE, status
+    assert_match(/\(exit 127\)\./, err)
   end
 
   def test_run_infers_noperm
     Tempfile.create('nonexec') do |file|
       File.chmod(0o644, file.path)
-      _err, status = capture_exit { Wile::Utilities.run!(file.path) }
+      err, status = capture_exit { Wile::Utilities.run!(file.path) }
       assert_equal EX_NOPERM, status
+      assert_match(/\(exit 127\)\./, err)
     end
   end
 

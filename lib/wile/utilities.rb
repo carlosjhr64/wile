@@ -260,6 +260,14 @@ module Wile
         .fetch($CHILD_STATUS&.exitstatus, EX_OSERR)
     end
 
+    # Used in: run! (internal helper)
+    def default_run_msg(cmd, env, sysexit)
+      prefix = env.map { |key, val| "#{key}=#{val.sw} " }.join
+      code = $CHILD_STATUS&.exitstatus
+      info = code ? "exit #{code}" : "sysexit #{sysexit}"
+      "Error: '#{prefix}#{cmd.join(' ')}' failed (#{info})."
+    end
+
     # Used in: bootstrap_install_neovim, bootstrap_ruby_gems,
     #          bootstrap_ruby_rbenv, gemcheck
     # :reek:BooleanParameter
@@ -269,9 +277,8 @@ module Wile
       opts = stderr ? {} : { err: File::NULL }
       return if (res = system(env, *cmd, **opts))
 
-      prefix = env.map { |key, val| "#{key}=#{val.sw} " }.join
-      msg ||= "Error: '#{prefix}#{cmd.join(' ')}' failed."
-      error!(sysexit || infer_sysexit(cmd, res), msg)
+      sysexit ||= infer_sysexit(cmd, res)
+      error!(sysexit, msg || default_run_msg(cmd, env, sysexit))
     end
 
     # Used in: bootstrap_fish, bootstrap_ruby_rbenv, bootstrap_system_commands
