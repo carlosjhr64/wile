@@ -97,7 +97,7 @@ module Wile
     def prompt_and_install(missing, searched)
       gemcheck_report(missing, searched)
       Utilities.confirm?('Would you like to install them all?') ||
-        Utilities.error!(EX_NO, 'Aborted.')
+        raise('Aborted.')
       gemcheck_install(missing)
       puts 'OK'.green
     end
