@@ -1062,7 +1062,6 @@ symbol_node
 synchronize
 sysexit
 system
-system2
 system_commands_check
 tag
 tap

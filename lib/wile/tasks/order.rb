@@ -4,9 +4,9 @@
 # Suggests an order to your methods.
 # Sort types:
 # * bcmv:  best combination move
-# * nswp:  neighbour swap
+# * nswp:  neighbor swap
 # * cswp:  combination swap
-# * bnswp: best neighbour swap
+# * bnswp: best neighbor swap
 # * bcswp: best combination swap
 # * bprm:  best permutation
 # Specials:
