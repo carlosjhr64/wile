@@ -6,9 +6,29 @@ require 'tempfile'
 require_relative 'test_helper'
 require_relative '../lib/wile'
 
-# Unit tests for Wile::Utilities.run!.
+# Unit tests for Wile::Utilities.run and run!.
 class TestUtUtilities < Test::Unit::TestCase
   include Wile::Sysexits
+
+  def test_safe_run_boolean_and_block
+    assert Wile::Utilities.run('true')
+    assert_false Wile::Utilities.run('false')
+
+    yielded = nil
+    res = Wile::Utilities.run('false') { |code, msg| yielded = [code, msg] }
+    assert_false res
+    assert_equal EX_OSERR, yielded[0]
+    assert_match(/Error: 'false' failed \(exit 1\)\./, yielded[1])
+  end
+
+  def test_run_echo
+    prev = $stderr
+    $stderr = StringIO.new
+    assert Wile::Utilities.run('true', echo: true)
+    assert_match(/true/, $stderr.string)
+  ensure
+    $stderr = prev
+  end
 
   def test_run_success_and_env
     assert_nothing_raised do

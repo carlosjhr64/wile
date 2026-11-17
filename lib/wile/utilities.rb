@@ -3,6 +3,7 @@
 # Wile namespace.
 module Wile
   # Utility functions collected and harmonized from bin/bootstrap_* scripts.
+  # :reek:DataClump
   # :reek:NilCheck
   # :reek:TooManyStatements
   # rubocop:disable-next Metrics/ModuleLength
@@ -260,12 +261,34 @@ module Wile
         .fetch($CHILD_STATUS&.exitstatus, EX_OSERR)
     end
 
+    # Used in: run, default_run_msg (internal helper)
+    def format_cmd(cmd, env)
+      prefix = env.map { |key, val| "#{key}=#{val.sw} " }.join
+      "#{prefix}#{cmd.join(' ')}"
+    end
+
     # Used in: run! (internal helper)
     def default_run_msg(cmd, env, sysexit)
-      prefix = env.map { |key, val| "#{key}=#{val.sw} " }.join
       code = $CHILD_STATUS&.exitstatus
       info = code ? "exit #{code}" : "sysexit #{sysexit}"
-      "Error: '#{prefix}#{cmd.join(' ')}' failed (#{info})."
+      "Error: '#{format_cmd(cmd, env)}' failed (#{info})."
+    end
+
+    # Used in: run!
+    # :reek:BooleanParameter
+    # :reek:ControlParameter
+    # :reek:LongParameterList
+    # rubocop:disable-next Naming/PredicateMethod
+    def run(*cmd, stderr: true, echo: false, env: {})
+      warn format_cmd(cmd, env).gray if echo
+      opts = stderr ? {} : { err: File::NULL }
+      return true if (res = system(env, *cmd, **opts))
+
+      if block_given?
+        sysexit = infer_sysexit(cmd, res)
+        yield sysexit, default_run_msg(cmd, env, sysexit)
+      end
+      false
     end
 
     # Used in: bootstrap_install_neovim, bootstrap_ruby_gems,
@@ -273,12 +296,11 @@ module Wile
     # :reek:BooleanParameter
     # :reek:ControlParameter
     # :reek:LongParameterList
-    def run!(*cmd, sysexit: nil, msg: nil, stderr: true, env: {})
-      opts = stderr ? {} : { err: File::NULL }
-      return if (res = system(env, *cmd, **opts))
-
-      sysexit ||= infer_sysexit(cmd, res)
-      error!(sysexit, msg || default_run_msg(cmd, env, sysexit))
+    # rubocop:disable-next Metrics/ParameterLists
+    def run!(*cmd, sysexit: nil, msg: nil, stderr: true, echo: false, env: {})
+      run(*cmd, stderr:, echo:, env:) do |inferred, default_msg|
+        error!(sysexit || inferred, msg || default_msg)
+      end
     end
 
     # Used in: bootstrap_fish, bootstrap_ruby_rbenv, bootstrap_system_commands

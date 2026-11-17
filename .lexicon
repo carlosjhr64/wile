@@ -285,6 +285,7 @@ bin
 binding
 blk
 block
+block_given
 blue
 bnswp
 bold
@@ -400,6 +401,7 @@ date
 def_body
 def_scope
 default_external
+default_msg
 default_run_msg
 delete
 delete_at
@@ -474,6 +476,7 @@ each_pair
 each_slice
 each_with_index
 each_with_object
+echo
 elapsed
 email
 emit_call
@@ -550,6 +553,7 @@ fnm
 force
 foreach
 format
+format_cmd
 format_gems
 formatter
 found
@@ -625,6 +629,7 @@ includes
 independent
 index
 infer_sysexit
+inferred
 info
 ingest
 init
