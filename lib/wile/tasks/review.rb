@@ -28,7 +28,6 @@ module Wile
   # :reek:TooManyInstanceVariables
   class Review
     using UtilitiesRefinements
-    include Sysexits
 
     AVAILABLE_CHECKS = %i[content order reek rubocop].freeze
 
@@ -46,7 +45,7 @@ module Wile
     end
 
     def run
-      loop { review_do }
+      catch(:quit) { loop { review_do } }
     end
 
     private
@@ -90,7 +89,7 @@ module Wile
 
     def review_response_cases(response, size = @files.size)
       case response
-      when 'q', 'Q' then exit(EX_OK)
+      when 'q', 'Q' then throw(:quit)
       when '', 'n', 'N' then @index = (@index + 1) % size
       when 'p', 'P' then @index = (@index - 1) % size
       when 'r', 'R' then nil

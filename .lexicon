@@ -305,6 +305,7 @@ candidates
 capitalize
 casgn
 cat
+catch
 category
 category_set
 cdt
@@ -904,6 +905,7 @@ qc_name
 qc_symmetric
 queue
 quiet
+quit
 raise
 ranks
 raw
@@ -1082,6 +1084,7 @@ test_files
 tests
 text
 tf
+throw
 timeout
 times
 title
