@@ -16,8 +16,7 @@ module Wile
       Usage.new(options, *DICTIONARY_USAGE)
       return puts 'OK'.green if dictionary_ok?(options)
 
-      puts 'Fail'.red
-      exit(EX_FAIL)
+      raise 'Fail'
     end
 
     private

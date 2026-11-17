@@ -18,8 +18,7 @@ module Wile
 
     def oscheck(options)
       Usage.new(options, *OSCHECK_USAGE)
-      failed = oscheck_do(options.all?)
-      exit(EX_FAIL) if failed
+      raise if oscheck_do(options.all?)
     end
 
     private

@@ -15,8 +15,7 @@ module Wile
     def content(options)
       files = content_files(options)
       return content_dump(files) if options.dump?
-
-      exit(EX_FAIL) if Content.new(files, options).red?
+      raise 'Content check failed.' if Content.new(files, options).red?
     end
 
     private

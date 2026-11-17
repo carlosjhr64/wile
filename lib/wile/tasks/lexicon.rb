@@ -16,8 +16,7 @@ module Wile
       Usage.new(options, *LEXICON_USAGE)
       return puts 'OK'.green if lexicon_ok?(options)
 
-      puts 'Fail'.red
-      exit(EX_FAIL)
+      raise 'Fail'
     end
 
     private
