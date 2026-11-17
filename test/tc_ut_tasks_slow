@@ -54,8 +54,8 @@ FakeGmu = Struct.new(:calls, :clean_fails, :ready_fails) do
 
   def build! = calls << :build!
   def installed? = true
-  def uninstall = calls << :uninstall
-  def install = calls << :install
+  def uninstall! = calls << :uninstall!
+  def install! = calls << :install!
   def rm_pkg = calls << :rm_pkg
 end
 
@@ -161,11 +161,11 @@ class TestUtTasks < Test::Unit::TestCase
   def test_install_flow
     TASKS.install(fake_options([], force: true), gmu = FakeGmu.new([]),
                   git = FakeGit.new([]))
-    assert_equal %i[build! uninstall install rm_pkg], gmu.calls
+    assert_equal %i[build! uninstall! install! rm_pkg], gmu.calls
     assert_empty git.calls
     TASKS.install(fake_options([], force: false), gmu = FakeGmu.new([]),
                   git = FakeGit.new([]))
-    assert_equal %i[clean! ready! build! uninstall install rm_pkg], gmu.calls
+    assert_equal %i[clean! ready! build! uninstall! install! rm_pkg], gmu.calls
     assert_equal [:git_clean!], git.calls
   end
 

@@ -4,8 +4,8 @@
 module Wile
   # GemUtils class provides methods that uses Ruby's gem command-line tool.
   # :reek:MissingSafeMethod build!, clean!, push!, ready!
+  # :reek:TooManyMethods
   class GemUtils
-    using WileRefinements
     using UtilitiesRefinements
 
     def initialize(info = Info.info)
@@ -50,8 +50,7 @@ module Wile
 
     def build!
       gemspec.weird_filename!
-      raise 'gem build failed!' unless system2 "gem build #{gemspec.sw}"
-
+      gem!('build', gemspec)
       gempkg
     end
 
@@ -61,21 +60,26 @@ module Wile
 
     def push!(pkg = gempkg)
       pkg.weird_filename!
-      raise 'gem push failed' unless system2("gem push #{pkg.sw}")
+      gem!('push', pkg)
     end
 
-    def install
-      pkg = "./#{gempkg}".sw
-      system2 "gem install --no-document --local #{pkg}"
+    def install!
+      gem!('install', '--no-document', '--local', "./#{gempkg}")
     end
 
     def installed?
       Utilities.gem_installed?(project, version:)
     end
 
-    def uninstall
-      opts = "--version #{version.sw} --executables"
-      system2 "gem uninstall #{project.sw} #{opts}"
+    def uninstall!
+      gem!('uninstall', project, '--version', version, '--executables')
+    end
+
+    private
+
+    # :reek:UtilityFunction
+    def gem!(*)
+      Utilities.run('gem', *, echo: true) { |_, msg| raise msg }
     end
   end
 end

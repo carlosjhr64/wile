@@ -32,8 +32,8 @@ module Wile
     # :reek:UtilityFunction
     def reinstall(gmu)
       gmu.build!
-      gmu.uninstall if gmu.installed?
-      gmu.install && gmu.rm_pkg
+      gmu.uninstall! if gmu.installed?
+      gmu.install! && gmu.rm_pkg
     end
   end
 end
