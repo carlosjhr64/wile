@@ -55,12 +55,12 @@ module Wile
     def irbrc? = File.file?('.irbrc') && Git.files.include?('.irbrc')
 
     DEPENDENCY_SCRAPES = [
-      [/^\s*#\s*wile:\s*os\s*`(\w[-\w.,]*)`/, :os, 1],
-      [%r{^[^#]* `(\w[-\w.]*)\b[^/]}, :os, 1],
-      [%r{\b(system|spawn)[\s(]["'](\w[-\w]+)\b[^/]}, :os, 2],
-      [/^\s*#\s*wile:\s*require\s*'([-\w,]+)'/, :gem, 1],
+      [/^\s*# wile: os `(\w[-\w.]*(?:,\w[-\w.]*)*)`$/, :os, 1],
+      [/^\s*# wile: require '(\w[-\w.]*(?:,\w[-\w.]*)*)'$/, :gem, 1],
       [%r{^[^#]*\brequire\s*'([-\w/]+)'}, :gem, 1],
-      [%r{^[^#]*\bautoload\s+:\w+,\s*'([-\w/]+)'}, :gem, 1]
+      [%r{^[^#]*\bautoload\s+:\w+,\s*'([-\w/]+)'}, :gem, 1],
+      [%r{^[^#]* `(\w[-\w.]*)\b[^/]}, :os, 1],
+      [%r{\b(system|spawn)[\s(]["'](\w[-\w]+)\b[^/]}, :os, 2]
     ].freeze
 
     LIB_TYPE = {

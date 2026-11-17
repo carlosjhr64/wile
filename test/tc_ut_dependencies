@@ -79,7 +79,7 @@ class TestUtDependencies < Test::Unit::TestCase
 
   def test_scrapes_regex_ignores_dotfiles
     scrapes = Wile::Dependencies.send(:const_get, :DEPENDENCY_SCRAPES)
-    regex = scrapes[1][0]
+    regex = scrapes[4][0]
     assert_nil regex.match('using `.version` as reference')
     assert_nil regex.match('using `.prompt` in fish')
     match = regex.match('out = `git status`')
