@@ -494,6 +494,7 @@ erb_result
 err
 error
 escape
+exe
 exec
 executable
 executables
@@ -621,6 +622,7 @@ include
 includes
 independent
 index
+infer_sysexit
 info
 ingest
 init
@@ -837,6 +839,7 @@ pp
 ppid
 prb
 prefix
+present
 pretty_generate
 prev
 previous_version
@@ -1025,6 +1028,7 @@ start_with
 started
 stat
 state
+stderr
 stdlib
 stdlib_dir
 stdlib_files
@@ -1049,6 +1053,7 @@ swap_valuation
 sym
 symbol_node
 synchronize
+sysexit
 system
 system2
 system_commands_check

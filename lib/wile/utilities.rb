@@ -249,13 +249,29 @@ module Wile
       error!(EX_OSERR, "Error: `fish -c '#{cmd}'` failed.")
     end
 
+    # Used in: run! (internal helper)
+    def infer_sysexit(cmd, res)
+      if res.nil?
+        exe = cmd.first.to_s.split.first.to_s
+        present = File.exist?(exe) || command_available?(exe)
+        return present ? EX_NOPERM : EX_UNAVAILABLE
+      end
+      { 127 => EX_UNAVAILABLE, 126 => EX_NOPERM }
+        .fetch($CHILD_STATUS&.exitstatus, EX_OSERR)
+    end
+
     # Used in: bootstrap_install_neovim, bootstrap_ruby_gems,
     #          bootstrap_ruby_rbenv, gemcheck
-    def run!(*cmd, env: {})
-      return if system(env, *cmd)
+    # :reek:BooleanParameter
+    # :reek:ControlParameter
+    # :reek:LongParameterList
+    def run!(*cmd, sysexit: nil, msg: nil, stderr: true, env: {})
+      opts = stderr ? {} : { err: File::NULL }
+      return if (res = system(env, *cmd, **opts))
 
       prefix = env.map { |key, val| "#{key}=#{val.sw} " }.join
-      error!(EX_OSERR, "Error: '#{prefix}#{cmd.join(' ')}' failed.")
+      msg ||= "Error: '#{prefix}#{cmd.join(' ')}' failed."
+      error!(sysexit || infer_sysexit(cmd, res), msg)
     end
 
     # Used in: bootstrap_fish, bootstrap_ruby_rbenv, bootstrap_system_commands
