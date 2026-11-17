@@ -30,10 +30,12 @@ module Wile
       raise "does not exist: #{filename}" unless File.exist?(filename)
 
       data = CodeData.new(filename)
-      order_subcommands(data, sort) unless OrderOptimizer::SORTS.include?(sort)
+      unless OrderOptimizer::SORTS.include?(sort)
+        return order_subcommands(data, sort)
+      end
 
       valuation = CodeDataValuation.new(data)
-      order_do(data.names, valuation, sort) || exit(EX_FAIL)
+      order_do(data.names, valuation, sort) || raise
     end
 
     private
@@ -75,7 +77,6 @@ module Wile
       end
 
       CodeDataFunction.method(cmd).call(data)
-      exit(EX_OK)
     end
   end
 end
