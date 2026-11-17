@@ -5,7 +5,7 @@ Gem::Specification.new do |s|
   s.homepage = 'https://github.com/carlosjhr64/wile'
   s.author   = 'CarlosJHR64'
   s.email    = 'carlosjhr64@gmail.com'
-  s.date     = '2026-11-16'
+  s.date     = '2026-11-17'
   s.licenses = ['MIT']
   ## DESCRIPTION ##
   s.summary  = <<~SUMMARY
@@ -179,5 +179,4 @@ Gem::Specification.new do |s|
   s.requirements << 'tmux: 3.3'
   s.requirements << 'tput: 6.4'
   s.requirements << 'uname: 9.1'
-  s.requirements << 'which: 2016'
 end
