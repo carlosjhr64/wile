@@ -89,8 +89,9 @@ module Wile
     end
 
     def handle_runtime_error
-      warn @error.message.red
-      exit EX_FAIL
+      msg = @error.message
+      warn msg.red
+      exit EX_CODES.fetch(msg[/^([A-Z]+):/, 1], EX_FAIL)
     end
 
     def handle_software_error

@@ -23,5 +23,9 @@ module Wile
     EX_PROTOCOL    = 76  # remote protocol error
     EX_NOPERM      = 77  # permission denied
     EX_CONFIG      = 78  # configuration or project state error
+
+    EX_CODES = constants.to_h do |const|
+      [const.to_s.delete_prefix('EX_'), const_get(const)]
+    end.freeze
   end
 end

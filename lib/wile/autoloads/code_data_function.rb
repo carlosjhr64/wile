@@ -4,8 +4,6 @@
 module Wile
   # CodeDataFunction module provides functions to look at code data.
   module CodeDataFunction
-    include Sysexits
-
     def self.dump(data)
       puts 'Data:'.blue
       puts JSON.pretty_generate data.data
@@ -30,7 +28,10 @@ module Wile
     end
 
     def self.qc(data)
-      exit(EX_DATAERR) unless data.names.map { qc_name?(it, data) }.all?
+      unless data.names.map { qc_name?(it, data) }.all?
+        raise 'DATAERR: Quality check failed.'
+      end
+
       puts 'OK'.green
     end
 

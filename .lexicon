@@ -59,6 +59,7 @@ ERB
 EXPECTED_CHANGES
 EXTENDED
 EX_CANTCREAT
+EX_CODES
 EX_CONFIG
 EX_DATAERR
 EX_FAIL
@@ -366,6 +367,7 @@ configure_rbenv_shell
 confirm
 console_start
 const
+const_get
 constant_path
 constant_type
 constants
