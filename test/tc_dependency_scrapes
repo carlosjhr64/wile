@@ -7,9 +7,9 @@ require_relative 'test_helper'
 # statements to ensure compatibility with Wile's dependency scraper.
 class TestDependencyScrapes < Test::Unit::TestCase
   DIRECTIVE = /^\s*#\s*wile:\s*require\b/
-  VALID_DIRECTIVE = /^\s*#\s*wile:\s*require\s+'[-\w,]+'/
+  VALID_DIRECTIVE = /^\s*# wile: require '\w[-\w.]*(,\w[-\w.]*)*'$/
   OS_DIRECTIVE = /^\s*#\s*wile:\s*os\b/
-  VALID_OS_DIRECTIVE = /^\s*#\s*wile:\s*os\s*`[-\w.,]+`/
+  VALID_OS_DIRECTIVE = /^\s*# wile: os `\w[-\w.]*(,\w[-\w.]*)*`$/
   DOUBLE_QUOTE_REQUIRE = /\brequire(_relative)?\s*"/
   AUTOLOAD_CONST = /\bautoload\s+['"][A-Z]/
   AUTOLOAD_DOUBLE_QUOTE = /\bautoload\s+:\w+,\s*"/
@@ -29,10 +29,8 @@ class TestDependencyScrapes < Test::Unit::TestCase
 
   def test_valid_directive_lines
     assert_nil chk("# wile: require 'tmuxinator'")
-    assert_nil chk("#   wile:   require   'colora'")
     assert_nil chk("# wile: require 'reek,rubocop'")
     assert_nil chk('# wile: os `diff`')
-    assert_nil chk('#   wile:   os   `dpkg-query`')
     assert_nil chk('# wile: os `diff,apt-get`')
   end
 
@@ -43,12 +41,16 @@ class TestDependencyScrapes < Test::Unit::TestCase
     assert_match "must not contain '/'",
                  chk("# wile: require 'irbtools/configure'")
     assert_match 'malformed', chk('# wile: require tmuxinator')
+    assert_match 'malformed', chk("#   wile:   require   'colora'")
+    assert_match 'malformed', chk("# wile: require 'reek, rubocop'")
   end
 
   def test_invalid_os_directive_lines
     assert_match 'must use backticks', chk("# wile: os 'diff'")
     assert_match 'must use backticks', chk('# wile: os "diff"')
     assert_match 'malformed', chk('# wile: os diff')
+    assert_match 'malformed', chk('#   wile:   os   `dpkg-query`')
+    assert_match 'malformed', chk('# wile: os `diff, apt-get`')
   end
 
   def test_invalid_autoload_lines
