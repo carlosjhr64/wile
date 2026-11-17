@@ -58,7 +58,7 @@ else
   case pane
   when 0
     blue '# Git Diff:'
-    # colora: Terminal colorizer utility for diffs and logs
+    # - colora: Terminal colorizer utility for diffs and logs
     system('colora')
   when 1
     blue '# Git Status:'
@@ -89,7 +89,7 @@ else
       end
     end
   when 10
-    # agy: Antigravity AI coding assistant (-c continues active session)
+    # - agy: Antigravity AI coding assistant (-c continues active session)
     system('agy -c')
   else
     blue "##{pane}"

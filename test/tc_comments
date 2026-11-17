@@ -9,8 +9,14 @@ require 'prism'
 # without quote or delimiter balancing.
 class TestComments < Test::Unit::TestCase
   FORBIDDEN = %r{['"/)\}\]]}
-  MAGIC = /^\s*# :?[a-z]\w*:/
   COMMENT = /^\s*#/
+  # Known magic comments:
+  #   frozen_string_literal, :reek, rubocop, wile, category.
+  KNOWN_MAGIC   = %w[frozen_string_literal :reek rubocop wile category].freeze
+  LOOSE_MAGIC   = /^\s*#\s*(?<key>:?[a-z_]+):/
+  STRICT_MAGIC  = /^\s*# :?[a-z_]+:/
+  MAGIC_REQUIRE = /^\s*# wile: require '\w[-\w.]*(,\w[-\w.]*)*'$/
+  MAGIC_OS      = /^\s*# wile: os `\w[-\w.]*(,\w[-\w.]*)*`$/
 
   def test_comments
     errors = ruby_files.sum { check_file(it) }
@@ -26,7 +32,7 @@ class TestComments < Test::Unit::TestCase
     errors = ruby_files.sum { check_magic_comments(it) }
     return if errors.zero?
 
-    flunk 'Magic comments cannot be followed by non-magic comments.'.red
+    flunk 'Invalid magic comments found.'.red
   end
 
   private
@@ -43,11 +49,8 @@ class TestComments < Test::Unit::TestCase
 
   def check_magic_comments(filename)
     lines = File.readlines(filename)
-    lines.each_with_index.count do |line, idx|
-      next false unless MAGIC.match?(line)
-
-      next_line = lines[idx + 1]
-      bad_magic_follow?(filename, idx + 2, next_line)
+    lines.each_with_index.sum do |line, idx|
+      check_magic_line(filename, line, lines[idx + 1], idx + 1)
     end
   end
 
@@ -61,15 +64,54 @@ class TestComments < Test::Unit::TestCase
     true
   end
 
+  def check_magic_line(filename, line, next_line, line_number)
+    match = LOOSE_MAGIC.match(line)
+    return 0 unless match
+
+    key = match[:key]
+    return alert_unknown(filename, line_number, line, key) unless known?(key)
+
+    errors = bad_magic_format?(filename, line_number, line, key) ? 1 : 0
+    errors + (bad_magic_follow?(filename, line_number + 1, next_line) ? 1 : 0)
+  end
+
+  def known?(key)
+    KNOWN_MAGIC.include?(key)
+  end
+
   def puts_blue(filename, line_number, comment_line)
     puts "#{filename}:#{line_number}:#{comment_line.chomp}".blue
   end
 
   def bad_magic_follow?(filename, line_number, next_line)
     return false unless next_line && COMMENT.match?(next_line)
-    return false if MAGIC.match?(next_line)
+    return false if STRICT_MAGIC.match?(next_line) &&
+                    known?(LOOSE_MAGIC.match(next_line)&.[](:key))
 
     puts_blue(filename, line_number, next_line)
     true
+  end
+
+  def bad_magic_format?(filename, line_number, line, key)
+    valid = STRICT_MAGIC.match?(line) && (key != 'wile' || valid_wile?(line))
+    return false if valid
+
+    puts_blue(filename, line_number, line)
+    true
+  end
+
+  def valid_wile?(line)
+    MAGIC_REQUIRE.match?(line) || MAGIC_OS.match?(line)
+  end
+
+  def alert_unknown(filename, line_number, line, key)
+    return 0 if quiet? || /^\s*# {4}/.match?(line)
+
+    head = "Unknown magic comment: #{filename}:#{line_number}:"
+    before, after = line.chomp.split(key, 2)
+    msg = [head + before, key, after].map(&:yellow)
+    msg[1] = msg[1].black
+    puts msg.join
+    0
   end
 end
