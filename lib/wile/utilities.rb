@@ -49,7 +49,7 @@ module Wile
     end
 
     # Used in: bootstrap_fish, bootstrap_install_neovim, bootstrap_ruby_rbenv,
-    #          dependencies
+    #          dependencies (and check_commands, command_available?)
     def which(cmd)
       paths.each do |dir|
         bin = File.join(dir, cmd)
@@ -74,7 +74,8 @@ module Wile
     end
 
     # Used in: bootstrap_fish, bootstrap_fisher_plugins, bootstrap_ruby_rbenv,
-    #          manpage
+    #          manpage (and missing_commands, verify_rbenv!, fish_version,
+    #          infer_sysexit)
     def command_available?(cmd)
       !which(cmd).nil?
     end
@@ -98,7 +99,7 @@ module Wile
     # Used in: bootstrap_fish, bootstrap_fisher_plugins,
     #          bootstrap_install_neovim, bootstrap_ruby_gems,
     #          bootstrap_ruby_rbenv, bootstrap_system_commands,
-    #          gemcheck, maint_generate_cons
+    #          maint_generate_cons (and internal helpers)
     def error!(val, msg)
       warn msg.red
       exit val
@@ -183,7 +184,7 @@ module Wile
     end
 
     # Used in: bootstrap_fish, bootstrap_fisher_plugins,
-    #          bootstrap_install_neovim
+    #          bootstrap_install_neovim (and verify_ruby_min_version!)
     def version_ok?(version, min_version)
       # This is strictly greater than or equal, not a "twiddle-wakka".
       Gem::Version.new(version) >= Gem::Version.new(min_version)
@@ -250,7 +251,7 @@ module Wile
       error!(EX_OSERR, "Error: `fish -c '#{cmd}'` failed.")
     end
 
-    # Used in: run! (internal helper)
+    # Used in: run (internal helper)
     def infer_sysexit(cmd, res)
       if res.nil?
         exe = cmd.first.to_s.split.first.to_s
@@ -267,14 +268,14 @@ module Wile
       "#{prefix}#{cmd.join(' ')}"
     end
 
-    # Used in: run! (internal helper)
+    # Used in: run (internal helper)
     def default_run_msg(cmd, env, sysexit)
       code = $CHILD_STATUS&.exitstatus
       info = code ? "exit #{code}" : "sysexit #{sysexit}"
       "Error: '#{format_cmd(cmd, env)}' failed (#{info})."
     end
 
-    # Used in: run!
+    # Used in: gem_utils, gemcheck (and run!)
     # :reek:BooleanParameter
     # :reek:ControlParameter
     # :reek:LongParameterList
@@ -292,7 +293,7 @@ module Wile
     end
 
     # Used in: bootstrap_install_neovim, bootstrap_ruby_gems,
-    #          bootstrap_ruby_rbenv, gemcheck
+    #          bootstrap_ruby_rbenv
     # :reek:BooleanParameter
     # :reek:ControlParameter
     # :reek:LongParameterList
