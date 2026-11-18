@@ -286,7 +286,7 @@ module Wile
       "Error: '#{format_cmd(cmd, env)}' failed (#{info})."
     end
 
-    # Used in: gem_utils, gemcheck (and run!)
+    # Used in: gem_utils, gemcheck, git (and run!)
     # :reek:BooleanParameter
     # :reek:ControlParameter
     # :reek:LongParameterList
@@ -316,7 +316,6 @@ module Wile
     end
 
     # Used in: bootstrap_fish, bootstrap_ruby_rbenv, bootstrap_system_commands
-    # reuse: run!
     def apt_install!(packages)
       system('sudo', 'apt-get', 'update') ||
         error!(EX_OSERR, 'Error: apt-get update failed.')

@@ -4,9 +4,8 @@
 module Wile
   # Git module provides functions to interact with git.
   module Git
-    # reuse: Utilities.run
     def self.init!(directory)
-      raise 'git init failed' unless system('git', 'init', directory)
+      git!('init', directory)
     end
 
     def self.clean?
@@ -18,19 +17,16 @@ module Wile
       raise 'git status not clean' unless clean?
     end
 
-    # reuse: Utilities.run
     def self.diff(*files, options: '--minimal')
-      system('git', 'diff', options, *files)
+      Utilities.run('git', 'diff', options, *files)
     end
 
     def self.files
       `git ls-files`.lines(chomp: true)
     end
 
-    # reuse: Utilities.run
     def self.tag!(version)
-      raise 'git tag failed' unless
-        system('git', 'tag', '-a', version, '-m', version)
+      git!('tag', '-a', version, '-m', version)
     end
 
     def self.verify_unpublished!(version)
@@ -38,15 +34,17 @@ module Wile
         `git tag -l #{version}`.strip.empty?
     end
 
-    # reuse: Utilities.run
     def self.commit!(version)
-      raise 'git commit failed' unless
-        system('git', 'commit', '-a', '-m', version)
+      git!('commit', '-a', '-m', version)
     end
 
-    # reuse: Utilities.run
     def self.push!
-      raise 'git push failed' unless system('git', 'push', '--follow-tags')
+      git!('push', '--follow-tags')
     end
+
+    def self.git!(*)
+      Utilities.run('git', *) { |_, msg| raise msg }
+    end
+    private_class_method :git!
   end
 end
