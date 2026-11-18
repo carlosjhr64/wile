@@ -16,7 +16,6 @@ module Wile
       File.file?(@md_path)
     end
 
-    # reuse: Utilities.run
     def update!
       return unless exist?
 
@@ -25,9 +24,7 @@ module Wile
         return
       end
 
-      return if system('pandoc', *pandoc_args)
-
-      raise 'pandoc failed to generate manpage'
+      Utilities.run('pandoc', *pandoc_args) { |_, msg| raise msg }
     end
 
     private

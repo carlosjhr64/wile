@@ -286,7 +286,7 @@ module Wile
       "Error: '#{format_cmd(cmd, env)}' failed (#{info})."
     end
 
-    # Used in: gem_utils, gemcheck, git (and run!)
+    # Used in: gem_utils, gemcheck, git, manpage (and run!)
     # :reek:BooleanParameter
     # :reek:ControlParameter
     # :reek:LongParameterList
