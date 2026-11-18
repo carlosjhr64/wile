@@ -12,7 +12,9 @@ module Wile
                   (..1), /^(major|minor|build)$/, Set[]].freeze
 
     def bump(options, info = Info.info)
-      Utilities.verify_project_root!
+      Utilities.project_root? do |missing|
+        raise "NOINPUT: Missing root files: #{missing.join(', ')}"
+      end
       type, = Usage.new(options, *BUMP_USAGE).args
       version = bumped(info.version, type, info.now)
       write_version(info, version)

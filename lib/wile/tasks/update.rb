@@ -24,8 +24,11 @@ module Wile
     }.freeze
 
     # :reek:UtilityFunction
+    # :reek:TooManyStatements
     def update(options, info = Info.info)
-      Utilities.verify_project_root!
+      Utilities.project_root? do |missing|
+        raise "NOINPUT: Missing root files: #{missing.join(', ')}"
+      end
       target, = Usage.new(options, *UPDATE_USAGE).args
       Git.clean! unless options.force?
       do_update(target, info)

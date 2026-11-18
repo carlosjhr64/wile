@@ -11,7 +11,9 @@ module Wile
 
     # :reek:UtilityFunction
     def gemfile(options, gemspec = nil, file = 'Gemfile')
-      Utilities.verify_project_root!
+      Utilities.project_root? do |missing|
+        raise "NOINPUT: Missing root files: #{missing.join(', ')}"
+      end
       Usage.new(options, *GEMFILE_USAGE)
       gemspec ||= Gemspec.new
       File.write(file, gemfile_content(gemspec))

@@ -9,8 +9,11 @@ module Wile
   class Tasks
     INFO_USAGE = ['info: Takes no arguments.', 0, Set[]].freeze
 
+    # :reek:TooManyStatements
     def info(options, info = Info.info)
-      Utilities.verify_project_root!
+      Utilities.project_root? do |missing|
+        raise "NOINPUT: Missing root files: #{missing.join(', ')}"
+      end
       Usage.new(options, *INFO_USAGE)
       puts_info(info)
       puts_readme(Readme.new(info))

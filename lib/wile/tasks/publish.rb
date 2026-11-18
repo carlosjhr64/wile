@@ -12,7 +12,9 @@ module Wile
 
     # :reek:TooManyStatements
     def publish(options)
-      Utilities.verify_project_root!
+      Utilities.project_root? do |missing|
+        raise "NOINPUT: Missing root files: #{missing.join(', ')}"
+      end
       version, = Usage.new(options, *PUBLISH_USAGE).args
       verify_version! version
       gmu = project_ready!

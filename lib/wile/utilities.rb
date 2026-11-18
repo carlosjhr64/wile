@@ -134,7 +134,10 @@ module Wile
       root_files.reject { |file| File.file?(file) }
     end
 
-    # Used in: verify_project_root! (internal helper)
+    # Used in: tasks: build, bump, compare, cp, dependencies,
+    #          dictionary, gemfile, info, install, lexicon,
+    #          note, nvim, publish, review, ruby, smell, tc,
+    #          test, todo, update (and verify_project_root!)
     def project_root?(root_files = ROOT_FILES)
       missing = missing_root_files(root_files)
       return true if missing.empty?
@@ -143,11 +146,7 @@ module Wile
       false
     end
 
-    # Used in: bootstrap_ruby_gems, maint_generate_cons,
-    #          tasks: build, bump, compare, cp, dependencies,
-    #          dictionary, gemfile, info, install, lexicon,
-    #          note, nvim, publish, review, ruby, smell, tc,
-    #          test, todo, update
+    # Used in: bootstrap_ruby_gems, maint_generate_cons
     def verify_project_root!(root_files = ROOT_FILES)
       project_root?(root_files) do |missing|
         error!(EX_NOINPUT, "Error: #{missing.first} not found -- " \

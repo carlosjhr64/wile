@@ -18,8 +18,11 @@ module Wile
     # :reek:DuplicateMethodCall Time.now are different times!
     # :reek:FeatureEnvy
     # :reek:TooManyStatements
+    # rubocop:disable-next Metrics/MethodLength
     def test(options)
-      Utilities.verify_project_root!
+      Utilities.project_root? do |missing|
+        raise "NOINPUT: Missing root files: #{missing.join(', ')}"
+      end
       filematch, methodmatch = Usage.new(options, *TEST_USAGE).args
       started = Time.now
       Test.test!(filematch, methodmatch,

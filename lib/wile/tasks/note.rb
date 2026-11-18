@@ -12,8 +12,11 @@ module Wile
     NOTE_USAGE = ['note: Optionally takes one or more arguments.', Set[]].freeze
 
     # :reek:TooManyStatements
+    # rubocop:disable-next Metrics/AbcSize, Metrics/MethodLength
     def note(options)
-      Utilities.verify_project_root!
+      Utilities.project_root? do |missing|
+        raise "NOINPUT: Missing root files: #{missing.join(', ')}"
+      end
       match = Usage.new(options, *NOTE_USAGE).args
       files = Project.rbfiles.weird_filename!
       files = files.reject { it.start_with?('features/fixtures/') } unless match

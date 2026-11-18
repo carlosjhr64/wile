@@ -14,8 +14,11 @@ module Wile
     ].freeze
 
     # :reek:FeatureEnvy :reek:TooManyStatements
+    # rubocop:disable-next Metrics/AbcSize
     def cp(options, cache = nil)
-      Utilities.verify_project_root!
+      Utilities.project_root? do |missing|
+        raise "NOINPUT: Missing root files: #{missing.join(', ')}"
+      end
       match = Usage.new(options, *CP_USAGE).args&.first
       cache ||= Cache.new(trace: options.trace?)
       p2c = filter_p2c(cache.p2c_hash, match)

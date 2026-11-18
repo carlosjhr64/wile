@@ -19,7 +19,9 @@ module Wile
 
     # :reek:NilCheck :reek:TooManyStatements
     def compare(options)
-      Utilities.verify_project_root!
+      Utilities.project_root? do |missing|
+        raise "NOINPUT: Missing root files: #{missing.join(', ')}"
+      end
       match = Usage.new(options, *COMPARE_USAGE).args
       p2c, missing = p2c_and_missing
       p2c.keys.weird_filename!

@@ -12,8 +12,11 @@ module Wile
     DEPENDENCIES_USAGE = ['dependencies: Takes no arguments.', 0, Set[]].freeze
 
     # :reek:FeatureEnvy
+    # rubocop:disable-next Metrics/MethodLength
     def dependencies(options, dpc = Dependencies.new)
-      Utilities.verify_project_root!
+      Utilities.project_root? do |missing|
+        raise "NOINPUT: Missing root files: #{missing.join(', ')}"
+      end
       Usage.new(options, *DEPENDENCIES_USAGE)
       run, dev, ros, dos = dpc.dependencies
       report_dependencies(

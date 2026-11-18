@@ -13,7 +13,9 @@ module Wile
     TODO_USAGE = ['todo: Optionally takes one or more arguments.', Set[]].freeze
 
     def todo(options)
-      Utilities.verify_project_root!
+      Utilities.project_root? do |missing|
+        raise "NOINPUT: Missing root files: #{missing.join(', ')}"
+      end
       match = Usage.new(options, *TODO_USAGE).args
       return do_todo if File.file?('TODO.md') && !match
 

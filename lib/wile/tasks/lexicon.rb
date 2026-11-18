@@ -12,7 +12,9 @@ module Wile
                      0, Set['check', 'yes']].freeze
 
     def lexicon(options)
-      Utilities.verify_project_root!
+      Utilities.project_root? do |missing|
+        raise "NOINPUT: Missing root files: #{missing.join(', ')}"
+      end
       Usage.new(options, *LEXICON_USAGE)
       return puts 'OK'.green if lexicon_ok?(options)
 

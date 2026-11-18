@@ -12,7 +12,9 @@ module Wile
                         0, Set['check', 'yes']].freeze
 
     def dictionary(options)
-      Utilities.verify_project_root!
+      Utilities.project_root? do |missing|
+        raise "NOINPUT: Missing root files: #{missing.join(', ')}"
+      end
       Usage.new(options, *DICTIONARY_USAGE)
       return puts 'OK'.green if dictionary_ok?(options)
 

@@ -14,7 +14,9 @@ module Wile
 
     # :reek:FeatureEnvy :reek:TooManyStatements
     def ruby(options)
-      Utilities.verify_project_root!
+      Utilities.project_root? do |missing|
+        raise "NOINPUT: Missing root files: #{missing.join(', ')}"
+      end
       match = Usage.new(options, *RUBY_USAGE).args || []
       files = Project.rbfiles.sort
       files.select! { |fn| match.any? { fn.match? it } } unless match.empty?

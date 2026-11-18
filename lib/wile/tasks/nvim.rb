@@ -13,8 +13,11 @@ module Wile
                   'with optional list flag.',
                   Set['list']].freeze
 
+    # :reek:TooManyStatements
     def nvim(options)
-      Utilities.verify_project_root!
+      Utilities.project_root? do |missing|
+        raise "NOINPUT: Missing root files: #{missing.join(', ')}"
+      end
       match = Usage.new(options, *NVIM_USAGE).args
       files = filter_nvim_files(match)
       return puts files if options.list?

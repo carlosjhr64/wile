@@ -13,7 +13,9 @@ module Wile
 
     # :reek:UtilityFunction
     def build(options, gmu = GemUtils.new, git = Git)
-      Utilities.verify_project_root!
+      Utilities.project_root? do |missing|
+        raise "NOINPUT: Missing root files: #{missing.join(', ')}"
+      end
       Usage.new(options, *BUILD_USAGE)
       verify_build(gmu, git) unless options.force?
       gmu.build!

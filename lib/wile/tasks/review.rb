@@ -18,7 +18,9 @@ module Wile
 
     # :reek:UtilityFunction
     def review(options, target: nil)
-      Utilities.verify_project_root!
+      Utilities.project_root? do |missing|
+        raise "NOINPUT: Missing root files: #{missing.join(', ')}"
+      end
       target ||= Usage.new(options, *REVIEW_USAGE).args&.first
       Review.new(options, target:).run
     end

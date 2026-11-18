@@ -18,7 +18,9 @@ module Wile
                    Set['name']].freeze
 
     def smell(options)
-      Utilities.verify_project_root!
+      Utilities.project_root? do |missing|
+        raise "NOINPUT: Missing root files: #{missing.join(', ')}"
+      end
       matches = Usage.new(options, *SMELL_USAGE).args&.map { Regexp.new(it) }
       DisplayLists.new(matches, select: options.name).display
     end
