@@ -109,7 +109,7 @@ module Wile
         next if Utilities.gem_installed?(name, version: req)
 
         Utilities.run('gem', 'install', name, '-v', req) do |code, msg|
-          raise "#{EX_CODES.key(code)}: #{msg}"
+          raise "#{Sysexits.label(code)}: #{msg}"
         end
       end
     end

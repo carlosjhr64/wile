@@ -20,4 +20,11 @@ class TestUtSysexits < Test::Unit::TestCase
     assert_equal EX_FAIL, Wile::Sysexits.code('')
     assert_equal EX_FAIL, Wile::Sysexits.code(nil)
   end
+
+  def test_label
+    assert_equal 'UNAVAILABLE', Wile::Sysexits.label(EX_UNAVAILABLE)
+    assert_equal 'OSERR', Wile::Sysexits.label(EX_OSERR)
+    assert_equal 'NOPERM', Wile::Sysexits.label(EX_NOPERM)
+    assert_equal 'FAIL', Wile::Sysexits.label(999)
+  end
 end

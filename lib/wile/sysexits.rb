@@ -31,5 +31,9 @@ module Wile
     def self.code(msg)
       EX_CODES.fetch(msg.to_s[/^([A-Z]+):/, 1], EX_FAIL)
     end
+
+    def self.label(code)
+      EX_CODES.key(code) || 'FAIL'
+    end
   end
 end
