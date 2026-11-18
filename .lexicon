@@ -404,6 +404,7 @@ date
 def_body
 def_scope
 default_external
+default_gem
 default_msg
 default_run_msg
 delete
@@ -787,6 +788,7 @@ nvim_bin_files
 nvim_files
 nvim_lib_files
 nvim_ranks
+object_method
 ok
 old
 older
@@ -1036,6 +1038,7 @@ sort_by
 source
 source_set
 split
+standard_library
 start
 start_with
 started
@@ -1139,6 +1142,7 @@ validator_type_check
 validators
 valuation
 value
+values_at
 ver
 verbose
 verify_active_ruby

@@ -102,12 +102,14 @@ module Wile
       @matches.nil? || @matches.any? { it.match?(name) }
     end
 
-    # :reek:ManualDispatch :reek:TooManyStatements
+    # :reek:TooManyStatements
     def undefined
       list = @smell.undefined_methods.select { match?(it) }.sort
       list.map! do |mth|
-        name = mth.split(/[#.]/).last
-        name != 'new' && Object.respond_to?(name) ? "#{mth} ◇".cyan : mth
+        next "#{mth} ☰".magenta if mth.standard_library?
+        next "#{mth} ◇".cyan if mth.object_method?
+
+        mth
       end
       display_list(list, '## Undefined ##'.blue)
     end

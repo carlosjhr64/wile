@@ -62,6 +62,22 @@ module Wile
     # category: string
 
     refine String do
+      # :reek:ManualDispatch
+      def object_method?
+        name = split(/[#.]/).last
+        name != 'new' && Object.respond_to?(name)
+      end
+
+      def standard_library?
+        lib = sub(/\A::/, '').split(/::|[#.]/).first&.downcase
+        return false unless lib
+
+        RbConfig::CONFIG.values_at('rubylibdir', 'archdir').any? do |dir|
+          File.exist?(File.join(dir, "#{lib}.rb")) ||
+            File.exist?(File.join(dir, "#{lib}.so"))
+        end || Gem::Specification.any? { it.default_gem? && it.name == lib }
+      end
+
       def camel_case
         pascal_case.tap { it[0] = it[0].downcase }
       end

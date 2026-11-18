@@ -8,6 +8,7 @@ require_relative '../lib/wile'
 require_relative '../lib/wile/wile_refinements'
 
 # Unit tests for Wile::WileRefinements.
+# rubocop:disable-next Metrics/ClassLength
 class TestUtWileRefinements < Test::Unit::TestCase
   using Wile::WileRefinements
 
@@ -125,5 +126,21 @@ class TestUtWileRefinements < Test::Unit::TestCase
     assert_match '<=>'.namex, 'def <=>(other)'
     assert_match 'a.b'.namex, 'a.b'
     refute_match 'a.b'.namex, 'aXb'
+  end
+
+  def test_string_object_method
+    assert_true 'Foo.method'.object_method?
+    assert_true 'Foo#method'.object_method?
+    assert_false 'Foo.new'.object_method?
+    assert_false 'Foo.totally_unknown_xyz'.object_method?
+  end
+
+  def test_string_standard_library
+    assert_true 'Find.find'.standard_library?
+    assert_true 'Etc.nprocessors'.standard_library?
+    assert_true 'Prism::Translation::Parser.parse_file'.standard_library?
+    assert_true '::JSON.pretty_generate'.standard_library?
+    assert_false 'Wile::Tasks#smell'.standard_library?
+    assert_false ''.standard_library?
   end
 end
