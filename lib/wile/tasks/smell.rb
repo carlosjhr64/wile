@@ -53,10 +53,6 @@ module Wile
       @select.nil? || name.match?(@select)
     end
 
-    def match?(name)
-      @matches.nil? || @matches.any? { it.match?(name) }
-    end
-
     # :reek:TooManyStatements
     def name2scope
       scopes = Hash.new { |hash, name| hash[name] = [] }
@@ -65,13 +61,6 @@ module Wile
         scopes[name] << "#{scope}#{dot}"
       end
       scopes
-    end
-
-    def reused
-      reused = name2scope.select! do |name, scopes|
-        scopes.size > 1 and name != 'initialize' and match?(name)
-      end
-      display_reused(reused) unless reused.empty?
     end
 
     def display_reused(reused)
@@ -83,14 +72,11 @@ module Wile
       puts
     end
 
-    def isolate
-      list = @smell.methods
-                   .select do |name, info|
-                     match?(name) && info.dependencies.empty? &&
-                       info.dependants.empty?
-                   end
-                   .keys.sort
-      display_list(list, '## Isolate ##'.blue)
+    def reused
+      reused = name2scope.select! do |name, scopes|
+        scopes.size > 1 and name != 'initialize' and match?(name)
+      end
+      display_reused(reused) unless reused.empty?
     end
 
     def shared
@@ -112,13 +98,8 @@ module Wile
       display_list(list, '## Unused ##'.blue)
     end
 
-    def independent
-      list = @smell.methods
-                   .select do |name, info|
-                     match?(name) && info.dependencies.empty?
-                   end
-                   .keys.sort
-      display_list(list, '## Independent ##'.blue)
+    def match?(name)
+      @matches.nil? || @matches.any? { it.match?(name) }
     end
 
     def undefined
@@ -137,6 +118,25 @@ module Wile
       puts heading if heading
       list.display
       puts
+    end
+
+    def independent
+      list = @smell.methods
+                   .select do |name, info|
+                     match?(name) && info.dependencies.empty?
+                   end
+                   .keys.sort
+      display_list(list, '## Independent ##'.blue)
+    end
+
+    def isolate
+      list = @smell.methods
+                   .select do |name, info|
+                     match?(name) && info.dependencies.empty? &&
+                       info.dependants.empty?
+                   end
+                   .keys.sort
+      display_list(list, '## Isolate ##'.blue)
     end
   end
 end
