@@ -91,7 +91,7 @@ module Wile
     def handle_runtime_error
       msg = @error.message
       warn msg.red unless msg.empty?
-      exit EX_CODES.fetch(msg[/^([A-Z]+):/, 1], EX_FAIL)
+      exit Sysexits.code(msg)
     end
 
     def handle_software_error

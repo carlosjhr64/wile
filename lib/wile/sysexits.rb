@@ -27,5 +27,9 @@ module Wile
     EX_CODES = constants.to_h do |const|
       [const.to_s.delete_prefix('EX_'), const_get(const)]
     end.freeze
+
+    def self.code(msg)
+      EX_CODES.fetch(msg.to_s[/^([A-Z]+):/, 1], EX_FAIL)
+    end
   end
 end

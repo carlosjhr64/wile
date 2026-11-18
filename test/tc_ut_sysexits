@@ -1,0 +1,23 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require_relative 'test_helper'
+require_relative '../lib/wile'
+
+# Unit tests for Wile::Sysexits.
+class TestUtSysexits < Test::Unit::TestCase
+  include Wile::Sysexits
+
+  def test_code_known_prefix
+    assert_equal EX_DATAERR, Wile::Sysexits.code('DATAERR: bad input')
+    assert_equal EX_NOINPUT, Wile::Sysexits.code('NOINPUT: missing file')
+    assert_equal EX_OSERR, Wile::Sysexits.code('OSERR: failed')
+  end
+
+  def test_code_fallback_to_fail
+    assert_equal EX_FAIL, Wile::Sysexits.code('Plain failure')
+    assert_equal EX_FAIL, Wile::Sysexits.code('TODO: not a code')
+    assert_equal EX_FAIL, Wile::Sysexits.code('')
+    assert_equal EX_FAIL, Wile::Sysexits.code(nil)
+  end
+end
