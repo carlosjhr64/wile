@@ -74,7 +74,6 @@ module Wile
     end
     private_class_method :matched_files
 
-    # reuse: Utilities.run
     def self.sequential_test(files, opt)
       files.each do |tf|
         puts "#{tf}: ".blue
