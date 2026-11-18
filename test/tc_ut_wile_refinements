@@ -24,6 +24,14 @@ class TestUtWileRefinements < Test::Unit::TestCase
     assert_equal expected, io.string
   end
 
+  def test_array_display_ignores_ansi
+    io = StringIO.new
+    items = ["\e[32mone\e[0m", 'two', "\e[34mthree\e[0m", 'four']
+    items.display(width: 20, padding: 2, io: io)
+    expected = "\e[32mone\e[0m    two    \n\e[34mthree\e[0m  four   \n"
+    assert_equal expected, io.string
+  end
+
   def test_array_display_empty
     io = StringIO.new
     assert_nil [].display(io: io)

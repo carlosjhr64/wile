@@ -7,16 +7,17 @@ module Wile
     # category: array
 
     refine Array do
-      # :reek:TooManyStatements
+      # :reek:TooManyStatements :reek:NestedIterators
       # :reek:DuplicateMethodCall it.to_s
+      # rubocop:disable-next Metrics/AbcSize
       def display(width: `tput cols 2>/dev/null`.to_i, padding: 2, io: $stdout)
         return if empty?
 
-        max = map { it.to_s.length }.max + padding
-        div = width / max
-        div = 1 if div.zero?
-        each_slice(div) do |slice|
-          io.puts slice.map { it.to_s.ljust(max) }.join
+        items = map { [it.to_s, it.to_s.gsub(/\e\[[0-9;]*m/, '').length] }
+        max = items.map(&:last).max + padding
+        div = [width / max, 1].max
+        items.each_slice(div) do |slice|
+          io.puts slice.map { |str, size| "#{str}#{' ' * (max - size)}" }.join
         end
       end
 
