@@ -106,25 +106,6 @@ module Wile
              "Error: Wile is meant to be run on Linux (detected: #{os}).")
     end
 
-    def missing_root_files(root_files = ROOT_FILES)
-      root_files.reject { |file| File.file?(file) }
-    end
-
-    def project_root?(root_files = ROOT_FILES)
-      missing = missing_root_files(root_files)
-      return true if missing.empty?
-
-      yield missing if block_given?
-      false
-    end
-
-    def verify_project_root!(root_files = ROOT_FILES)
-      project_root?(root_files) do |missing|
-        error!(EX_NOINPUT, "Error: #{missing.first} not found -- " \
-                           "run this from a Wile project's root directory.")
-      end
-    end
-
     # :reek:BooleanParameter
     # rubocop:disable-next Metrics/MethodLength
     def verify_rbenv!(require_in_path: false, re_run: nil)
@@ -168,6 +149,13 @@ module Wile
       Gem::Version.new(version) >= Gem::Version.new(min_version)
     end
 
+    def verify_project_root!(root_files = ROOT_FILES)
+      project_root?(root_files) do |missing|
+        error!(EX_NOINPUT, "Error: #{missing.first} not found -- " \
+                           "run this from a Wile project's root directory.")
+      end
+    end
+
     def rbenv_root
       `rbenv root 2>/dev/null`.strip
     end
@@ -192,6 +180,18 @@ module Wile
         Ensure ./bin/bootstrap_ruby_rbenv has been run and rbenv shims
         are active in your shell#{re_run_hint}
       MSG
+    end
+
+    def project_root?(root_files = ROOT_FILES)
+      missing = missing_root_files(root_files)
+      return true if missing.empty?
+
+      yield missing if block_given?
+      false
+    end
+
+    def missing_root_files(root_files = ROOT_FILES)
+      root_files.reject { |file| File.file?(file) }
     end
 
     # --- Version Probing ---
@@ -222,6 +222,23 @@ module Wile
       error!(EX_OSERR, "Error: `fish -c '#{cmd}'` failed.")
     end
 
+    # :reek:BooleanParameter
+    # :reek:ControlParameter
+    # :reek:LongParameterList
+    # rubocop:disable-next Metrics/ParameterLists
+    def run!(*cmd, sysexit: nil, msg: nil, stderr: true, echo: false, env: {})
+      run(*cmd, stderr:, echo:, env:) do |inferred, default_msg|
+        error!(sysexit || inferred, msg || default_msg)
+      end
+    end
+
+    def apt_install!(packages)
+      system('sudo', 'apt-get', 'update') ||
+        error!(EX_OSERR, 'Error: apt-get update failed.')
+      system('sudo', 'apt-get', 'install', '-y', *packages) ||
+        error!(EX_OSERR, "Error: apt-get install #{packages.join(' ')} failed.")
+    end
+
     def infer_sysexit(cmd, res)
       if res.nil?
         exe = cmd.first.to_s.split.first.to_s
@@ -230,17 +247,6 @@ module Wile
       end
       { 127 => EX_UNAVAILABLE, 126 => EX_NOPERM }
         .fetch($CHILD_STATUS&.exitstatus, EX_OSERR)
-    end
-
-    def format_cmd(cmd, env)
-      prefix = env.map { |key, val| "#{key}=#{val.sw} " }.join
-      "#{prefix}#{cmd.join(' ')}"
-    end
-
-    def default_run_msg(cmd, env, sysexit)
-      code = $CHILD_STATUS&.exitstatus
-      info = code ? "exit #{code}" : "sysexit #{sysexit}"
-      "Error: '#{format_cmd(cmd, env)}' failed (#{info})."
     end
 
     # :reek:BooleanParameter
@@ -259,21 +265,15 @@ module Wile
       false
     end
 
-    # :reek:BooleanParameter
-    # :reek:ControlParameter
-    # :reek:LongParameterList
-    # rubocop:disable-next Metrics/ParameterLists
-    def run!(*cmd, sysexit: nil, msg: nil, stderr: true, echo: false, env: {})
-      run(*cmd, stderr:, echo:, env:) do |inferred, default_msg|
-        error!(sysexit || inferred, msg || default_msg)
-      end
+    def format_cmd(cmd, env)
+      prefix = env.map { |key, val| "#{key}=#{val.sw} " }.join
+      "#{prefix}#{cmd.join(' ')}"
     end
 
-    def apt_install!(packages)
-      system('sudo', 'apt-get', 'update') ||
-        error!(EX_OSERR, 'Error: apt-get update failed.')
-      system('sudo', 'apt-get', 'install', '-y', *packages) ||
-        error!(EX_OSERR, "Error: apt-get install #{packages.join(' ')} failed.")
+    def default_run_msg(cmd, env, sysexit)
+      code = $CHILD_STATUS&.exitstatus
+      info = code ? "exit #{code}" : "sysexit #{sysexit}"
+      "Error: '#{format_cmd(cmd, env)}' failed (#{info})."
     end
   end
 end
