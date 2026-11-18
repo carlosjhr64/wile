@@ -743,6 +743,7 @@ missing_gems
 missing_packages
 missing_postamble_gems
 missing_preamble_gems
+missing_root_files
 mkdir
 mkdir_p
 mktmpdir
@@ -870,6 +871,7 @@ project_command
 project_files
 project_rb
 project_ready
+project_root
 prompt
 prompt_and_install
 prompt_apt_install

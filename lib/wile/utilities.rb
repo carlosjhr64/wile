@@ -129,16 +129,28 @@ module Wile
              "Error: Wile is meant to be run on Linux (detected: #{os}).")
     end
 
+    # Used in: project_root? (internal helper)
+    def missing_root_files(root_files = ROOT_FILES)
+      root_files.reject { |file| File.file?(file) }
+    end
+
+    # Used in: verify_project_root! (internal helper)
+    def project_root?(root_files = ROOT_FILES)
+      missing = missing_root_files(root_files)
+      return true if missing.empty?
+
+      yield missing if block_given?
+      false
+    end
+
     # Used in: bootstrap_ruby_gems, maint_generate_cons,
     #          tasks: build, bump, compare, cp, dependencies,
     #          dictionary, gemfile, info, install, lexicon,
     #          note, nvim, publish, review, ruby, smell, tc,
     #          test, todo, update
     def verify_project_root!(root_files = ROOT_FILES)
-      root_files.each do |file|
-        next if File.file?(file)
-
-        error!(EX_NOINPUT, "Error: #{file} not found -- " \
+      project_root?(root_files) do |missing|
+        error!(EX_NOINPUT, "Error: #{missing.first} not found -- " \
                            "run this from a Wile project's root directory.")
       end
     end
