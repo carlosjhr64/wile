@@ -4,6 +4,7 @@
 module Wile
   # Displays information on methods in a file.
   # :reek:TooManyInstanceVariables :reek:TooManyMethods
+  # rubocop:disable-next Metrics/ClassLength
   class Content
     using WileRefinements
 
@@ -36,7 +37,8 @@ module Wile
     RESERVED_WORDS = %i[private protected public pp using refine
                         module_function].freeze
 
-    CLRS = %i[color_here_def color_here_casgn color_stdlib color_kernel].freeze
+    CLRS = %i[color_duck color_here_def color_here_casgn color_stdlib
+              color_kernel].freeze
 
     private_constant :MTHD, :TYPES, :RESERVED_WORDS, :CLRS
 
@@ -136,6 +138,11 @@ module Wile
       return :magenta unless (kls = TYPES[type])
 
       color kls.public_method_defined?(mth.to_sym) ? :green : nil
+    end
+
+    # :reek:UtilityFunction
+    def color_duck(name)
+      :gray if name.start_with?('*#')
     end
 
     # :reek:ControlParameter

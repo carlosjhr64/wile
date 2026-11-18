@@ -139,6 +139,8 @@ module Wile
       elsif slice == 'new'
         emit_call("#{@dot}new")
         emit_call("##{name}")
+      else
+        emit_call("*##{name}")
       end
     end
   end

@@ -343,6 +343,7 @@ collect_gems
 collect_trigrams
 color
 color_code
+color_duck
 color_here_casgn
 color_here_def
 color_kernel
