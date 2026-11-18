@@ -316,6 +316,7 @@ module Wile
     end
 
     # Used in: bootstrap_fish, bootstrap_ruby_rbenv, bootstrap_system_commands
+    # reuse: run!
     def apt_install!(packages)
       system('sudo', 'apt-get', 'update') ||
         error!(EX_OSERR, 'Error: apt-get update failed.')

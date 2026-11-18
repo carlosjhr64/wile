@@ -16,6 +16,7 @@ module Wile
       File.file?(@md_path)
     end
 
+    # reuse: Utilities.run
     def update!
       return unless exist?
 
