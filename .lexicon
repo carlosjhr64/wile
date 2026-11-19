@@ -84,6 +84,7 @@ Enumerable
 Enumerator
 Errno
 Etc
+Exception
 FISHER_INSTALL_CMD
 FISHER_MIN_VERSION
 FISHER_REPO_URL
@@ -128,6 +129,7 @@ MODULE_NAME
 MTHD
 MaintGenerateCons
 Manpage
+Method
 Mutex
 NOTE_USAGE
 NULL
@@ -152,6 +154,7 @@ PROJECT_DIRS
 PUBLISH_USAGE
 Parser
 ParserError
+Pathname
 Prism
 Proc
 Process

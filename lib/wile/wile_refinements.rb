@@ -60,7 +60,8 @@ module Wile
     end
 
     COMMON_CLASSES = [
-      String, Array, Hash, Enumerable, Enumerator, IO
+      String, Array, Hash, File, Set, Pathname, Time, Exception, Method,
+      Enumerator, Thread
     ].freeze
     private_constant :COMMON_CLASSES
 
