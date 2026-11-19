@@ -68,6 +68,19 @@ module Wile
         name != 'new' && Object.respond_to?(name)
       end
 
+      # rubocop: disable-next Metrics
+      # :reek:ManualDispatch
+      def common_ruby_method_name?
+        name = split(/[#.]/).last
+        (name != 'new' && Object.respond_to?(name)) ||
+          String.public_method_defined?(name) ||
+          Array.public_method_defined?(name) ||
+          Hash.public_method_defined?(name) ||
+          Enumerable.public_method_defined?(name) ||
+          Enumerator.public_method_defined?(name) ||
+          IO.public_method_defined?(name)
+      end
+
       def standard_library?
         lib = sub(/\A::/, '').split(/::|[#.]/).first&.downcase
         return false unless lib&.match?(/\A[a-z]\w*\z/)

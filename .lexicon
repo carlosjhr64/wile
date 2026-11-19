@@ -80,6 +80,7 @@ EX_UNAVAILABLE
 EX_USAGE
 Encoding
 Enumerable
+Enumerator
 Errno
 Etc
 FISHER_INSTALL_CMD
@@ -361,6 +362,7 @@ commands
 comment
 commit
 commit_and_tag
+common_ruby_method_name
 compact
 compare
 config_file

@@ -4,6 +4,8 @@
 module Wile
   # Categorizes methods
   class Smell
+    using WileRefinements
+
     attr_reader :implicit_methods, :known_constants, :methods,
                 :undefined_methods
 
@@ -94,8 +96,13 @@ module Wile
       @methods.each_key.any? { it.split(/[.#]/).first.end_with?(target) }
     end
 
+    # rubocop: disable-next Metrics
+    # :reek:TooManyStatements
     def add_undefined_methods(name, info)
       info.external.each do |mth|
+        next if mth.start_with?('*')
+        next if !/^[A-Z@]/.match?(mth) && mth.common_ruby_method_name?
+
         if (selected = selected_method(mth, name))
           info.add_dependency(@methods[selected])
         elsif implicit_new?(mth)
