@@ -85,22 +85,34 @@ module Wile
         find_method(mth.sub('.', '#'), name)
     end
 
+    # Checks whether an external call is an invocation of `.new` on a known
+    # class in the project that lacks an explicit `initialize` method (using
+    # Ruby's implicit default constructor).
+    def implicit_new?(mth)
+      return false unless mth.end_with?('.new')
+
+      target = mth.delete_suffix('.new')
+      # Is this a class defined in our project that has methods?
+      @methods.each_key.any? { it.split(/[.#]/).first.end_with?(target) }
+    end
+
     def add_undefined_methods(name, info)
       info.external.each do |mth|
         if (selected = selected_method(mth, name))
           info.add_dependency(@methods[selected])
         elsif implicit_new?(mth)
           @implicit_methods << mth
-        elsif !known_constant?(mth, name) && !ignore_duck?(mth)
+        elsif !known_constant?(mth, name) && !duck?(mth) &&
+              !recognized?(mth, info)
           @undefined_methods << mth
         end
       end
     end
 
     # :reek:UtilityFunction
-    def ignore_duck?(mth)
+    def duck?(mth)
       mth.start_with?('*') ||
-        (!/^[A-Z@]/.match?(mth) && mth.common_ruby_method_name?)
+        (!/^[A-Z]/.match?(mth) && mth.common_ruby_method_name?)
     end
 
     # Checks whether an external call's receiver constant is known and
@@ -113,15 +125,13 @@ module Wile
                       .any? { name.start_with?(it.delete_suffix("::#{const}")) }
     end
 
-    # Checks whether an external call is an invocation of `.new` on a known
-    # class in the project that lacks an explicit `initialize` method (using
-    # Ruby's implicit default constructor).
-    def implicit_new?(mth)
-      return false unless mth.end_with?('.new')
+    def recognized?(mth, info)
+      # Immediately return false for non ducks:
+      return false unless /\A[^A-Z#].*#/.match?(mth)
 
-      target = mth.delete_suffix('.new')
-      # Is this a class defined in our project that has methods?
-      @methods.each_key.any? { it.split(/[.#]/).first.end_with?(target) }
+      suffix = "##{mth.split('#').last}"
+      @methods.select { |key, _| key.end_with?(suffix) }
+              .each_value { info.add_dependency(it) }.any?
     end
   end
 end

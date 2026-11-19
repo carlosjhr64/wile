@@ -475,6 +475,7 @@ downcase
 download_archive
 downto
 dpc
+duck
 dump
 dup
 e
@@ -483,6 +484,7 @@ each_cons
 each_key
 each_pair
 each_slice
+each_value
 each_with_index
 each_with_object
 echo
@@ -627,7 +629,6 @@ hexdigest
 i
 idx
 ignore
-ignore_duck
 implicit
 implicit_methods
 implicit_new
@@ -937,6 +938,7 @@ readlines
 readme
 ready
 receiver
+recognized
 record_call
 record_dep
 record_missing
