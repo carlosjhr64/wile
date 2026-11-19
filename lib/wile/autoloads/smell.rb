@@ -85,23 +85,6 @@ module Wile
         find_method(mth.sub('.', '#'), name)
     end
 
-    # Checks whether an external call is an invocation of `.new` on a known
-    # class in the project that lacks an explicit `initialize` method (using
-    # Ruby's implicit default constructor).
-    def implicit_new?(mth)
-      return false unless mth.end_with?('.new')
-
-      target = mth.delete_suffix('.new')
-      # Is this a class defined in our project that has methods?
-      @methods.each_key.any? { it.split(/[.#]/).first.end_with?(target) }
-    end
-
-    # :reek:UtilityFunction
-    def ignore_duck?(mth)
-      mth.start_with?('*') ||
-        (!/^[A-Z@]/.match?(mth) && mth.common_ruby_method_name?)
-    end
-
     def add_undefined_methods(name, info)
       info.external.each do |mth|
         if (selected = selected_method(mth, name))
@@ -114,6 +97,12 @@ module Wile
       end
     end
 
+    # :reek:UtilityFunction
+    def ignore_duck?(mth)
+      mth.start_with?('*') ||
+        (!/^[A-Z@]/.match?(mth) && mth.common_ruby_method_name?)
+    end
+
     # Checks whether an external call's receiver constant is known and
     # accessible within the caller's (`name`) lexical namespace scope.
     # Matches exact constant paths or constants sharing the caller's scope.
@@ -122,6 +111,17 @@ module Wile
 
       @known_constants.select { it.end_with?("::#{const}") }
                       .any? { name.start_with?(it.delete_suffix("::#{const}")) }
+    end
+
+    # Checks whether an external call is an invocation of `.new` on a known
+    # class in the project that lacks an explicit `initialize` method (using
+    # Ruby's implicit default constructor).
+    def implicit_new?(mth)
+      return false unless mth.end_with?('.new')
+
+      target = mth.delete_suffix('.new')
+      # Is this a class defined in our project that has methods?
+      @methods.each_key.any? { it.split(/[.#]/).first.end_with?(target) }
     end
   end
 end
