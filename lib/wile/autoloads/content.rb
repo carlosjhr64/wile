@@ -12,6 +12,8 @@ module Wile
 
     # :reek:DuplicateMethodCall iterate
     def initialize(filenames, options)
+      # - @mlc: method line count, a Hash mapping a fully qualified method name
+      #         to the number of lines in the method definition.
       @red = @scope = @mlc = @filename = @responds = @casgn = nil
       if options.raw then iterate(filenames)
       else
