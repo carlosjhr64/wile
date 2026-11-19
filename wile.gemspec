@@ -1,11 +1,11 @@
 Gem::Specification.new do |s|
   ## INFO ##
   s.name     = 'wile'
-  s.version  = '0.5.261118'
+  s.version  = '0.5.261119'
   s.homepage = 'https://github.com/carlosjhr64/wile'
   s.author   = 'CarlosJHR64'
   s.email    = 'carlosjhr64@gmail.com'
-  s.date     = '2026-11-18'
+  s.date     = '2026-11-19'
   s.licenses = ['MIT']
   ## DESCRIPTION ##
   s.summary  = <<~SUMMARY
@@ -172,7 +172,6 @@ Gem::Specification.new do |s|
   s.requirements << 'man: 2.11'
   s.requirements << 'md5sum: 9.1'
   s.requirements << 'ncal: 2019'
-  s.requirements << 'pandoc: 2.17'
   s.requirements << 'rbenv: 1.3'
   s.required_ruby_version = '~> 4.0', '>= 4.0.0'
   s.requirements << 'sudo: 1.9'
