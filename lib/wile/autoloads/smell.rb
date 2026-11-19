@@ -96,18 +96,19 @@ module Wile
       @methods.each_key.any? { it.split(/[.#]/).first.end_with?(target) }
     end
 
-    # rubocop: disable-next Metrics
-    # :reek:TooManyStatements
+    # :reek:UtilityFunction
+    def ignore_duck?(mth)
+      mth.start_with?('*') ||
+        (!/^[A-Z@]/.match?(mth) && mth.common_ruby_method_name?)
+    end
+
     def add_undefined_methods(name, info)
       info.external.each do |mth|
-        next if mth.start_with?('*')
-        next if !/^[A-Z@]/.match?(mth) && mth.common_ruby_method_name?
-
         if (selected = selected_method(mth, name))
           info.add_dependency(@methods[selected])
         elsif implicit_new?(mth)
           @implicit_methods << mth
-        elsif !known_constant?(mth, name)
+        elsif !known_constant?(mth, name) && !ignore_duck?(mth)
           @undefined_methods << mth
         end
       end

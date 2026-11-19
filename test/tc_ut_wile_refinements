@@ -133,6 +133,17 @@ class TestUtWileRefinements < Test::Unit::TestCase
     assert_true 'Foo#method'.object_method?
     assert_false 'Foo.new'.object_method?
     assert_false 'Foo.totally_unknown_xyz'.object_method?
+    assert_false ''.object_method?
+  end
+
+  def test_string_common_ruby_method_name
+    %w[
+      Foo#method str#upcase arr#push hsh#fetch enum#detect iter#peek io#puts
+    ].each { assert_true it.common_ruby_method_name?, it }
+
+    ['Foo.new', 'cache#copy2project', '', '#'].each do |str|
+      assert_false str.common_ruby_method_name?, str
+    end
   end
 
   def test_string_standard_library

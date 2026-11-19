@@ -59,26 +59,29 @@ module Wile
       end
     end
 
+    COMMON_CLASSES = [
+      String, Array, Hash, Enumerable, Enumerator, IO
+    ].freeze
+    private_constant :COMMON_CLASSES
+
     # category: string
 
     refine String do
       # :reek:ManualDispatch
       def object_method?
         name = split(/[#.]/).last
+        return false unless name
+
         name != 'new' && Object.respond_to?(name)
       end
 
-      # rubocop: disable-next Metrics
-      # :reek:ManualDispatch
       def common_ruby_method_name?
+        return true if object_method?
+
         name = split(/[#.]/).last
-        (name != 'new' && Object.respond_to?(name)) ||
-          String.public_method_defined?(name) ||
-          Array.public_method_defined?(name) ||
-          Hash.public_method_defined?(name) ||
-          Enumerable.public_method_defined?(name) ||
-          Enumerator.public_method_defined?(name) ||
-          IO.public_method_defined?(name)
+        return false unless name
+
+        COMMON_CLASSES.any? { it.public_method_defined?(name) }
       end
 
       def standard_library?

@@ -23,6 +23,7 @@ CASGN_TYPES
 CATEGORY
 CLEAN_DIRS
 CLRS
+COMMON_CLASSES
 COMPARE_USAGE
 CONFIG
 CONST_NODES
@@ -626,6 +627,7 @@ hexdigest
 i
 idx
 ignore
+ignore_duck
 implicit
 implicit_methods
 implicit_new
