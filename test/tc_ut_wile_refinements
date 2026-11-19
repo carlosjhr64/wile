@@ -136,11 +136,13 @@ class TestUtWileRefinements < Test::Unit::TestCase
   end
 
   def test_string_standard_library
-    assert_true 'Find.find'.standard_library?
-    assert_true 'Etc.nprocessors'.standard_library?
-    assert_true 'Prism::Translation::Parser.parse_file'.standard_library?
-    assert_true '::JSON.pretty_generate'.standard_library?
-    assert_false 'Wile::Tasks#smell'.standard_library?
-    assert_false ''.standard_library?
+    %w[
+      Find.find Etc.nprocessors Net::HTTP#get
+      Prism::Translation::Parser.parse_file ::JSON.pretty_generate
+    ].each { assert_true it.standard_library?, it }
+
+    ['Wile::Tasks#smell', '#foo', '*#to_s', ''].each do |str|
+      assert_false str.standard_library?, str
+    end
   end
 end

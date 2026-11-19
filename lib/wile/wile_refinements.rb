@@ -70,12 +70,12 @@ module Wile
 
       def standard_library?
         lib = sub(/\A::/, '').split(/::|[#.]/).first&.downcase
-        return false unless lib
+        return false unless lib&.match?(/\A[a-z]\w*\z/)
 
-        RbConfig::CONFIG.values_at('rubylibdir', 'archdir').any? do |dir|
-          File.exist?(File.join(dir, "#{lib}.rb")) ||
-            File.exist?(File.join(dir, "#{lib}.so"))
-        end || Gem::Specification.any? { it.default_gem? && it.name == lib }
+        RbConfig::CONFIG.values_at('rubylibdir', 'archdir')
+                        .product(["#{lib}.rb", "#{lib}.so", lib])
+                        .any? { File.exist?(File.join(*it)) } ||
+          Gem::Specification.any? { it.default_gem? && it.name == lib }
       end
 
       def camel_case
