@@ -111,6 +111,11 @@ module Wile
       puts @mlc.key?(fnm) ? " #{@mlc[fnm].to_s.green}" : ' ??'.red
     end
 
+    # :reek:UtilityFunction
+    def color_duck(name)
+      :gray if name.match?(/\A(?:\*|(?:[@$]{1,2})?[a-z_]\w*)#/)
+    end
+
     # :reek:ManualDispatch and :reek:UtilityFunction
     def color_kernel(name, mth = name.strip[1..].to_sym)
       RESERVED_WORDS.include?(mth) || Kernel.respond_to?(mth) ? :cyan : nil
@@ -138,11 +143,6 @@ module Wile
       return :magenta unless (kls = TYPES[type])
 
       color kls.public_method_defined?(mth.to_sym) ? :green : nil
-    end
-
-    # :reek:UtilityFunction
-    def color_duck(name)
-      :gray if name.match?(/\A(?:\*|(?:[@$]{1,2})?[a-z_]\w*)#/)
     end
 
     # :reek:ControlParameter
