@@ -11,9 +11,10 @@ module Wile
   }.freeze
 
   CALL_NAME = /\A(?:\w+[!=?]?|\[\])\z/
+  DUCK_NAME = /\A(?:[@$]{1,2})?[a-z_]\w*\z/
   CONST_NODES = [Prism::ConstantReadNode, Prism::ConstantPathNode].freeze
 
-  private_constant :CASGN_TYPES, :CALL_NAME, :CONST_NODES
+  private_constant :CASGN_TYPES, :CALL_NAME, :DUCK_NAME, :CONST_NODES
 
   # CodeContent class generates code content for the Wile framework.
   # :reek:InstanceVariableAssumption
@@ -140,7 +141,7 @@ module Wile
         emit_call("#{@dot}new")
         emit_call("##{name}")
       else
-        emit_call("*##{name}")
+        emit_call("#{slice[DUCK_NAME] || '*'}##{name}")
       end
     end
   end

@@ -142,7 +142,7 @@ module Wile
 
     # :reek:UtilityFunction
     def color_duck(name)
-      :gray if name.start_with?('*#')
+      :gray if name.match?(/\A(?:\*|(?:[@$]{1,2})?[a-z_]\w*)#/)
     end
 
     # :reek:ControlParameter

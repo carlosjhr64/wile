@@ -7,7 +7,7 @@ SampleMethods::Worker.build 2
 SampleMethods::Worker#initialize 2
 SampleMethods::Worker#run 1
 SampleMethods::Worker#[] 2
-  *#to_s
+  key#to_s
 SampleMethods::Worker#valid? 2
 SampleMethods::Worker#reset! 2
 #private

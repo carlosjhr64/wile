@@ -19,7 +19,7 @@ end
 def SampleMethods::Worker#run
 end
 def SampleMethods::Worker#[]
-  *#to_s
+  key#to_s
 end
 def SampleMethods::Worker#valid?
 end
