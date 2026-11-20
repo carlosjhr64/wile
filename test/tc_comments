@@ -16,7 +16,11 @@ class TestComments < Test::Unit::TestCase
   LOOSE_MAGIC   = /^\s*#\s*(?<key>:?[a-z_]+):/
   STRICT_MAGIC  = /^\s*# :?[a-z_]+:/
   MAGIC_REQUIRE = /^\s*# wile: require '\w[-\w.]*(,\w[-\w.]*)*'$/
-  MAGIC_OS      = /^\s*# wile: os `\w[-\w.]*(,\w[-\w.]*)*`$/
+  MAGIC_OS      = /^\s*# wile: os `(\w[-\w.]*(?:,\w[-\w.]*)*)`$/
+  OS_CALLS      = [
+    %r{^[^#]* `(?<command>\w[-\w.]*)\b[^/]},
+    %r{^[^#]*\b(?:system|spawn)[\s(]["'](?<command>\w[-\w]+)\b[^/]}
+  ].freeze
 
   def test_comments
     errors = ruby_files.sum { check_file(it) }
@@ -35,15 +39,17 @@ class TestComments < Test::Unit::TestCase
     flunk 'Invalid magic comments found.'.red
   end
 
+  def test_os_commands
+    ruby_files.each { check_os_commands(it) } unless quiet?
+  end
+
   private
 
   def check_file(filename)
     source = File.read(filename)
     lines = source.lines
-    comments = Prism.parse_comments(source).grep(Prism::InlineComment)
-    comments.count do |comment|
-      line = lines[comment.location.start_line - 1]
-      bad_comment?(filename, comment, line)
+    Prism.parse_comments(source).grep(Prism::InlineComment).count do |comment|
+      bad_comment?(filename, comment, lines[comment.location.start_line - 1])
     end
   end
 
@@ -64,6 +70,17 @@ class TestComments < Test::Unit::TestCase
     true
   end
 
+  def check_os_commands(filename)
+    accepted = Set.new
+    File.readlines(filename).each_with_index do |line, idx|
+      if (match = MAGIC_OS.match(line))
+        accepted.merge(match[1].split(','))
+      elsif !COMMENT.match?(line)
+        check_os_call(filename, line, idx + 1, accepted)
+      end
+    end
+  end
+
   def check_magic_line(filename, line, next_line, line_number)
     match = LOOSE_MAGIC.match(line)
     return 0 unless match
@@ -75,13 +92,9 @@ class TestComments < Test::Unit::TestCase
     errors + (bad_magic_follow?(filename, line_number + 1, next_line) ? 1 : 0)
   end
 
-  def known?(key)
-    KNOWN_MAGIC.include?(key)
-  end
+  def puts_blue(file, num, line) = puts "#{file}:#{num}:#{line.chomp}".blue
 
-  def puts_blue(filename, line_number, comment_line)
-    puts "#{filename}:#{line_number}:#{comment_line.chomp}".blue
-  end
+  def known?(key) = KNOWN_MAGIC.include?(key)
 
   def bad_magic_follow?(filename, line_number, next_line)
     return false unless next_line && COMMENT.match?(next_line)
@@ -100,18 +113,27 @@ class TestComments < Test::Unit::TestCase
     true
   end
 
-  def valid_wile?(line)
-    MAGIC_REQUIRE.match?(line) || MAGIC_OS.match?(line)
+  def valid_wile?(line) = MAGIC_REQUIRE.match?(line) || MAGIC_OS.match?(line)
+
+  def check_os_call(filename, line, line_number, accepted)
+    command = OS_CALLS.lazy.filter_map { it.match(line)&.[](:command) }.first
+    return unless command && !accepted.include?(command)
+
+    head = "Unregistered os command: #{filename}:#{line_number}:"
+    puts_alert(head, line, command)
   end
 
   def alert_unknown(filename, line_number, line, key)
     return 0 if quiet? || /^\s*# {4}/.match?(line)
 
-    head = "Unknown magic comment: #{filename}:#{line_number}:"
-    before, after = line.chomp.split(key, 2)
-    msg = [head + before, key, after].map(&:yellow)
+    puts_alert("Unknown magic comment: #{filename}:#{line_number}:", line, key)
+    0
+  end
+
+  def puts_alert(head, line, token)
+    before, after = line.chomp.split(token, 2)
+    msg = [head + before, token, after].map(&:yellow)
     msg[1] = msg[1].black
     puts msg.join
-    0
   end
 end
