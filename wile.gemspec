@@ -176,6 +176,7 @@ Gem::Specification.new do |s|
   s.requirements << 'pandoc: 2.17'
   s.requirements << 'rbenv: 1.3'
   s.required_ruby_version = '~> 4.0', '>= 4.0.0'
+  s.requirements << 'ruby-parse: 3.3'
   s.requirements << 'sudo: 1.9'
   s.requirements << 'tmux: 3.3'
   s.requirements << 'tput: 6.4'
