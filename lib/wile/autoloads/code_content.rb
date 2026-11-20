@@ -130,16 +130,29 @@ module Wile
       @block['end']
     end
 
-    # :reek:FeatureEnvy
     def emit_casgn(full, node_, val = node_.value)
+      type = casgn_type(val)
+      @block["casgn #{full} #{type}"]
+      emit_struct(full, val) if type == 'Struct'
+    end
+
+    # :reek:UtilityFunction
+    def casgn_type(val)
       while val.is_a?(Prism::CallNode)
-        return @block["casgn #{full} #{val.name}"] unless
-          (receiver = val.receiver)
+        return val.name unless (receiver = val.receiver)
 
         val = receiver
       end
-      type = CASGN_TYPES[val.type] || val.slice.delete_prefix('::')
-      @block["casgn #{full} #{type}"]
+      CASGN_TYPES[val.type] || val.slice.delete_prefix('::')
+    end
+
+    def emit_struct(full, call_)
+      return unless call_.is_a?(Prism::CallNode) && call_.name == :new
+
+      with_scope(full.delete_prefix("#{scope_str}::")) do
+        emit_attrs(:attr_accessor, call_)
+        call_.block&.accept(self)
+      end
     end
 
     def emit_call(name)

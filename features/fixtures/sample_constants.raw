@@ -12,4 +12,8 @@ casgn SampleConstants::REGEX regexp
 casgn SampleConstants::LIST array
 casgn SampleConstants::STATUS sym
 casgn SampleConstants::Pair Struct
+#attr_accessor SampleConstants::Pair#a
+#attr_accessor SampleConstants::Pair#a=
+#attr_accessor SampleConstants::Pair#b
+#attr_accessor SampleConstants::Pair#b=
 casgn SampleConstants::CUSTOM Object

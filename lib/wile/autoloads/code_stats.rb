@@ -4,6 +4,7 @@
 module Wile
   # CodeStats class supplements CodeContent with method source and line counts.
   # :reek:InstanceVariableAssumption :reek:TooManyInstanceVariables
+  # rubocop:disable-next Metrics/ClassLength
   class CodeStats
     MODULE_NAME = /^(?<pad>\s*)
                   (?:(?:module|class|refine)\s+(?<scope>(?:::)?\w+(?:::\w+)*)
@@ -15,7 +16,8 @@ module Wile
                      [<>]=?|[+\-*/%&|^~]|\w+[!=?]?)}x
     SCOPE_END   = /^(?<pad>\s*)end$/
     CATEGORY    = /^\s*(?<cat>private|public|protected|# category: \w+)$/
-    CASGN       = /^(?<pad>\s*)[A-Z]\w*\s*=[^=~<>]/
+    CASGN       = /^(?<pad>\s*)(?:(?<scope>[A-Z]\w*)\s*=\s*Struct\.new\b|
+                  [A-Z]\w*\s*=[^=~<>])/x
     private_constant :MODULE_NAME, :METHOD_NAME, :SCOPE_END,
                      :CATEGORY, :CASGN
 
@@ -94,9 +96,13 @@ module Wile
       @source = CodeStats.source
     end
 
-    def casgn(length)
-      lines_shift while (line = @lines[0]) && (line.strip.empty? ||
-                        line[/^\s*/].length > length)
+    def casgn(match, length = match[:pad].length)
+      if (scope = match[:scope])
+        lines_shift until /\bdo\s*$|\)\s*$/.match?(@line) || @lines.empty?
+        level_push(length, scope) if /\bdo\s*$/.match?(@line)
+      else
+        lines_shift while @lines[0]&.match?(/\A(?:\s*$|\s{#{length + 1}})/)
+      end
     end
 
     def msh_populate
@@ -104,7 +110,7 @@ module Wile
       elsif (match = METHOD_NAME.match(@line)) then method_name(match)
       elsif (match = SCOPE_END.match(@line)) then scope_end(match)
       elsif (match = CATEGORY.match(@line)) then category_set(match)
-      elsif (match = CASGN.match(@line)) then casgn(match[:pad].length)
+      elsif (match = CASGN.match(@line)) then casgn(match)
       end
     end
 
@@ -122,15 +128,19 @@ module Wile
       end
     end
 
-    def module_name(match, pad = match[:pad].length)
-      if (scope = match[:scope])
-        level_push(pad, scope)
-        @category = "#{scope_str}.public"
-      end
-      level_push(pad, '.') if match[:sclass]
+    def module_name(match)
+      pad, scope, sclass = match.values_at(:pad, :scope, :sclass)
+      len = pad.length
+      level_push(len, scope) if scope
+      level_push(len, '.') if sclass
     end
 
     def level_pops = [@clevel.pop, @scope.pop]
-    def level_push(pad, scope) = [@clevel.push(pad), @scope.push(scope)]
+
+    def level_push(pad, scope)
+      @clevel.push(pad)
+      @scope.push(scope)
+      @category = "#{scope_str}.public" unless scope == '.'
+    end
   end
 end

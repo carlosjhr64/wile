@@ -313,12 +313,14 @@ c2p
 cache
 cached
 call
+call_
 call_name
 camel_case
 candidate
 candidates
 capitalize
 casgn
+casgn_type
 cat
 catch
 category
@@ -505,6 +507,7 @@ email
 emit_attrs
 emit_call
 emit_casgn
+emit_struct
 empty
 end_with
 ensure_commands
@@ -702,6 +705,7 @@ last
 last_line
 latest_version
 launch_nvim
+len
 length
 level_pops
 level_push

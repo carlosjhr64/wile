@@ -53,7 +53,7 @@ module Wile
 
     # pp is autoloaded:
     KERNEL = [*Kernel.public_methods.map(&:to_s), 'pp'].freeze
-    DEF_METHOD = /^def\s(?<fullname>(?<prefix>[:\w]*)[.#](?:\w+[!=?]?|\[\]))$/
+    DEF_METHOD = /^def\s(?<fullname>(?<prefix>[:\w]*)[.#]\S+)$/
     METHOD_CALL = /^\s\s(?<name>\S+)$/
     CASGN_CONST = /^casgn\s(?<const>[:\w]+)\s\w+$/
     ATTR_METHOD =

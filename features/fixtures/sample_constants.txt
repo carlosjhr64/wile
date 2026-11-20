@@ -11,4 +11,8 @@ SampleConstants::REGEX regexp
 SampleConstants::LIST array
 SampleConstants::STATUS sym
 SampleConstants::Pair Struct
+SampleConstants::Pair#a 0
+SampleConstants::Pair#a= 0
+SampleConstants::Pair#b 0
+SampleConstants::Pair#b= 0
 SampleConstants::CUSTOM Object
