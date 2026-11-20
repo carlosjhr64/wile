@@ -36,16 +36,16 @@ module Wile
       vset
     end
 
-    def visit_def_node(node, receiver = node.receiver)
-      return super(node) if receiver && !receiver.is_a?(Prism::SelfNode) &&
-                            !CONST_NODES.include?(receiver.class)
+    def visit_def_node(node_, receiver = node_.receiver)
+      return super(node_) if receiver && !receiver.is_a?(Prism::SelfNode) &&
+                             !CONST_NODES.include?(receiver.class)
 
       @dot = '.' if receiver || @scope.last == '.'
-      def_body(node.name_loc.slice, def_scope(receiver)) { super(node) }
+      def_body(node_.name_loc.slice, def_scope(receiver)) { super(node_) }
     end
 
-    def visit_module_node(node)
-      with_scope(node.constant_path.slice.delete_prefix('::')) { super }
+    def visit_module_node(node_)
+      with_scope(node_.constant_path.slice.delete_prefix('::')) { super }
     end
     alias visit_class_node visit_module_node
 
@@ -53,26 +53,26 @@ module Wile
       with_scope('.') { super }
     end
 
-    def visit_call_node(node)
-      receiver = node.receiver
-      name = node.name
-      return if !receiver && special_call?(node, name)
+    def visit_call_node(node_)
+      receiver = node_.receiver
+      name = node_.name
+      return if !receiver && special_call?(node_, name)
 
       handle_call(receiver, name) if CALL_NAME.match?(name)
       super
     end
 
-    def visit_lambda_node(node)
+    def visit_lambda_node(node_)
       emit_call("#{@dot}lambda")
       super
     end
 
-    def visit_constant_path_write_node(node)
-      emit_casgn(node.target.slice.delete_prefix('::'), node)
+    def visit_constant_path_write_node(node_)
+      emit_casgn(node_.target.slice.delete_prefix('::'), node_)
     end
 
-    def visit_constant_write_node(node)
-      emit_casgn([scope_str, node.name].reject(&:empty?).join('::'), node)
+    def visit_constant_write_node(node_)
+      emit_casgn([scope_str, node_.name].reject(&:empty?).join('::'), node_)
     end
 
     private
@@ -88,24 +88,24 @@ module Wile
       names.size.times { @scope.pop }
     end
 
-    def special_call?(node, name)
-      return visit_refine(node) || true if name == :refine && node.block
-      return emit_attrs(name, node) || true if ATTR_SUFFIXES.key?(name)
+    def special_call?(node_, name)
+      return visit_refine(node_) || true if name == :refine && node_.block
+      return emit_attrs(name, node_) || true if ATTR_SUFFIXES.key?(name)
 
       false
     end
 
-    def emit_attrs(macro, node)
+    def emit_attrs(macro, node_)
       prefix = "##{macro} #{scope_str}#{@scope.last == '.' ? '.' : '#'}"
-      syms = (node.arguments&.arguments || []).grep(Prism::SymbolNode)
+      syms = (node_.arguments&.arguments || []).grep(Prism::SymbolNode)
       syms.product(ATTR_SUFFIXES[macro]).each do |sym, sfx|
         emit_call("#{prefix}#{sym.unescaped}#{sfx}")
       end
     end
 
-    def visit_refine(node, target = node.arguments.arguments.first.slice)
+    def visit_refine(node_, target = node_.arguments.arguments.first.slice)
       scopes = target.delete_prefix('::').sub('.singleton_class', ' .').split
-      with_scope(*scopes) { node.block.accept(self) }
+      with_scope(*scopes) { node_.block.accept(self) }
     end
 
     def scope_str = @scope.reject { it == '.' }.join('::')
@@ -131,7 +131,7 @@ module Wile
     end
 
     # :reek:FeatureEnvy
-    def emit_casgn(full, node, val = node.value)
+    def emit_casgn(full, node_, val = node_.value)
       while val.is_a?(Prism::CallNode)
         return @block["casgn #{full} #{val.name}"] unless
           (receiver = val.receiver)
