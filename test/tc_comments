@@ -25,8 +25,7 @@ class TestComments < Test::Unit::TestCase
   ].freeze
 
   def test_comments
-    errors = ruby_files.sum { check_file(it) }
-    return if errors.zero?
+    return if ruby_files.sum { check_file(it) }.zero?
 
     print 'Remove these characters from side comments: '.blue
     # Backslash escapes the %q delimiter; prints '"/)}] matching FORBIDDEN.
@@ -35,15 +34,11 @@ class TestComments < Test::Unit::TestCase
   end
 
   def test_magic_comments
-    errors = ruby_files.sum { check_magic_comments(it) }
-    return if errors.zero?
-
-    flunk 'Invalid magic comments found.'.red
+    flunk 'Invalid magic comments found.'.red if
+      ruby_files.sum { check_magic_comments(it) }.positive?
   end
 
-  def test_os_commands
-    ruby_files.each { check_os_commands(it) } unless quiet?
-  end
+  def test_os_commands = quiet? || ruby_files.each { check_os_commands(it) }
 
   private
 
@@ -72,16 +67,18 @@ class TestComments < Test::Unit::TestCase
     true
   end
 
-  def check_os_commands(filename)
-    accepted = Set.new
-    File.readlines(filename).each_with_index do |line, idx|
-      if (match = MAGIC_OS.match(line))
-        accepted.merge(match[1].split(','))
-      elsif !COMMENT.match?(line)
-        check_os_call(filename, line, idx + 1, accepted)
-      end
-    end
+  def bad_magic_follow?(filename, line_number, next_line)
+    return false unless next_line && COMMENT.match?(next_line)
+    return false if STRICT_MAGIC.match?(next_line) &&
+                    known?(LOOSE_MAGIC.match(next_line)&.[](:key))
+
+    puts_blue(filename, line_number, next_line)
+    true
   end
+
+  def puts_blue(file, num, line) = puts "#{file}:#{num}:#{line.chomp}".blue
+
+  def known?(key) = KNOWN_MAGIC.include?(key)
 
   def check_magic_line(filename, line, next_line, line_number)
     match = LOOSE_MAGIC.match(line)
@@ -94,19 +91,6 @@ class TestComments < Test::Unit::TestCase
     errors + (bad_magic_follow?(filename, line_number + 1, next_line) ? 1 : 0)
   end
 
-  def puts_blue(file, num, line) = puts "#{file}:#{num}:#{line.chomp}".blue
-
-  def known?(key) = KNOWN_MAGIC.include?(key)
-
-  def bad_magic_follow?(filename, line_number, next_line)
-    return false unless next_line && COMMENT.match?(next_line)
-    return false if STRICT_MAGIC.match?(next_line) &&
-                    known?(LOOSE_MAGIC.match(next_line)&.[](:key))
-
-    puts_blue(filename, line_number, next_line)
-    true
-  end
-
   def bad_magic_format?(filename, line_number, line, key)
     valid = STRICT_MAGIC.match?(line) && (key != 'wile' || valid_wile?(line))
     return false if valid
@@ -117,12 +101,16 @@ class TestComments < Test::Unit::TestCase
 
   def valid_wile?(line) = MAGIC_REQUIRE.match?(line) || MAGIC_OS.match?(line)
 
-  def check_os_call(filename, line, line_number, accepted)
-    command = OS_CALLS.lazy.filter_map { it.match(line)&.[](:command) }.first
-    return unless command && !accepted.include?(command)
-
-    head = "Unregistered os command: #{filename}:#{line_number}:"
-    puts_alert(head, line, command)
+  def check_os_commands(filename)
+    accepted = {}
+    File.readlines(filename).each_with_index do |line, idx|
+      if (match = MAGIC_OS.match(line))
+        match[1].split(',').each { accepted[it] ||= [idx + 1, line] }
+      elsif !COMMENT.match?(line)
+        check_os_call(filename, line, idx + 1, accepted)
+      end
+    end
+    alert_unused_os(filename, accepted)
   end
 
   def alert_unknown(filename, line_number, line, key)
@@ -132,10 +120,22 @@ class TestComments < Test::Unit::TestCase
     0
   end
 
+  def alert_unused_os(filename, accepted)
+    accepted.compact.each do |cmd, (num, src)|
+      puts_alert("Unused os command: #{filename}:#{num}:", src, cmd)
+    end
+  end
+
   def puts_alert(head, line, token)
     before, after = line.chomp.split(token, 2)
-    msg = [head + before, token, after].map(&:yellow)
-    msg[1] = msg[1].black
-    puts msg.join
+    puts [(head + before).yellow, token.black, after.yellow].join
+  end
+
+  def check_os_call(filename, line, num, accepted)
+    cmd = OS_CALLS.lazy.filter_map { it.match(line)&.[](:command) }.first
+    return unless cmd
+    return accepted[cmd] = nil if accepted.key?(cmd)
+
+    puts_alert("Unregistered os command: #{filename}:#{num}:", line, cmd)
   end
 end

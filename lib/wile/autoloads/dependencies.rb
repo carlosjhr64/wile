@@ -57,12 +57,10 @@ module Wile
     def irbrc? = File.file?('.irbrc') && Git.files.include?('.irbrc')
 
     DEPENDENCY_SCRAPES = [
-      [/^\s*# wile: os `(\w[-\w.]*(?:,\w[-\w.]*)*)`$/, :os, 1],
-      [/^\s*# wile: require '(\w[-\w.]*(?:,\w[-\w.]*)*)'$/, :gem, 1],
-      [%r{^[^#]*\brequire\s*'([-\w/]+)'}, :gem, 1],
-      [%r{^[^#]*\bautoload\s+:\w+,\s*'([-\w/]+)'}, :gem, 1],
-      [%r{^[^#]* `(\w[-\w.]*)\b[^/]}, :os, 1],
-      [%r{\b(system|spawn)[\s(]["'](\w[-\w]+)\b[^/]}, :os, 2]
+      [/^\s*# wile: os `(\w[-\w.]*(?:,\w[-\w.]*)*)`$/, :os],
+      [/^\s*# wile: require '(\w[-\w.]*(?:,\w[-\w.]*)*)'$/, :gem],
+      [%r{^[^#]*\brequire\s*'([-\w/]+)'}, :gem],
+      [%r{^[^#]*\bautoload\s+:\w+,\s*'([-\w/]+)'}, :gem]
     ].freeze
 
     LIB_TYPE = {
@@ -88,8 +86,8 @@ module Wile
     # :reek:NestedIterators
     def dependencies_populate(rbfile, gemset, osset)
       File.readlines(rbfile).each do |line|
-        DEPENDENCY_SCRAPES.first_truthy_value do |rgx, type, index|
-          next unless (md = rgx.match(line)) && (name = md[index])
+        DEPENDENCY_SCRAPES.first_truthy_value do |rgx, type|
+          next unless (md = rgx.match(line)) && (name = md[1])
 
           record_dep(type, name, gemset, osset)
           true

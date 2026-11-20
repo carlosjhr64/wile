@@ -77,14 +77,13 @@ class TestUtDependencies < Test::Unit::TestCase
     assert_equal Set['diff', 'apt-get'], osset
   end
 
-  def test_scrapes_regex_ignores_dotfiles
+  def test_scrapes_only_os_directive
     scrapes = Wile::Dependencies.send(:const_get, :DEPENDENCY_SCRAPES)
-    regex = scrapes[4][0]
-    assert_nil regex.match('using `.version` as reference')
-    assert_nil regex.match('using `.prompt` in fish')
-    match = regex.match('out = `git status`')
-    assert_not_nil match
-    assert_equal 'git', match[1]
+    os_scrapes = scrapes.select { |_, type| type == :os }
+    assert_equal 1, os_scrapes.size
+    regex = os_scrapes.first.first
+    assert_nil regex.match('out = `git status`')
+    assert_nil regex.match("system('git', 'status')")
   end
 
   def test_missing_gem
