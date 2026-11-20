@@ -27,8 +27,8 @@ module Wile
     def dictionary_ok?(options)
       return true if system 'test/tc_dictionary --verbose=silent'
 
-      diff = String.disable_colorization ? %w[diff] : %w[diff --color]
-      system(*diff, '.dictionary', 'tmp/.dictionary')
+      opts = String.disable_colorization ? [] : ['--color']
+      system('diff', *opts, '.dictionary', 'tmp/.dictionary')
       return false if options.check? # Just checking
       return false unless options.yes? ||
                           Utilities.confirm?('Update dictionary?')

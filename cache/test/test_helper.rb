@@ -39,8 +39,8 @@ module Test
 
       # :reek:UtilityFunction
       def diff_output(source_file, target_file)
-        cmd = String.disable_colorization ? 'diff' : 'diff --color=always'
-        `#{cmd} #{source_file} #{target_file}`.strip
+        opt = String.disable_colorization ? '' : '--color=always'
+        `diff #{opt} #{source_file} #{target_file}`.strip
       end
 
       # :reek:UtilityFunction

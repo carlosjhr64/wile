@@ -93,18 +93,18 @@ module Wile
 
     # :reek:ControlParameter :reek:TooManyStatements
     def diff(cfile, pfile, show)
-      color = String.disable_colorization ? 'diff' : 'diff --color=always'
-      cmp, out = show ? [color, ''] : ['diff -sq', '>/dev/null']
-      if /\.erb$/.match?(cfile) then diff_erb(cfile, pfile, cmp, out)
+      color = String.disable_colorization ? '' : '--color=always'
+      opt, out = show ? [color, ''] : ['-sq', '>/dev/null']
+      if /\.erb$/.match?(cfile) then diff_erb(cfile, pfile, opt, out)
       else
-        `#{cmp} #{cfile.sw} #{pfile.sw} #{out}`
+        `diff #{opt} #{cfile.sw} #{pfile.sw} #{out}`
       end
     end
 
     # :reek:LongParameterList and :reek:UtilityFunction
-    def diff_erb(cfile, pfile, cmp, out)
+    def diff_erb(cfile, pfile, opt, out)
       result = Info.info.erb_result(cfile)
-      IO.popen("#{cmp} - #{pfile.sw} #{out}", 'w+') do |pipe|
+      IO.popen("diff #{opt} - #{pfile.sw} #{out}", 'w+') do |pipe|
         pipe.puts result
         pipe.close_write
         pipe.read

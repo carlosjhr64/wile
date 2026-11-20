@@ -27,8 +27,8 @@ module Wile
     def lexicon_ok?(options)
       return true if system 'test/tc_lexicon --verbose=silent'
 
-      diff = String.disable_colorization ? %w[diff] : %w[diff --color]
-      system(*diff, '.lexicon', 'tmp/.lexicon')
+      opts = String.disable_colorization ? [] : ['--color']
+      system('diff', *opts, '.lexicon', 'tmp/.lexicon')
       return false if options.check?
       return false unless options.yes? ||
                           Utilities.confirm?('Update lexicon?')
