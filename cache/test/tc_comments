@@ -4,6 +4,78 @@
 require_relative 'test_helper'
 require 'prism'
 
+# Scans Prism AST nodes for OS command invocations.
+class OsScanner < Prism::Visitor
+  CMD_NAME = %r{\A(\w[-\w.]*)\b(?![/=])}
+
+  def initialize(calls)
+    super()
+    @calls = calls
+    @found = []
+  end
+
+  def scan(source)
+    Prism.parse(source).value.accept(self)
+    @found
+  end
+
+  def visit_interpolated_x_string_node(node)
+    first = node.parts.first
+    record(first.unescaped, node.location.start_line) if
+      first.is_a?(Prism::StringNode)
+    super
+  end
+
+  def visit_x_string_node(node)
+    record(node.unescaped, node.location.start_line)
+    super
+  end
+
+  def visit_call_node(node)
+    record_call(node) if os_call?(node)
+    super
+  end
+
+  private
+
+  def record(text, line)
+    return unless text && (cmd = text.lstrip[CMD_NAME, 1])
+
+    @found << [cmd, line]
+    cmd
+  end
+
+  def os_call?(node)
+    recv = node.receiver&.slice
+    @calls.any? do |pat, name|
+      name == node.name && (pat.is_a?(Regexp) ? pat.match?(recv) : pat == recv)
+    end
+  end
+
+  def record_call(node)
+    args = call_args(node)
+    return if args.empty?
+
+    line = node.location.start_line
+    cmd = record(arg_text(args.first), line)
+    record(arg_text(args[1]), line) if cmd == 'sudo'
+  end
+
+  # :reek:UtilityFunction
+  def call_args(node)
+    args = node.arguments&.arguments || []
+    args.first.is_a?(Prism::HashNode) ? args.drop(1) : args
+  end
+
+  def arg_text(arg)
+    case arg
+    when Prism::StringNode then arg.unescaped
+    when Prism::InterpolatedStringNode then arg_text(arg.parts.first)
+    when Prism::ArrayNode then arg_text(arg.elements.first)
+    end
+  end
+end
+
 # Comments Test ensures side comments do not contain quotes or closing
 # delimiters (' " / ) } ]), making it simple to split "code # comment"
 # without quote or delimiter balancing.
@@ -18,10 +90,9 @@ class TestComments < Test::Unit::TestCase
   MAGIC_REQUIRE = /^\s*# wile: require '\w[-\w.]*(,\w[-\w.]*)*'$/
   MAGIC_OS      = /^\s*# wile: os `(\w[-\w.]*(?:,\w[-\w.]*)*)`$/
   OS_CALLS      = [
-    %r{^[^#]* `(?<command>\w[-\w.]*)\b[^/]},
-    %r{^[^#]*\b(?:system|spawn)[\s(]["'](?<command>\w[-\w]+)\b[^/]},
-    # Custom scrapes:
-    %r{^[^#]*\bUtilities\.run!?[\s(]["'](?<command>\w[-\w]+)\b[^/]}
+    [nil, :system], [nil, :spawn], ['IO', :popen],
+    # Custom callers: [receiver (nil, String, or Regexp), method_name]
+    [/\bUtilities\z/, :run], [/\bUtilities\z/, :run!]
   ].freeze
 
   def test_comments
@@ -67,18 +138,17 @@ class TestComments < Test::Unit::TestCase
     true
   end
 
-  def bad_magic_follow?(filename, line_number, next_line)
-    return false unless next_line && COMMENT.match?(next_line)
-    return false if STRICT_MAGIC.match?(next_line) &&
-                    known?(LOOSE_MAGIC.match(next_line)&.[](:key))
+  def valid_wile?(line) = MAGIC_REQUIRE.match?(line) || MAGIC_OS.match?(line)
 
-    puts_blue(filename, line_number, next_line)
+  def bad_magic_format?(filename, line_number, line, key)
+    valid = STRICT_MAGIC.match?(line) && (key != 'wile' || valid_wile?(line))
+    return false if valid
+
+    puts_blue(filename, line_number, line)
     true
   end
 
   def puts_blue(file, num, line) = puts "#{file}:#{num}:#{line.chomp}".blue
-
-  def known?(key) = KNOWN_MAGIC.include?(key)
 
   def check_magic_line(filename, line, next_line, line_number)
     match = LOOSE_MAGIC.match(line)
@@ -91,26 +161,15 @@ class TestComments < Test::Unit::TestCase
     errors + (bad_magic_follow?(filename, line_number + 1, next_line) ? 1 : 0)
   end
 
-  def bad_magic_format?(filename, line_number, line, key)
-    valid = STRICT_MAGIC.match?(line) && (key != 'wile' || valid_wile?(line))
-    return false if valid
+  def known?(key) = KNOWN_MAGIC.include?(key)
 
-    puts_blue(filename, line_number, line)
+  def bad_magic_follow?(filename, line_number, next_line)
+    return false unless next_line && COMMENT.match?(next_line)
+    return false if STRICT_MAGIC.match?(next_line) &&
+                    known?(LOOSE_MAGIC.match(next_line)&.[](:key))
+
+    puts_blue(filename, line_number, next_line)
     true
-  end
-
-  def valid_wile?(line) = MAGIC_REQUIRE.match?(line) || MAGIC_OS.match?(line)
-
-  def check_os_commands(filename)
-    accepted = {}
-    File.readlines(filename).each_with_index do |line, idx|
-      if (match = MAGIC_OS.match(line))
-        match[1].split(',').each { accepted[it] ||= [idx + 1, line] }
-      elsif !COMMENT.match?(line)
-        check_os_call(filename, line, idx + 1, accepted)
-      end
-    end
-    alert_unused_os(filename, accepted)
   end
 
   def alert_unknown(filename, line_number, line, key)
@@ -120,10 +179,17 @@ class TestComments < Test::Unit::TestCase
     0
   end
 
-  def alert_unused_os(filename, accepted)
-    accepted.compact.each do |cmd, (num, src)|
-      puts_alert("Unused os command: #{filename}:#{num}:", src, cmd)
+  def check_os_commands(filename)
+    source = File.read(filename)
+    lines = source.lines
+    accepted = collect_os_magic(lines)
+    OsScanner.new(OS_CALLS).scan(source).each do |cmd, num|
+      next accepted[cmd] = nil if accepted.key?(cmd)
+
+      puts_alert("Unregistered os command: #{filename}:#{num}:",
+                 lines[num - 1], cmd)
     end
+    alert_unused_os(filename, accepted)
   end
 
   def puts_alert(head, line, token)
@@ -131,11 +197,17 @@ class TestComments < Test::Unit::TestCase
     puts [(head + before).yellow, token.black, after.yellow].join
   end
 
-  def check_os_call(filename, line, num, accepted)
-    cmd = OS_CALLS.lazy.filter_map { it.match(line)&.[](:command) }.first
-    return unless cmd
-    return accepted[cmd] = nil if accepted.key?(cmd)
+  def alert_unused_os(filename, accepted)
+    accepted.compact.each do |cmd, (num, src)|
+      puts_alert("Unused os command: #{filename}:#{num}:", src, cmd)
+    end
+  end
 
-    puts_alert("Unregistered os command: #{filename}:#{num}:", line, cmd)
+  def collect_os_magic(lines)
+    lines.each_with_index.with_object({}) do |(line, idx), acc|
+      next unless (match = MAGIC_OS.match(line))
+
+      match[1].split(',').each { acc[it] ||= [idx + 1, line] }
+    end
   end
 end
