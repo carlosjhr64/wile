@@ -97,11 +97,13 @@ Gem::Specification.new do |s|
     lib/wile/autoloads/command_version.rb
     lib/wile/autoloads/content.rb
     lib/wile/autoloads/dependencies.rb
+    lib/wile/autoloads/gem_info.rb
     lib/wile/autoloads/gem_utils.rb
     lib/wile/autoloads/gemspec.rb
     lib/wile/autoloads/git.rb
     lib/wile/autoloads/info.rb
     lib/wile/autoloads/manpage.rb
+    lib/wile/autoloads/method_entry.rb
     lib/wile/autoloads/nvim_files.rb
     lib/wile/autoloads/options_dictionary.rb
     lib/wile/autoloads/order_optimizer.rb
