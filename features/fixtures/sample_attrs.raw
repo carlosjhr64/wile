@@ -1,0 +1,16 @@
+
+# ./features/fixtures/sample_attrs.rb
+
+{"SampleAttrs::Record#initialize" => 5, "SampleAttrs::Record#summary" => 2}
+#attr_reader SampleAttrs::Record.default
+#attr_reader SampleAttrs::Record#name
+#attr_reader SampleAttrs::Record#count
+#attr_writer SampleAttrs::Record#label=
+#attr_accessor SampleAttrs::Record#state
+#attr_accessor SampleAttrs::Record#state=
+def SampleAttrs::Record#initialize
+end
+def SampleAttrs::Record#summary
+  #name
+  #state
+end

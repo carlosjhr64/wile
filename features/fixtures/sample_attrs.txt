@@ -1,0 +1,13 @@
+
+# ./features/fixtures/sample_attrs.rb
+
+SampleAttrs::Record.default 0
+SampleAttrs::Record#name 0
+SampleAttrs::Record#count 0
+SampleAttrs::Record#label= 0
+SampleAttrs::Record#state 0
+SampleAttrs::Record#state= 0
+SampleAttrs::Record#initialize 5
+SampleAttrs::Record#summary 2
+  #name
+  #state
