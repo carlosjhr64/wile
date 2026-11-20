@@ -22,6 +22,7 @@ rubocop      1.92.2
 test-unit    3.7.8
 ## system-run ##
 agy          1.5
+apt-get      2.6
 clear        6.4
 colora       1.0
 cucumber     12.0
@@ -39,6 +40,7 @@ reek         6.6
 ripper-tags  1.0
 rubocop      1.92
 ruby         4.0
+ruby-parse   3.3
 sudo         1.9
 tmux         3.3
 tput         6.4
@@ -46,13 +48,13 @@ uname        9.1
 ## system-dev ##
 agy          1.5
 apt-cache    2.6
-apt-get      2.6
 chsh         4.13
 clear        6.4
 colora       1.0
 cucumber     12.0
 curl         7.88
 diff         3.8
+false        9.1
 fish         4.9
 gem          4.0
 git          2.39
@@ -63,7 +65,7 @@ reek         6.6
 ripper-tags  1.0
 rubocop      1.92
 ruby         4.0
-ruby-build   2026
-sudo         1.9
+ruby-parse   3.3
 tmux         3.3
+true         9.1
 uname        9.1
