@@ -26,6 +26,14 @@ class TestUtMethodEntry < Test::Unit::TestCase
     assert_equal ['a.rb'], entry.dependants
   end
 
+  def test_initialize_for_attr
+    entry = Wile::MethodEntry.new(mock_cdt('a.rb'))
+    assert_equal 'a.rb', entry.filename
+    assert_equal [], entry.dependencies
+    assert_equal [], entry.dependants
+    assert_equal [], entry.external
+  end
+
   def test_add_dependency
     caller_entry = Wile::MethodEntry.new(mock_cdt('a.rb'), 'A#foo')
     callee_entry = Wile::MethodEntry.new(mock_cdt('b.rb'), 'B#bar')

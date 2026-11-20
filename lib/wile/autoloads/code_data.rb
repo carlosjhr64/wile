@@ -4,21 +4,20 @@
 module Wile
   # CodeData class provides data about the code in a file.
   # :reek:TooManyInstanceVariables :reek:TooManyMethods
+  # rubocop:disable-next Metrics/ClassLength
   class CodeData
     using WileRefinements
 
-    attr_reader :constants, :data, :filename, :index
+    attr_reader :attrs, :constants, :data, :filename, :index
 
     # :reek:TooManyStatements
     def initialize(filename)
       @filename = filename
-      @index = {}
+      @attrs = []
       @constants = []
+      @index = {}
       @fullname = @prefix = @responds = nil
-      @data = CodeStats.method_stats(filename) do |stat|
-        { lines: stat, size: stat.size, category: stat.category,
-          dependencies: [], dependants: [], external: [], stdlib: [] }
-      end
+      @data = build_data(filename)
       populate_dependencies
       populate_dependants
     end
@@ -44,13 +43,24 @@ module Wile
 
     # category: populate
 
+    # :reek:UtilityFunction
+    def build_data(filename)
+      CodeStats.method_stats(filename) do |stat|
+        { lines: stat, size: stat.size, category: stat.category,
+          dependencies: [], dependants: [], external: [], stdlib: [] }
+      end
+    end
+
     # pp is autoloaded:
     KERNEL = [*Kernel.public_methods.map(&:to_s), 'pp'].freeze
     DEF_METHOD = /^def\s(?<fullname>(?<prefix>[:\w]*)[.#](?:\w+[!=?]?|\[\]))$/
     METHOD_CALL = /^\s\s(?<name>\S+)$/
     CASGN_CONST = /^casgn\s(?<const>[:\w]+)\s\w+$/
+    ATTR_METHOD =
+      /^#attr_(?:reader|writer|accessor)\s(?<attr>[:\w]+[.#]\w+=?)$/
 
-    private_constant :KERNEL, :DEF_METHOD, :METHOD_CALL, :CASGN_CONST
+    private_constant :KERNEL, :DEF_METHOD, :METHOD_CALL, :CASGN_CONST,
+                     :ATTR_METHOD
 
     def populate_dependants
       names.permutation(2) do |name, other|
@@ -103,6 +113,8 @@ module Wile
         record_call(match[:name])
       elsif (match = CASGN_CONST.match(line))
         @constants << match[:const]
+      elsif (match = ATTR_METHOD.match(line))
+        @attrs << match[:attr]
       end
     end
 

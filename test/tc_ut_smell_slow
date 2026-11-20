@@ -27,6 +27,11 @@ class TestUtSmell < Test::Unit::TestCase
     assert_true @smell.implicit_methods.include?('Wile::CodeStats.new')
   end
 
+  def test_undefined_methods_exclude_attr_readers
+    assert_true @smell.methods.key?('Wile::Info#cache')
+    assert_false @smell.undefined_methods.include?('@info#cache')
+  end
+
   def test_undefined_methods_include_nonexistent_methods
     entry = Wile::MethodEntry.new(mock_cdt, 'Fake#test')
     @smell.send(:add_undefined_methods, 'Wile::Tasks#fake', entry)

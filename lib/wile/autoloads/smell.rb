@@ -29,10 +29,10 @@ module Wile
       files.each { process_file(it) }
     end
 
-    def process_file(filename)
-      cdt = CodeData.new(filename)
+    def process_file(filename, cdt = CodeData.new(filename))
       @known_constants.merge(cdt.constants)
       cdt.names.each { @methods[it] = MethodEntry.new(cdt, it) }
+      cdt.attrs.each { @methods[it] = MethodEntry.new(cdt) }
     end
 
     def find_method(target, name)

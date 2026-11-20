@@ -2,6 +2,7 @@ ALLOWED
 API_URL
 ARCH
 ARGV
+ATTR_METHOD
 ATTR_SUFFIXES
 AVAILABLE_CHECKS
 ArgumentError
@@ -276,9 +277,11 @@ asset
 assets
 assoc
 ast
+attr
 attr_accessor
 attr_reader
 attr_writer
+attrs
 auto
 autoload
 autoloads
@@ -303,6 +306,7 @@ bnswp
 bold
 bprm
 build
+build_data
 bump
 bumped
 c2p
