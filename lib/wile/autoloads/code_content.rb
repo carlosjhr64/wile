@@ -10,15 +10,20 @@ module Wile
     regular_expression_node: 'regexp', string_node: 'str', symbol_node: 'sym'
   }.freeze
 
+  ATTR_SUFFIXES = {
+    attr_reader: [''], attr_writer: ['='], attr_accessor: ['', '=']
+  }.freeze
   CALL_NAME = /\A(?:\w+[!=?]?|\[\])\z/
   DUCK_NAME = /\A(?:[@$]{1,2})?[a-z_]\w*\z/
   CONST_NODES = [Prism::ConstantReadNode, Prism::ConstantPathNode].freeze
 
-  private_constant :CASGN_TYPES, :CALL_NAME, :DUCK_NAME, :CONST_NODES
+  private_constant :ATTR_SUFFIXES, :CASGN_TYPES, :CALL_NAME, :DUCK_NAME,
+                   :CONST_NODES
 
   # CodeContent class generates code content for the Wile framework.
   # :reek:InstanceVariableAssumption
   # :reek:TooManyInstanceVariables :reek:TooManyMethods
+  # rubocop:disable-next Metrics/ClassLength
   class CodeContent < Prism::Visitor
     def self.ast(fnm) = Prism::Translation::Parser.parse_file(fnm).inspect.lines
 
@@ -51,7 +56,7 @@ module Wile
     def visit_call_node(node)
       receiver = node.receiver
       name = node.name
-      return visit_refine(node) if !receiver && name == :refine && node.block
+      return if !receiver && special_call?(node, name)
 
       handle_call(receiver, name) if CALL_NAME.match?(name)
       super
@@ -81,6 +86,21 @@ module Wile
       yield
     ensure
       names.size.times { @scope.pop }
+    end
+
+    def special_call?(node, name)
+      return visit_refine(node) || true if name == :refine && node.block
+      return emit_attrs(name, node) || true if ATTR_SUFFIXES.key?(name)
+
+      false
+    end
+
+    def emit_attrs(macro, node)
+      prefix = "##{macro} #{scope_str}#{@scope.last == '.' ? '.' : '#'}"
+      syms = (node.arguments&.arguments || []).grep(Prism::SymbolNode)
+      syms.product(ATTR_SUFFIXES[macro]).each do |sym, sfx|
+        emit_call("#{prefix}#{sym.unescaped}#{sfx}")
+      end
     end
 
     def visit_refine(node, target = node.arguments.arguments.first.slice)

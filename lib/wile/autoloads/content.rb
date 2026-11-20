@@ -27,6 +27,7 @@ module Wile
     private
 
     MTHD = { content_end: /^end$/, content_def: /^def [#.\w]/,
+             content_attr: /^#attr_(?:reader|writer|accessor) /,
              content_casgn: /^casgn \w/, content_methods: /^  / }.freeze
 
     TYPES = {
@@ -105,6 +106,12 @@ module Wile
       prefix = "#{prefix}::" unless prefix.empty?
       color = TYPES.key?(type) ? :green : :magenta
       puts "#{prefix.light_blue}#{name.bold} #{type.colorize(color)}"
+    end
+
+    def content_attr(line, fnm = line.split.last)
+      @mlc[fnm] = 0
+      name, sep, scope = fnm.split(/([#.])/).reverse
+      puts "#{scope&.light_blue}#{sep&.light_blue}#{name.bold} #{'0'.green}"
     end
 
     def content_def(line, fnm = line.split.last)
