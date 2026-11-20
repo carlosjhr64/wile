@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# wile: os `rbenv`
+# wile: os `gem,rbenv`
 
 # ## wile gemcheck ##
 # Checks for missing gems in the current Ruby version that are found installed

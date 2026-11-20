@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# wile: os `pandoc`
+
 # Wile namespace.
 module Wile
   # Generates roff man pages from markdown using pandoc.

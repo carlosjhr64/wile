@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# wile: os `gem`
+
 # Wile namespace.
 module Wile
   # GemUtils class provides methods that uses Ruby's gem command-line tool.

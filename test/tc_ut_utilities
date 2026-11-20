@@ -1,6 +1,8 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+# wile: os `false,ruby,true`
+
 require 'stringio'
 require 'tempfile'
 require_relative 'test_helper'
