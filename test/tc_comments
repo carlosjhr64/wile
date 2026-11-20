@@ -19,7 +19,9 @@ class TestComments < Test::Unit::TestCase
   MAGIC_OS      = /^\s*# wile: os `(\w[-\w.]*(?:,\w[-\w.]*)*)`$/
   OS_CALLS      = [
     %r{^[^#]* `(?<command>\w[-\w.]*)\b[^/]},
-    %r{^[^#]*\b(?:system|spawn)[\s(]["'](?<command>\w[-\w]+)\b[^/]}
+    %r{^[^#]*\b(?:system|spawn)[\s(]["'](?<command>\w[-\w]+)\b[^/]},
+    # Custom scrapes:
+    %r{^[^#]*\bUtilities\.run!?[\s(]["'](?<command>\w[-\w]+)\b[^/]}
   ].freeze
 
   def test_comments
