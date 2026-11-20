@@ -1,6 +1,8 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+# wile: os `git,ruby`
+
 Encoding.default_external = Encoding::UTF_8
 
 require 'English'

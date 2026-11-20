@@ -1,6 +1,8 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+# wile: os `apt-get,dpkg-query,git,ps,rbenv,ruby,uname`
+
 Encoding.default_external = Encoding::UTF_8
 
 # --- Preamble: Platform, Root, Arguments, and Gem Bootstrapping ---

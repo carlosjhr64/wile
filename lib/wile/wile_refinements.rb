@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# wile: os `tput`
+
 # Wile namespace.
 module Wile
   # Utility methods for the Wile project.

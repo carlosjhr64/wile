@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# wile: os `man`
+
 # Wile namespace.
 module Wile
   # This class knows how to get the version of a command.

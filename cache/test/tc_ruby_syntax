@@ -1,6 +1,8 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+# wile: os `ruby`
+
 require_relative 'test_helper'
 
 # Ruby Syntax Tests

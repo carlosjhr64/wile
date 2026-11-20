@@ -7,7 +7,7 @@ require 'colorize'
 require 'prism'
 # wile: require 'reek'
 # wile: require 'rubocop'
-# wile: os `diff`
+# wile: os `diff,git,reek,rubocop`
 
 String.disable_colorization = true unless $stdout.tty? &&
                                           ENV['NO_COLOR'].to_s.empty? &&

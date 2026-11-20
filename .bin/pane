@@ -1,6 +1,8 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+# wile: os `agy,clear,colora,git,ncal,rubocop,tmux,wile`
+
 HELP = <<~HELP
   ## pane ##
   Per-pane dashboard and command runner for the Wile tmux workstation.

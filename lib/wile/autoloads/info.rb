@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# wile: os `git`
+
 # Wile namespace.
 module Wile
   # Info class provides information about the current project.

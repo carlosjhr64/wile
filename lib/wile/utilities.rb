@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# wile: os `apt-get,dpkg-query,fish,rbenv,sudo,uname`
+
 # Wile namespace.
 module Wile
   # Utility functions collected and harmonized from bin/bootstrap_* scripts.

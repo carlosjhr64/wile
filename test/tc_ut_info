@@ -1,6 +1,8 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+# wile: os `git`
+
 require 'tmpdir'
 require_relative 'test_helper'
 require_relative '../lib/wile'

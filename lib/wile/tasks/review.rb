@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 # wile: require 'reek,rubocop'
+# wile: os `clear,reek,rubocop,wile`
 
 # ## wile review ##
 # Interactively reviews project files using content, order, reek, and rubocop.

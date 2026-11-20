@@ -4,6 +4,7 @@
 require 'etc'
 require_relative 'test_helper'
 # wile: require 'cucumber'
+# wile: os `cucumber`
 
 # Cucumber Tests runs the feature suite and flunks if any scenario fails.
 class TestCucumber < Test::Unit::TestCase

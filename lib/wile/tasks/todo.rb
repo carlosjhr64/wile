@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# wile: os `colora`
+
 # ## wile todo ##
 # Puts TODO.md's bullet lines.
 # If match, greps matching ruby files for TODO's.

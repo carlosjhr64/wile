@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# wile: os `md5sum`
+
 # Wile namespace.
 module Wile
   # Project module provides methods to manage project files.
