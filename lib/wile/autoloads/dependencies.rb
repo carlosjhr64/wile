@@ -69,19 +69,11 @@ module Wile
       lib: %r{\./lib/([-\w]+)}
     }.freeze
 
-    # This struct is used to store gem information.
-    GemInfo = Struct.new(:name, :version, :type, :filename, :require) do
-      def <=>(other)
-        (cmp = name <=> other.name).zero? ? version <=> other.version : cmp
-      end
-    end
-
     OS_CMDS = %w[which].freeze
 
     PROJECT_DIRS = %w[bin .bin cache/bin cache/.bin].freeze
 
-    private_constant :DEPENDENCY_SCRAPES, :GemInfo, :LIB_TYPE, :OS_CMDS,
-                     :PROJECT_DIRS
+    private_constant :DEPENDENCY_SCRAPES, :LIB_TYPE, :OS_CMDS, :PROJECT_DIRS
 
     # :reek:NestedIterators
     def dependencies_populate(rbfile, gemset, osset)
