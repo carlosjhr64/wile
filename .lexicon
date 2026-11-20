@@ -488,7 +488,6 @@ downcase
 download_archive
 downto
 dpc
-duck
 dump
 dup
 e
@@ -1053,7 +1052,9 @@ show_tc_section
 singleton_class
 size
 size_of
+skip_duck
 skip_to_fence
+skipped_receiver
 slc
 slice
 slow
@@ -1146,6 +1147,7 @@ uniq
 unique
 unlink
 unqualified
+unresolved
 unused
 upcase
 update

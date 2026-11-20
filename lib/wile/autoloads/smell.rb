@@ -52,6 +52,18 @@ module Wile
         find_method(mth.sub('.', '#'), name)
     end
 
+    def add_undefined_methods(name, entry)
+      entry.external.each do |mth|
+        if (selected = selected_method(mth, name))
+          entry.add_dependency(@methods[selected])
+        elsif implicit_new?(mth)
+          @implicit_methods << mth
+        elsif !known_constant?(mth, name) && unresolved?(mth, entry)
+          @undefined_methods << mth
+        end
+      end
+    end
+
     # Checks whether an external call is an invocation of `.new` on a known
     # class in the project that lacks an explicit `initialize` method (using
     # Ruby's implicit default constructor).
@@ -63,25 +75,6 @@ module Wile
       @methods.each_key.any? { it.split(/[.#]/).first.end_with?(target) }
     end
 
-    def add_undefined_methods(name, entry)
-      entry.external.each do |mth|
-        if (selected = selected_method(mth, name))
-          entry.add_dependency(@methods[selected])
-        elsif implicit_new?(mth)
-          @implicit_methods << mth
-        elsif !known_constant?(mth, name) && !duck?(mth) &&
-              !recognized?(mth, entry)
-          @undefined_methods << mth
-        end
-      end
-    end
-
-    # :reek:UtilityFunction
-    def duck?(mth)
-      mth.start_with?('*') ||
-        (!/^[A-Z]/.match?(mth) && mth.common_ruby_method_name?)
-    end
-
     # Checks whether an external call's receiver constant is known and
     # accessible within the caller's (`name`) lexical namespace scope.
     # Matches exact constant paths or constants sharing the caller's scope.
@@ -90,6 +83,21 @@ module Wile
 
       @known_constants.select { it.end_with?("::#{const}") }
                       .any? { name.start_with?(it.delete_suffix("::#{const}")) }
+    end
+
+    def unresolved?(mth, entry)
+      !skip_duck?(mth) && !recognized?(mth, entry) && !skipped_receiver?(mth)
+    end
+
+    # :reek:UtilityFunction
+    def skipped_receiver?(mth)
+      mth.match?(/\A@?(?:options|it|\w+_)#/)
+    end
+
+    # :reek:UtilityFunction
+    def skip_duck?(mth)
+      mth.start_with?('*') ||
+        (!/^[A-Z]/.match?(mth) && mth.common_ruby_method_name?)
     end
 
     def recognized?(mth, entry)
