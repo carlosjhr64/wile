@@ -28,9 +28,9 @@ class TestUtSmell < Test::Unit::TestCase
   end
 
   def test_undefined_methods_include_nonexistent_methods
-    info_class = Wile::Smell.const_get(:Info)
-    info = info_class.new(mock_cdt, 'Fake#test')
-    @smell.send(:add_undefined_methods, 'Wile::Tasks#fake', info)
+    entry_class = Wile::Smell.const_get(:MethodEntry)
+    entry = entry_class.new(mock_cdt, 'Fake#test')
+    @smell.send(:add_undefined_methods, 'Wile::Tasks#fake', entry)
     assert_true @smell.undefined_methods.include?(
       'CodeData.not_a_method_anywhere'
     )

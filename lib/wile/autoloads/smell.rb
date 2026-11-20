@@ -30,7 +30,8 @@ module Wile
     #     # Methods not in "method_file", Kernel, nor Standard Library:
     #     external: ["external_method1", "external_method2",...]
     #   }
-    Info = Struct.new(:filename, :dependencies, :dependants, :external) do
+    MethodEntry = Struct.new(:filename, :dependencies, :dependants,
+                             :external) do
       def initialize(cdt, name)
         super(cdt.filename, [], [], cdt.external(name))
         dependencies << filename unless cdt.dependencies(name).empty?
@@ -43,7 +44,7 @@ module Wile
       end
     end
     REF = /\w+Refinements::/
-    private_constant :Info, :REF
+    private_constant :MethodEntry, :REF
 
     def initialize(dir = 'lib')
       @methods = {}
@@ -51,7 +52,7 @@ module Wile
       @known_constants = Set.new
       @undefined_methods = Set.new
       get_code_data(dir)
-      @methods.each { |name, info| add_undefined_methods(name, info) }
+      @methods.each { |name, entry| add_undefined_methods(name, entry) }
     end
 
     private
@@ -65,7 +66,7 @@ module Wile
     def process_file(filename)
       cdt = CodeData.new(filename)
       @known_constants.merge(cdt.constants)
-      cdt.names.each { @methods[it] = Info.new(cdt, it) }
+      cdt.names.each { @methods[it] = MethodEntry.new(cdt, it) }
     end
 
     def find_method(target, name)
@@ -96,14 +97,14 @@ module Wile
       @methods.each_key.any? { it.split(/[.#]/).first.end_with?(target) }
     end
 
-    def add_undefined_methods(name, info)
-      info.external.each do |mth|
+    def add_undefined_methods(name, entry)
+      entry.external.each do |mth|
         if (selected = selected_method(mth, name))
-          info.add_dependency(@methods[selected])
+          entry.add_dependency(@methods[selected])
         elsif implicit_new?(mth)
           @implicit_methods << mth
         elsif !known_constant?(mth, name) && !duck?(mth) &&
-              !recognized?(mth, info)
+              !recognized?(mth, entry)
           @undefined_methods << mth
         end
       end
@@ -125,13 +126,13 @@ module Wile
                       .any? { name.start_with?(it.delete_suffix("::#{const}")) }
     end
 
-    def recognized?(mth, info)
+    def recognized?(mth, entry)
       # Immediately return false for non ducks:
       return false unless /\A[^A-Z#].*#/.match?(mth)
 
       suffix = "##{mth.split('#').last}"
       @methods.select { |key, _| key.end_with?(suffix) }
-              .each_value { info.add_dependency(it) }.any?
+              .each_value { entry.add_dependency(it) }.any?
     end
   end
 end

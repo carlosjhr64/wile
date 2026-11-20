@@ -130,6 +130,7 @@ MTHD
 MaintGenerateCons
 Manpage
 Method
+MethodEntry
 Mutex
 NOTE_USAGE
 NULL
