@@ -84,7 +84,7 @@ class TestUtGit < Test::Unit::TestCase
     assert_false Wile::Git.clean?
     assert_raise(RuntimeError) { Wile::Git.clean! }
 
-    system('git', 'add', 'file.txt')
+    Wile::Git.add!('file.txt')
     Wile::Git.commit!('1.0.0')
     assert_true Wile::Git.clean?
     assert_equal ['file.txt'], Wile::Git.files

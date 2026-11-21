@@ -48,17 +48,18 @@ module Wile
       Project.archive pkg
     end
 
-    def commit_and_tag
-      Git.commit! @version
-      Git.tag! @version
-      Git.push!
-    end
-
     def verify_ready
       Git.clean!
       @gmu.clean!
       @gmu.ready!
       Test.test!
+    end
+
+    def commit_and_tag
+      Git.add! 'History.txt'
+      Git.commit! @version
+      Git.tag! @version
+      Git.push!
     end
   end
 end

@@ -36,6 +36,10 @@ module Wile
         `git tag -l #{version}`.strip.empty?
     end
 
+    def self.add!(*files)
+      git!('add', *files)
+    end
+
     def self.commit!(version)
       git!('commit', '-a', '-m', version)
     end
