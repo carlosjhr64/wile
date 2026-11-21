@@ -291,7 +291,7 @@ attr_accessor
 attr_reader
 attr_writer
 attrs
-auto
+auto_next
 autoload
 autoloads
 backtrace
@@ -744,6 +744,7 @@ man
 manual_fish_instructions
 map
 match
+match_target
 matched
 matched_files
 matched_tasks
@@ -861,12 +862,12 @@ pair_majors
 pandoc
 pandoc_args
 parse
+parse_checks
 parse_content_line
 parse_file
 parse_usage
 partition
 pascal_case
-passed
 path
 paths
 pattern
@@ -911,6 +912,7 @@ project_root
 prompt
 prompt_and_install
 prompt_apt_install
+prompt_choice
 prompt_configure_shell
 prompt_install
 prompt_target_ruby_install
@@ -1059,7 +1061,6 @@ set_date
 set_git_user
 set_project
 set_project_names
-settings
 sfx
 shared
 shift
