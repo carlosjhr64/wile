@@ -246,10 +246,10 @@ class TestUtTasksExtra < Test::Unit::TestCase
 
   def test_bump_flow
     now = Time.new(2026, 11, 14)
-    assert_equal '0.5.261114', TASKS.send(:bumped, '0.5.260101', nil, now)
-    assert_equal '0.5.261114', TASKS.send(:bumped, '0.5.260101', 'build', now)
-    assert_equal '0.6.261114', TASKS.send(:bumped, '0.5.260101', 'minor', now)
-    assert_equal '1.0.261114', TASKS.send(:bumped, '0.5.260101', 'major', now)
+    assert_equal '0.5.261114', Wile::Bumper.bumped('0.5.260101', nil, now)
+    assert_equal '0.5.261114', Wile::Bumper.bumped('0.5.260101', 'build', now)
+    assert_equal '0.6.261114', Wile::Bumper.bumped('0.5.260101', 'minor', now)
+    assert_equal '1.0.261114', Wile::Bumper.bumped('0.5.260101', 'major', now)
     Dir.mktmpdir { |dir| verify_bump_in_dir(dir, now) }
   end
 

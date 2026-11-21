@@ -11,6 +11,7 @@ BEST_COMPRESSION
 BIN_DIR
 BUILD_PACKAGES
 BUILD_USAGE
+BUMPS
 BUMP_USAGE
 BootstrapFish
 BootstrapFisherPlugins
@@ -18,6 +19,7 @@ BootstrapInstallNeovim
 BootstrapRubyGems
 BootstrapRubyRbenv
 BootstrapSystemCommands
+Bumper
 CALL_NAME
 CASGN
 CASGN_CONST
@@ -250,6 +252,7 @@ _
 __dir__
 _args
 _cmd
+_min
 _node
 a
 abs
@@ -737,6 +740,7 @@ m
 macro
 magenta
 main
+maj
 major
 majors
 make
