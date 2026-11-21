@@ -14,7 +14,7 @@
 . ftr VB CB
 . ftr VBI CBI
 .\}
-.TH "WILE" "1" "November 2026" "wile 0.6.261121" "User Commands"
+.TH "WILE" "1" "November 2026" "wile 0.7.261121" "User Commands"
 .hy
 .SH NAME
 .PP
@@ -119,7 +119,8 @@ for details.
 \f[B]list\f[R]: List all tasks or filter by pattern (see
 \f[B]LIST\f[R]).
 .IP \[bu] 2
-\f[B]methods\f[R]: Classify methods in your code.
+\f[B]methods\f[R]: Classify methods in your code (see
+\f[B]METHODS\f[R]).
 .IP \[bu] 2
 \f[B]mkdir\f[R]: Create project directory from template (see
 \f[B]MKDIR\f[R]).
@@ -572,6 +573,63 @@ scripts.
 .IP \[bu] 2
 \f[B]CODE\f[R]: Unformatted usage comment lines extracted from task
 source files.
+.SH METHODS
+.PP
+Wile performs lightweight static analysis across tracked Ruby files
+under \f[V]lib/\f[R] and classifies defined and called methods into
+seven categories:
+.IP
+.nf
+\f[C]
+$ wile methods                  # Display all method categories
+$ wile methods Cache Info       # Filter results by regex patterns
+$ wile methods --name=unused    # Display only categories matching name
+$ wile methods Cache --name=un  # Combine pattern and category filters
+\f[R]
+.fi
+.PP
+Arguments and options:
+.IP \[bu] 2
+\f[V]<match>...\f[R]: Optional regex patterns filtering displayed method
+names.
+.IP \[bu] 2
+\f[V]--name=PATTERN\f[R]: Optional case-insensitive pattern selecting
+which category lists to display (e.g.\ \f[V]unused\f[R],
+\f[V]undef\f[R], \f[V]shared\f[R]).
+.PP
+Categories:
+.IP \[bu] 2
+\f[B]Undefined\f[R]: External method calls not resolved to a project
+definition, common Ruby/Object method, or skipped receiver.
+Standard library calls are marked with \f[V]\[u2630]\f[R] and
+\f[V]Object\f[R] methods with \f[V]\[u25C7]\f[R].
+.IP \[bu] 2
+\f[B]Implicit\f[R]: \f[V].new\f[R] calls on project classes that have no
+explicit \f[V]initialize\f[R] method.
+.IP \[bu] 2
+\f[B]Unused\f[R]: Defined methods (including \f[V]attr_*\f[R] and
+\f[V]Struct\f[R] accessors) with no statically detected callers.
+.IP \[bu] 2
+\f[B]Independent\f[R]: Methods that do not depend on any other project
+methods.
+.IP \[bu] 2
+\f[B]Isolate\f[R]: Methods that are both unused and independent.
+.IP \[bu] 2
+\f[B]Shared\f[R]: Methods called from files other than the file defining
+them.
+.IP \[bu] 2
+\f[B]Reused\f[R]: Method names defined in more than one class or module
+(excluding \f[V]initialize\f[R]).
+.PP
+Receiver conventions:
+.IP \[bu] 2
+Duck-typed calls (e.g.\ \f[V]foo#bar\f[R] or chained \f[V]*#bar\f[R])
+are matched against defined project method names to record dependencies.
+.IP \[bu] 2
+Receivers named \f[V]options\f[R], \f[V]it\f[R], or ending in a trailing
+underscore (e.g.\ \f[V]node_\f[R], \f[V]sym_\f[R]) are skipped from
+\f[B]Undefined\f[R] when unresolved, allowing intentional opt-out for
+dynamic or third-party AST objects.
 .SH MKDIR
 .PP
 Wile creates a new Ruby gem project directory scaffolded from the living

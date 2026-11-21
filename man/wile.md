@@ -64,7 +64,7 @@ Run `wile list` to list all tasks, or `wile help <task>` for details.
 - **install**: Build and install gem locally (see **INSTALL**).
 - **lexicon**: View and update vocabulary whitelist (see **LEXICON**).
 - **list**: List all tasks or filter by pattern (see **LIST**).
-- **methods**: Classify methods in your code.
+- **methods**: Classify methods in your code (see **METHODS**).
 - **mkdir**: Create project directory from template (see **MKDIR**).
 - **note**: Scrape ruby files for NOTE comments (see **NOTE**).
 - **nvim**: Open project files in Neovim (see **NVIM**).
@@ -376,6 +376,45 @@ Formats:
 - **DICTIONARY**: Concise list in `+ <task>: <description>` format.
 - **NAME**: Bare task names only, suitable for shell completion and scripts.
 - **CODE**: Unformatted usage comment lines extracted from task source files.
+
+## METHODS
+
+Wile performs lightweight static analysis across tracked Ruby files under
+`lib/` and classifies defined and called methods into seven categories:
+
+    $ wile methods                  # Display all method categories
+    $ wile methods Cache Info       # Filter results by regex patterns
+    $ wile methods --name=unused    # Display only categories matching name
+    $ wile methods Cache --name=un  # Combine pattern and category filters
+
+Arguments and options:
+
+- `<match>...`: Optional regex patterns filtering displayed method names.
+- `--name=PATTERN`: Optional case-insensitive pattern selecting which
+  category lists to display (e.g. `unused`, `undef`, `shared`).
+
+Categories:
+
+- **Undefined**: External method calls not resolved to a project definition,
+  common Ruby/Object method, or skipped receiver. Standard library calls are
+  marked with `☰` and `Object` methods with `◇`.
+- **Implicit**: `.new` calls on project classes that have no explicit
+  `initialize` method.
+- **Unused**: Defined methods (including `attr_*` and `Struct` accessors)
+  with no statically detected callers.
+- **Independent**: Methods that do not depend on any other project methods.
+- **Isolate**: Methods that are both unused and independent.
+- **Shared**: Methods called from files other than the file defining them.
+- **Reused**: Method names defined in more than one class or module
+  (excluding `initialize`).
+
+Receiver conventions:
+
+- Duck-typed calls (e.g. `foo#bar` or chained `*#bar`) are matched against
+  defined project method names to record dependencies.
+- Receivers named `options`, `it`, or ending in a trailing underscore
+  (e.g. `node_`, `sym_`) are skipped from **Undefined** when unresolved,
+  allowing intentional opt-out for dynamic or third-party AST objects.
 
 ## MKDIR
 
