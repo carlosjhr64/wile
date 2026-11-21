@@ -136,7 +136,8 @@ for details.
 \f[B]oscheck\f[R]: Verify system commands and versions (see
 \f[B]OSCHECK\f[R]).
 .IP \[bu] 2
-\f[B]publish\f[R]: Publish new version to RubyGems.
+\f[B]publish\f[R]: Publish new version to RubyGems (see
+\f[B]PUBLISH\f[R]).
 .IP \[bu] 2
 \f[B]review\f[R]: Interactively review project files (see
 \f[B]REVIEW\f[R]).
@@ -819,6 +820,52 @@ Options:
 .IP \[bu] 2
 \f[V]--all\f[R]: Audit all known commands, including missing commands,
 and exit 1 (\f[V]EX_FAIL\f[R]) if any command is missing.
+.SH PUBLISH
+.PP
+Wile verifies project readiness, builds and pushes a new gem version to
+RubyGems, archives the package, and records the release in Git:
+.IP
+.nf
+\f[C]
+$ wile publish 0.7.261121       # Publish version 0.7.261121
+\f[R]
+.fi
+.PP
+Arguments:
+.IP \[bu] 2
+\f[V]<version>\f[R]: Exactly one version argument matching
+\f[V]X.Y.Z\f[R] (\f[V]/\[ha]\[rs]d+\[rs].\[rs]d+\[rs].\[rs]d+$/\f[R]),
+which must match \f[V].version\f[R] and not already exist as a Git tag.
+.PP
+Pre-publish checks:
+.IP "1." 3
+\f[B]Project Root\f[R]: Verifies required project root files are
+present.
+.IP "2." 3
+\f[B]Version & Tag\f[R]: Verifies \f[V]<version>\f[R] matches
+\f[V].version\f[R] and has not already been tagged in Git.
+.IP "3." 3
+\f[B]Git & Gemspec\f[R]: Verifies \f[V]git status\f[R] is clean, no
+\f[V].gem\f[R] file is present in the working directory, and the gemspec
+has been touched within the last 5 minutes.
+.IP "4." 3
+\f[B]Test Suite\f[R]: Runs the full test suite (\f[V]Test.test!\f[R])
+and aborts on any failure.
+.PP
+Release steps:
+.IP "1." 3
+\f[B]Build & Push\f[R]: Builds \f[V]<project>-<version>.gem\f[R] and
+runs \f[V]gem push\f[R].
+If \f[V]gem push\f[R] fails, the \f[V].gem\f[R] file remains in the
+working directory for inspection.
+.IP "2." 3
+\f[B]Archive\f[R]: Moves the \f[V].gem\f[R] file into \f[V]pkg/\f[R] and
+appends a timestamp and \f[V]md5sum\f[R] entry to \f[V]History.txt\f[R].
+.IP "3." 3
+\f[B]Commit, Tag & Push\f[R]: Stages \f[V]History.txt\f[R], commits with
+\f[V]--no-verify\f[R] (since tests already ran), creates an annotated
+Git tag for \f[V]<version>\f[R], and runs
+\f[V]git push --follow-tags\f[R].
 .SH REVIEW
 .PP
 Wile interactively reviews project files using \f[V]content\f[R],

@@ -70,7 +70,7 @@ Run `wile list` to list all tasks, or `wile help <task>` for details.
 - **nvim**: Open project files in Neovim (see **NVIM**).
 - **order**: Suggest method ordering in ruby files (see **ORDER**).
 - **oscheck**: Verify system commands and versions (see **OSCHECK**).
-- **publish**: Publish new version to RubyGems.
+- **publish**: Publish new version to RubyGems (see **PUBLISH**).
 - **review**: Interactively review project files (see **REVIEW**).
 - **ruby**: List all ruby files in project or git (see **RUBY**).
 - **tc**: List custom unit tests (see **TC**).
@@ -553,6 +553,41 @@ Options:
 
 - `--all`: Audit all known commands, including missing commands, and exit 1
   (`EX_FAIL`) if any command is missing.
+
+## PUBLISH
+
+Wile verifies project readiness, builds and pushes a new gem version to
+RubyGems, archives the package, and records the release in Git:
+
+    $ wile publish 0.7.261121       # Publish version 0.7.261121
+
+Arguments:
+
+- `<version>`: Exactly one version argument matching `X.Y.Z`
+  (`/^\d+\.\d+\.\d+$/`), which must match `.version` and not already exist as
+  a Git tag.
+
+Pre-publish checks:
+
+1. **Project Root**: Verifies required project root files are present.
+2. **Version & Tag**: Verifies `<version>` matches `.version` and has not
+   already been tagged in Git.
+3. **Git & Gemspec**: Verifies `git status` is clean, no `.gem` file is
+   present in the working directory, and the gemspec has been touched within
+   the last 5 minutes.
+4. **Test Suite**: Runs the full test suite (`Test.test!`) and aborts on any
+   failure.
+
+Release steps:
+
+1. **Build & Push**: Builds `<project>-<version>.gem` and runs `gem push`.
+   If `gem push` fails, the `.gem` file remains in the working directory for
+   inspection.
+2. **Archive**: Moves the `.gem` file into `pkg/` and appends a timestamp and
+   `md5sum` entry to `History.txt`.
+3. **Commit, Tag & Push**: Stages `History.txt`, commits with `--no-verify`
+   (since tests already ran), creates an annotated Git tag for `<version>`,
+   and runs `git push --follow-tags`.
 
 ## REVIEW
 
