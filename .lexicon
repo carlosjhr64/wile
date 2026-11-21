@@ -1099,6 +1099,7 @@ sw
 swap
 swap_valuation
 sym
+sym_
 symbol_node
 syms
 synchronize

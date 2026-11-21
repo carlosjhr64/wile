@@ -98,8 +98,8 @@ module Wile
     def emit_attrs(macro, node_)
       prefix = "##{macro} #{scope_str}#{@scope.last == '.' ? '.' : '#'}"
       syms = (node_.arguments&.arguments || []).grep(Prism::SymbolNode)
-      syms.product(ATTR_SUFFIXES[macro]).each do |sym, sfx|
-        emit_call("#{prefix}#{sym.unescaped}#{sfx}")
+      syms.product(ATTR_SUFFIXES[macro]).each do |sym_, sfx|
+        emit_call("#{prefix}#{sym_.unescaped}#{sfx}")
       end
     end
 
