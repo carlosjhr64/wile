@@ -229,6 +229,7 @@ TaskLister
 Tasks
 Test
 TestLister
+TestRunner
 Thread
 Time
 Translation
@@ -544,6 +545,7 @@ exe
 exec
 executable
 executables
+execute
 exist
 existing
 exit

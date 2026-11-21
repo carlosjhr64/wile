@@ -15,24 +15,41 @@ module Wile
       (..2), Set['batch', 'list', 'quiet']
     ].freeze
 
-    # :reek:DuplicateMethodCall Time.now are different times!
-    # :reek:FeatureEnvy
-    # :reek:TooManyStatements
-    # rubocop:disable-next Metrics/MethodLength
     def test(options)
       Utilities.project_root? do |missing|
         raise "NOINPUT: Missing root files: #{missing.join(', ')}"
       end
-      filematch, methodmatch = Usage.new(options, *TEST_USAGE).args
-      started = Time.now
-      Test.test!(filematch, methodmatch,
-                 batch: options.batch?,
-                 list: options.list?,
-                 quiet: options.quiet?)
-      return if options.list?
+      args = Usage.new(options, *TEST_USAGE).args
+      TestRunner.new(options, *args).run
+    end
+  end
 
+  # Runs project test suites and reports elapsed time.
+  class TestRunner
+    def initialize(options, filematch = nil, methodmatch = nil)
+      @options = options
+      @filematch = filematch
+      @methodmatch = methodmatch
+    end
+
+    def run
+      started = Time.now
+      execute
+      report(started) unless @options.list?
+    end
+
+    private
+
+    def report(started)
       puts "Time: #{Time.now - started} seconds"
       puts 'OK'.green
+    end
+
+    def execute
+      Test.test!(@filematch, @methodmatch,
+                 batch: @options.batch?,
+                 list: @options.list?,
+                 quiet: @options.quiet?)
     end
   end
 end
