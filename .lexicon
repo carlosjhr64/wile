@@ -40,6 +40,7 @@ CodeDataFunction
 CodeDataValuation
 CodeStats
 CommandVersion
+Comparer
 ConsoleBlocks
 ConstantPathNode
 ConstantReadNode
@@ -340,7 +341,6 @@ cfiles
 chars
 check
 check_commands
-check_p2c
 check_path_notice
 checks
 chmod
@@ -436,7 +436,6 @@ default_msg
 default_run_msg
 delete
 delete_at
-delete_if
 delete_prefix
 delete_suffix
 delta
@@ -467,6 +466,7 @@ dictionary
 dictionary_ok
 diff
 diff_erb
+diff_flags
 diff_targets
 dinit
 dir
@@ -476,12 +476,13 @@ disable_colorization
 dispatch_no_task
 display
 display_all
+display_entry
+display_found
 display_group
 display_help
 display_list
 display_missing
 display_none
-display_p2c
 display_reused
 display_tasks
 distance
@@ -528,6 +529,7 @@ env
 erb
 erb_convert
 erb_cp
+erb_file
 erb_result
 err
 error
@@ -563,6 +565,7 @@ files
 filter_map
 filter_matching
 filter_nvim_files
+filter_p2c
 filtered_p2c
 find
 find_all_by_name
@@ -772,6 +775,7 @@ missed_required
 missed_required_notice
 missing
 missing_commands
+missing_files
 missing_gem
 missing_gems
 missing_packages
@@ -848,7 +852,6 @@ osset
 other
 out
 output
-p
 p2c
 p2c_and_missing
 p2c_hash
@@ -870,7 +873,6 @@ paths
 pattern
 permutation
 permutations
-pf
 pfile
 pfiles
 pipe
@@ -1047,6 +1049,7 @@ seen
 seg
 segments
 select
+select_matches
 selected
 selected_method
 self
