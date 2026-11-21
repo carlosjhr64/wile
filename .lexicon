@@ -195,6 +195,7 @@ Review
 Ruby33
 Run
 RuntimeError
+SCOPES
 SCOPE_END
 SCRIPT
 SHA256
@@ -222,6 +223,7 @@ TYPES
 TaskLister
 Tasks
 Test
+TestLister
 Thread
 Time
 Translation
@@ -473,16 +475,15 @@ dirname
 disable_colorization
 dispatch_no_task
 display
+display_all
+display_group
 display_help
 display_list
 display_missing
+display_none
 display_p2c
 display_reused
 display_tasks
-display_tc_all
-display_tc_group
-display_tc_none
-display_tc_raw
 distance
 distance_squared
 div
@@ -560,8 +561,8 @@ filename
 filenames
 files
 filter_map
+filter_matching
 filter_nvim_files
-filter_tc_matching
 filtered_p2c
 find
 find_all_by_name
@@ -729,6 +730,7 @@ lines_shift
 list
 ljust
 load_dependencies
+load_groups
 loop
 m
 macro
@@ -835,7 +837,7 @@ options
 options_empty
 opts
 order
-order_tc_custom
+order_custom
 ordered
 os
 os_which
@@ -942,6 +944,7 @@ queue
 quiet
 quit
 raise
+ranked_tests
 ranks
 raw
 rbenv
@@ -1060,7 +1063,7 @@ shared
 shift
 shifted
 show
-show_tc_section
+show_section
 singleton_class
 size
 size_of
@@ -1124,7 +1127,6 @@ task
 task_file
 tasks
 tc
-tc_test_groups
 test
 test_files
 tests

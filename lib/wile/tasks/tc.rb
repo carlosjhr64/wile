@@ -13,109 +13,100 @@
 module Wile
   # This file is loaded upon a :tc task request.
   class Tasks
-    using WileRefinements
-
     TC_USAGE = [
       'tc: Optionally takes scope (project, wile, all), matchers, and --raw.',
       Set['raw']
     ].freeze
 
-    # :reek:TooManyStatements
-    # rubocop:disable-next Metrics/AbcSize, Metrics/MethodLength
     def tc(options)
       Utilities.project_root? do |missing|
         raise "NOINPUT: Missing root files: #{missing.join(', ')}"
       end
       args = Usage.new(options, *TC_USAGE).args || []
-      scopes = %w[project wile all]
-      scope = scopes.include?(args.first) ? args.shift.to_sym : :project
-      project, wile = tc_test_groups(args)
-      case scope
-      when :project then display_tc_group(project, 'custom', args)
-      when :wile    then display_tc_group(wile, 'Wile template', args)
-      when :all
-        if options.raw? then display_tc_raw(project, wile, args)
-        else display_tc_all(project, wile, args)
-        end
+      TestLister.new(args, options).display
+    end
+  end
+
+  # Lists project unit tests and Wile template quality gates.
+  class TestLister
+    SCOPES = %w[project wile all].freeze
+
+    def initialize(args, options)
+      @match = args.dup
+      @scope = SCOPES.include?(@match.first) ? @match.shift.to_sym : :project
+      @options = options
+    end
+
+    def self.lib_to_tc(path)
+      seg = path.split('/')[1..]
+      seg.delete('autoloads')
+      name = (seg.length == 1 ? seg[0] : seg[1..].join('_')).chomp('.rb')
+      "test/tc_ut_#{name}"
+    end
+
+    def self.ranked_tests
+      NvimFiles.new.nvim_files.grep(%r{^lib/}).flat_map do |file|
+        tc = lib_to_tc(file)
+        [tc, "#{tc}_slow"]
+      end
+    end
+
+    def self.order_custom(custom)
+      ordered = ranked_tests.select { custom.include?(it) }
+      ordered + (custom - ordered).sort
+    end
+
+    def display
+      project, wile = load_groups
+      case @scope
+      when :project then display_group(project, 'custom')
+      when :wile    then display_group(wile, 'Wile template')
+      when :all     then display_all(project, wile)
       end
     end
 
     private
 
-    # :reek:DuplicateMethodCall :reek:TooManyStatements
-    def tc_test_groups(match)
-      p2c = Cache.new.p2c_hash
-      cached = p2c.keys.grep(%r{^test/tc_})
+    def load_groups
+      cached = Cache.new.p2c_hash.keys.grep(%r{^test/tc_})
       existing = Dir.glob('test/tc_*')
+      project = TestLister.order_custom(existing - cached)
       wile = (cached & existing).sort
-      custom = existing - cached
-      project = order_tc_custom(custom)
-      [filter_tc_matching(project, match), filter_tc_matching(wile, match)]
+      [filter_matching(project), filter_matching(wile)]
     end
 
-    # :reek:FeatureEnvy
-    def filter_tc_matching(tests, match)
-      return tests if match.empty?
+    def display_group(tests, label)
+      return display_none("#{label} test/tc_*") if tests.empty?
 
-      tests.select { |test| match.any? { test.match? it } }
+      puts tests
     end
 
-    # :reek:TooManyStatements
-    def order_tc_custom(custom)
-      nvim_files = NvimFiles.new.nvim_files
-      files = nvim_files.grep(%r{^lib/})
-      ordered = files.flat_map do |file|
-        tc = lib_to_tc(file)
-        [tc, "#{tc}_slow"]
-      end
-      ordered.select! { custom.include? it }
-      ordered + (custom - ordered).sort
+    def filter_matching(tests)
+      @match.empty? ? tests : tests.select { match?(it) }
     end
 
-    # :reek:UtilityFunction
-    def lib_to_tc(path)
-      seg = path.split('/')[1..]
-      name = (seg.length == 1 ? seg[0] : seg[1..].join('_')).chomp('.rb')
-      "test/tc_ut_#{name}"
+    def match?(test)
+      @match.any? { test.match?(it) }
     end
 
-    def display_tc_group(tests, label, match)
-      if tests.empty?
-        display_tc_none("#{label} test/tc_*", match)
-      else
-        puts tests
-      end
-    end
-
-    def display_tc_raw(project, wile, match)
-      if project.empty? && wile.empty?
-        display_tc_none('test/tc_*', match)
-      else
-        puts project, wile
-      end
-    end
-
-    def display_tc_all(project, wile, match)
-      if project.empty? && wile.empty?
-        display_tc_none('test/tc_*', match)
-        return
-      end
-
-      show_tc_section('# Project:'.blue, project)
-      puts if project.any? && wile.any?
-      show_tc_section('# Wile:'.blue, wile)
-    end
-
-    def show_tc_section(heading, tests)
-      puts heading, tests if tests.any?
-    end
-
-    # :reek:FeatureEnvy
-    def display_tc_none(label, match)
-      msg = if match.empty? then "No #{label}"
-            else "No tests matched: #{match.join(', ')}"
+    def display_none(label)
+      msg = if @match.empty? then "No #{label}"
+            else "No tests matched: #{@match.join(', ')}"
             end
       warn msg.red
+    end
+
+    def display_all(project, wile)
+      return display_none('test/tc_*') if project.empty? && wile.empty?
+      return puts(project, wile) if @options.raw?
+
+      show_section('# Project:'.blue, project)
+      puts if project.any? && wile.any?
+      show_section('# Wile:'.blue, wile)
+    end
+
+    def show_section(heading, tests)
+      puts heading, tests if tests.any?
     end
   end
 end
