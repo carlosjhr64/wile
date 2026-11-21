@@ -58,6 +58,7 @@ DICT_PATHS
 DOWNLOAD_URL
 DUCK_NAME
 Dependencies
+DependencyReport
 Digest
 Dir
 DisplayLists
@@ -492,6 +493,7 @@ display_list
 display_missing
 display_none
 display_reused
+display_section
 display_tasks
 distance
 distance_squared
@@ -812,7 +814,6 @@ name
 name2scope
 name_loc
 name_split
-name_version
 named
 names
 namex
@@ -932,7 +933,6 @@ publish
 publish_and_archive
 push
 puts
-puts_blue
 puts_code
 puts_dictionary
 puts_gems
@@ -989,7 +989,6 @@ rename
 replace_block
 reply
 report
-report_dependencies
 report_line
 req
 require
