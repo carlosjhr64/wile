@@ -44,6 +44,7 @@ ConsoleBlocks
 ConstantPathNode
 ConstantReadNode
 Content
+Copier
 DEFAULT_FILE
 DEF_METHOD
 DEPENDENCIES_USAGE
@@ -409,6 +410,7 @@ content_methods
 content_scrape
 context
 continue
+copy
 copy2project
 correct
 count
@@ -559,8 +561,8 @@ filenames
 files
 filter_map
 filter_nvim_files
-filter_p2c
 filter_tc_matching
+filtered_p2c
 find
 find_all_by_name
 find_method
