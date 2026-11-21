@@ -32,6 +32,11 @@ class TestUtSmell < Test::Unit::TestCase
     assert_false @smell.undefined_methods.include?('@info#cache')
   end
 
+  def test_star_duck_calls_record_dependants
+    entry = @smell.methods['Wile::Cache#make']
+    assert_true entry.dependants.include?('lib/wile/tasks/mkdir.rb')
+  end
+
   def test_undefined_methods_include_nonexistent_methods
     entry = Wile::MethodEntry.new(mock_cdt, 'Fake#test')
     @smell.send(:add_undefined_methods, 'Wile::Tasks#fake', entry)

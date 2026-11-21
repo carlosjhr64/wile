@@ -86,7 +86,7 @@ module Wile
     end
 
     def unresolved?(mth, entry)
-      !skip_duck?(mth) && !recognized?(mth, entry) && !skipped_receiver?(mth)
+      !recognized?(mth, entry) && !skip_duck?(mth) && !skipped_receiver?(mth)
     end
 
     # :reek:UtilityFunction
