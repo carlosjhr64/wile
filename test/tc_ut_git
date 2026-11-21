@@ -17,9 +17,7 @@ class TestUtGit < Test::Unit::TestCase
     @saved = CLEAN_ENV.to_h { [it, ENV.delete(it)] }
   end
 
-  def teardown
-    @saved.each { |k, v| v ? ENV[k] = v : ENV.delete(k) }
-  end
+  def teardown = @saved.each { |k, v| v ? ENV[k] = v : ENV.delete(k) }
 
   def test_outside_repo
     with_quiet_io do
@@ -34,9 +32,8 @@ class TestUtGit < Test::Unit::TestCase
   end
 
   def test_init_failure
-    with_quiet_io do
-      assert_raise(RuntimeError) { Wile::Git.init!('/dev/null/impossible') }
-    end
+    err = -> { Wile::Git.init!('/dev/null/impossible') }
+    with_quiet_io { assert_raise(RuntimeError, &err) }
   end
 
   def test_repo_workflow
@@ -69,13 +66,13 @@ class TestUtGit < Test::Unit::TestCase
   def verify_workflow(remote)
     verify_clean_state
     verify_file_lifecycle
+    verify_no_verify
     verify_diff
     verify_tagging_and_push(remote)
   end
 
   def verify_clean_state
-    assert_true File.directory?('.git')
-    assert_true Wile::Git.clean?
+    assert_true File.directory?('.git') && Wile::Git.clean?
     assert_nothing_raised { Wile::Git.clean! }
   end
 
@@ -88,6 +85,14 @@ class TestUtGit < Test::Unit::TestCase
     Wile::Git.commit!('1.0.0')
     assert_true Wile::Git.clean?
     assert_equal ['file.txt'], Wile::Git.files
+  end
+
+  def verify_no_verify
+    File.write('.git/hooks/pre-commit', "#!/bin/sh\nexit 1\n")
+    File.chmod(0o755, '.git/hooks/pre-commit')
+    File.write('file.txt', "hook\n")
+    assert_raise(RuntimeError) { Wile::Git.commit!('1.0.1') }
+    assert_nothing_raised { Wile::Git.commit!('1.0.1', no_verify: true) }
   end
 
   def verify_diff
@@ -114,12 +119,10 @@ class TestUtGit < Test::Unit::TestCase
 
   def with_quiet_io
     orig = [$stdout.dup, $stderr.dup]
-    $stdout.reopen(File::NULL)
-    $stderr.reopen(File::NULL)
+    [$stdout, $stderr].each { it.reopen(File::NULL) }
     yield
   ensure
-    $stdout.reopen(orig[0])
-    $stderr.reopen(orig[1])
+    [$stdout, $stderr].zip(orig).each { |io, dup| io.reopen(dup) }
     orig.each(&:close)
   end
 end

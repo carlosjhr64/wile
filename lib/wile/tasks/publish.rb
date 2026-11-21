@@ -57,7 +57,7 @@ module Wile
 
     def commit_and_tag
       Git.add! 'History.txt'
-      Git.commit! @version
+      Git.commit! @version, no_verify: true
       Git.tag! @version
       Git.push!
     end

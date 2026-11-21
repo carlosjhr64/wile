@@ -40,8 +40,11 @@ module Wile
       git!('add', *files)
     end
 
-    def self.commit!(version)
-      git!('commit', '-a', '-m', version)
+    # :reek:BooleanParameter :reek:ControlParameter
+    def self.commit!(version, no_verify: false)
+      args = ['commit', '-a', '-m', version]
+      args << '--no-verify' if no_verify
+      git!(*args)
     end
 
     def self.push!
