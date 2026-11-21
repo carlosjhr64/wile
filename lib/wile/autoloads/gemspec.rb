@@ -6,6 +6,9 @@ module Wile
   # rubocop:disable-next Metrics/ClassLength
   # :reek:TooManyInstanceVariables :reek:MissingSafeMethod
   class Gemspec
+    RUBY_FLOOR = /\A\d+\.\d+(?:\.\d+)?\z/
+    private_constant :RUBY_FLOOR
+
     attr_reader :rungems, :devgems, :ros, :dos, :gemspec
 
     alias to_s gemspec
@@ -144,9 +147,12 @@ module Wile
 
     def ruby_floor(version)
       file = File.join(@info.dirname, '.ruby-version-floor')
-      return File.read(file).strip if File.file?(file)
+      return "#{version.to_s[/\d+/] || '4'}.0" unless File.file?(file)
 
-      "#{version.to_s[/\d+/] || '4'}.0"
+      floor = File.read(file).strip
+      return floor if RUBY_FLOOR.match?(floor)
+
+      raise "DATAERR: Invalid .ruby-version-floor: #{floor.inspect}"
     end
   end
 end

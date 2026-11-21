@@ -73,6 +73,18 @@ class TestUtGemspec < Test::Unit::TestCase
                  @gemspec.send(:ruby_requirement, '4.0.7')
   end
 
+  def test_ruby_floor_invalid
+    Dir.mktmpdir do |tmp|
+      spec = Wile::Gemspec.allocate
+      spec.instance_variable_set(:@info, Wile::Info.new(dirname: tmp))
+      ['', 'bad'].each do |bad|
+        File.write(File.join(tmp, '.ruby-version-floor'), bad)
+        err = assert_raise(RuntimeError) { spec.send(:ruby_floor, '4.0.7') }
+        assert_match(/\ADATAERR: Invalid \.ruby-version-floor:/, err.message)
+      end
+    end
+  end
+
   def test_update_bang
     with_quiet_io do
       Dir.mktmpdir { |tmp| verify_update_in_dir(tmp) }
@@ -107,16 +119,5 @@ class TestUtGemspec < Test::Unit::TestCase
     assert_equal spec.to_s, File.read(spec_file)
   end
 
-  def with_quiet_io
-    orig_out = $stdout.dup
-    orig_err = $stderr.dup
-    $stdout.reopen(File::NULL)
-    $stderr.reopen(File::NULL)
-    yield
-  ensure
-    $stdout.reopen(orig_out)
-    $stderr.reopen(orig_err)
-    orig_out.close
-    orig_err.close
-  end
+  def with_quiet_io(&) = self.class.send(:silence_io, &)
 end
