@@ -83,8 +83,8 @@ class TestUtGemUtils < Test::Unit::TestCase
 
   def test_installed
     assert_false @gmu.installed?
-    require 'rake'
-    info = Struct.new(:project, :version).new('rake', Rake::VERSION)
+    ver = Gem.loaded_specs['colorize'].version.to_s
+    info = Struct.new(:project, :version).new('colorize', ver)
     assert Wile::GemUtils.new(info).installed?
   end
 

@@ -107,6 +107,7 @@ Gem
 GemChecker
 GemInfo
 GemUtils
+GemfileWriter
 Gemspec
 Git
 GzipWriter
@@ -614,7 +615,6 @@ gem_which
 gemcheck
 gemcmd
 gemfile
-gemfile_content
 gemignore
 geminfo
 gempkg
