@@ -105,7 +105,7 @@ module Wile
       return false unless /\A[^A-Z#].*#/.match?(mth)
 
       suffix = "##{mth.split('#').last}"
-      @methods.select { |key, _| key.end_with?(suffix) }
+      @methods.select { |key, val| key.end_with?(suffix) && val != entry }
               .each_value { entry.add_dependency(it) }.any?
     end
   end
