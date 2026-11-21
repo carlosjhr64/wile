@@ -52,7 +52,7 @@ module Wile
       end
     end
 
-    # Best neighbour swaps
+    # Best neighbor swaps
     # :reek:TooManyStatements :reek:UncommunicativeVariableName
     def bnswp
       min, n, @improved = @value, @order.size - 2, true
@@ -90,7 +90,7 @@ module Wile
       end
     end
 
-    # Neighbour swaps
+    # Neighbor swaps
     # :reek:TooManyStatements :reek:UncommunicativeVariableName
     def nswp
       n, @improved = @order.size - 2, true

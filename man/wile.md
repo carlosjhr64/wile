@@ -501,12 +501,12 @@ Sort methods:
 - **bcmv** (default): Best combination move. Evaluates relocating any
   method to any position (insert and shift), committing the single best
   move per round until no move reduces total distance.
-- **nswp**: Neighbour swap. Fast first-improvement pass that sweeps
+- **nswp**: Neighbor swap. Fast first-improvement pass that sweeps
   forward and backward through adjacent method pairs, swapping immediately
   upon any score improvement.
 - **cswp**: Combination swap. First-improvement pass that tests all pairs
   `(i, j)` and swaps them immediately upon any score improvement.
-- **bnswp**: Best neighbour swap. Evaluates all adjacent pairs `(i, i+1)`
+- **bnswp**: Best neighbor swap. Evaluates all adjacent pairs `(i, i+1)`
   and commits the single best adjacent swap per round.
 - **bcswp**: Best combination swap. Evaluates all possible pairs `(i, j)`
   across the file and commits the single best swap per round.
