@@ -175,6 +175,7 @@ $ wile list --format=dictionary #>>
 + install: install current local project
 + lexicon: view changes and update lexicon
 + list: list tasks(by match)
++ methods: classify methods in your code
 + mkdir: creates project dirname
 + note: scrape ruby files for NOTE comments
 + nvim: spawn nvim with(matching) files
@@ -183,7 +184,6 @@ $ wile list --format=dictionary #>>
 + publish: publish a new version
 + review: runs review
 + ruby: lists ruby files
-+ smell: classify methods in your code
 + tc: lists unit tests
 + test: tc tests
 + todo: display TODO.md or scrape TODO comments

@@ -64,6 +64,7 @@ Run `wile list` to list all tasks, or `wile help <task>` for details.
 - **install**: Build and install gem locally (see **INSTALL**).
 - **lexicon**: View and update vocabulary whitelist (see **LEXICON**).
 - **list**: List all tasks or filter by pattern (see **LIST**).
+- **methods**: Classify methods in your code.
 - **mkdir**: Create project directory from template (see **MKDIR**).
 - **note**: Scrape ruby files for NOTE comments (see **NOTE**).
 - **nvim**: Open project files in Neovim (see **NVIM**).
@@ -72,7 +73,6 @@ Run `wile list` to list all tasks, or `wile help <task>` for details.
 - **publish**: Publish new version to RubyGems.
 - **review**: Interactively review project files (see **REVIEW**).
 - **ruby**: List all ruby files in project or git (see **RUBY**).
-- **smell**: Classify method dependencies and smells.
 - **tc**: List custom unit tests (see **TC**).
 - **test**: Run test suites (see **TESTING**).
 - **todo**: Display TODO.md or scrape files for TODO comments (see **TODO**).

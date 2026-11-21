@@ -152,7 +152,7 @@ class TestUtWileRefinements < Test::Unit::TestCase
       Prism::Translation::Parser.parse_file ::JSON.pretty_generate
     ].each { assert_true it.standard_library?, it }
 
-    ['Wile::Tasks#smell', '#foo', '*#to_s', ''].each do |str|
+    ['Wile::Tasks#methods', '#foo', '*#to_s', ''].each do |str|
       assert_false str.standard_library?, str
     end
   end

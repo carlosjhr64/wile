@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# ## wile smell ##
+# ## wile methods ##
 # Classify methods in your code:
 # * Undefined: methods that are not defined in your code
 # * Implicit: constructors that are called but not defined
@@ -10,23 +10,23 @@
 # * Shared: methods that are used by other files
 # * Reused: method names that are used by multiple classes
 # Usage:
-#   wile smell [match+] [--name=list-name] # classify methods in your code
+#   wile methods [match+] [--name=list-name] # classify methods in your code
 module Wile
-  # This file is loaded upon a :smell task request.
+  # This file is loaded upon a :methods task request.
   class Tasks
-    SMELL_USAGE = ['smell: Optionally takes one or more arguments.',
-                   Set['name']].freeze
+    METHODS_USAGE = ['methods: Optionally takes one or more arguments.',
+                     Set['name']].freeze
 
-    def smell(options)
+    def methods(options)
       Utilities.project_root? do |missing|
         raise "NOINPUT: Missing root files: #{missing.join(', ')}"
       end
-      matches = Usage.new(options, *SMELL_USAGE).args&.map { Regexp.new(it) }
+      matches = Usage.new(options, *METHODS_USAGE).args&.map { Regexp.new(it) }
       DisplayLists.new(matches, select: options.name).display
     end
   end
 
-  # Displays categorized smell lists.
+  # Displays categorized method lists.
   # :reek:NilCheck
   class DisplayLists
     using WileRefinements
@@ -35,10 +35,10 @@ module Wile
       undefined implicit unused independent isolate shared reused
     ].freeze
 
-    def initialize(matches = nil, select: nil, smell: Smell.new)
+    def initialize(matches = nil, select: nil, methods: Methods.new)
       @matches = matches
       @select = select&.downcase
-      @smell = smell
+      @methods = methods
     end
 
     def display
@@ -56,7 +56,7 @@ module Wile
     # :reek:TooManyStatements
     def name2scope
       scopes = Hash.new { |hash, name| hash[name] = [] }
-      @smell.methods.each_key do |mth|
+      @methods.methods.each_key do |mth|
         name, dot, scope = mth.split(/([.#])/).reverse
         scopes[name] << "#{scope}#{dot}"
       end
@@ -80,21 +80,21 @@ module Wile
     end
 
     def shared
-      list = @smell.methods
-                   .select do |name, info|
-                     match?(name) &&
-                       info.dependants.any? { it != info.filename }
-                   end
-                   .keys.sort
+      list = @methods.methods
+                     .select do |name, info|
+                       match?(name) &&
+                         info.dependants.any? { it != info.filename }
+                     end
+                     .keys.sort
       display_list(list, '## Shared ##'.blue)
     end
 
     def unused
-      list = @smell.methods
-                   .select do |name, info|
-                     match?(name) && info.dependants.empty?
-                   end
-                   .keys.sort
+      list = @methods.methods
+                     .select do |name, info|
+                       match?(name) && info.dependants.empty?
+                     end
+                     .keys.sort
       display_list(list, '## Unused ##'.blue)
     end
 
@@ -104,7 +104,7 @@ module Wile
 
     # :reek:TooManyStatements
     def undefined
-      list = @smell.undefined_methods.select { match?(it) }.sort
+      list = @methods.undefined_methods.select { match?(it) }.sort
       list.map! do |mth|
         next "#{mth} ☰".magenta if mth.standard_library?
         next "#{mth} ◇".cyan if mth.object_method?
@@ -115,7 +115,7 @@ module Wile
     end
 
     def implicit
-      list = @smell.implicit_methods.select { match?(it) }.sort
+      list = @methods.implicit_methods.select { match?(it) }.sort
       display_list(list, '## Implicit ##'.blue)
     end
 
@@ -128,21 +128,21 @@ module Wile
     end
 
     def independent
-      list = @smell.methods
-                   .select do |name, info|
-                     match?(name) && info.dependencies.empty?
-                   end
-                   .keys.sort
+      list = @methods.methods
+                     .select do |name, info|
+                       match?(name) && info.dependencies.empty?
+                     end
+                     .keys.sort
       display_list(list, '## Independent ##'.blue)
     end
 
     def isolate
-      list = @smell.methods
-                   .select do |name, info|
-                     match?(name) && info.dependencies.empty? &&
-                       info.dependants.empty?
-                   end
-                   .keys.sort
+      list = @methods.methods
+                     .select do |name, info|
+                       match?(name) && info.dependencies.empty? &&
+                         info.dependants.empty?
+                     end
+                     .keys.sort
       display_list(list, '## Isolate ##'.blue)
     end
   end

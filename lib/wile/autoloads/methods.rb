@@ -3,7 +3,7 @@
 # Namespace: Wile
 module Wile
   # Categorizes methods
-  class Smell
+  class Methods
     using WileRefinements
 
     attr_reader :implicit_methods, :known_constants, :methods,

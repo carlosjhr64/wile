@@ -124,6 +124,7 @@ LISTS
 LIST_USAGE
 LOCAL_DIR
 LoadError
+METHODS_USAGE
 METHOD_CALL
 METHOD_NAME
 MKDIR_USAGE
@@ -133,6 +134,7 @@ MaintGenerateCons
 Manpage
 Method
 MethodEntry
+Methods
 Mutex
 NOTE_USAGE
 NULL
@@ -193,14 +195,12 @@ SCOPE_END
 SCRIPT
 SHA256
 SLOW_TESTS
-SMELL_USAGE
 SORTS
 SUPPORTED_SHELLS
 ScriptError
 SelfNode
 Set
 Shellwords
-Smell
 Specification
 StandardError
 Status
@@ -1062,7 +1062,6 @@ skipped_receiver
 slc
 slice
 slow
-smell
 snake_case
 sort
 sort_by

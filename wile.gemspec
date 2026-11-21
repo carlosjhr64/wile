@@ -104,13 +104,13 @@ Gem::Specification.new do |s|
     lib/wile/autoloads/info.rb
     lib/wile/autoloads/manpage.rb
     lib/wile/autoloads/method_entry.rb
+    lib/wile/autoloads/methods.rb
     lib/wile/autoloads/nvim_files.rb
     lib/wile/autoloads/options_dictionary.rb
     lib/wile/autoloads/order_optimizer.rb
     lib/wile/autoloads/project.rb
     lib/wile/autoloads/readme.rb
     lib/wile/autoloads/responds.rb
-    lib/wile/autoloads/smell.rb
     lib/wile/autoloads/test.rb
     lib/wile/help.rb
     lib/wile/requires.rb
@@ -131,6 +131,7 @@ Gem::Specification.new do |s|
     lib/wile/tasks/install.rb
     lib/wile/tasks/lexicon.rb
     lib/wile/tasks/list.rb
+    lib/wile/tasks/methods.rb
     lib/wile/tasks/mkdir.rb
     lib/wile/tasks/note.rb
     lib/wile/tasks/nvim.rb
@@ -139,7 +140,6 @@ Gem::Specification.new do |s|
     lib/wile/tasks/publish.rb
     lib/wile/tasks/review.rb
     lib/wile/tasks/ruby.rb
-    lib/wile/tasks/smell.rb
     lib/wile/tasks/tc.rb
     lib/wile/tasks/test.rb
     lib/wile/tasks/todo.rb
