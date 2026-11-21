@@ -351,9 +351,9 @@ Detection rules:
 statements in non-comment code, as well as
 \f[V]# wile: require \[aq]<gem>\[aq]\f[R] directives.
 .IP \[bu] 2
-\f[B]Commands\f[R]: Scraped from backtick executions,
-\f[V]system\f[R]/\f[V]spawn\f[R] calls, and \f[V]# wile: os\f[R]
-directives.
+\f[B]Commands\f[R]: Declared via
+\f[V]# wile: os \[ga]<cmd>[,<cmd>...]\[ga]\f[R] directives (audited
+against actual OS calls by \f[V]test/tc_comments\f[R]).
 Commands provided by the project\[cq]s own \f[V]bin\f[R] directories are
 excluded.
 Versions are resolved via Wile\[cq]s command version registry.

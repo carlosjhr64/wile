@@ -219,10 +219,10 @@ Detection rules:
 
 - **Gems**: Scraped from `require` and `autoload` statements in non-comment
   code, as well as `# wile: require '<gem>'` directives.
-- **Commands**: Scraped from backtick executions, `system`/`spawn` calls, and
-  `# wile: os` directives. Commands provided by the project's own `bin`
-  directories are excluded. Versions are resolved via Wile's command
-  version registry.
+- **Commands**: Declared via ``# wile: os `<cmd>[,<cmd>...]` `` directives
+  (audited against actual OS calls by `test/tc_comments`). Commands provided
+  by the project's own `bin` directories are excluded. Versions are resolved
+  via Wile's command version registry.
 
 ## DICTIONARY
 
