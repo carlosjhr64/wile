@@ -102,6 +102,7 @@ Float
 GEMCHECK_USAGE
 GEMFILE_USAGE
 Gem
+GemChecker
 GemInfo
 GemUtils
 Gemspec
@@ -314,6 +315,7 @@ bold
 bprm
 build
 build_data
+build_inventory
 bump
 bumped
 c2p
@@ -503,7 +505,6 @@ e
 each
 each_cons
 each_key
-each_pair
 each_slice
 each_value
 each_with_index
@@ -534,6 +535,7 @@ erb_result
 err
 error
 escape
+except
 exe
 exec
 executable
@@ -607,11 +609,6 @@ gem_majors
 gem_name
 gem_which
 gemcheck
-gemcheck_do
-gemcheck_install
-gemcheck_inventory
-gemcheck_missing
-gemcheck_report
 gemcmd
 gemfile
 gemfile_content
@@ -676,6 +673,7 @@ insert
 inspect
 install
 install_fish
+install_gem
 install_gems
 install_neovim
 install_plugins
@@ -859,6 +857,7 @@ package_installed
 packages
 pad
 padding
+pair_majors
 pandoc
 pandoc_args
 parse

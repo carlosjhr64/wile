@@ -16,16 +16,17 @@ module Wile
       Set['all']
     ].freeze
 
+    # :reek:UtilityFunction
     def gemcheck(options)
       Usage.new(options, *GEMCHECK_USAGE)
-      gemcheck_do(rbenv_versions_prefix, all: options.all?)
+      GemChecker.new(options).run
     end
+  end
 
-    private
-
-    def rbenv_versions_prefix
-      root = Utilities.rbenv_root
-      prefix = File.join(root, 'versions')
+  # Compares installed gems across rbenv Ruby versions and installs missing.
+  class GemChecker
+    def self.rbenv_versions_prefix
+      prefix = File.join(Utilities.rbenv_root, 'versions')
       gemcmd = `rbenv which gem 2>/dev/null`.strip
       raise "Unexpected gem command: #{gemcmd}" unless
         File.directory?(prefix) && gemcmd.start_with?(prefix)
@@ -33,43 +34,12 @@ module Wile
       prefix
     end
 
-    # :reek:BooleanParameter
-    def gemcheck_inventory(prefix, all: false)
-      target_versions(all:).each_with_object({}) do |ver, inventory|
-        gemcmd = File.join(prefix, ver, 'bin/gem')
-        inventory[ver] = collect_gems(gemcmd) if File.executable?(gemcmd)
-      end
+    def initialize(options)
+      @options = options
+      @prefix = GemChecker.rbenv_versions_prefix
     end
 
-    # :reek:BooleanParameter :reek:ControlParameter :reek:UtilityFunction
-    def target_versions(all: false)
-      versions = `rbenv versions --bare --skip-aliases`.lines(chomp: true)
-      return (versions + [RUBY_VERSION]).uniq if all
-
-      prev = previous_version(versions)
-      [RUBY_VERSION, prev].compact.uniq
-    end
-
-    # :reek:UtilityFunction
-    def previous_version(versions, current = RUBY_VERSION)
-      cur = Gem::Version.new(current)
-      older = versions.select do |ver|
-        Gem::Version.correct?(ver) && Gem::Version.new(ver) < cur
-      end
-      older.max_by { Gem::Version.new(it) }
-    end
-
-    # :reek:UtilityFunction
-    def collect_gems(gemcmd)
-      `#{gemcmd} list`.lines(chomp: true).each_with_object({}) do |line, gems|
-        name, vers = line.split(' ', 2)
-        majors = gem_majors(vers)
-        gems[name] = majors if majors
-      end
-    end
-
-    # :reek:UtilityFunction
-    def gem_majors(str)
+    def self.gem_majors(str)
       return unless str&.start_with?('(') && str.end_with?(')')
 
       str[1..-2].split(',').filter_map do |item|
@@ -78,7 +48,35 @@ module Wile
       end.uniq.sort
     end
 
-    def gemcheck_report(missing, searched)
+    def self.pair_majors(name, majors, current)
+      (majors - current.fetch(name, [])).map { [name, it] }
+    end
+
+    def self.missing_gems(gems, current)
+      gems.flat_map { |name, majors| pair_majors(name, majors, current) }
+    end
+
+    def self.record_missing(missing, version, items)
+      items.each { |key| missing[key] << version }
+    end
+
+    def self.missing(inventory)
+      current = inventory.fetch(RUBY_VERSION, {})
+      res = Hash.new { |hash, key| hash[key] = [] }
+      inventory.except(RUBY_VERSION).each_with_object(res) do |(ver, gems), out|
+        record_missing(out, ver, missing_gems(gems, current))
+      end
+    end
+
+    def self.collect_gems(gemcmd)
+      `#{gemcmd} list`.lines(chomp: true).each_with_object({}) do |line, gems|
+        name, vers = line.split(' ', 2)
+        majors = gem_majors(vers)
+        gems[name] = majors if majors
+      end
+    end
+
+    def self.report(missing, searched)
       puts "Current Ruby version: #{RUBY_VERSION}".gray
       puts "Searching versions:   #{searched.join(', ')}".gray
       puts 'Gems missing in current found in other versions:'.blue
@@ -87,59 +85,56 @@ module Wile
       end
     end
 
-    # :reek:BooleanParameter
-    def gemcheck_do(prefix, all: false)
-      inventory = gemcheck_inventory(prefix, all:)
-      missing = gemcheck_missing(inventory)
+    def self.install_gem(name, major)
+      req = "~> #{major}"
+      return if Utilities.gem_installed?(name, version: req)
+
+      Utilities.run('gem', 'install', name, '-v', req) do |code, msg|
+        raise "#{Sysexits.label(code)}: #{msg}"
+      end
+    end
+
+    def run
+      inventory = build_inventory
+      missing = GemChecker.missing(inventory)
       return puts 'OK'.green if missing.empty?
 
       prompt_and_install(missing, inventory.keys - [RUBY_VERSION])
     end
 
+    def self.previous_version(versions, current = RUBY_VERSION)
+      cur = Gem::Version.new(current)
+      older = versions.select do |ver|
+        Gem::Version.correct?(ver) && Gem::Version.new(ver) < cur
+      end
+      older.max_by { Gem::Version.new(it) }
+    end
+
+    private
+
     def prompt_and_install(missing, searched)
-      gemcheck_report(missing, searched)
+      GemChecker.report(missing, searched)
       Utilities.confirm?('Would you like to install them all?') ||
         raise('Aborted.')
-      gemcheck_install(missing)
+      missing.each_key { |name, major| GemChecker.install_gem(name, major) }
       puts 'OK'.green
     end
 
-    # :reek:NestedIterators :reek:UtilityFunction
-    def gemcheck_install(missing)
-      missing.each_key do |name, major|
-        req = "~> #{major}"
-        next if Utilities.gem_installed?(name, version: req)
-
-        Utilities.run('gem', 'install', name, '-v', req) do |code, msg|
-          raise "#{Sysexits.label(code)}: #{msg}"
+    def build_inventory
+      target_versions.each_with_object({}) do |ver, inventory|
+        gemcmd = File.join(@prefix, ver, 'bin/gem')
+        if File.executable?(gemcmd)
+          inventory[ver] = GemChecker.collect_gems(gemcmd)
         end
       end
     end
 
-    # :reek:FeatureEnvy :reek:TooManyStatements :reek:UtilityFunction
-    def gemcheck_missing(inventory)
-      current = inventory.fetch(RUBY_VERSION, {})
-      missing = Hash.new { |hash, key| hash[key] = [] }
-      inventory.each_pair do |version, gems|
-        next if version == RUBY_VERSION
+    def target_versions
+      versions = `rbenv versions --bare --skip-aliases`.lines(chomp: true)
+      return (versions + [RUBY_VERSION]).uniq if @options.all?
 
-        record_missing(missing, version, missing_gems(gems, current))
-      end
-      missing
-    end
-
-    # :reek:NestedIterators :reek:UtilityFunction
-    def missing_gems(gems, current)
-      gems.each_with_object([]) do |(name, majors), diff|
-        (majors - current.fetch(name, [])).each do |major|
-          diff << [name, major]
-        end
-      end
-    end
-
-    # :reek:UtilityFunction
-    def record_missing(missing, version, items)
-      items.each { |key| missing[key] << version }
+      prev = GemChecker.previous_version(versions)
+      [RUBY_VERSION, prev].compact.uniq
     end
   end
 end
