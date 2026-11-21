@@ -120,6 +120,7 @@ INFO_USAGE
 INSTALL_USAGE
 IO
 Info
+InfoDisplay
 Integer
 JSON
 KERNEL
@@ -934,14 +935,12 @@ puts
 puts_blue
 puts_code
 puts_dictionary
+puts_gems
 puts_gemspec
-puts_gemspec_development
-puts_gemspec_executables
-puts_gemspec_files
-puts_gemspec_runtime
-puts_info
+puts_header
 puts_name
 puts_readme
+puts_section
 puts_usage
 qc
 qc_circular
