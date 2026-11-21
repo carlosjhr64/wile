@@ -164,6 +164,7 @@ Prism
 Proc
 Process
 Project
+Publisher
 Queue
 RBENV_INFO
 RBENV_INIT_LINE
@@ -898,7 +899,6 @@ project
 project_command
 project_files
 project_rb
-project_ready
 project_root
 prompt
 prompt_and_install
@@ -1198,6 +1198,7 @@ verify_linux
 verify_neovim
 verify_project_root
 verify_rbenv
+verify_ready
 verify_ruby_min_version
 verify_ruby_project_version
 verify_unpublished
