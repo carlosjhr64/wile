@@ -17,40 +17,48 @@ module Wile
     UPDATE_USAGE = ['update: May specify README, gemspec, or man.',
                     (..1), /^(README|gemspec|man)$/, Set['force']].freeze
 
-    UPDATERS = {
-      'README' => [Readme],
-      'gemspec' => [Gemspec],
-      'man' => [Manpage]
-    }.freeze
-
-    # :reek:UtilityFunction
-    # :reek:TooManyStatements
     def update(options, info = Info.info)
       Utilities.project_root? do |missing|
         raise "NOINPUT: Missing root files: #{missing.join(', ')}"
       end
       target, = Usage.new(options, *UPDATE_USAGE).args
       Git.clean! unless options.force?
-      do_update(target, info)
-      do_update_report(info)
+      Updater.new(info, target).update
+    end
+  end
+
+  # Updates README, gemspec, and manpage files and reports git diffs.
+  class Updater
+    UPDATERS = {
+      'README' => Readme,
+      'gemspec' => Gemspec,
+      'man' => Manpage
+    }.freeze
+
+    def initialize(info = Info.info, target = nil)
+      @info = info
+      @target = target
+    end
+
+    def update
+      targets = Array(UPDATERS.fetch(@target) { UPDATERS.values })
+      targets.each { it.new(@info).update! }
+      report
     end
 
     private
 
-    # :reek:UtilityFunction
-    def do_update_report(info)
+    def report
       return puts 'up-to-date'.green if Git.clean?
 
-      targets = [info.readme, info.gemspec]
-      targets << 'man' if File.directory?('man')
-      Git.diff(*targets)
+      Git.diff(*diff_targets)
       puts 'verify updated changes'.red
     end
 
-    # :reek:ControlParameter and :reek:UtilityFunction
-    def do_update(target, info)
-      targets = UPDATERS.fetch(target) { [Readme, Gemspec, Manpage] }
-      targets.each { it.new(info).update! }
+    def diff_targets
+      paths = [@info.readme, @info.gemspec]
+      paths << 'man' if File.directory?('man')
+      paths
     end
   end
 end

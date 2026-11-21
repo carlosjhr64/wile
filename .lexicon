@@ -227,6 +227,7 @@ UPDATERS
 UPDATE_USAGE
 UTF_8
 UTILITIES
+Updater
 Usage
 UsageError
 Utilities
@@ -461,6 +462,7 @@ dictionary
 dictionary_ok
 diff
 diff_erb
+diff_targets
 dinit
 dir
 directory
@@ -484,8 +486,6 @@ div
 dlevel
 do_todo
 do_todo_files
-do_update
-do_update_report
 dos
 dot
 downcase
@@ -1179,6 +1179,7 @@ validator_type_check
 validators
 valuation
 value
+values
 values_at
 ver
 verbose
