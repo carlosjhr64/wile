@@ -151,6 +151,7 @@ OUTPUT_FILE
 Object
 OptionsDictionary
 OrderOptimizer
+OrderRunner
 PASCAL_KEY
 PATH_SEPARATOR
 PATTERNS
@@ -288,7 +289,6 @@ attrs
 auto
 autoload
 autoloads
-b
 backtrace
 bad
 bang_ruby
@@ -435,6 +435,7 @@ delete_at
 delete_if
 delete_prefix
 delete_suffix
+delta
 dep
 dep_idx
 dep_sum
@@ -584,9 +585,11 @@ foreach
 format
 format_cmd
 format_gems
+format_move
 formatter
 found
 freeze
+from
 full
 full_const
 fullname
@@ -689,11 +692,9 @@ item
 items
 iterate
 j
-jkab
 jobs
 join
 jst
-k
 kebab_case
 key
 keys
@@ -786,6 +787,7 @@ more
 more_ranks
 move
 move_valuation
+moved
 msg
 msh_populate
 mth
@@ -831,9 +833,6 @@ options
 options_empty
 opts
 order
-order_do
-order_report
-order_subcommands
 order_tc_custom
 ordered
 os
@@ -978,6 +977,7 @@ replace_block
 reply
 report
 report_dependencies
+report_line
 req
 require
 require_in_path
@@ -1024,6 +1024,7 @@ ruby_requirement
 run
 run_console
 run_fish
+run_subcommand
 run_workers
 rungems
 scan
@@ -1055,6 +1056,7 @@ settings
 sfx
 shared
 shift
+shifted
 show
 show_tc_section
 singleton_class

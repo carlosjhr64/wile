@@ -19,64 +19,71 @@
 #   wile order <filename> [<sort-type|specials>] # suggest a methods order
 module Wile
   # This file is loaded upon a :order task request.
-  # :reek:UncommunicativeVariableName
   class Tasks
     ORDER_USAGE = ['order: Takes one or two arguments.', (1..2), Set[]].freeze
 
-    # :reek:TooManyStatements
     def order(options)
       filename, sort = Usage.new(options, *ORDER_USAGE).args
-      sort = sort&.to_sym || :bcmv
       raise "does not exist: #{filename}" unless File.exist?(filename)
 
-      data = CodeData.new(filename)
-      unless OrderOptimizer::SORTS.include?(sort)
-        return order_subcommands(data, sort)
-      end
+      OrderRunner.new(filename, sort&.to_sym || :bcmv).run
+    end
+  end
 
-      valuation = CodeDataValuation.new(data)
-      order_do(data.names, valuation, sort) || raise
+  # Runs method-order optimization or CodeDataFunction subcommands.
+  class OrderRunner
+    def initialize(filename, sort = :bcmv)
+      @data = CodeData.new(filename)
+      @sort = sort
+      @names = @data.names
+      @optimized = nil
+    end
+
+    def run
+      return run_subcommand unless OrderOptimizer::SORTS.include?(@sort)
+
+      optimize
+      report
+      raise unless @optimized == @names
+    end
+
+    def self.delta(from, dest)
+      arrow = from < dest ? '↓' : '↑' # UTF-8
+      "#{arrow}#{(from - dest).abs}"
     end
 
     private
 
-    def order_do(names, valuation, sort)
-      opt = OrderOptimizer.new(names.dup, sort:) { valuation.total(it) }
+    def optimize
+      valuation = CodeDataValuation.new(@data)
+      opt = OrderOptimizer.new(@names.dup, sort: @sort) { valuation.total(it) }
       opt.optimize
-      order_report(opt.to_a, names)
+      @optimized = opt.to_a
     end
 
-    # :reek:TooManyStatements :reek:BooleanParameter
-    def order_report(optimized, names, ordered: true)
-      optimized.each_with_index do |name, idx|
-        old = names[idx]
-        if name == old then puts name.green
-        else
-          ordered &&= false
-          j, k, a, b = jkab(idx, names, name, optimized, old)
-          puts "#{name.red}\t#{a}#{(j - idx).abs}\t#{old} #{b}#{(idx - k).abs}"
-        end
-      end
-      ordered
+    def report
+      @optimized.each_with_index { |name, idx| report_line(name, idx) }
     end
 
-    # :reek:LongParameterList :reek:UtilityFunction :reek:TooManyStatements
-    def jkab(idx, names, name, optimized, old)
-      j = names.index(name)
-      k = optimized.index(old)
-      a = j < idx ? '↓' : '↑' # UTF-8
-      b = idx < k ? '↓' : '↑' # UTF-8
-      [j, k, a, b]
-    end
-
-    # category: subcommands
-
-    def order_subcommands(data, cmd)
-      unless CodeDataFunction.public_methods.include?(cmd)
-        raise "invalid sort: #{cmd}"
+    def run_subcommand
+      unless CodeDataFunction.public_methods(false).include?(@sort)
+        raise "invalid sort: #{@sort}"
       end
 
-      CodeDataFunction.method(cmd).call(data)
+      CodeDataFunction.method(@sort).call(@data)
+    end
+
+    def format_move(name, old, idx)
+      moved = OrderRunner.delta(@names.index(name), idx)
+      shifted = OrderRunner.delta(idx, @optimized.index(old))
+      "#{name.red}\t#{moved}\t#{old} #{shifted}"
+    end
+
+    def report_line(name, idx)
+      old = @names[idx]
+      return puts name.green if name == old
+
+      puts format_move(name, old, idx)
     end
   end
 end
