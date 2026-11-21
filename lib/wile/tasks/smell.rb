@@ -5,7 +5,7 @@
 # * Undefined: methods that are not defined in your code
 # * Implicit: constructors that are called but not defined
 # * Unused: methods that are defined but not used
-# * Independent: methods that are used but do not depend on other methods
+# * Independent: methods that do not depend on other methods
 # * Isolate: methods that are not used and do not depend on other methods
 # * Shared: methods that are used by other files
 # * Reused: method names that are used by multiple classes
