@@ -7,25 +7,41 @@
 module Wile
   # This file is loaded upon a :note task request.
   class Tasks
-    using UtilitiesRefinements
-
     NOTE_USAGE = ['note: Optionally takes one or more arguments.', Set[]].freeze
 
-    # :reek:TooManyStatements
-    # rubocop:disable-next Metrics/AbcSize, Metrics/MethodLength
     def note(options)
       Utilities.project_root? do |missing|
         raise "NOINPUT: Missing root files: #{missing.join(', ')}"
       end
       match = Usage.new(options, *NOTE_USAGE).args
-      files = Project.rbfiles.weird_filename!
-      files = files.reject { it.start_with?('features/fixtures/') } unless match
-      files.each do |fn|
-        next if match&.none? { fn.match? it }
+      NoteLister.new(match).display
+    end
+  end
 
-        lines = File.foreach(fn).grep(/#\s*NOTE/)
-        puts fn.blue, lines unless lines.empty?
-      end
+  # Greps project Ruby files for NOTE comments.
+  class NoteLister
+    using UtilitiesRefinements
+
+    def initialize(match = nil)
+      @match = match
+    end
+
+    def self.display_file(filename)
+      lines = File.foreach(filename).grep(/#\s*NOTE/)
+      puts filename.blue, lines unless lines.empty?
+    end
+
+    def display
+      selected_files.each { NoteLister.display_file(it) }
+    end
+
+    private
+
+    def selected_files
+      files = Project.rbfiles.weird_filename!
+      return files.reject { it.start_with?('features/fixtures/') } unless @match
+
+      files.grep(Regexp.union(@match.map { Regexp.new(it) }))
     end
   end
 end

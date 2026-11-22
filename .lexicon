@@ -153,6 +153,7 @@ NOTE_USAGE
 NULL
 NVIM_BIN
 NVIM_USAGE
+NoteLister
 NvimFiles
 ONELINER
 OPTIONAL_COMMANDS
@@ -833,7 +834,6 @@ nil
 nme
 no_verify
 node_
-none
 normal
 note
 now
