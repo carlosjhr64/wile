@@ -38,7 +38,8 @@ module Wile
       /^(Gemfile|TODO\.md|CREDITS\.md|History\.txt)/,
       /^(\.gemignore|\.gitignore|\.wileignore)/,
       /^(\.dictionary|\.lexicon)/,
-      /^(\.rubocop.*\.yml|\.reek.*\.yml|cucumber\.yml)/
+      /^(\.rubocop.*\.yml|\.reek.*\.yml|cucumber\.yml)/,
+      %r{^features/(support/env|step_definitions/command_steps)\.rb$}
     ].freeze
     private_constant :EXPECTED_CHANGES
 
