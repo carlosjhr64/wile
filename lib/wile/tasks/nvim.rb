@@ -13,30 +13,41 @@ module Wile
                   'with optional list flag.',
                   Set['list']].freeze
 
-    # :reek:TooManyStatements
     def nvim(options)
       Utilities.project_root? do |missing|
         raise "NOINPUT: Missing root files: #{missing.join(', ')}"
       end
       match = Usage.new(options, *NVIM_USAGE).args
-      files = filter_nvim_files(match)
-      return puts files if options.list?
+      NvimLauncher.new(match, options).run
+    end
+  end
 
-      launch_nvim(files, match)
+  # Lists or opens matching project files in Neovim.
+  class NvimLauncher
+    def initialize(match, options)
+      @match = match
+      @options = options
+    end
+
+    def run
+      files = selected_files
+      return puts files if @options.list?
+
+      launch(files)
     end
 
     private
 
-    def filter_nvim_files(match)
+    def selected_files
       files = NvimFiles.new.nvim_files
-      return files unless match
+      return files unless @match
 
-      files.select { |fn| match.any? { fn.match?(it) } }
+      files.grep(Regexp.union(@match.map { Regexp.new(it) }))
     end
 
-    def launch_nvim(files, match)
+    def launch(files)
       if files.empty?
-        raise "No files matched: #{match.join(', ')}" if match
+        raise "No files matched: #{@match.join(', ')}" if @match
 
         raise 'No files found.'
       end

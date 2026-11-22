@@ -157,6 +157,7 @@ NVIM_BIN
 NVIM_USAGE
 NoteLister
 NvimFiles
+NvimLauncher
 ONELINER
 OPTIONAL_COMMANDS
 OPTIONS
@@ -585,7 +586,6 @@ filenames
 files
 filter_map
 filter_matching
-filter_nvim_files
 filter_p2c
 filtered_p2c
 find
@@ -730,7 +730,7 @@ lambda_node
 last
 last_line
 latest_version
-launch_nvim
+launch
 len
 length
 level_pops
