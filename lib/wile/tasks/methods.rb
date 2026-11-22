@@ -106,8 +106,8 @@ module Wile
     def undefined
       list = @methods.undefined_methods.select { match?(it) }.sort
       list.map! do |mth|
-        next "#{mth} ☰".magenta if mth.standard_library?
-        next "#{mth} ◇".cyan if mth.object_method?
+        next "#{mth} ☰".magenta if mth.standard_library? # UTF-8
+        next "#{mth} ◇".cyan if mth.object_method? # UTF-8
 
         mth
       end

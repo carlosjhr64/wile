@@ -8,6 +8,7 @@ require 'find'
 class TestEncoding < Test::Unit::TestCase
   ALLOWED_BINARY = %w[.gem .gz .ico .jpeg .jpg .pdf .png].freeze
   PRUNED         = %w[./.git ./tmp].freeze
+  SKIP_REPORT    = %w[features/fixtures/ man/].freeze
 
   def test_encoding
     invalid = []
@@ -39,9 +40,14 @@ class TestEncoding < Test::Unit::TestCase
         invalid << "#{filename}:#{lno}: #{line.scrub}".red
         next
       end
-      next if line.ascii_only? || quiet?
 
-      puts "#{filename}:#{lno}: #{line}".gray
+      puts "#{filename}:#{lno}: #{line}".gray if report_utf8?(filename, line)
     end
+  end
+
+  def report_utf8?(filename, line)
+    return false if quiet? || line.ascii_only? || line.end_with?('# UTF-8')
+
+    SKIP_REPORT.none? { filename.start_with?(it) }
   end
 end
