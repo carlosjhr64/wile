@@ -74,7 +74,6 @@ Gem::Specification.new do |s|
     cache/test/tc_encoding
     cache/test/tc_lexicon
     cache/test/tc_lib_tests
-    cache/test/tc_long_chains
     cache/test/tc_readme_rocket_check
     cache/test/tc_reek
     cache/test/tc_rubocop

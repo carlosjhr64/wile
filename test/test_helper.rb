@@ -56,18 +56,6 @@ module Test
                       .select { File.file?(it) }
                       .select { ruby?(it) }
       end
-
-      # :reek:TooManyStatements
-      # :reek:UtilityFunction
-      def strip_comments(source)
-        clean = source.dup
-        Prism.parse_comments(source).reverse_each do |comment|
-          loc = comment.location
-          blank = loc.slice.gsub(/[^\r\n]/, ' ')
-          clean.bytesplice(loc.start_offset, loc.length, blank)
-        end
-        clean
-      end
     end
   end
 end
