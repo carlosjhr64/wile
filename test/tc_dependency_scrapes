@@ -9,7 +9,7 @@ class TestDependencyScrapes < Test::Unit::TestCase
   DIRECTIVE = /^\s*#\s*wile:\s*require\b/
   VALID_DIRECTIVE = /^\s*# wile: require '\w[-\w.]*(,\w[-\w.]*)*'$/
   OS_DIRECTIVE = /^\s*#\s*wile:\s*os\b/
-  VALID_OS_DIRECTIVE = /^\s*# wile: os `\w[-\w.]*(,\w[-\w.]*)*`$/
+  VALID_OS_DIRECTIVE = /^\s*# wile: os `\w[-\w.]*(,\w[-\w.]*)*`( permit)?$/
   DOUBLE_QUOTE_REQUIRE = /\brequire(_relative)?\s*"/
   AUTOLOAD_CONST = /\bautoload\s+['"][A-Z]/
   AUTOLOAD_DOUBLE_QUOTE = /\bautoload\s+:\w+,\s*"/
@@ -32,6 +32,7 @@ class TestDependencyScrapes < Test::Unit::TestCase
     assert_nil chk("# wile: require 'reek,rubocop'")
     assert_nil chk('# wile: os `diff`')
     assert_nil chk('# wile: os `diff,apt-get`')
+    assert_nil chk('# wile: os `curl` permit')
   end
 
   def test_invalid_require_lines
@@ -51,6 +52,7 @@ class TestDependencyScrapes < Test::Unit::TestCase
     assert_match 'malformed', chk('# wile: os diff')
     assert_match 'malformed', chk('#   wile:   os   `dpkg-query`')
     assert_match 'malformed', chk('# wile: os `diff, apt-get`')
+    assert_match 'malformed', chk('# wile: os `curl` bogus')
   end
 
   def test_invalid_autoload_lines

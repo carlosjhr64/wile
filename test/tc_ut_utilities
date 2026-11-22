@@ -66,7 +66,7 @@ class TestUtUtilities < Test::Unit::TestCase
 
   def test_run_infers_unavailable
     err, status = capture_exit do
-      Wile::Utilities.run!('nonexistent_cmd_xyz_123')
+      Wile::Utilities.run!('nonexistent_cmd_xyz_123') # permit
     end
     assert_equal EX_UNAVAILABLE, status
     assert_match(/\(exit 127\)\./, err)

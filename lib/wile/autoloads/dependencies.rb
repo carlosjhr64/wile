@@ -57,7 +57,7 @@ module Wile
     def irbrc? = File.file?('.irbrc') && Git.files.include?('.irbrc')
 
     DEPENDENCY_SCRAPES = [
-      [/^\s*# wile: os `(\w[-\w.]*(?:,\w[-\w.]*)*)`$/, :os],
+      [/^\s*# wile: os `(\w[-\w.]*(?:,\w[-\w.]*)*)`(?: permit)?$/, :os],
       [/^\s*# wile: require '(\w[-\w.]*(?:,\w[-\w.]*)*)'$/, :gem],
       [%r{^[^#]*\brequire\s*'([-\w/]+)'}, :gem],
       [%r{^[^#]*\bautoload\s+:\w+,\s*'([-\w/]+)'}, :gem]

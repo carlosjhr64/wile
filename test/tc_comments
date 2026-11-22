@@ -88,7 +88,7 @@ class TestComments < Test::Unit::TestCase
   LOOSE_MAGIC   = /^\s*#\s*(?<key>:?[a-z_]+):/
   STRICT_MAGIC  = /^\s*# :?[a-z_]+:/
   MAGIC_REQUIRE = /^\s*# wile: require '\w[-\w.]*(,\w[-\w.]*)*'$/
-  MAGIC_OS      = /^\s*# wile: os `(\w[-\w.]*(?:,\w[-\w.]*)*)`$/
+  MAGIC_OS      = /^\s*# wile: os `(\w[-\w.]*(?:,\w[-\w.]*)*)`( permit)?$/
   OS_CALLS      = [
     [nil, :system], [nil, :spawn], ['IO', :popen],
     # Custom callers: [receiver (nil, String, or Regexp), method_name]
@@ -186,8 +186,10 @@ class TestComments < Test::Unit::TestCase
     OsScanner.new(OS_CALLS).scan(source).each do |cmd, num|
       next accepted[cmd] = nil if accepted.key?(cmd)
 
-      puts_alert("Unregistered os command: #{filename}:#{num}:",
-                 lines[num - 1], cmd)
+      line = lines[num - 1]
+      next if line.chomp.end_with?('# permit')
+
+      puts_alert("Unregistered os command: #{filename}:#{num}:", line, cmd)
     end
     alert_unused_os(filename, accepted)
   end
@@ -207,7 +209,8 @@ class TestComments < Test::Unit::TestCase
     lines.each_with_index.with_object({}) do |(line, idx), acc|
       next unless (match = MAGIC_OS.match(line))
 
-      match[1].split(',').each { acc[it] ||= [idx + 1, line] }
+      val = match[2] ? nil : [idx + 1, line]
+      match[1].split(',').each { acc[it] = val unless acc.key?(it) }
     end
   end
 end

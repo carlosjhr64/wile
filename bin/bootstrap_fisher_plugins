@@ -1,8 +1,8 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-# `curl` used in `FISHER_INSTALL_CMD`
-# wile: os `curl,fish`
+# wile: os `fish`
+# wile: os `curl` permit
 
 Encoding.default_external = Encoding::UTF_8
 
