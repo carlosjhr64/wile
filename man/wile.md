@@ -280,7 +280,7 @@ The generated file follows standard Bundler syntax:
 
     source 'https://rubygems.org'
     ## runtime ##
-    gem 'rake'
+    gem 'colorize'
     ## development ##
     gem 'reek'
     gem 'rubocop'
