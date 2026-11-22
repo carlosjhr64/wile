@@ -10,8 +10,6 @@
 module Wile
   # This file is loaded upon a :todo task request.
   class Tasks
-    using UtilitiesRefinements
-
     TODO_USAGE = ['todo: Optionally takes one or more arguments.', Set[]].freeze
 
     def todo(options)
@@ -19,27 +17,37 @@ module Wile
         raise "NOINPUT: Missing root files: #{missing.join(', ')}"
       end
       match = Usage.new(options, *TODO_USAGE).args
-      return do_todo if File.file?('TODO.md') && !match
+      TodoLister.new(match).display
+    end
+  end
 
-      do_todo_files(match)
+  # Displays TODO.md or greps project Ruby files for TODO comments.
+  class TodoLister
+    using UtilitiesRefinements
+
+    def initialize(match = nil)
+      @match = match
+    end
+
+    def self.display_file(filename)
+      lines = File.foreach(filename).grep(/#\s*TODO/)
+      puts filename.blue, lines unless lines.empty?
+    end
+
+    def display
+      return system('colora', '--on=^#\\sTODO', '--off=^#', 'TODO.md') if
+        File.file?('TODO.md') && !@match
+
+      selected_files.each { TodoLister.display_file(it) }
     end
 
     private
 
-    def do_todo
-      system('colora', '--on=^#\\sTODO', '--off=^#', 'TODO.md')
-    end
-
-    # :reek:ControlParameter :reek:TooManyStatements
-    def do_todo_files(match)
+    def selected_files
       files = Project.rbfiles.weird_filename!
-      files = files.reject { it.start_with?('features/fixtures/') } unless match
-      files.each do |fn|
-        next if match&.none? { fn.match? it }
+      return files.reject { it.start_with?('features/fixtures/') } unless @match
 
-        lines = File.foreach(fn).grep(/#\s*TODO/)
-        puts fn.blue, lines unless lines.empty?
-      end
+      files.grep(Regexp.union(@match.map { Regexp.new(it) }))
     end
   end
 end
