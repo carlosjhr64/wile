@@ -16,6 +16,8 @@ module Wile
       Set['all']
     ].freeze
 
+    OSCHECK_WIDTH = 39
+
     def oscheck(options)
       Usage.new(options, *OSCHECK_USAGE)
       raise if oscheck_do(options.all?)
@@ -39,9 +41,8 @@ module Wile
 
     # category: helpers
 
-    # :reek:LongParameterList
-    def show(cmd, ver, col = :green, jst = 39)
-      print "#{cmd.colorize(col)}:".ljust(jst)
+    def show(cmd, ver, col = :green)
+      print "#{cmd.colorize(col)}:".ljust(OSCHECK_WIDTH)
       puts ver
     end
   end

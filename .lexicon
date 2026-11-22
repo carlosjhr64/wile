@@ -163,6 +163,7 @@ OPTIONAL_COMMANDS
 OPTIONS
 ORDER_USAGE
 OSCHECK_USAGE
+OSCHECK_WIDTH
 OS_CMDS
 OUTPUT_FILE
 Object
@@ -716,7 +717,6 @@ iterate
 j
 jobs
 join
-jst
 kebab_case
 key
 keys
