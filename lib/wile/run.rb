@@ -89,9 +89,9 @@ module Wile
     end
 
     def handle_runtime_error
-      msg = @error.message
+      code, msg = Sysexits.code_msg(@error.message)
       warn msg.red unless msg.empty?
-      exit Sysexits.code(msg)
+      exit code
     end
 
     def handle_software_error

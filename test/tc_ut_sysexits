@@ -8,17 +8,28 @@ require_relative '../lib/wile'
 class TestUtSysexits < Test::Unit::TestCase
   include Wile::Sysexits
 
-  def test_code_known_prefix
-    assert_equal EX_DATAERR, Wile::Sysexits.code('DATAERR: bad input')
-    assert_equal EX_NOINPUT, Wile::Sysexits.code('NOINPUT: missing file')
-    assert_equal EX_OSERR, Wile::Sysexits.code('OSERR: failed')
+  def test_code_msg_known_prefix
+    assert_equal [EX_DATAERR, 'bad input'],
+                 Wile::Sysexits.code_msg('DATAERR: bad input')
+    assert_equal [EX_NOINPUT, 'missing file'],
+                 Wile::Sysexits.code_msg('NOINPUT: missing file')
+    assert_equal [EX_OSERR, 'failed'],
+                 Wile::Sysexits.code_msg('OSERR: failed')
+    assert_equal [EX_DATAERR, ''],
+                 Wile::Sysexits.code_msg('DATAERR:')
+    assert_equal [EX_OK, 'done'],
+                 Wile::Sysexits.code_msg('OK: done')
   end
 
-  def test_code_fallback_to_fail
-    assert_equal EX_FAIL, Wile::Sysexits.code('Plain failure')
-    assert_equal EX_FAIL, Wile::Sysexits.code('TODO: not a code')
-    assert_equal EX_FAIL, Wile::Sysexits.code('')
-    assert_equal EX_FAIL, Wile::Sysexits.code(nil)
+  def test_code_msg_fallback_to_fail
+    assert_equal [EX_FAIL, 'Plain failure'],
+                 Wile::Sysexits.code_msg('Plain failure')
+    assert_equal [EX_FAIL, 'OK'],
+                 Wile::Sysexits.code_msg('OK')
+    assert_equal [EX_FAIL, 'TODO: not a code'],
+                 Wile::Sysexits.code_msg('TODO: not a code')
+    assert_equal [EX_FAIL, ''], Wile::Sysexits.code_msg('')
+    assert_equal [EX_FAIL, ''], Wile::Sysexits.code_msg(nil)
   end
 
   def test_label

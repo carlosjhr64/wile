@@ -28,8 +28,11 @@ module Wile
       [const.to_s.delete_prefix('EX_'), const_get(const)]
     end.freeze
 
-    def self.code(msg)
-      EX_CODES.fetch(msg.to_s[/^([A-Z]+):/, 1], EX_FAIL)
+    def self.code_msg(message)
+      text = message.to_s
+      label, msg = text.split(':', 2)
+      code = msg && EX_CODES[label]
+      code ? [code, msg.lstrip] : [EX_FAIL, text]
     end
 
     def self.label(code)
