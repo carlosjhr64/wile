@@ -61,6 +61,7 @@ DOWNLOAD_URL
 DUCK_NAME
 Dependencies
 DependencyReport
+DictionaryUpdater
 Digest
 Dir
 DisplayLists
@@ -482,7 +483,6 @@ devgems
 dflipped
 dict_path
 dictionary
-dictionary_ok
 diff
 diff_erb
 diff_flags
