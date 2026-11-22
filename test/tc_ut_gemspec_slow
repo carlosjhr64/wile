@@ -18,9 +18,7 @@ class TestUtGemspec < Test::Unit::TestCase
       silence_io { @gemspec = Wile::Gemspec.new(@info) }
     end
 
-    def shutdown
-      Wile::Info.reset!
-    end
+    def shutdown = Wile::Info.reset!
 
     private
 
@@ -45,12 +43,9 @@ class TestUtGemspec < Test::Unit::TestCase
   end
 
   def test_attributes
-    assert_kind_of Array, @gemspec.rungems
-    assert_kind_of Array, @gemspec.devgems
-    assert_kind_of Array, @gemspec.ros
-    assert_kind_of Array, @gemspec.dos
-    assert_kind_of Array, @gemspec.files
-    assert_kind_of Array, @gemspec.executables
+    %i[rungems devgems ros dos files executables].each do |attr|
+      assert_kind_of Array, @gemspec.public_send(attr)
+    end
   end
 
   def test_files_and_executables
@@ -71,13 +66,18 @@ class TestUtGemspec < Test::Unit::TestCase
     assert_equal '4.0.0', @gemspec.send(:ruby_floor, '4.0.7')
     assert_equal "'~> 4.0', '>= 4.0.0'",
                  @gemspec.send(:ruby_requirement, '4.0.7')
+    Dir.mktmpdir do |tmp|
+      spec = allocated_gemspec(tmp)
+      File.write(File.join(tmp, '.ruby-version-floor'), "4.0\n")
+      assert_equal '4.0', spec.send(:ruby_floor, '4.0.7')
+      assert_equal "'~> 4.0'", spec.send(:ruby_requirement, '4.0.7')
+    end
   end
 
   def test_ruby_floor_invalid
     Dir.mktmpdir do |tmp|
-      spec = Wile::Gemspec.allocate
-      spec.instance_variable_set(:@info, Wile::Info.new(dirname: tmp))
-      ['', 'bad'].each do |bad|
+      spec = allocated_gemspec(tmp)
+      ['', 'bad', '4', '4.0.0.0', '04.0.0', '4.00.0'].each do |bad|
         File.write(File.join(tmp, '.ruby-version-floor'), bad)
         err = assert_raise(RuntimeError) { spec.send(:ruby_floor, '4.0.7') }
         assert_match(/\ADATAERR: Invalid \.ruby-version-floor:/, err.message)
@@ -86,9 +86,7 @@ class TestUtGemspec < Test::Unit::TestCase
   end
 
   def test_update_bang
-    with_quiet_io do
-      Dir.mktmpdir { |tmp| verify_update_in_dir(tmp) }
-    end
+    with_quiet_io { Dir.mktmpdir { verify_update_in_dir(it) } }
   end
 
   private
@@ -117,6 +115,12 @@ class TestUtGemspec < Test::Unit::TestCase
     assert_nothing_raised { spec.update! }
     assert File.file?(spec_file)
     assert_equal spec.to_s, File.read(spec_file)
+  end
+
+  def allocated_gemspec(dir)
+    spec = Wile::Gemspec.allocate
+    spec.instance_variable_set(:@info, Wile::Info.new(dirname: dir))
+    spec
   end
 
   def with_quiet_io(&) = self.class.send(:silence_io, &)

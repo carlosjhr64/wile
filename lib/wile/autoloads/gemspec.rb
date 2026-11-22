@@ -6,7 +6,7 @@ module Wile
   # rubocop:disable-next Metrics/ClassLength
   # :reek:TooManyInstanceVariables :reek:MissingSafeMethod
   class Gemspec
-    RUBY_FLOOR = /\A\d+\.\d+(?:\.\d+)?\z/
+    RUBY_FLOOR = /\A(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)(?:\.(?:0|[1-9]\d*))?\z/
     private_constant :RUBY_FLOOR
 
     attr_reader :rungems, :devgems, :ros, :dos, :gemspec
