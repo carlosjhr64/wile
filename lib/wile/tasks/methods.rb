@@ -27,7 +27,6 @@ module Wile
   end
 
   # Displays categorized method lists.
-  # :reek:NilCheck
   class DisplayLists
     using WileRefinements
 
@@ -47,25 +46,20 @@ module Wile
       LISTS.each { send(it) if selected?(it) }
     end
 
+    def self.label_undefined(mth)
+      return "#{mth} ☰".magenta if mth.standard_library? # UTF-8
+      return "#{mth} ◇".cyan if mth.object_method? # UTF-8
+
+      mth
+    end
+
     private
 
     def selected?(name)
-      @select.nil? || name.match?(@select)
+      !@select || name.match?(@select)
     end
 
     # category: lists
-
-    # :reek:TooManyStatements
-    def undefined
-      list = @methods.undefined_methods.select { match?(it) }.sort
-      list.map! do |mth|
-        next "#{mth} ☰".magenta if mth.standard_library? # UTF-8
-        next "#{mth} ◇".cyan if mth.object_method? # UTF-8
-
-        mth
-      end
-      display_list(list, '## Undefined ##'.blue)
-    end
 
     def isolate
       list = @methods.methods
@@ -85,6 +79,12 @@ module Wile
                      end
                      .keys.sort
       display_list(list, '## Shared ##'.blue)
+    end
+
+    def undefined
+      list = @methods.undefined_methods.select { match?(it) }.sort
+      list.map! { DisplayLists.label_undefined(it) }
+      display_list(list, '## Undefined ##'.blue)
     end
 
     def unused
@@ -120,17 +120,14 @@ module Wile
     # category: helper
 
     def match?(name)
-      @matches.nil? || @matches.any? { it.match?(name) }
+      !@matches || @matches.any? { it.match?(name) }
     end
 
-    # :reek:TooManyStatements
     def name2scope
-      scopes = Hash.new { |hash, name| hash[name] = [] }
-      @methods.methods.each_key do |mth|
+      @methods.methods.each_key.with_object({}) do |mth, scopes|
         name, dot, scope = mth.split(/([.#])/).reverse
-        scopes[name] << "#{scope}#{dot}"
+        (scopes[name] ||= []) << "#{scope}#{dot}"
       end
-      scopes
     end
 
     # category: display
