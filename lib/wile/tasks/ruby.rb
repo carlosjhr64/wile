@@ -12,15 +12,25 @@ module Wile
       Set[]
     ].freeze
 
-    # :reek:FeatureEnvy :reek:TooManyStatements
     def ruby(options)
       Utilities.project_root? do |missing|
         raise "NOINPUT: Missing root files: #{missing.join(', ')}"
       end
       match = Usage.new(options, *RUBY_USAGE).args || []
-      files = Project.rbfiles.sort
-      files.select! { |fn| match.any? { fn.match? it } } unless match.empty?
-      files.each { puts it }
+      RubyLister.new(match).list
+    end
+  end
+
+  # Lists and filters project Ruby files.
+  class RubyLister
+    def initialize(match = [])
+      @match = match
+    end
+
+    def list
+      Project.rbfiles.sort.each do |file|
+        puts file if @match.empty? || @match.any? { file.match?(it) }
+      end
     end
   end
 end
