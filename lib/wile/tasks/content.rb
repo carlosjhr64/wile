@@ -32,6 +32,8 @@ module Wile
       files
     end
 
+    # category: dump
+
     def content_dump(filenames)
       filenames.each do |filename|
         warn "#{'#'.gray} #{filename.blue.bold}"

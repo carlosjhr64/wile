@@ -53,30 +53,28 @@ module Wile
       @select.nil? || name.match?(@select)
     end
 
+    # category: lists
+
     # :reek:TooManyStatements
-    def name2scope
-      scopes = Hash.new { |hash, name| hash[name] = [] }
-      @methods.methods.each_key do |mth|
-        name, dot, scope = mth.split(/([.#])/).reverse
-        scopes[name] << "#{scope}#{dot}"
+    def undefined
+      list = @methods.undefined_methods.select { match?(it) }.sort
+      list.map! do |mth|
+        next "#{mth} ☰".magenta if mth.standard_library? # UTF-8
+        next "#{mth} ◇".cyan if mth.object_method? # UTF-8
+
+        mth
       end
-      scopes
+      display_list(list, '## Undefined ##'.blue)
     end
 
-    def display_reused(reused)
-      puts '## Reused ##'.blue
-      reused.each do |name, scopes|
-        puts "#{name.bold}:"
-        scopes.display
-      end
-      puts
-    end
-
-    def reused
-      reused = name2scope.select! do |name, scopes|
-        scopes.size > 1 and name != 'initialize' and match?(name)
-      end
-      display_reused(reused) unless reused.empty?
+    def isolate
+      list = @methods.methods
+                     .select do |name, info|
+                       match?(name) && info.dependencies.empty? &&
+                         info.dependants.empty?
+                     end
+                     .keys.sort
+      display_list(list, '## Isolate ##'.blue)
     end
 
     def shared
@@ -98,35 +96,6 @@ module Wile
       display_list(list, '## Unused ##'.blue)
     end
 
-    def match?(name)
-      @matches.nil? || @matches.any? { it.match?(name) }
-    end
-
-    # :reek:TooManyStatements
-    def undefined
-      list = @methods.undefined_methods.select { match?(it) }.sort
-      list.map! do |mth|
-        next "#{mth} ☰".magenta if mth.standard_library? # UTF-8
-        next "#{mth} ◇".cyan if mth.object_method? # UTF-8
-
-        mth
-      end
-      display_list(list, '## Undefined ##'.blue)
-    end
-
-    def implicit
-      list = @methods.implicit_methods.select { match?(it) }.sort
-      display_list(list, '## Implicit ##'.blue)
-    end
-
-    def display_list(list, heading = nil)
-      return if list.empty?
-
-      puts heading if heading
-      list.display
-      puts
-    end
-
     def independent
       list = @methods.methods
                      .select do |name, info|
@@ -136,14 +105,51 @@ module Wile
       display_list(list, '## Independent ##'.blue)
     end
 
-    def isolate
-      list = @methods.methods
-                     .select do |name, info|
-                       match?(name) && info.dependencies.empty? &&
-                         info.dependants.empty?
-                     end
-                     .keys.sort
-      display_list(list, '## Isolate ##'.blue)
+    def implicit
+      list = @methods.implicit_methods.select { match?(it) }.sort
+      display_list(list, '## Implicit ##'.blue)
+    end
+
+    def reused
+      reused = name2scope.select! do |name, scopes|
+        scopes.size > 1 and name != 'initialize' and match?(name)
+      end
+      display_reused(reused) unless reused.empty?
+    end
+
+    # category: helper
+
+    def match?(name)
+      @matches.nil? || @matches.any? { it.match?(name) }
+    end
+
+    # :reek:TooManyStatements
+    def name2scope
+      scopes = Hash.new { |hash, name| hash[name] = [] }
+      @methods.methods.each_key do |mth|
+        name, dot, scope = mth.split(/([.#])/).reverse
+        scopes[name] << "#{scope}#{dot}"
+      end
+      scopes
+    end
+
+    # category: display
+
+    def display_list(list, heading = nil)
+      return if list.empty?
+
+      puts heading if heading
+      list.display
+      puts
+    end
+
+    def display_reused(reused)
+      puts '## Reused ##'.blue
+      reused.each do |name, scopes|
+        puts "#{name.bold}:"
+        scopes.display
+      end
+      puts
     end
   end
 end

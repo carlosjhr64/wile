@@ -37,6 +37,8 @@ module Wile
       true
     end
 
+    # category: helpers
+
     # :reek:LongParameterList
     def show(cmd, ver, col = :green, jst = 39)
       print "#{cmd.colorize(col)}:".ljust(jst)
