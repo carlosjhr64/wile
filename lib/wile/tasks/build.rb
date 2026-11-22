@@ -11,23 +11,34 @@ module Wile
     BUILD_USAGE = ['build: Takes no arguments with optional force flag.',
                    0, Set['force']].freeze
 
-    # :reek:UtilityFunction
     def build(options, gmu = GemUtils.new, git = Git)
       Utilities.project_root? do |missing|
         raise "NOINPUT: Missing root files: #{missing.join(', ')}"
       end
       Usage.new(options, *BUILD_USAGE)
-      verify_build(gmu, git) unless options.force?
-      gmu.build!
+      Builder.new(options, gmu, git).build
+    end
+  end
+
+  # Verifies project state and builds the gem package.
+  class Builder
+    def initialize(options, gmu = GemUtils.new, git = Git)
+      @options = options
+      @gmu = gmu
+      @git = git
+    end
+
+    def build
+      verify unless @options.force?
+      @gmu.build!
     end
 
     private
 
-    # :reek:UtilityFunction
-    def verify_build(gmu, git)
-      git.clean!
-      gmu.clean!
-      gmu.ready!
+    def verify
+      @git.clean!
+      @gmu.clean!
+      @gmu.ready!
     end
   end
 end
