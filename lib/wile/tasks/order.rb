@@ -32,19 +32,16 @@ module Wile
 
   # Runs method-order optimization or CodeDataFunction subcommands.
   class OrderRunner
+    SPECIALS = %i[dump index isolate total qc].freeze
+    MODES = (OrderOptimizer::SORTS + SPECIALS).freeze
+
     def initialize(filename, sort = :bcmv)
+      raise "invalid sort: #{sort}" unless MODES.include?(sort)
+
       @data = CodeData.new(filename)
       @sort = sort
       @names = @data.names
       @optimized = nil
-    end
-
-    def run
-      return run_subcommand unless OrderOptimizer::SORTS.include?(@sort)
-
-      optimize
-      report
-      raise unless @optimized == @names
     end
 
     def self.delta(from, dest)
@@ -52,7 +49,19 @@ module Wile
       "#{arrow}#{(from - dest).abs}"
     end
 
+    def run
+      return run_subcommand if SPECIALS.include?(@sort)
+
+      optimize
+      report
+      raise unless @optimized == @names
+    end
+
     private
+
+    def run_subcommand
+      CodeDataFunction.method(@sort).call(@data)
+    end
 
     def optimize
       valuation = CodeDataValuation.new(@data)
@@ -63,14 +72,6 @@ module Wile
 
     def report
       @optimized.each_with_index { |name, idx| report_line(name, idx) }
-    end
-
-    def run_subcommand
-      unless CodeDataFunction.public_methods(false).include?(@sort)
-        raise "invalid sort: #{@sort}"
-      end
-
-      CodeDataFunction.method(@sort).call(@data)
     end
 
     def format_move(name, old, idx)
