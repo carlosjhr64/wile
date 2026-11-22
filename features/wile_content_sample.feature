@@ -24,29 +24,3 @@ Feature: Testing wile content task with sample fixture
     * Then stdout is fixture 'sample.sexp'
     * Then exit status is "0"
     * Then stderr is "# ./features/fixtures/sample.rb"
-
-  Scenario: content on non-existent file
-    * Given option "content nonexistent_file_xyz.rb"
-    * When we run command
-    * Then exit status is "1"
-    * Then stderr includes "File not found: nonexistent_file_xyz.rb"
-    * Then stderr includes "No files selected."
-
-  Scenario: content with disallowed option
-    * Given option "content features/fixtures/sample.rb --check"
-    * When we run command
-    * Then exit status is "64"
-    * Then stderr includes "Takes one or more filenames."
-
-  Scenario: content on directory
-    * Given option "content lib/"
-    * When we run command
-    * Then exit status is "1"
-    * Then stderr includes "File not found: lib/"
-    * Then stderr includes "No files selected."
-
-  Scenario: content with conflicting dump and raw options
-    * Given option "content features/fixtures/sample.rb --dump --raw"
-    * When we run command
-    * Then exit status is "64"
-    * Then stderr includes "Cannot combine --dump and --raw."

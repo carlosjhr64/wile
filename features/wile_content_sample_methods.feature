@@ -11,14 +11,14 @@ Feature: Testing wile content task with sample_methods fixture
     * Then exit status is "0"
     * Then stderr is ""
 
-  Scenario: content sample.rb --raw
+  Scenario: content sample_methods.rb --raw
     * Given option "content ./features/fixtures/sample_methods.rb --raw"
     * When we run command
     * Then stdout is fixture 'sample_methods.raw'
     * Then exit status is "0"
     * Then stderr is ""
 
-  Scenario: content sample.rb --dump
+  Scenario: content sample_methods.rb --dump
     * Given option "content ./features/fixtures/sample_methods.rb --dump"
     * When we run command
     * Then stdout is fixture 'sample_methods.sexp'

@@ -17,3 +17,10 @@ Feature: Testing wile content task with sample_attrs fixture
     * Then stdout is fixture 'sample_attrs.raw'
     * Then exit status is "0"
     * Then stderr is ""
+
+  Scenario: content sample_attrs.rb --dump
+    * Given option "content ./features/fixtures/sample_attrs.rb --dump"
+    * When we run command
+    * Then stdout is fixture 'sample_attrs.sexp'
+    * Then exit status is "0"
+    * Then stderr is "# ./features/fixtures/sample_attrs.rb"

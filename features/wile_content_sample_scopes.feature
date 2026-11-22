@@ -11,14 +11,14 @@ Feature: Testing wile content task with sample_scopes fixture
     * Then exit status is "0"
     * Then stderr is ""
 
-  Scenario: content sample.rb --raw
+  Scenario: content sample_scopes.rb --raw
     * Given option "content ./features/fixtures/sample_scopes.rb --raw"
     * When we run command
     * Then stdout is fixture 'sample_scopes.raw'
     * Then exit status is "0"
     * Then stderr is ""
 
-  Scenario: content sample.rb --dump
+  Scenario: content sample_scopes.rb --dump
     * Given option "content ./features/fixtures/sample_scopes.rb --dump"
     * When we run command
     * Then stdout is fixture 'sample_scopes.sexp'
