@@ -16,25 +16,42 @@ module Wile
         raise "NOINPUT: Missing root files: #{missing.join(', ')}"
       end
       Usage.new(options, *LEXICON_USAGE)
-      return puts 'OK'.green if lexicon_ok?(options)
+      LexiconUpdater.new(options).run
+    end
+  end
+
+  # Checks and updates the project .lexicon file.
+  class LexiconUpdater
+    def initialize(options)
+      @options = options
+    end
+
+    def run
+      return puts 'OK'.green if ok?
 
       raise 'Fail'
     end
 
-    private
-
-    # :reek:TooManyStatements
-    def lexicon_ok?(options)
-      return true if system 'test/tc_lexicon --verbose=silent'
-
+    def self.diff
       opts = String.disable_colorization ? [] : ['--color']
       system('diff', *opts, '.lexicon', 'tmp/.lexicon')
-      return false if options.check?
-      return false unless options.yes? ||
-                          Utilities.confirm?('Update lexicon?')
+    end
+
+    private
+
+    def ok?
+      return true if system 'test/tc_lexicon --verbose=silent'
+
+      LexiconUpdater.diff
+      return false unless update?
 
       FileUtils.cp 'tmp/.lexicon', '.lexicon'
       true
+    end
+
+    def update?
+      !@options.check? &&
+        (@options.yes? || Utilities.confirm?('Update lexicon?'))
     end
   end
 end

@@ -136,6 +136,7 @@ LIB_TYPE
 LISTS
 LIST_USAGE
 LOCAL_DIR
+LexiconUpdater
 LoadError
 METHODS_USAGE
 METHOD_CALL
@@ -735,7 +736,6 @@ length
 level_pops
 level_push
 lexicon
-lexicon_ok
 lib
 lib_to_tc
 lib_type
