@@ -133,12 +133,19 @@ class TestUtTasks < Test::Unit::TestCase
                            [FakeGem.new('a'), FakeGem.new('b')])
     Dir.mktmpdir do |dir|
       file = File.join(dir, 'Gemfile')
-      TASKS.gemfile(fake_options([]), spec, file)
+      TASKS.gemfile(fake_options([], dump: false), spec, file)
       content = File.read(file)
       assert_match(/gem 'a'/, content)
       assert_match(/gem 'b'/, content)
       assert_equal 1, content.scan("gem 'a'").size
     end
+  end
+
+  def test_gemfile_dump
+    spec = FakeGemspec.new([FakeGem.new('a')], [FakeGem.new('b')])
+    out = capture_stdout { TASKS.gemfile(fake_options([], dump: true), spec) }
+    assert_match(/gem 'a'/, out)
+    assert_match(/gem 'b'/, out)
   end
 
   def test_build_flow

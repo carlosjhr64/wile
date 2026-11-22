@@ -2,12 +2,17 @@
 
 # ## wile gemfile ##
 # Generates project Gemfile from dependencies.
+# Options:
+#   --dump       prints Gemfile to stdout instead of writing
 # Usage:
-#   wile gemfile # generate Gemfile from dependencies
+#   wile gemfile [--dump] # generate Gemfile from dependencies
 module Wile
   # This file is loaded upon a :gemfile task request.
   class Tasks
-    GEMFILE_USAGE = ['gemfile: Takes no arguments.', 0, Set[]].freeze
+    GEMFILE_USAGE = [
+      'gemfile: Takes no arguments with optional dump flag.',
+      0, Set['dump']
+    ].freeze
 
     def gemfile(options, gemspec = nil, file = 'Gemfile')
       Utilities.project_root? do |missing|
@@ -15,15 +20,16 @@ module Wile
       end
       Usage.new(options, *GEMFILE_USAGE)
       gemspec ||= Gemspec.new
-      GemfileWriter.new(gemspec, file).write
+      GemfileWriter.new(gemspec, file, options).write
     end
   end
 
   # Builds and writes a project Gemfile from gemspec dependencies.
   class GemfileWriter
-    def initialize(gemspec = Gemspec.new, file = 'Gemfile')
+    def initialize(gemspec = Gemspec.new, file = 'Gemfile', options = nil)
       @gemspec = gemspec
       @file = file
+      @options = options
     end
 
     def self.format_gems(gems)
@@ -31,7 +37,7 @@ module Wile
     end
 
     def write
-      File.write(@file, content)
+      @options&.dump? ? puts(content) : File.write(@file, content)
     end
 
     private

@@ -275,6 +275,7 @@ classifies gems into runtime and development groups based on `.gemignore`,
 including the rubygems source and runtime/development gems:
 
     $ wile gemfile                  # Generate or update project Gemfile
+    $ wile gemfile --dump           # Print generated Gemfile to stdout
 
 The generated file follows standard Bundler syntax:
 
