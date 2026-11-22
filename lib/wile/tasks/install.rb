@@ -12,30 +12,40 @@ module Wile
     INSTALL_USAGE = ['install: Takes no arguments with optional force flag.',
                      0, Set['force']].freeze
 
-    # :reek:UtilityFunction
     def install(options, gmu = GemUtils.new, git = Git)
       Utilities.project_root? do |missing|
         raise "NOINPUT: Missing root files: #{missing.join(', ')}"
       end
       Usage.new(options, *INSTALL_USAGE)
-      verify_install(gmu, git) unless options.force?
-      reinstall(gmu)
+      Installer.new(options, gmu, git).install
+    end
+  end
+
+  # Builds and installs the current project gem locally.
+  class Installer
+    def initialize(options, gmu = GemUtils.new, git = Git)
+      @options = options
+      @gmu = gmu
+      @git = git
+    end
+
+    def install
+      verify unless @options.force?
+      reinstall
     end
 
     private
 
-    # :reek:UtilityFunction
-    def verify_install(gmu, git)
-      git.clean!
-      gmu.clean!
-      gmu.ready!
+    def verify
+      @git.clean!
+      @gmu.clean!
+      @gmu.ready!
     end
 
-    # :reek:UtilityFunction
-    def reinstall(gmu)
-      gmu.build!
-      gmu.uninstall! if gmu.installed?
-      gmu.install! && gmu.rm_pkg
+    def reinstall
+      @gmu.build!
+      @gmu.uninstall! if @gmu.installed?
+      @gmu.install! && @gmu.rm_pkg
     end
   end
 end

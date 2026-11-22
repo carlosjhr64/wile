@@ -124,6 +124,7 @@ INSTALL_USAGE
 IO
 Info
 InfoDisplay
+Installer
 Integer
 JSON
 KERNEL
@@ -1204,6 +1205,7 @@ values
 values_at
 ver
 verbose
+verify
 verify_active_ruby
 verify_apt_packages
 verify_arch
@@ -1217,7 +1219,6 @@ verify_fish
 verify_fisher_installed
 verify_gems
 verify_generic_packages
-verify_install
 verify_linux
 verify_neovim
 verify_project_root
