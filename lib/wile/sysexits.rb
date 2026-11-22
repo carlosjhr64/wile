@@ -7,7 +7,8 @@ module Wile
   module Sysexits
     EX_OK          = 0   # success
     EX_FAIL        = 1   # test|task failed
-    EX_NO          = 1   # request was rejected|declined
+    EX_NO          = 2   # request was rejected|declined
+    EX_STOP        = 2   # requests a stop
     EX_USAGE       = 64  # command used incorrectly
     EX_DATAERR     = 65  # input data incorrect
     EX_NOINPUT     = 66  # input file missing or unreadable

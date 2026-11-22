@@ -32,6 +32,13 @@ class TestUtSysexits < Test::Unit::TestCase
     assert_equal [EX_FAIL, ''], Wile::Sysexits.code_msg(nil)
   end
 
+  def test_stop_and_no_codes
+    assert_equal 2, EX_NO
+    assert_equal 2, EX_STOP
+    assert_equal [EX_STOP, ''], Wile::Sysexits.code_msg('STOP:')
+    assert_equal [EX_NO, 'Aborted.'], Wile::Sysexits.code_msg('NO: Aborted.')
+  end
+
   def test_label
     assert_equal 'UNAVAILABLE', Wile::Sysexits.label(EX_UNAVAILABLE)
     assert_equal 'OSERR', Wile::Sysexits.label(EX_OSERR)
