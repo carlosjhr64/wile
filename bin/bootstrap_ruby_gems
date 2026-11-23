@@ -46,7 +46,7 @@ class BootstrapRubyGems
 
   def verify_gems!
     cmd = [RbConfig.ruby, '-rbundler/setup', '-rhelp_parser', '-e', '']
-    return if system(*cmd, err: File::NULL)
+    return if system(*cmd, err: File::NULL) # permit
 
     error!(EX_UNAVAILABLE,
            'Error: gems do not load after bundle update -- help_parser ' \

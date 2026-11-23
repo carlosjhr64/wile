@@ -34,7 +34,7 @@ module Wile
     def self.batch_worker(queue, opt, state)
       while (tf = queue.pop)
         state[:mutex].synchronize { state[:failed] << tf } unless
-          system(tf, *opt, out: File::NULL, err: File::NULL)
+          system(tf, *opt, out: File::NULL, err: File::NULL) # permit
       end
     end
     private_class_method :batch_worker
@@ -77,7 +77,7 @@ module Wile
     def self.sequential_test(files, opt)
       files.each do |tf|
         puts "#{tf}: ".blue
-        raise "failed: #{tf}" unless system(tf, *opt)
+        raise "failed: #{tf}" unless system(tf, *opt) # permit
       end
     end
     private_class_method :sequential_test

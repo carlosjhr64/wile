@@ -69,9 +69,9 @@ unless missing_preamble_gems.empty?
     exit 1
   end
 
-  cmd = ['gem', 'install', '--user-install', *missing_preamble_gems]
-  unless system(*cmd)
-    warn "Error: '#{cmd.join(' ')}' failed."
+  args = ['install', '--user-install', *missing_preamble_gems]
+  unless system('gem', *args)
+    warn "Error: 'gem #{args.join(' ')}' failed."
     exit 71
   end
 
@@ -371,5 +371,7 @@ unless missing_postamble_gems.empty?
   end
 
   Wile::Utilities.run!('gem', 'install', *missing_postamble_gems, env:)
-  system(env, 'rbenv', 'rehash') if Wile::Utilities.command_available?('rbenv')
+  if Wile::Utilities.command_available?('rbenv')
+    system(env, 'rbenv', 'rehash') # permit
+  end
 end

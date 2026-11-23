@@ -3,16 +3,17 @@
 
 require_relative 'test_helper'
 # wile: require 'rubocop'
+# wile: os `rubocop`
 
 # Rubocop Tests
 class TestRuboCop < Test::Unit::TestCase
-  RUBOCOP = %w[rubocop --format quiet --config .rubocop.yml].freeze
+  RUBOCOP_OPTIONS = %w[--format quiet --config .rubocop.yml].freeze
 
   def test_rubocop
     files = ruby_files.reject { it.start_with?('cache/') }
     flunk 'No files found for rubocop scan!'.red if files.empty?
 
-    res = system(*RUBOCOP, *files)
+    res = system('rubocop', *RUBOCOP_OPTIONS, *files)
     flunk 'rubocop command not found!'.red if res.nil?
     flunk 'Busted by Rubocop!'.red unless res
   end

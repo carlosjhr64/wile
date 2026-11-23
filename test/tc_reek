@@ -3,16 +3,17 @@
 
 require_relative 'test_helper'
 # wile: require 'reek'
+# wile: os `reek`
 
 # Reek Tests
 class TestReek < Test::Unit::TestCase
-  REEK = %w[reek --no-progress --config .reek.yml].freeze
+  REEK_OPTIONS = %w[--no-progress --config .reek.yml].freeze
 
   def test_reek
     files = ruby_files.reject { it.start_with?('cache/') }
     flunk 'No files found for reek scan!'.red if files.empty?
 
-    res = system(*REEK, *files)
+    res = system('reek', *REEK_OPTIONS, *files)
     flunk 'reek command not found!'.red if res.nil?
     flunk 'Smelly code!'.red unless res
   end

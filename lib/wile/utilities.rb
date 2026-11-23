@@ -212,7 +212,7 @@ module Wile
     def gem_installed?(gem_name, version: nil, env: {})
       args = ['gem', 'list', '-i', "^#{gem_name}$"]
       args.push('-v', version) if version
-      system(env, *args, out: File::NULL, err: File::NULL)
+      system(env, *args, out: File::NULL, err: File::NULL) # permit
     end
 
     # --- Subprocess Execution ---
@@ -258,7 +258,7 @@ module Wile
     def run(*cmd, stderr: true, echo: false, env: {})
       warn format_cmd(cmd, env).gray if echo
       opts = stderr ? {} : { err: File::NULL }
-      return true if (res = system(env, *cmd, **opts))
+      return true if (res = system(env, *cmd, **opts)) # permit
 
       if block_given?
         sysexit = infer_sysexit(cmd, res)

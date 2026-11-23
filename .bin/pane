@@ -55,7 +55,7 @@ end
 clear
 if cmd
   blue "# #{cmd}:"
-  system(cmd)
+  system(cmd) # permit
 else
   case pane
   when 0
