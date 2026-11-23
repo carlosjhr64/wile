@@ -332,13 +332,14 @@ module Wile
 
     private
 
-    # :reek:TooManyStatements
     def report(key, value, entry)
-      type = entry[:type]
-      puts type ? "--#{key}=#{value}" : "--#{key}"
-      puts "  Description: #{entry[:desc]}"
-      puts "  Pattern:     #{type} (/#{PATTERNS[type].source}/)" if type
-      puts "  Commands:    #{entry[:commands].join(', ')}"
+      type, desc, commands = entry.values_at(:type, :desc, :commands)
+      puts [
+        type ? "--#{key}=#{value}" : "--#{key}",
+        "  Description: #{desc}",
+        ("  Pattern:     #{type} (/#{PATTERNS[type].source}/)" if type),
+        "  Commands:    #{commands.join(', ')}"
+      ].compact
     end
   end
 end

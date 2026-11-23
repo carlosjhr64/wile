@@ -19,12 +19,20 @@ module Wile
       ERB.new(File.read(filename)).result(binding)
     end
 
-    def self.info(...)
-      @info ||= new(...)
-    end
-
     def self.reset!
       @info = nil
+    end
+
+    def version
+      @version ||= File.read(File.join(@dirname, '.version')).chomp
+    end
+
+    def verify_version!(vrs)
+      raise "current version is #{version}, not #{vrs}" unless version == vrs
+    end
+
+    def self.info(...)
+      @info ||= new(...)
     end
 
     def initialize(dirname: File.expand_path('.'), root: ROOT, now: Time.now)
@@ -32,10 +40,6 @@ module Wile
       @cache   = File.join(root, 'cache')
       @now     = now
       set_project!
-    end
-
-    def verify_version!(vrs)
-      raise "current version is #{version}, not #{vrs}" unless version == vrs
     end
 
     def wileignore
@@ -46,14 +50,17 @@ module Wile
       @gemignore ||= read_rgx('.gemignore')
     end
 
-    def version
-      @version ||= File.read(File.join(@dirname, '.version')).chomp
-    end
-
     private
 
     def read_rgx(filename)
       Regexp.new read(filename).strip, Regexp::EXTENDED
+    end
+
+    def read(filename)
+      File.read(File.join(@dirname, filename))
+    rescue StandardError
+      warn "Warning: using cache #{filename}".yellow
+      File.read(File.join(@cache, filename))
     end
 
     def set_project!
@@ -62,12 +69,9 @@ module Wile
       set_date
     end
 
-    def set_project_names
-      @readme     = 'README.md'
-      @project    = File.basename(@dirname)
-      @gemspec    = "#{@project}.gemspec"
-      @module     = @project.pascal_case
-      @project_rb = "lib/#{@project}.rb"
+    def set_date
+      @year = @now.year
+      @date = @now.strftime('%Y-%m-%d')
     end
 
     def set_git_user
@@ -76,16 +80,12 @@ module Wile
       @email    = `git config user.email 2>/dev/null`.strip
     end
 
-    def set_date
-      @year = @now.year
-      @date = @now.strftime('%Y-%m-%d')
-    end
-
-    def read(filename)
-      File.read(File.join(@dirname, filename))
-    rescue StandardError
-      warn "Warning: using cache #{filename}".yellow
-      File.read(File.join(@cache, filename))
+    def set_project_names
+      @readme     = 'README.md'
+      @project    = File.basename(@dirname)
+      @gemspec    = "#{@project}.gemspec"
+      @module     = @project.pascal_case
+      @project_rb = "lib/#{@project}.rb"
     end
   end
 end
