@@ -2,173 +2,182 @@
 
 # Wile namespace.
 module Wile
-  # OrderOptimizer class provides a way to optimize the order of elements
-  # :reek:DataClump :reek:DuplicateMethodCall :reek:RepeatedConditional
-  # :reek:TooManyInstanceVariables
-  # rubocop:disable-next Metrics/ClassLength
+  # Holds mutable ordering state and primitive move/swap/permutation operations.
+  class OrderState
+    attr_reader :value
+
+    def improved?
+      prev = @value
+      yield
+      @value < prev
+    end
+
+    def indices = (0...@order.size).to_a
+
+    def initialize(order, valuation)
+      @order     = order
+      @valuation = valuation
+      @value     = @valuation.call(@order)
+    end
+
+    def move_score(pair)
+      from, dest = pair
+      @order.insert(dest, @order.delete_at(from))
+      val = @valuation.call(@order)
+      @order.insert(from, @order.delete_at(dest))
+      val
+    end
+
+    def neighbor_pairs = (0..(@order.size - 2)).map { [it, it + 1] }
+
+    def size = @order.size
+
+    def to_a = @order
+
+    def apply_move(pair, val)
+      from, dest = pair
+      @order.insert(dest, @order.delete_at(from))
+      @value = val
+    end
+
+    def try_swap(pair)
+      val = swap_score(pair)
+      apply_swap(pair, val) if val < @value
+    end
+
+    def swap_score(pair)
+      items = @order.values_at(*pair)
+      swap_at(pair, items.reverse)
+      val = @valuation.call(@order)
+      swap_at(pair, items)
+      val
+    end
+
+    def apply_swap(pair, val)
+      swap_at(pair, @order.values_at(*pair).reverse)
+      @value = val
+    end
+
+    def permute_slice(start, width)
+      slice = @order[start, width]
+      best = slice
+      slice.permutation { best = it if better_slice?(start, width, it) }
+      @order[start, width] = best
+    end
+
+    private
+
+    def swap_at(pair, items)
+      first, second = pair
+      @order[first], @order[second] = items
+    end
+
+    def better_slice?(start, width, cand)
+      @order[start, width] = cand
+      val = @valuation.call(@order)
+      return false unless val < @value
+
+      @value = val
+      true
+    end
+  end
+
+  # Optimizes the order of elements using a caller-supplied valuation block.
   class OrderOptimizer
     SORTS = %i[bcmv nswp cswp bnswp bcswp bprm].freeze
+    PERM_WIDTH = 7
 
     def initialize(order, sort: :bcmv, &valuation)
       raise 'Invalid sort method' unless SORTS.include?(sort)
 
-      @order     = order
-      @sort      = sort
-      @valuation = valuation
-      @value     = @valuation.call(@order)
-      @improved  = nil
+      @state = OrderState.new(order, valuation)
+      @sort  = sort
     end
 
-    # :reek:DuplicateMethodCall Time.now are different times!
-    # :reek:TooManyStatements :reek:UncommunicativeVariableName
+    def to_a = @state.to_a
+
+    def self.elapsed_since(start) = Time.now - start
+
     def optimize
-      rj = ->(v) { v.to_s.rjust(8) }
       start = Time.now
-      warn "# Start: #{rj[@value]}\tSort: #{@sort}\tN: #{@order.size}".gray
+      warn "# Start: #{padded_value}\tSort: #{@sort}\tN: #{@state.size}".gray
       method(@sort).call
-      elapsed = Time.now - start
-      warn "# End:   #{rj[@value]}\tTime: #{elapsed}".gray
+      elapsed = OrderOptimizer.elapsed_since(start)
+      warn "# End:   #{padded_value}\tTime: #{elapsed}".gray
     end
-
-    def to_a = @order
 
     private
 
-    # rubocop:disable Style/ParallelAssignment
-
     # category: sorts
 
+    # Neighbor swaps
+    def nswp
+      pairs = @state.neighbor_pairs
+      seq = pairs + pairs[0...-1].reverse
+      repeat_improved { seq.each { @state.try_swap(it) } }
+    end
+
+    # Best permutation
+    def bprm
+      size = @state.size
+      width = [size, PERM_WIDTH].min
+      loop { break unless sweep_perm(size - width, width) }
+    end
+
     # Best combination move
-    # :reek:TooManyStatements :reek:UncommunicativeVariableName
     def bcmv
-      min, a, @improved = @value, (0...@order.size).to_a, true
-      while @improved
-        @improved, best = false, nil
-        a.permutation(2) do |i, j|
-          v = move_valuation(i, j)
-          min, best = v, [i, j] if v < min
-        end
-        move(*best, min) if best
-      end
-    end
-
-    # Best neighbor swaps
-    # :reek:TooManyStatements :reek:UncommunicativeVariableName
-    def bnswp
-      min, n, @improved = @value, @order.size - 2, true
-      while @improved
-        @improved, best = false, nil
-        0.upto(n) do |i|
-          v = swap_valuation(i)
-          min, best = v, i if v < min
-        end
-        swap(best, best + 1, min) if best
-      end
-    end
-
-    # Best combination swaps
-    # :reek:TooManyStatements :reek:UncommunicativeVariableName
-    def bcswp
-      min, a, @improved = @value, (0...@order.size).to_a, true
-      while @improved
-        @improved, best = false, nil
-        a.combination(2) do |i, j|
-          v = swap_valuation(i, j)
-          min, best = v, [i, j] if v < min
-        end
-        swap(*best, min) if best
+      pairs = @state.indices.permutation(2)
+      repeat_best(pairs, @state.method(:move_score)) do |best, min|
+        @state.apply_move(best, min)
       end
     end
 
     # Combination swaps
-    # :reek:TooManyStatements :reek:UncommunicativeVariableName
     def cswp
-      a, @improved = (0...@order.size).to_a, true
-      while @improved
-        @improved = false
-        a.combination(2) { |i, j| swap(i, j) }
+      pairs = @state.indices.combination(2)
+      repeat_improved { pairs.each { @state.try_swap(it) } }
+    end
+
+    # Best combination swaps
+    def bcswp
+      pairs = @state.indices.combination(2)
+      repeat_best(pairs, @state.method(:swap_score)) do |best, min|
+        @state.apply_swap(best, min)
       end
     end
 
-    # Neighbor swaps
-    # :reek:TooManyStatements :reek:UncommunicativeVariableName
-    def nswp
-      n, @improved = @order.size - 2, true
-      while @improved
-        @improved = false
-        0.upto(n) { swap(it, it + 1) }
-        (n - 1).downto(0) { swap(it, it + 1) }
-      end
-    end
-
-    # Best permutation
-    # :reek:DuplicateMethodCall :reek:TooManyStatements
-    # :reek:UncommunicativeVariableName
-    def bprm
-      n, m, @improved = @order.size, 7, true
-      m = n if n < m
-      while @improved
-        @improved = false
-        0.upto(n - m) { permutations(it, @order[it, m]) }
-        break unless @improved
-
-        @improved = false
-        (n - m - 1).downto(0) { permutations(it, @order[it, m]) }
+    # Best neighbor swaps
+    def bnswp
+      repeat_best(@state.neighbor_pairs,
+                  @state.method(:swap_score)) do |best, min|
+        @state.apply_swap(best, min)
       end
     end
 
     # category: helpers
 
-    # :reek:UncommunicativeVariableName
-    def move_valuation(one, two)
-      @order.insert(two, @order.delete_at(one))
-      v = @valuation.call(@order)
-      @order.insert(one, @order.delete_at(two))
-      v
-    end
+    def repeat_improved(&) = loop { break unless @state.improved?(&) }
 
-    def move(one, two, val = nil)
-      @order.insert(two, @order.delete_at(one))
-      val ||= @valuation.call(@order)
-      if val < @value
-        @value = val
-        @improved ||= true
-      else
-        @order.insert(one, @order.delete_at(two))
+    def padded_value = @state.value.to_s.rjust(8)
+
+    def sweep_perm(last, width)
+      [0.upto(last), (last - 1).downto(0)].all? do |range|
+        @state.improved? { range.each { @state.permute_slice(it, width) } }
       end
     end
 
-    # :reek:UncommunicativeVariableName
-    def swap_valuation(one, two = one + 1)
-      @order[one], @order[two] = @order[two], @order[one]
-      v = @valuation.call(@order)
-      @order[one], @order[two] = @order[two], @order[one]
-      v
-    end
+    def repeat_best(pairs, scorer)
+      loop do
+        best, min = best_pair(pairs, scorer)
+        break unless best
 
-    # :reek:DuplicateMethodCall :reek:UncommunicativeVariableName
-    def swap(one, two, val = nil)
-      @order[one], @order[two] = @order[two], @order[one]
-      val ||= @valuation.call(@order)
-      if val < @value
-        @value = val
-        @improved ||= true
-      else
-        @order[one], @order[two] = @order[two], @order[one]
+        yield(best, min)
       end
     end
 
-    # :reek:TooManyStatements :reek:UncommunicativeVariableName
-    def permutations(start, slice)
-      best = slice
-      slice.permutation do |slc|
-        @order[start, slice.size] = slc
-        v = @valuation.call(@order)
-        best, @value, @improved = slc, v, true if v < @value
-      end
-      @order[start, slice.size] = best
+    def best_pair(pairs, scorer)
+      best, min = pairs.map { [it, scorer.call(it)] }.min_by(&:last)
+      best && min < @state.value ? [best, min] : nil
     end
-
-    # rubocop:enable Style/ParallelAssignment
   end
 end

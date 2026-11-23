@@ -170,9 +170,11 @@ Object
 OptionsDictionary
 OrderOptimizer
 OrderRunner
+OrderState
 PASCAL_KEY
 PATH_SEPARATOR
 PATTERNS
+PERM_WIDTH
 PLUGINS
 PROJECT_DIRS
 PUBLISH_USAGE
@@ -271,7 +273,6 @@ _args
 _cmd
 _min
 _node
-a
 abs
 accept
 action
@@ -292,6 +293,8 @@ alphabetical
 any
 append_line
 append_os_requirement
+apply_move
+apply_swap
 apt_fish_available
 apt_install
 arch
@@ -324,6 +327,8 @@ batch_worker
 bcmv
 bcswp
 best
+best_pair
+better_slice
 bin
 binding
 blk
@@ -345,6 +350,7 @@ call
 call_
 call_name
 camel_case
+cand
 candidate
 candidates
 capitalize
@@ -531,6 +537,7 @@ each_with_index
 each_with_object
 echo
 elapsed
+elapsed_since
 email
 emit_attrs
 emit_call
@@ -682,6 +689,7 @@ include
 includes
 independent
 index
+indices
 infer_sysexit
 inferred
 info
@@ -714,7 +722,6 @@ it
 item
 items
 iterate
-j
 jobs
 join
 kebab_case
@@ -785,6 +792,7 @@ method_stats
 methodmatch
 methods
 min
+min_by
 min_version
 minor
 minutes
@@ -812,15 +820,13 @@ module_function
 module_name
 more
 more_ranks
-move
-move_valuation
+move_score
 moved
 msg
 msh_populate
 mth
 mtime
 mutex
-n
 name
 name2scope
 name_loc
@@ -828,6 +834,7 @@ name_split
 named
 names
 namex
+neighbor_pairs
 new
 next_index
 nil
@@ -848,7 +855,6 @@ object_method
 ok
 old
 older
-one
 only
 open
 opt
@@ -875,8 +881,11 @@ p2c_hash
 package_installed
 packages
 pad
+padded_value
 padding
+pair
 pair_majors
+pairs
 pandoc
 pandoc_args
 parse
@@ -890,7 +899,7 @@ path
 paths
 pattern
 permutation
-permutations
+permute_slice
 pfile
 pfiles
 pipe
@@ -962,6 +971,7 @@ queue
 quiet
 quit
 raise
+range
 ranked_tests
 ranks
 raw
@@ -996,6 +1006,8 @@ reinstall
 reject
 rel
 rename
+repeat_best
+repeat_improved
 replace_block
 reply
 report
@@ -1024,7 +1036,6 @@ review_files
 review_next
 review_response_cases
 rgx
-rj
 rjust
 rm_pkg
 rm_r
@@ -1056,9 +1067,11 @@ scope_end
 scope_str
 scoped_call
 scopes
+scorer
 scrape
 scrape_help
 searched
+second
 sections
 seen
 seg
@@ -1071,6 +1084,7 @@ selected_method
 self
 send
 sep
+seq
 sequential_test
 set_date
 set_git_user
@@ -1088,7 +1102,6 @@ size_of
 skip_duck
 skip_to_fence
 skipped_receiver
-slc
 slice
 slow
 snake_case
@@ -1124,8 +1137,9 @@ suffix
 sum
 summary
 sw
-swap
-swap_valuation
+swap_at
+swap_score
+sweep_perm
 sym
 sym_
 symbol_node
@@ -1167,9 +1181,9 @@ total
 trace
 tri
 truthy
+try_swap
 tsk
 tty
-two
 type
 undefined
 undefined_methods
