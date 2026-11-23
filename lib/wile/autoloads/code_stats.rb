@@ -2,8 +2,30 @@
 
 # Wile namespace.
 module Wile
+  # CodeStats supplements CodeContent with method source and line counts.
+  class CodeStats
+    # :reek:UtilityFunction
+    def method_stats(filename, &func)
+      Scanner.new(File.readlines(filename), func).scan
+    end
+
+    def self.method_line_count(filename) = new.method_stats(filename, &:size)
+
+    def self.method_source(filename) = new.method_stats(filename) { it }
+
+    def self.method_stats(filename, &) = new.method_stats(filename, &)
+
+    def self.source(source = [])
+      def source.category(cat = nil)
+        cat ? @category = cat : @category
+      end
+      source
+    end
+  end
+
   # Tracks lexical scope, indentation levels, and method categories.
-  class ScopeTracker
+  # rubocop:disable-next Style/ClassAndModuleChildren
+  class CodeStats::ScopeTracker
     attr_reader :category
 
     def initialize
@@ -48,7 +70,8 @@ module Wile
   end
 
   # Scans Ruby source lines to collect per-method source arrays and categories.
-  class StatsScanner
+  # rubocop:disable-next Style/ClassAndModuleChildren
+  class CodeStats::Scanner
     MATCHERS = {
       /^(?<pad>\s*)
        (?:(?:module|class|refine)\s+(?<scope>(?:::)?\w+(?:::\w+)*)
@@ -65,20 +88,35 @@ module Wile
     }.freeze
     private_constant :MATCHERS
 
+    def initialize(lines, func)
+      @lines = lines
+      @func = func
+      @tracker = CodeStats::ScopeTracker.new
+      @state = { hash: {}, dlevel: 0, name: nil, line: nil,
+                 source: CodeStats.source }
+    end
+
     def scan
       msh_populate while lines_shift
       @state[:hash]
     end
 
-    def initialize(lines, func)
-      @lines = lines
-      @func = func
-      @tracker = ScopeTracker.new
-      @state = { hash: {}, dlevel: 0, name: nil, line: nil,
-                 source: CodeStats.source }
+    private
+
+    def reset_method
+      @state[:dlevel] = 0
+      @state[:name] = nil
+      @state[:source] = CodeStats.source
     end
 
-    private
+    def method_name(match)
+      rcvr = match[:rcvr]
+      return if !rcvr && /^\s*def\s+\S+\./.match?(@state[:line])
+
+      name = @tracker.method_name(rcvr, match[:name])
+      source = CodeStats.source(@state[:source][-1..])
+      store_method(name, match[:pad].length, source)
+    end
 
     def msh_populate
       MATCHERS.each do |pattern, handler|
@@ -95,6 +133,22 @@ module Wile
       @state[:source] << line
     end
 
+    def store_method(name, dlevel, source)
+      source.category(@tracker.category)
+      @state[:dlevel] = dlevel
+      @state[:name] = name
+      @state[:source] = source
+      @state[:hash][name] = @func[source]
+    end
+
+    def finish_method
+      src = @state[:source]
+      src.pop
+      src.category(@tracker.category)
+      @state[:hash][@state[:name]] = @func[src]
+      reset_method
+    end
+
     def casgn(match, length = match[:pad].length)
       if (scope = match[:scope])
         lines_shift until /\bdo\s*$|\)\s*$/.match?(@state[:line]) ||
@@ -109,15 +163,6 @@ module Wile
       @tracker.push(length, scope) if /\bdo\s*$/.match?(@state[:line])
     end
 
-    def category_set(match) = @tracker.update_category(match[:cat])
-
-    def module_name(match)
-      pad, scope, sclass = match.values_at(:pad, :scope, :sclass)
-      len = pad.length
-      @tracker.push(len, scope) if scope
-      @tracker.push(len, '.') if sclass
-    end
-
     def scope_end(match)
       length = match[:pad].length
       if @state[:name] && @state[:dlevel] == length
@@ -127,56 +172,13 @@ module Wile
       end
     end
 
-    def finish_method
-      src = @state[:source]
-      src.pop
-      src.category(@tracker.category)
-      @state[:hash][@state[:name]] = @func[src]
-      reset_method
+    def category_set(match) = @tracker.update_category(match[:cat])
+
+    def module_name(match)
+      pad, scope, sclass = match.values_at(:pad, :scope, :sclass)
+      len = pad.length
+      @tracker.push(len, scope) if scope
+      @tracker.push(len, '.') if sclass
     end
-
-    def store_method(name, dlevel, source)
-      source.category(@tracker.category)
-      @state[:dlevel] = dlevel
-      @state[:name] = name
-      @state[:source] = source
-      @state[:hash][name] = @func[source]
-    end
-
-    def reset_method
-      @state[:dlevel] = 0
-      @state[:name] = nil
-      @state[:source] = CodeStats.source
-    end
-
-    def method_name(match)
-      rcvr = match[:rcvr]
-      return if !rcvr && /^\s*def\s+\S+\./.match?(@state[:line])
-
-      name = @tracker.method_name(rcvr, match[:name])
-      source = CodeStats.source(@state[:source][-1..])
-      store_method(name, match[:pad].length, source)
-    end
-  end
-
-  # CodeStats supplements CodeContent with method source and line counts.
-  class CodeStats
-    def self.source(source = [])
-      def source.category(cat = nil)
-        cat ? @category = cat : @category
-      end
-      source
-    end
-
-    # :reek:UtilityFunction
-    def method_stats(filename, &func)
-      StatsScanner.new(File.readlines(filename), func).scan
-    end
-
-    def self.method_line_count(filename) = new.method_stats(filename, &:size)
-
-    def self.method_source(filename) = new.method_stats(filename) { it }
-
-    def self.method_stats(filename, &) = new.method_stats(filename, &)
   end
 end

@@ -2,8 +2,100 @@
 
 # Wile namespace.
 module Wile
+  # Displays information on methods in a file.
+  class Content
+    MTHD = { content_end: /^end$/, content_def: /^def [#.\w]/,
+             content_attr: /^#attr_(?:reader|writer|accessor) /,
+             content_casgn: /^casgn \w/, content_methods: /^  / }.freeze
+    private_constant :MTHD
+
+    def red? = @red
+
+    def self.format_casgn(fullname, type)
+      prefix, sep, name = fullname.rpartition('::')
+      color = Colorizer.known_type?(type) ? :green : :magenta
+      "#{"#{prefix}#{sep}".light_blue}#{name.bold} #{type.colorize(color)}"
+    end
+
+    def initialize(filenames, options)
+      @red = false
+      @colorizer = nil
+      if options.raw
+        dump_files(filenames)
+      else
+        Responds.new { |resp| filenames.each { display_file(it, resp) } }
+      end
+    end
+
+    def self.format_member(fnm)
+      name, sep, scope = fnm.split(/([#.])/).reverse
+      [scope, "#{scope&.light_blue}#{sep&.light_blue}#{name.bold}"]
+    end
+
+    def self.heading(file) = print "\n#{'#'.gray} #{file.bold}\n\n"
+
+    private
+
+    def dump_files(filenames) = filenames.each { dump_file(it) }
+
+    def content_casgn(line)
+      _, fullname, type = line.split
+      @colorizer.record_casgn(fullname, type)
+      puts Content.format_casgn(fullname, type)
+    end
+
+    def dump_file(filename)
+      Content.heading(filename)
+      pp CodeStats.method_line_count(filename)
+      CodeContent.generate(filename) { |line| puts line }
+    end
+
+    def display_file(filename, responds)
+      Content.heading(filename)
+      @colorizer = Colorizer.new(
+        CodeStats.method_line_count(filename), responds
+      )
+      CodeContent.generate(filename) { |line| content_display(line.chomp) }
+    end
+
+    def content_attr(line)
+      fnm = line.split.last
+      @colorizer.record_attr(fnm)
+      _, label = Content.format_member(fnm)
+      puts "#{label} #{'0'.green}"
+    end
+
+    def content_def(line)
+      fnm = line.split.last
+      scope, label = Content.format_member(fnm)
+      count = @colorizer.enter_def(scope, fnm)
+      puts "#{label} #{count ? count.to_s.green : '??'.red}"
+    end
+
+    def content_display(line)
+      key = MTHD.detect { |_, pat| pat.match?(line) }&.first || :content_main
+      send(key, line)
+    end
+
+    def content_end(_ = nil) = @colorizer.leave_scope
+
+    def content_methods(line)
+      name = line.strip
+      puts "  #{name.colorize(color_code(name))}"
+    end
+
+    def color_code(name)
+      color = @colorizer.resolve(name)
+      @red = true if color == :red
+      color
+    end
+
+    def content_main(name) = puts name.colorize(color_code(name))
+  end
+
   # Resolves display colors for scraped method and constant references.
-  class ContentColorizer
+  # rubocop:disable-next Style/ClassAndModuleChildren
+  class Content::Colorizer
     using WileRefinements
 
     TYPES = {
@@ -41,10 +133,10 @@ module Wile
     def self.duck?(name) = name.match?(/\A(?:\*|(?:[@$]{1,2})?[a-z_]\w*)#/)
 
     def resolve(name)
-      return :gray if ContentColorizer.duck?(name)
+      return :gray if Content::Colorizer.duck?(name)
 
       CLRS.first_truthy_value { send(it, name) } ||
-        (ContentColorizer.kernel?(name) ? :cyan : :red)
+        (Content::Colorizer.kernel?(name) ? :cyan : :red)
     end
 
     def self.kernel?(name)
@@ -97,96 +189,5 @@ module Wile
       targets = kls ? [kls, "#{@scope.split('::').last}#{name}"] : [name]
       :light_blue if targets.any? { @responds.ok?(it) }
     end
-  end
-
-  # Displays information on methods in a file.
-  class Content
-    MTHD = { content_end: /^end$/, content_def: /^def [#.\w]/,
-             content_attr: /^#attr_(?:reader|writer|accessor) /,
-             content_casgn: /^casgn \w/, content_methods: /^  / }.freeze
-    private_constant :MTHD
-
-    def self.format_casgn(fullname, type)
-      prefix, sep, name = fullname.rpartition('::')
-      color = ContentColorizer.known_type?(type) ? :green : :magenta
-      "#{"#{prefix}#{sep}".light_blue}#{name.bold} #{type.colorize(color)}"
-    end
-
-    def red? = @red
-
-    def initialize(filenames, options)
-      @red = false
-      @colorizer = nil
-      if options.raw
-        dump_files(filenames)
-      else
-        Responds.new { |resp| filenames.each { display_file(it, resp) } }
-      end
-    end
-
-    def self.format_member(fnm)
-      name, sep, scope = fnm.split(/([#.])/).reverse
-      [scope, "#{scope&.light_blue}#{sep&.light_blue}#{name.bold}"]
-    end
-
-    def self.heading(file) = print "\n#{'#'.gray} #{file.bold}\n\n"
-
-    private
-
-    def dump_files(filenames) = filenames.each { dump_file(it) }
-
-    def content_casgn(line)
-      _, fullname, type = line.split
-      @colorizer.record_casgn(fullname, type)
-      puts Content.format_casgn(fullname, type)
-    end
-
-    def dump_file(filename)
-      Content.heading(filename)
-      pp CodeStats.method_line_count(filename)
-      CodeContent.generate(filename) { |line| puts line }
-    end
-
-    def display_file(filename, responds)
-      Content.heading(filename)
-      @colorizer = ContentColorizer.new(
-        CodeStats.method_line_count(filename), responds
-      )
-      CodeContent.generate(filename) { |line| content_display(line.chomp) }
-    end
-
-    def content_attr(line)
-      fnm = line.split.last
-      @colorizer.record_attr(fnm)
-      _, label = Content.format_member(fnm)
-      puts "#{label} #{'0'.green}"
-    end
-
-    def content_def(line)
-      fnm = line.split.last
-      scope, label = Content.format_member(fnm)
-      count = @colorizer.enter_def(scope, fnm)
-      puts "#{label} #{count ? count.to_s.green : '??'.red}"
-    end
-
-    def content_display(line)
-      key = MTHD.detect { |_, pat| pat.match?(line) }&.first || :content_main
-      send(key, line)
-    end
-
-    def content_end(_ = nil) = @colorizer.leave_scope
-
-    def content_methods(line)
-      name = line.strip
-      puts "  #{name.colorize(color_code(name))}"
-    end
-
-    def color_code(name)
-      color = @colorizer.resolve(name)
-      @red = true if color == :red
-      color
-    end
-
-    def content_main(name) = puts name.colorize(color_code(name))
   end
 end

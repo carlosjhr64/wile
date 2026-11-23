@@ -2,8 +2,46 @@
 
 # Wile namespace.
 module Wile
+  # CodeData class provides data about the code in a file.
+  class CodeData
+    attr_reader :data, :filename
+
+    def attrs     = @meta[:attrs]
+    def constants = @meta[:constants]
+
+    def initialize(filename)
+      @filename = filename
+      @meta = { attrs: [], constants: [], index: {} }
+      @data = CodeData.build_data(filename)
+      Parser.new(self).populate
+    end
+
+    def self.build_data(filename)
+      CodeStats.method_stats(filename) do |stat|
+        { lines: stat, size: stat.size, category: stat.category,
+          dependencies: [], dependants: [], external: [], stdlib: [] }
+      end
+    end
+
+    def index = @meta[:index]
+
+    # category: index
+    def dependency_index(name, dependency) = index["#{name}-#{dependency}"]
+
+    # Number of lines in the method:
+    # category: table
+    def names              = @data.keys
+    def size(name)         = @data[name][:size]
+    # Set by category comment, private, or defaulted to public:
+    def category(name)     = @data[name][:category]
+    def dependants(name)   = @data[name][:dependants]
+    def dependencies(name) = @data[name][:dependencies]
+    def external(name)     = @data[name][:external]
+  end
+
   # Parses CodeContent output to populate dependencies and dependants.
-  class CodeDataParser
+  # rubocop:disable-next Style/ClassAndModuleChildren
+  class CodeData::Parser
     using WileRefinements
 
     # pp is autoloaded:
@@ -110,42 +148,5 @@ module Wile
         entry[:external] << call_name
       end
     end
-  end
-
-  # CodeData class provides data about the code in a file.
-  class CodeData
-    attr_reader :data, :filename
-
-    def attrs     = @meta[:attrs]
-    def constants = @meta[:constants]
-
-    def initialize(filename)
-      @filename = filename
-      @meta = { attrs: [], constants: [], index: {} }
-      @data = CodeData.build_data(filename)
-      CodeDataParser.new(self).populate
-    end
-
-    def self.build_data(filename)
-      CodeStats.method_stats(filename) do |stat|
-        { lines: stat, size: stat.size, category: stat.category,
-          dependencies: [], dependants: [], external: [], stdlib: [] }
-      end
-    end
-
-    def index = @meta[:index]
-
-    # category: index
-    def dependency_index(name, dependency) = index["#{name}-#{dependency}"]
-
-    # Number of lines in the method:
-    # category: table
-    def names              = @data.keys
-    def size(name)         = @data[name][:size]
-    # Set by category comment, private, or defaulted to public:
-    def category(name)     = @data[name][:category]
-    def dependants(name)   = @data[name][:dependants]
-    def dependencies(name) = @data[name][:dependencies]
-    def external(name)     = @data[name][:external]
   end
 end

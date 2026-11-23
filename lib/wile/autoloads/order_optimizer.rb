@@ -2,86 +2,6 @@
 
 # Wile namespace.
 module Wile
-  # Holds mutable ordering state and primitive move/swap/permutation operations.
-  class OrderState
-    attr_reader :value
-
-    def improved?
-      prev = @value
-      yield
-      @value < prev
-    end
-
-    def indices = (0...@order.size).to_a
-
-    def initialize(order, valuation)
-      @order     = order
-      @valuation = valuation
-      @value     = @valuation.call(@order)
-    end
-
-    def move_score(pair)
-      from, dest = pair
-      @order.insert(dest, @order.delete_at(from))
-      val = @valuation.call(@order)
-      @order.insert(from, @order.delete_at(dest))
-      val
-    end
-
-    def neighbor_pairs = (0..(@order.size - 2)).map { [it, it + 1] }
-
-    def size = @order.size
-
-    def to_a = @order
-
-    def apply_move(pair, val)
-      from, dest = pair
-      @order.insert(dest, @order.delete_at(from))
-      @value = val
-    end
-
-    def try_swap(pair)
-      val = swap_score(pair)
-      apply_swap(pair, val) if val < @value
-    end
-
-    def swap_score(pair)
-      items = @order.values_at(*pair)
-      swap_at(pair, items.reverse)
-      val = @valuation.call(@order)
-      swap_at(pair, items)
-      val
-    end
-
-    def apply_swap(pair, val)
-      swap_at(pair, @order.values_at(*pair).reverse)
-      @value = val
-    end
-
-    def permute_slice(start, width)
-      slice = @order[start, width]
-      best = slice
-      slice.permutation { best = it if better_slice?(start, width, it) }
-      @order[start, width] = best
-    end
-
-    private
-
-    def swap_at(pair, items)
-      first, second = pair
-      @order[first], @order[second] = items
-    end
-
-    def better_slice?(start, width, cand)
-      @order[start, width] = cand
-      val = @valuation.call(@order)
-      return false unless val < @value
-
-      @value = val
-      true
-    end
-  end
-
   # Optimizes the order of elements using a caller-supplied valuation block.
   class OrderOptimizer
     SORTS = %i[bcmv nswp cswp bnswp bcswp bprm].freeze
@@ -90,7 +10,7 @@ module Wile
     def initialize(order, sort: :bcmv, &valuation)
       raise 'Invalid sort method' unless SORTS.include?(sort)
 
-      @state = OrderState.new(order, valuation)
+      @state = State.new(order, valuation)
       @sort  = sort
     end
 
@@ -178,6 +98,87 @@ module Wile
     def best_pair(pairs, scorer)
       best, min = pairs.map { [it, scorer.call(it)] }.min_by(&:last)
       best && min < @state.value ? [best, min] : nil
+    end
+  end
+
+  # Holds mutable ordering state and primitive move/swap/permutation operations.
+  # rubocop:disable-next Style/ClassAndModuleChildren
+  class OrderOptimizer::State
+    attr_reader :value
+
+    def improved?
+      prev = @value
+      yield
+      @value < prev
+    end
+
+    def indices = (0...@order.size).to_a
+
+    def initialize(order, valuation)
+      @order     = order
+      @valuation = valuation
+      @value     = @valuation.call(@order)
+    end
+
+    def move_score(pair)
+      from, dest = pair
+      @order.insert(dest, @order.delete_at(from))
+      val = @valuation.call(@order)
+      @order.insert(from, @order.delete_at(dest))
+      val
+    end
+
+    def neighbor_pairs = (0..(@order.size - 2)).map { [it, it + 1] }
+
+    def size = @order.size
+
+    def to_a = @order
+
+    def apply_move(pair, val)
+      from, dest = pair
+      @order.insert(dest, @order.delete_at(from))
+      @value = val
+    end
+
+    def try_swap(pair)
+      val = swap_score(pair)
+      apply_swap(pair, val) if val < @value
+    end
+
+    def swap_score(pair)
+      items = @order.values_at(*pair)
+      swap_at(pair, items.reverse)
+      val = @valuation.call(@order)
+      swap_at(pair, items)
+      val
+    end
+
+    def apply_swap(pair, val)
+      swap_at(pair, @order.values_at(*pair).reverse)
+      @value = val
+    end
+
+    def permute_slice(start, width)
+      slice = @order[start, width]
+      best = slice
+      slice.permutation { best = it if better_slice?(start, width, it) }
+      @order[start, width] = best
+    end
+
+    private
+
+    def swap_at(pair, items)
+      first, second = pair
+      @order[first], @order[second] = items
+    end
+
+    def better_slice?(start, width, cand)
+      @order[start, width] = cand
+      val = @valuation.call(@order)
+      return false unless val < @value
+
+      @value = val
+      true
     end
   end
 end

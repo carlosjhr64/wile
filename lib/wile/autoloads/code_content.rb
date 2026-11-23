@@ -20,107 +20,11 @@ module Wile
   private_constant :ATTR_SUFFIXES, :CASGN_TYPES, :CALL_NAME, :DUCK_NAME,
                    :CONST_NODES
 
-  # Tracks lexical scope and emits deduplicated content lines.
-  class ContentEmitter
-    attr_reader :dot
-
-    def initialize(block)
-      @block = block
-      @dot = '#'
-      @scope = []
-      @seen = [Set.new]
-    end
-
-    def with_scope(*names)
-      @scope.push(*names)
-      yield
-    ensure
-      names.size.times { @scope.pop }
-    end
-
-    def self.casgn_type(val_)
-      while val_.is_a?(Prism::CallNode)
-        return val_.name unless (receiver_ = val_.receiver)
-
-        val_ = receiver_
-      end
-      CASGN_TYPES[val_.type] || val_.slice.delete_prefix('::')
-    end
-
-    def emit_casgn(full, val_)
-      type = ContentEmitter.casgn_type(val_)
-      @block["casgn #{full} #{type}"]
-      type
-    end
-
-    def def_scope(receiver_)
-      return scope_str unless CONST_NODES.include?(receiver_&.class)
-
-      named = receiver_.slice.delete_prefix('::')
-      return scope_str if scope_str.split('::').last == named
-      return named if scope_str.empty? || named.start_with?(scope_str)
-
-      "#{scope_str}::#{named}"
-    end
-
-    def scope_str = @scope.reject { it == '.' }.join('::')
-
-    def singleton_scope? = @scope.last == '.'
-
-    def emit_attrs(macro, node_)
-      prefix = "##{macro} #{scope_str}#{singleton_scope? ? '.' : '#'}"
-      syms = (node_.arguments&.arguments || []).grep(Prism::SymbolNode)
-      syms.product(ATTR_SUFFIXES[macro]).each do |sym_, sfx|
-        emit_call("#{prefix}#{sym_.unescaped}#{sfx}")
-      end
-    end
-
-    def def_body(method_name, receiver_)
-      @dot = '.' if receiver_ || singleton_scope?
-      @seen.push(Set.new)
-      @block["def #{def_scope(receiver_)}#{@dot}#{method_name}"]
-      yield
-    ensure
-      leave_def
-    end
-
-    def emit_call(name)
-      prefix = @seen.size > 1 ? '  ' : ''
-      @block["#{prefix}#{name}"] if @seen.last.add?(name)
-    end
-
-    def handle_call(receiver_, name)
-      return emit_call("#{@dot}#{name}") unless receiver_
-
-      emit_receiver_call(receiver_, name)
-    end
-
-    private
-
-    def leave_def
-      @dot = '#'
-      @seen.pop
-      @block['end']
-    end
-
-    def emit_receiver_call(receiver_, name)
-      slice = receiver_.slice
-      if CONST_NODES.include?(receiver_.class)
-        emit_call("#{slice.delete_prefix('::')}.#{name}")
-      elsif slice == 'new'
-        emit_call("#{@dot}new")
-        emit_call("##{name}")
-      else
-        emit_call("#{slice[DUCK_NAME] || '*'}##{name}")
-      end
-    end
-  end
-
   # CodeContent class generates code content for the Wile framework.
   # :reek:InstanceVariableAssumption
   class CodeContent < Prism::Visitor
     def generate(fnm, &blk)
-      @emitter = ContentEmitter.new(blk)
+      @emitter = Emitter.new(blk)
       Prism.parse_file(fnm).value.accept(self)
     ensure
       @emitter = nil
@@ -198,6 +102,103 @@ module Wile
       @emitter.with_scope(full.delete_prefix("#{@emitter.scope_str}::")) do
         @emitter.emit_attrs(:attr_accessor, call_)
         call_.block&.accept(self)
+      end
+    end
+  end
+
+  # Tracks lexical scope and emits deduplicated content lines.
+  # rubocop:disable-next Style/ClassAndModuleChildren
+  class CodeContent::Emitter
+    attr_reader :dot
+
+    def initialize(block)
+      @block = block
+      @dot = '#'
+      @scope = []
+      @seen = [Set.new]
+    end
+
+    def with_scope(*names)
+      @scope.push(*names)
+      yield
+    ensure
+      names.size.times { @scope.pop }
+    end
+
+    def self.casgn_type(val_)
+      while val_.is_a?(Prism::CallNode)
+        return val_.name unless (receiver_ = val_.receiver)
+
+        val_ = receiver_
+      end
+      CASGN_TYPES[val_.type] || val_.slice.delete_prefix('::')
+    end
+
+    def emit_casgn(full, val_)
+      type = CodeContent::Emitter.casgn_type(val_)
+      @block["casgn #{full} #{type}"]
+      type
+    end
+
+    def def_scope(receiver_)
+      return scope_str unless CONST_NODES.include?(receiver_&.class)
+
+      named = receiver_.slice.delete_prefix('::')
+      return scope_str if scope_str.split('::').last == named
+      return named if scope_str.empty? || named.start_with?(scope_str)
+
+      "#{scope_str}::#{named}"
+    end
+
+    def scope_str = @scope.reject { it == '.' }.join('::')
+
+    def singleton_scope? = @scope.last == '.'
+
+    def emit_attrs(macro, node_)
+      prefix = "##{macro} #{scope_str}#{singleton_scope? ? '.' : '#'}"
+      syms = (node_.arguments&.arguments || []).grep(Prism::SymbolNode)
+      syms.product(ATTR_SUFFIXES[macro]).each do |sym_, sfx|
+        emit_call("#{prefix}#{sym_.unescaped}#{sfx}")
+      end
+    end
+
+    def def_body(method_name, receiver_)
+      @dot = '.' if receiver_ || singleton_scope?
+      @seen.push(Set.new)
+      @block["def #{def_scope(receiver_)}#{@dot}#{method_name}"]
+      yield
+    ensure
+      leave_def
+    end
+
+    def emit_call(name)
+      prefix = @seen.size > 1 ? '  ' : ''
+      @block["#{prefix}#{name}"] if @seen.last.add?(name)
+    end
+
+    def handle_call(receiver_, name)
+      return emit_call("#{@dot}#{name}") unless receiver_
+
+      emit_receiver_call(receiver_, name)
+    end
+
+    private
+
+    def leave_def
+      @dot = '#'
+      @seen.pop
+      @block['end']
+    end
+
+    def emit_receiver_call(receiver_, name)
+      slice = receiver_.slice
+      if CONST_NODES.include?(receiver_.class)
+        emit_call("#{slice.delete_prefix('::')}.#{name}")
+      elsif slice == 'new'
+        emit_call("#{@dot}new")
+        emit_call("##{name}")
+      else
+        emit_call("#{slice[DUCK_NAME] || '*'}##{name}")
       end
     end
   end

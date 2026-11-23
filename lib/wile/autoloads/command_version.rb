@@ -4,8 +4,68 @@
 
 # Wile namespace.
 module Wile
+  # This class knows how to get the version of a command.
+  # :reek:MissingSafeMethod
+  class CommandVersion
+    include Enumerable
+
+    DEFAULT_FILE = File.join(ROOT, 'data/command_version.tsv')
+
+    def fish_plugin(plugin) = @probe.fish_plugin(plugin)
+
+    def initialize(filename = DEFAULT_FILE, probe: Probe)
+      @command_version = probe.parse_tsv(filename)
+      @probe = probe
+    end
+
+    def key?(command) = @command_version.key?(command)
+
+    def size = @command_version.size
+    alias length size
+
+    def commands = @command_version.keys
+
+    def each(&) = @command_version.each(&)
+
+    def empty? = @command_version.empty?
+
+    def expected!(command)
+      self[command] || raise("Failed to determine version for #{command}")
+    end
+
+    def guessing_flag(command) = @probe.guessing_flag(command)
+
+    def version(command) = self[command] || guess(command)
+
+    def guess(command)
+      guessing_flag(command) || man(command)
+    rescue StandardError
+      nil
+    end
+
+    def man(cmd) = @probe.man(cmd)
+
+    def [](command)
+      return nil unless (probe = @command_version[command])
+
+      probing(probe, command)
+    rescue StandardError
+      nil
+    end
+
+    private
+
+    def probing(probe, command)
+      case probe
+      when String then @probe.probing_string(probe) || man(command)
+      when Symbol then send(probe, command)
+      end
+    end
+  end
+
   # Stateless helpers for parsing and probing command versions.
-  class VersionProbe
+  # rubocop:disable-next Style/ClassAndModuleChildren
+  class CommandVersion::Probe
     using UtilitiesRefinements
 
     def self.fish_plugin(plugin)
@@ -53,65 +113,6 @@ module Wile
         cmd, probe = line.split("\t")
         [cmd, parse_probe(probe)]
       end.freeze
-    end
-  end
-
-  # This class knows how to get the version of a command.
-  # :reek:MissingSafeMethod
-  class CommandVersion
-    include Enumerable
-
-    DEFAULT_FILE = File.join(ROOT, 'data/command_version.tsv')
-
-    def fish_plugin(plugin) = @probe.fish_plugin(plugin)
-
-    def initialize(filename = DEFAULT_FILE, probe: VersionProbe)
-      @command_version = probe.parse_tsv(filename)
-      @probe = probe
-    end
-
-    def key?(command) = @command_version.key?(command)
-
-    def size = @command_version.size
-    alias length size
-
-    def commands = @command_version.keys
-
-    def each(&) = @command_version.each(&)
-
-    def empty? = @command_version.empty?
-
-    def expected!(command)
-      self[command] || raise("Failed to determine version for #{command}")
-    end
-
-    def guessing_flag(command) = @probe.guessing_flag(command)
-
-    def version(command) = self[command] || guess(command)
-
-    def guess(command)
-      guessing_flag(command) || man(command)
-    rescue StandardError
-      nil
-    end
-
-    def man(cmd) = @probe.man(cmd)
-
-    def [](command)
-      return nil unless (probe = @command_version[command])
-
-      probing(probe, command)
-    rescue StandardError
-      nil
-    end
-
-    private
-
-    def probing(probe, command)
-      case probe
-      when String then @probe.probing_string(probe) || man(command)
-      when Symbol then send(probe, command)
-      end
     end
   end
 end

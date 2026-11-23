@@ -40,17 +40,15 @@ Class
 CodeContent
 CodeData
 CodeDataFunction
-CodeDataParser
 CodeDataValuation
 CodeStats
+Colorizer
 CommandVersion
 Comparer
 ConsoleBlocks
 ConstantPathNode
 ConstantReadNode
 Content
-ContentColorizer
-ContentEmitter
 Copier
 DEFAULT_FILE
 DEF_METHOD
@@ -92,6 +90,7 @@ EX_STOP
 EX_TEMPFAIL
 EX_UNAVAILABLE
 EX_USAGE
+Emitter
 Encoding
 Enumerable
 Enumerator
@@ -116,7 +115,6 @@ GemInfo
 GemUtils
 GemfileWriter
 Gemspec
-GemspecRenderer
 Git
 GzipWriter
 HELP_USAGE
@@ -172,7 +170,6 @@ Object
 OptionsDictionary
 OrderOptimizer
 OrderRunner
-OrderState
 PASCAL_KEY
 PATH_SEPARATOR
 PATTERNS
@@ -184,6 +181,7 @@ Parser
 ParserError
 Pathname
 Prism
+Probe
 Proc
 Process
 Project
@@ -211,6 +209,7 @@ Range
 RbConfig
 Readme
 Regexp
+Renderer
 Resolver
 Responds
 Review
@@ -226,6 +225,7 @@ SORTS
 SPECIALS
 SUPPORTED_SHELLS
 SYM_OP
+Scanner
 ScopeTracker
 ScriptError
 SelfNode
@@ -233,7 +233,7 @@ Set
 Shellwords
 Specification
 StandardError
-StatsScanner
+State
 Status
 String
 Struct
@@ -269,7 +269,6 @@ UtilitiesRefinements
 VALIDATORS
 VERSION
 Version
-VersionProbe
 Visitor
 Wile
 WileRefinements
