@@ -776,6 +776,7 @@ list
 ljust
 load_dependencies
 load_groups
+load_task
 loop
 lstrip
 m
@@ -909,7 +910,6 @@ padding
 pair
 pair_majors
 pairs
-pandoc
 pandoc_args
 parse
 parse_checks

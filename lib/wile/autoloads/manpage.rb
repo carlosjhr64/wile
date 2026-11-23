@@ -14,14 +14,12 @@ module Wile
       @roff_path = "man/#{@project}.1"
     end
 
-    def exist?
-      File.file?(@md_path)
-    end
+    def exist? = File.file?(@md_path)
 
     def update!
       return unless exist?
 
-      unless pandoc?
+      unless Utilities.command_available?('pandoc')
         warn 'Notice: pandoc not found; skipping manpage update.'.yellow
         return
       end
@@ -40,11 +38,6 @@ module Wile
        '-V', "footer=#{@project} #{@info.version}",
        '-V', 'header=User Commands',
        @md_path, '-o', @roff_path]
-    end
-
-    # :reek:UtilityFunction
-    def pandoc?
-      Utilities.command_available?('pandoc')
     end
   end
 end

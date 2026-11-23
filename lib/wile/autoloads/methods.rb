@@ -21,6 +21,13 @@ module Wile
       @methods.each { |name, entry| add_undefined_methods(name, entry) }
     end
 
+    def self.skip_duck?(mth)
+      mth.start_with?('*') ||
+        (!/^[A-Z]/.match?(mth) && mth.common_ruby_method_name?)
+    end
+
+    def self.skipped_receiver?(mth) = mth.match?(/\A@?(?:options|it|\w+_)#/)
+
     private
 
     def get_code_data(dir)
@@ -35,21 +42,18 @@ module Wile
       cdt.attrs.each { @methods[it] = MethodEntry.new(cdt) }
     end
 
-    def find_method(target, name)
-      keys = @methods.keys.select { it.end_with?(target) }
-      keys.detect { name.start_with?(it.sub(REF, '').delete_suffix(target)) }
+    def unresolved?(mth, entry)
+      !recognized?(mth, entry) && !Methods.skip_duck?(mth) &&
+        !Methods.skipped_receiver?(mth)
     end
 
-    # Resolves an external call (`mth`) to a defined method in the caller's
-    # (`name`) scope by trying three transformations:
-    # 1. `.new` to `#initialize` (instantiations)
-    # 2. `#method` to `Kernel#method` (Kernel refinements)
-    # 3. `.method` to `#method` (module functions or instance calls)
-    # Basically looks for the method definition in the file set or in Kernel.
-    def selected_method(mth, name)
-      find_method(mth.sub(/\.new$/, '#initialize'), name) ||
-        find_method(mth.sub(/^.*#/, 'Kernel#'), name) ||
-        find_method(mth.sub('.', '#'), name)
+    def recognized?(mth, entry)
+      # Immediately return false for non ducks:
+      return false unless /\A[^A-Z#].*#/.match?(mth)
+
+      suffix = "##{mth.split('#').last}"
+      @methods.select { |key, val| key.end_with?(suffix) && val != entry }
+              .each_value { entry.add_dependency(it) }.any?
     end
 
     def add_undefined_methods(name, entry)
@@ -64,6 +68,28 @@ module Wile
       end
     end
 
+    # Checks whether an external call's receiver constant is known and
+    # accessible within the caller's (`name`) lexical namespace scope.
+    # Matches exact constant paths or constants sharing the caller's scope.
+    def known_constant?(mth, name, const = mth.split('.').first)
+      return true if @known_constants.include?(const)
+
+      @known_constants.select { it.end_with?("::#{const}") }
+                      .any? { name.start_with?(it.delete_suffix("::#{const}")) }
+    end
+
+    # Resolves an external call (`mth`) to a defined method in the caller's
+    # (`name`) scope by trying three transformations:
+    # 1. `.new` to `#initialize` (instantiations)
+    # 2. `#method` to `Kernel#method` (Kernel refinements)
+    # 3. `.method` to `#method` (module functions or instance calls)
+    # Basically looks for the method definition in the file set or in Kernel.
+    def selected_method(mth, name)
+      find_method(mth.sub(/\.new$/, '#initialize'), name) ||
+        find_method(mth.sub(/^.*#/, 'Kernel#'), name) ||
+        find_method(mth.sub('.', '#'), name)
+    end
+
     # Checks whether an external call is an invocation of `.new` on a known
     # class in the project that lacks an explicit `initialize` method (using
     # Ruby's implicit default constructor).
@@ -75,38 +101,9 @@ module Wile
       @methods.each_key.any? { it.split(/[.#]/).first.end_with?(target) }
     end
 
-    # Checks whether an external call's receiver constant is known and
-    # accessible within the caller's (`name`) lexical namespace scope.
-    # Matches exact constant paths or constants sharing the caller's scope.
-    def known_constant?(mth, name, const = mth.split('.').first)
-      return true if @known_constants.include?(const)
-
-      @known_constants.select { it.end_with?("::#{const}") }
-                      .any? { name.start_with?(it.delete_suffix("::#{const}")) }
-    end
-
-    def unresolved?(mth, entry)
-      !recognized?(mth, entry) && !skip_duck?(mth) && !skipped_receiver?(mth)
-    end
-
-    # :reek:UtilityFunction
-    def skipped_receiver?(mth)
-      mth.match?(/\A@?(?:options|it|\w+_)#/)
-    end
-
-    # :reek:UtilityFunction
-    def skip_duck?(mth)
-      mth.start_with?('*') ||
-        (!/^[A-Z]/.match?(mth) && mth.common_ruby_method_name?)
-    end
-
-    def recognized?(mth, entry)
-      # Immediately return false for non ducks:
-      return false unless /\A[^A-Z#].*#/.match?(mth)
-
-      suffix = "##{mth.split('#').last}"
-      @methods.select { |key, val| key.end_with?(suffix) && val != entry }
-              .each_value { entry.add_dependency(it) }.any?
+    def find_method(target, name)
+      keys = @methods.keys.select { it.end_with?(target) }
+      keys.detect { name.start_with?(it.sub(REF, '').delete_suffix(target)) }
     end
   end
 end

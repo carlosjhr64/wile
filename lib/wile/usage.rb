@@ -17,7 +17,6 @@ module Wile
   end
 
   # Usage class validates the command-line arguments for a task.
-  # :reek:MissingSafeMethod
   class Usage
     attr_reader :args
 
@@ -27,12 +26,12 @@ module Wile
       @opts       = keys.grep(String).select { it.length > 1 } - %w[task args]
       @message    = message
       @validators = validators
-      validate!
+      validate
     end
 
     private
 
-    def validate!
+    def validate
       @validators.each do |validator|
         raise UsageError, @message unless validator_type_check(validator)
       end
@@ -53,25 +52,14 @@ module Wile
       send(mth, validator)
     end
 
-    def allowed_opt?(validator)
-      @opts.all? { validator.include? it }
-    end
+    def allowed_opt?(validator) = @opts.all? { validator.include?(it) }
 
-    def in_range?(validator)
-      validator.include?(args_size)
-    end
+    def match?(validator) = !@args || @args.all? { validator.match?(it) }
 
-    # :reek:NilCheck
-    def match?(validator)
-      @args.nil? || @args.all? { validator.match? it }
-    end
+    def args_size = @args&.size.to_i
 
-    def size_of?(validator)
-      validator == args_size
-    end
+    def in_range?(validator) = validator.include?(args_size)
 
-    def args_size
-      @args&.size.to_i
-    end
+    def size_of?(validator) = validator == args_size
   end
 end

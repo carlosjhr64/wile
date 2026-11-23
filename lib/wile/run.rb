@@ -17,6 +17,14 @@ module Wile
   class Run
     include Sysexits
 
+    def self.load_task(task)
+      if File.file?(".tasks/#{task}.rb")
+        require File.expand_path(".tasks/#{task}.rb")
+      else
+        require_relative "tasks/#{task}"
+      end
+    end
+
     def initialize(options)
       @options = options
       @error = nil
@@ -31,7 +39,6 @@ module Wile
 
     private
 
-    # :reek:TooManyStatements
     def run
       return dispatch_no_task unless (name = @options.task)
 
@@ -39,11 +46,7 @@ module Wile
       # The 'list:' prefix tells UsageError to prepend Help[:list] usage.
       raise UsageError, "list: No tasks matched '#{name}'" unless task
 
-      if File.file?(".tasks/#{task}.rb")
-        require File.expand_path(".tasks/#{task}.rb")
-      else
-        require_relative "tasks/#{task}"
-      end
+      Run.load_task(task)
       @tasks.method(task).call(@options)
     end
 
@@ -66,14 +69,6 @@ module Wile
       end
     end
 
-    def handle_usage_error
-      msg = @error.message
-      lines = msg.lines.map(&:chomp)
-      lines = lines[...-1].map(&:blue) << lines[-1]&.red
-      warn lines.compact.join("\n")
-      exit EX_USAGE
-    end
-
     def handle_error
       case @error
       when Errno::EPIPE
@@ -92,6 +87,14 @@ module Wile
       code, msg = Sysexits.code_msg(@error.message)
       warn msg.red unless msg.empty?
       exit code
+    end
+
+    def handle_usage_error
+      msg = @error.message
+      lines = msg.lines.map(&:chomp)
+      lines = lines[...-1].map(&:blue) << lines[-1]&.red
+      warn lines.compact.join("\n")
+      exit EX_USAGE
     end
 
     def handle_software_error
