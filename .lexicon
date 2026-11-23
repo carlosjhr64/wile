@@ -42,6 +42,7 @@ Class
 CodeContent
 CodeData
 CodeDataFunction
+CodeDataParser
 CodeDataValuation
 CodeStats
 CommandVersion
@@ -395,6 +396,7 @@ cmd_index
 cmd_ver
 cmp
 code
+code_data
 code_msg
 col
 collect_gems
@@ -649,7 +651,6 @@ found
 freeze
 from
 full
-full_const
 fullname
 func
 gem
@@ -805,6 +806,7 @@ mdt
 measure_items
 merge
 message
+meta
 method
 method_line_count
 method_name
@@ -936,8 +938,8 @@ pkg
 plugin
 pop
 popen
+populate
 populate_dependants
-populate_dependencies
 port
 pp
 ppid
