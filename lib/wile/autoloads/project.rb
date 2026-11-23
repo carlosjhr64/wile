@@ -8,7 +8,6 @@ module Wile
   module Project
     using UtilitiesRefinements
 
-    # :reek:TooManyStatements
     def self.archive(pkg)
       pkg.weird_filename!
       raise "Package not found: #{pkg}" unless File.file?(pkg)
@@ -16,13 +15,18 @@ module Wile
       version = pkg.scan(/\d+\.\d+\.\d+/).first
       raise "Cannot extract version from: #{pkg}" unless version
 
+      record_history(version, pkg)
+    end
+
+    def self.record_history(version, pkg)
       FileUtils.mkdir_p('pkg')
-      File.rename pkg, "pkg/#{pkg}"
+      File.rename(pkg, "pkg/#{pkg}")
       File.open('History.txt', 'a') do |file|
         file.puts "# #{version} / #{Time.now}"
         file.puts `md5sum pkg/#{pkg.sw}`
       end
     end
+    private_class_method :record_history
 
     def self.find(dir)
       files = Git.files
@@ -36,13 +40,7 @@ module Wile
       find(dir).map { it.delete_prefix("#{dir.delete_prefix('./')}/") }
     end
 
-    def self.pfiles
-      Git.files
-    end
-
-    def self.rbfiles
-      Git.files.select { /\.rb$/.match?(it) || bang_ruby?(it) }
-    end
+    def self.pfiles = Git.files
 
     def self.bang_ruby?(filename)
       return false unless File.file?(filename) &&
@@ -52,6 +50,10 @@ module Wile
 
       first_line = File.read(filename, 80).lines.first
       first_line ? /^#!.*\bruby\b/.match?(first_line.rstrip) : false
+    end
+
+    def self.rbfiles
+      Git.files.select { /\.rb$/.match?(it) || bang_ruby?(it) }
     end
   end
 end

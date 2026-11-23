@@ -1030,6 +1030,7 @@ record_attr
 record_call
 record_casgn
 record_gems
+record_history
 record_missing
 record_os
 red

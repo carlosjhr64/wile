@@ -6,10 +6,6 @@
 module Wile
   # Git module provides functions to interact with git.
   module Git
-    def self.init!(directory)
-      git!('init', directory)
-    end
-
     def self.clean?
       out = `git status --porcelain 2>/dev/null`
       $CHILD_STATUS.exitstatus.zero? && out.empty?
@@ -27,17 +23,9 @@ module Wile
       `git ls-files`.lines(chomp: true)
     end
 
-    def self.tag!(version)
-      git!('tag', '-a', version, '-m', version)
-    end
-
     def self.verify_unpublished!(version)
       raise "#{version} found in git tag list... already published!" unless
         `git tag -l #{version}`.strip.empty?
-    end
-
-    def self.add!(*files)
-      git!('add', *files)
     end
 
     # :reek:BooleanParameter :reek:ControlParameter
@@ -47,13 +35,25 @@ module Wile
       git!(*args)
     end
 
-    def self.push!
-      git!('push', '--follow-tags')
+    def self.add!(*files)
+      git!('add', *files)
     end
 
     def self.git!(*)
       Utilities.run('git', *) { |_, msg| raise msg }
     end
     private_class_method :git!
+
+    def self.init!(directory)
+      git!('init', directory)
+    end
+
+    def self.push!
+      git!('push', '--follow-tags')
+    end
+
+    def self.tag!(version)
+      git!('tag', '-a', version, '-m', version)
+    end
   end
 end

@@ -26,6 +26,10 @@ module Wile
       @summary ||= description.split("\n\n").first.strip
     end
 
+    def update!
+      File.write(@path, update)
+    end
+
     def update
       lines = File.readlines(@path)
       update_version(lines)
@@ -33,11 +37,14 @@ module Wile
       update_console(lines).join
     end
 
-    def update!
-      File.write(@path, update)
-    end
-
     private
+
+    def update_console(lines)
+      project = @info.project
+      return lines unless File.exist?("bin/#{project}")
+
+      ConsoleBlocks.new(lines, project).update
+    end
 
     def update_version(lines)
       index = lines.index { /\d+\.\d+\.\d+/.match? it }
@@ -57,13 +64,6 @@ module Wile
       end
     end
 
-    def update_console(lines)
-      project = @info.project
-      return lines unless File.exist?("bin/#{project}")
-
-      ConsoleBlocks.new(lines, project).update
-    end
-
     # Helper class to update active console blocks in README lines.
     class ConsoleBlocks
       def initialize(lines, project)
@@ -73,6 +73,11 @@ module Wile
         @found = false
       end
 
+      def self.run_console(cmd)
+        output = `./bin/#{cmd}`
+        output.end_with?("\n") ? output : "#{output}\n"
+      end
+
       def update
         process_lines
         warn_missing unless @found
@@ -80,6 +85,10 @@ module Wile
       end
 
       private
+
+      def warn_missing
+        warn 'Warning: README does not have an active console output'.yellow
+      end
 
       def process_lines
         index = 0
@@ -92,11 +101,6 @@ module Wile
         console_start?(index) ? update_block(next_index) : next_index
       end
 
-      def update_block(cmd_index)
-        @found = true
-        replace_block(cmd_index)
-      end
-
       def console_start?(index)
         @lines[index]&.chomp == '```console' &&
           target_cmd?(@lines[index + 1])
@@ -106,10 +110,15 @@ module Wile
         line&.start_with?("$ #{@project} ") && line.chomp.end_with?(' #>>')
       end
 
+      def update_block(cmd_index)
+        @found = true
+        replace_block(cmd_index)
+      end
+
       def replace_block(cmd_index)
         cmd = @lines[cmd_index].chomp[2..-5]
         @updated << "$ #{cmd} #>>\n"
-        @updated << run_console(cmd)
+        @updated << ConsoleBlocks.run_console(cmd)
         skip_to_fence(cmd_index + 1)
       end
 
@@ -120,16 +129,6 @@ module Wile
 
       def fence?(index)
         @lines[index]&.start_with?('```') || index >= @lines.length
-      end
-
-      # :reek:UtilityFunction
-      def run_console(cmd)
-        output = `./bin/#{cmd}`
-        output.end_with?("\n") ? output : "#{output}\n"
-      end
-
-      def warn_missing
-        warn 'Warning: README does not have an active console output'.yellow
       end
     end
     private_constant :ConsoleBlocks
