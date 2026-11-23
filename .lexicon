@@ -252,6 +252,7 @@ Test
 TestLister
 TestRunner
 Thread
+ThreadPool
 Time
 TodoLister
 Translation
@@ -328,7 +329,6 @@ bang_ruby
 basename
 batch
 batch_test
-batch_worker
 bcmv
 bcswp
 best
@@ -346,6 +346,7 @@ bprm
 build
 build_data
 build_inventory
+build_queue
 bump
 bumped
 c2p
@@ -466,6 +467,7 @@ default_external
 default_gem
 default_msg
 default_run_msg
+default_workers
 delete
 delete_at
 delete_prefix
@@ -526,6 +528,7 @@ downcase
 download_archive
 downto
 dpc
+drain
 duck
 dump
 dump_file
@@ -1039,6 +1042,7 @@ repeat_improved
 replace_block
 reply
 report
+report_failures
 report_line
 req
 require
@@ -1088,7 +1092,6 @@ run
 run_console
 run_fish
 run_subcommand
-run_workers
 rungems
 scan
 scan_file
@@ -1145,6 +1148,7 @@ sort
 sort_by
 source
 source_set
+spawn_workers
 spec
 special_call
 split
@@ -1314,6 +1318,7 @@ with_object
 with_scope
 word
 word_regexp
+workers
 write
 write_cons
 write_version

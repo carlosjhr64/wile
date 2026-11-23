@@ -2,6 +2,42 @@
 
 # Wile namespace.
 module Wile
+  # Runs a block concurrently over items using a bounded pool of threads.
+  class ThreadPool
+    def self.default_workers = [1, (Etc.nprocessors * 0.5).round].max
+
+    def initialize(workers: ThreadPool.default_workers)
+      @workers = [1, workers].max
+      @mutex = Mutex.new
+    end
+
+    def self.build_queue(items)
+      Thread::Queue.new.tap do |queue|
+        items.each { queue << it }
+        queue.close
+      end
+    end
+
+    def reject(items, &)
+      queue = ThreadPool.build_queue(items)
+      [].tap { |failed| spawn_workers(queue, failed, &) }
+    end
+
+    private
+
+    def spawn_workers(queue, failed, &)
+      Array.new(@workers) do
+        Thread.new { drain(queue, failed, &) }
+      end.each(&:join)
+    end
+
+    def drain(queue, failed)
+      while (item = queue.pop)
+        @mutex.synchronize { failed << item } unless yield(item)
+      end
+    end
+  end
+
   # Test module provides methods to run tests.
   module Test
     # Matches long-running test suites ending in '_slow'. Prioritizes them
@@ -16,71 +52,25 @@ module Wile
     end
     private_class_method :test_files
 
-    # :reek:ControlParameter
-    def self.options(methodmatch, quiet)
-      opt = %w[--verbose=important-only --ignore-name=test_rubocop_and_reek]
-      opt << '--progress-style=fault-only' if quiet
-      opt << "--name=/#{methodmatch}/" if methodmatch
-      opt
-    end
-    private_class_method :options
-
-    def self.prioritized_files(files)
-      slow, normal = files.partition { it.match?(SLOW_TESTS) }
-      slow + normal
-    end
-    private_class_method :prioritized_files
-
-    def self.batch_worker(queue, opt, state)
-      while (tf = queue.pop)
-        state[:mutex].synchronize { state[:failed] << tf } unless
-          system(tf, *opt, out: File::NULL, err: File::NULL) # permit
-      end
-    end
-    private_class_method :batch_worker
-
-    def self.run_workers(limit, queue, opt)
-      state = { failed: [], mutex: Mutex.new }
-      Array.new(limit) do
-        Thread.new { batch_worker(queue, opt, state) }
-      end.each(&:join)
-      state[:failed].sort
-    end
-    private_class_method :run_workers
-
-    # :reek:TooManyStatements
-    def self.batch_test(files, opt)
-      limit = [1, (Etc.nprocessors * 0.5).round].max
-      queue = Thread::Queue.new
-      prioritized_files(files).each { queue << it }
-      queue.close
-      failed = run_workers(limit, queue, opt)
-      return if failed.empty?
-
-      msg = failed.size == 1 ? failed.first : "\n#{failed.join("\n")}"
-      raise "failed: #{msg}"
-    end
-    private_class_method :batch_test
-
-    # :reek:TooManyStatements
     def self.matched_files(filematch)
       files = test_files
       return files unless filematch
 
-      files.select! { it.match?(filematch) }
-      raise "No tests matched: #{filematch}" if files.empty?
-
-      files
+      matched = files.grep(Regexp.new(filematch))
+      matched.empty? ? raise("No tests matched: #{filematch}") : matched
     end
     private_class_method :matched_files
 
-    def self.sequential_test(files, opt)
-      files.each do |tf|
-        puts "#{tf}: ".blue
-        raise "failed: #{tf}" unless system(tf, *opt) # permit
-      end
+    # :reek:ControlParameter
+    def self.options(methodmatch, quiet)
+      [
+        '--verbose=important-only',
+        '--ignore-name=test_rubocop_and_reek',
+        ('--progress-style=fault-only' if quiet),
+        ("--name=/#{methodmatch}/" if methodmatch)
+      ].compact
     end
-    private_class_method :sequential_test
+    private_class_method :options
 
     # :reek:BooleanParameter :reek:ControlParameter
     # :reek:LongParameterList
@@ -92,5 +82,33 @@ module Wile
       opt = options(methodmatch, quiet)
       batch ? batch_test(files, opt) : sequential_test(files, opt)
     end
+
+    def self.sequential_test(files, opt)
+      files.each do |tf|
+        puts "#{tf}: ".blue
+        raise "failed: #{tf}" unless system(tf, *opt) # permit
+      end
+    end
+    private_class_method :sequential_test
+
+    def self.batch_test(files, opt)
+      failed = ThreadPool.new.reject(prioritized_files(files)) do |tf|
+        system(tf, *opt, out: File::NULL, err: File::NULL) # permit
+      end
+      report_failures(failed.sort) unless failed.empty?
+    end
+    private_class_method :batch_test
+
+    def self.prioritized_files(files)
+      slow, normal = files.partition { it.match?(SLOW_TESTS) }
+      slow + normal
+    end
+    private_class_method :prioritized_files
+
+    def self.report_failures(failed)
+      msg = failed.size == 1 ? failed.first : "\n#{failed.join("\n")}"
+      raise "failed: #{msg}"
+    end
+    private_class_method :report_failures
   end
 end
