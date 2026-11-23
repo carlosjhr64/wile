@@ -63,7 +63,6 @@ DOWNLOAD_URL
 DUCK_NAME
 Dependencies
 DependencyReport
-DependencyResolver
 DictionaryUpdater
 Digest
 Dir
@@ -212,6 +211,7 @@ Range
 RbConfig
 Readme
 Regexp
+Resolver
 Responds
 Review
 Ruby33
