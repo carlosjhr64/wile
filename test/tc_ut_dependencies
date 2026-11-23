@@ -71,9 +71,9 @@ class TestUtDependencies < Test::Unit::TestCase
     assert_equal 'diff,apt-get', match[1]
     gemset = Set.new
     osset = Set.new
-    @deps.send(:record_dep, :gem, 'reek,rubocop', gemset, osset)
+    @deps.send(:record_gems, 'reek,rubocop', gemset)
     assert_equal Set['reek', 'rubocop'], gemset
-    @deps.send(:record_dep, :os, 'diff,apt-get', gemset, osset)
+    @deps.send(:record_os, 'diff,apt-get', osset)
     assert_equal Set['diff', 'apt-get'], osset
   end
 

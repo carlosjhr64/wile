@@ -62,6 +62,7 @@ DOWNLOAD_URL
 DUCK_NAME
 Dependencies
 DependencyReport
+DependencyResolver
 DictionaryUpdater
 Digest
 Dir
@@ -471,11 +472,9 @@ dep_idx
 dep_sum
 dependants
 dependencies
-dependencies_populate
 dependencies_sum
 dependency
 dependency_index
-dependency_sets
 deps
 desc
 description
@@ -811,6 +810,7 @@ missing_commands
 missing_files
 missing_gem
 missing_gems
+missing_os
 missing_packages
 missing_postamble_gems
 missing_preamble_gems
@@ -898,6 +898,7 @@ parse
 parse_checks
 parse_content_line
 parse_file
+parse_gem_path
 parse_usage
 partition
 parts
@@ -1005,8 +1006,9 @@ recognized
 record_attr
 record_call
 record_casgn
-record_dep
+record_gems
 record_missing
+record_os
 red
 reek
 refine
@@ -1033,6 +1035,7 @@ resolve_format
 resolve_gem_which
 resolve_local_method
 resolve_os_which
+resolver
 resp
 respond_to
 responds
@@ -1073,6 +1076,7 @@ run_subcommand
 run_workers
 rungems
 scan
+scan_file
 sclass
 scope
 scope_end
@@ -1084,6 +1088,7 @@ scopes
 scorer
 scrape
 scrape_help
+scrape_line
 searched
 second
 sections
@@ -1104,6 +1109,7 @@ set_date
 set_git_user
 set_project
 set_project_names
+sets
 sfx
 shared
 shift
@@ -1186,6 +1192,7 @@ to_a
 to_h
 to_i
 to_s
+to_set
 to_sym
 todo
 top
