@@ -2,73 +2,22 @@
 
 # Wile namespace.
 module Wile
-  # Gemspec class generates a gemspec file.
-  # rubocop:disable-next Metrics/ClassLength
-  # :reek:TooManyInstanceVariables :reek:MissingSafeMethod
-  class Gemspec
-    RUBY_FLOOR = /\A(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)(?:\.(?:0|[1-9]\d*))?\z/
-    private_constant :RUBY_FLOOR
-
-    attr_reader :rungems, :devgems, :ros, :dos, :gemspec
-
-    alias to_s gemspec
-
-    def update! = File.write(File.join(@info.dirname, @info.gemspec), @gemspec)
-
-    def initialize(info = Info.info)
-      @info = info
-      @rungems, @devgems, @ros, @dos = load_dependencies(info)
-      @gemspec = String.new
-      generate(Readme.new(info))
-    end
-
-    def executables
-      @executables ||= files.select { it.start_with?('bin/') }
-                            .map { File.basename it }
-    end
-
-    def files
-      @files ||= Git.files.grep_v(@info.gemignore)
-    end
-
-    private
-
-    # :reek:FeatureEnvy :reek:UtilityFunction
-    def load_dependencies(info)
-      deps = Dependencies.new(info)
-      run, dev, ros, dos = deps.dependencies
+  # Renders a Gem::Specification file string from Gemspec metadata.
+  class GemspecRenderer
+    def self.format_info(info)
+      project = info.project
+      user = info.username
       [
-        deps.geminfo(run),
-        deps.geminfo(dev),
-        deps.osinfo(ros),
-        deps.osinfo(dos)
-      ]
+        '  ## INFO ##', "  s.name     = '#{project}'",
+        "  s.version  = '#{info.version}'",
+        "  s.homepage = 'https://github.com/#{user.downcase}/#{project}'",
+        "  s.author   = '#{user}'", "  s.email    = '#{info.email}'",
+        "  s.date     = '#{info.date}'", "  s.licenses = ['MIT']\n"
+      ].join("\n")
     end
 
-    def gemspec_files
-      @gemspec << <<-GEMSPEC
-  ## FILES ##
-  s.require_paths = ['lib']
-  s.files = %w[
-    #{files.join("\n    ")}
-  ]
-      GEMSPEC
-      executables.each { @gemspec << "  s.executables << '#{it}'\n" }
-    end
-
-    # :reek:TooManyStatements
-    def generate(readme)
-      @gemspec << "Gem::Specification.new do |s|\n"
-      gemspec_info
-      gemspec_description(readme)
-      gemspec_files
-      gemspec_requirements
-      @gemspec << "end\n"
-    end
-
-    # :reek:FeatureEnvy
-    def gemspec_description(readme)
-      @gemspec << <<-GEMSPEC
+    def self.format_description(readme)
+      <<-GEMSPEC
   ## DESCRIPTION ##
   s.summary  = <<~SUMMARY
     #{readme.summary.gsub("\n", "\n    ")}
@@ -79,64 +28,66 @@ module Wile
       GEMSPEC
     end
 
-    # :reek:DuplicateMethodCall
-    def gemspec_info
-      @gemspec << <<-GEMSPEC
-  ## INFO ##
-  s.name     = '#{@info.project}'
-  s.version  = '#{@info.version}'
-  s.homepage = 'https://github.com/#{@info.username.downcase}/#{@info.project}'
-  s.author   = '#{@info.username}'
-  s.email    = '#{@info.email}'
-  s.date     = '#{@info.date}'
-  s.licenses = ['MIT']
+    def self.format_files(files, executables)
+      lines = <<-GEMSPEC
+  ## FILES ##
+  s.require_paths = ['lib']
+  s.files = %w[
+    #{files.join("\n    ")}
+  ]
       GEMSPEC
+      execs = executables.map { "  s.executables << '#{it}'\n" }.join
+      "#{lines}#{execs}"
     end
 
-    def gemspec_requirements
-      @gemspec << "  ## REQUIREMENTS ##\n"
+    def self.render(spec, readme)
+      [
+        "Gem::Specification.new do |s|\n",
+        format_info(spec.info),
+        format_description(readme),
+        format_files(spec.files, spec.executables),
+        format_requirements(spec),
+        "end\n"
+      ].join
+    end
+
+    def self.format_dep(gem)
+      version = gem.version
+      mm = version.split('.')[..1].join('.')
+      "  s.add_runtime_dependency '#{gem.name}', '~> #{mm}', '>= #{version}'\n"
+    end
+
+    def self.format_deps(rungems, seen)
+      rungems.sort.filter_map do |gem|
+        format_dep(gem) if seen.add?(gem.name)
+      end.join
+    end
+
+    def self.format_requirements(spec)
       seen = Set.new
-      gemspec_deps(seen)
-      gemspec_os(seen)
+      deps = format_deps(spec.rungems, seen)
+      os_reqs = format_os_list(spec.ros, seen) { spec.ruby_requirement(it) }
+      "  ## REQUIREMENTS ##\n#{deps}#{os_reqs}"
     end
 
-    # :reek:FeatureEnvy :reek:TooManyStatements
-    def gemspec_deps(seen)
-      @rungems.sort.each do |gem|
-        name = gem.name
-        next unless seen.add?(name)
-
-        version = gem.version
-        mm = version.split('.')[..1].join('.')
-        @gemspec << "  s.add_runtime_dependency '#{name}', " \
-                    "'~> #{mm}', '>= #{version}'\n"
-      end
+    def self.format_os_list(ros, seen, &)
+      ros.sort.filter_map do |cmd|
+        format_os(cmd, &) if seen.add?(cmd.name)
+      end.join
     end
 
-    # :reek:FeatureEnvy
-    def gemspec_os(seen)
-      @ros.sort.each do |cmd|
-        next unless seen.add?(cmd.name)
-
-        append_os_requirement(cmd)
-      end
-    end
-
-    # :reek:FeatureEnvy
-    def append_os_requirement(cmd)
+    def self.format_os(cmd)
       name = cmd.name
       version = cmd.version
       req = if name == 'ruby'
-              "s.required_ruby_version = #{ruby_requirement(version)}"
+              "s.required_ruby_version = #{yield(version)}"
             else
               "s.requirements << '#{name}: #{version || '-'}'"
             end
-      @gemspec << "  #{req}\n"
+      "  #{req}\n"
     end
 
-    # :reek:FeatureEnvy
-    def ruby_requirement(version)
-      floor = ruby_floor(version)
+    def self.ruby_requirement(floor)
       major = floor[/\d+/] || '4'
       if floor.split('.').size >= 3
         "'~> #{major}.0', '>= #{floor}'"
@@ -144,6 +95,58 @@ module Wile
         "'~> #{floor}'"
       end
     end
+  end
+
+  # Gemspec class generates a gemspec file.
+  # :reek:MissingSafeMethod
+  class Gemspec
+    RUBY_FLOOR = /\A(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)(?:\.(?:0|[1-9]\d*))?\z/
+    private_constant :RUBY_FLOOR
+
+    attr_reader :info, :gemspec
+
+    alias to_s gemspec
+
+    def initialize(info = Info.info)
+      @info = info
+      @deps = Gemspec.load_dependencies(info)
+      @gemspec = GemspecRenderer.render(self, Readme.new(info))
+    end
+
+    def self.load_dependencies(info)
+      deps = Dependencies.new(info)
+      run, dev, ros, dos = deps.dependencies
+      {
+        rungems: deps.geminfo(run),
+        devgems: deps.geminfo(dev),
+        ros: deps.osinfo(ros),
+        dos: deps.osinfo(dos)
+      }
+    end
+
+    def ruby_requirement(version)
+      GemspecRenderer.ruby_requirement(ruby_floor(version))
+    end
+
+    def rungems = @deps[:rungems]
+
+    def update! = File.write(File.join(@info.dirname, @info.gemspec), @gemspec)
+
+    def devgems = @deps[:devgems]
+
+    def dos = @deps[:dos]
+
+    def files
+      @files ||= Git.files.grep_v(@info.gemignore)
+    end
+
+    def executables
+      files.select { it.start_with?('bin/') }.map { File.basename(it) }
+    end
+
+    def ros = @deps[:ros]
+
+    private
 
     def ruby_floor(version)
       file = File.join(@info.dirname, '.ruby-version-floor')

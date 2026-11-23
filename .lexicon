@@ -116,6 +116,7 @@ GemInfo
 GemUtils
 GemfileWriter
 Gemspec
+GemspecRenderer
 Git
 GzipWriter
 HELP_USAGE
@@ -294,7 +295,6 @@ allowed_opt
 alphabetical
 any
 append_line
-append_os_requirement
 apply_move
 apply_swap
 apt_fish_available
@@ -566,6 +566,7 @@ escape
 except
 exe
 exec
+execs
 executable
 executables
 execute
@@ -621,9 +622,17 @@ foreach
 format
 format_casgn
 format_cmd
+format_dep
+format_deps
+format_description
+format_files
 format_gems
+format_info
 format_member
 format_move
+format_os
+format_os_list
+format_requirements
 formatter
 found
 freeze
@@ -647,12 +656,6 @@ gempkg
 gems
 gemset
 gemspec
-gemspec_deps
-gemspec_description
-gemspec_files
-gemspec_info
-gemspec_os
-gemspec_requirements
 generate
 get_code_data
 get_sections
@@ -873,6 +876,7 @@ order
 order_custom
 ordered
 os
+os_reqs
 os_which
 oscheck
 oscheck_do
@@ -1018,6 +1022,7 @@ reinstall
 reject
 rel
 rename
+render
 repeat_best
 repeat_improved
 replace_block
@@ -1129,6 +1134,7 @@ sort
 sort_by
 source
 source_set
+spec
 special_call
 split
 standard_library
@@ -1226,6 +1232,7 @@ update_version
 updated
 upto
 usage
+user
 user_shell
 username
 using
