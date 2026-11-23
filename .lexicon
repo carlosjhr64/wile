@@ -268,6 +268,7 @@ UtilitiesRefinements
 VALIDATORS
 VERSION
 Version
+VersionProbe
 Visitor
 Wile
 WileRefinements
@@ -910,6 +911,8 @@ parse_checks
 parse_content_line
 parse_file
 parse_gem_path
+parse_probe
+parse_tsv
 parse_usage
 partition
 parts
