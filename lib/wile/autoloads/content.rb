@@ -2,33 +2,9 @@
 
 # Wile namespace.
 module Wile
-  # Displays information on methods in a file.
-  # :reek:TooManyInstanceVariables :reek:TooManyMethods
-  # rubocop:disable-next Metrics/ClassLength
-  class Content
+  # Resolves display colors for scraped method and constant references.
+  class ContentColorizer
     using WileRefinements
-
-    def red? = @red == :red
-
-    # :reek:DuplicateMethodCall iterate
-    def initialize(filenames, options)
-      # - @mlc: method line count, a Hash mapping a fully qualified method name
-      #         to the number of lines in the method definition.
-      @red = @scope = @mlc = @filename = @responds = @casgn = nil
-      if options.raw then iterate(filenames)
-      else
-        Responds.new do |responds|
-          @responds = responds
-          iterate(filenames)
-        end
-      end
-    end
-
-    private
-
-    MTHD = { content_end: /^end$/, content_def: /^def [#.\w]/,
-             content_attr: /^#attr_(?:reader|writer|accessor) /,
-             content_casgn: /^casgn \w/, content_methods: /^  / }.freeze
 
     TYPES = {
       'array' => Array, 'hash' => Hash, 'regexp' => Regexp,
@@ -40,55 +16,80 @@ module Wile
     RESERVED_WORDS = %i[private protected public pp using refine
                         module_function].freeze
 
-    CLRS = %i[color_duck color_here_def color_here_casgn color_stdlib
-              color_kernel].freeze
+    CLRS = %i[color_here_def color_here_casgn color_stdlib].freeze
 
-    private_constant :MTHD, :TYPES, :RESERVED_WORDS, :CLRS
+    private_constant :RESERVED_WORDS, :CLRS
 
-    def iterate(filenames)
-      while (@filename = filenames.shift)
-        @mlc = CodeStats.method_line_count(@filename)
-        @casgn = {}
-        content_scrape
-      end
+    def enter_def(scope, fnm)
+      @scope = scope
+      @mlc[fnm]
     end
 
-    def content_heading = print "\n#{'#'.gray} #{@filename.bold}\n\n"
-
-    def content_scrape
-      content_heading
-      pp @mlc unless @responds
-      CodeContent.generate(@filename) do |line|
-        @responds ? content_display(line.chomp) : (puts line)
-      end
+    def initialize(mlc, responds)
+      @mlc = mlc
+      @responds = responds
+      @casgn = {}
+      @scope = nil
     end
 
-    # :reek:UncommunicativeVariableName
-    def content_display(line)
-      send(MTHD.detect { |_, v| v.match?(line) }&.first || :content_main, line)
+    def leave_scope = @scope = nil
+
+    def record_attr(fnm) = @mlc[fnm] = 0
+
+    def record_casgn(fullname, type) = @casgn[fullname] = type
+
+    def self.duck?(name) = name.match?(/\A(?:\*|(?:[@$]{1,2})?[a-z_]\w*)#/)
+
+    def resolve(name)
+      return :gray if ContentColorizer.duck?(name)
+
+      CLRS.first_truthy_value { send(it, name) } ||
+        (ContentColorizer.kernel?(name) ? :cyan : :red)
     end
 
-    def content_end(_ = nil) = @scope = nil
+    def self.kernel?(name)
+      mth = name.strip[1..].to_sym
+      RESERVED_WORDS.include?(mth) || Kernel.methods.include?(mth)
+    end
 
-    # :reek:TooManyStatements
+    def self.known_type?(type) = TYPES.key?(type)
+
+    private
+
     def color_here_def(name)
       return :green if @mlc.key?(name)
       return nil unless @scope
+
+      scoped_def_color(name)
+    end
+
+    def scoped_def_color(name)
       if name == '.new'
         return @mlc.key?("#{@scope}#initialize") ? :green : :magenta
       end
       return :green if /^[#.]/.match?(name) && @mlc.key?("#{@scope}#{name}")
 
-      sub_scopes(name)
+      :green if scope_prefixes.any? { @mlc.key?("#{it}#{name}") }
     end
 
-    # :reek:FeatureEnvy
-    def sub_scopes(name, scopes = @scope.split('::'))
-      until scopes.empty?
-        return :green if @mlc.key?("#{scopes.join('::')}::#{name}")
+    def scope_prefixes
+      return [] unless @scope
 
-        scopes.pop
-      end
+      parts = @scope.split('::')
+      parts.size.downto(1).map { "#{parts[0, it].join('::')}::" }
+    end
+
+    def constant_type(const)
+      keys = scope_prefixes.map { "#{it}#{const}" } << const
+      keys.first_truthy_value { @casgn[it] }
+    end
+
+    def color_here_casgn(name)
+      const, mth = name.split('.')
+      return nil unless mth && (type = constant_type(const))
+      return :magenta unless (kls = TYPES[type])
+
+      kls.public_method_defined?(mth.to_sym) ? :green : :red
     end
 
     def color_stdlib(name)
@@ -96,71 +97,96 @@ module Wile
       targets = kls ? [kls, "#{@scope.split('::').last}#{name}"] : [name]
       :light_blue if targets.any? { @responds.ok?(it) }
     end
+  end
 
-    # :reek:FeatureEnvy :reek:TooManyStatements
-    # :reek:UncommunicativeVariableName
+  # Displays information on methods in a file.
+  class Content
+    MTHD = { content_end: /^end$/, content_def: /^def [#.\w]/,
+             content_attr: /^#attr_(?:reader|writer|accessor) /,
+             content_casgn: /^casgn \w/, content_methods: /^  / }.freeze
+    private_constant :MTHD
+
+    def self.format_casgn(fullname, type)
+      prefix, sep, name = fullname.rpartition('::')
+      color = ContentColorizer.known_type?(type) ? :green : :magenta
+      "#{"#{prefix}#{sep}".light_blue}#{name.bold} #{type.colorize(color)}"
+    end
+
+    def red? = @red
+
+    def initialize(filenames, options)
+      @red = false
+      @colorizer = nil
+      if options.raw
+        dump_files(filenames)
+      else
+        Responds.new { |resp| filenames.each { display_file(it, resp) } }
+      end
+    end
+
+    def self.format_member(fnm)
+      name, sep, scope = fnm.split(/([#.])/).reverse
+      [scope, "#{scope&.light_blue}#{sep&.light_blue}#{name.bold}"]
+    end
+
+    def self.heading(file) = print "\n#{'#'.gray} #{file.bold}\n\n"
+
+    private
+
+    def dump_files(filenames) = filenames.each { dump_file(it) }
+
     def content_casgn(line)
       _, fullname, type = line.split
-      @casgn[fullname] = type
-      prefix, _, name = fullname.rpartition('::')
-      prefix = "#{prefix}::" unless prefix.empty?
-      color = TYPES.key?(type) ? :green : :magenta
-      puts "#{prefix.light_blue}#{name.bold} #{type.colorize(color)}"
+      @colorizer.record_casgn(fullname, type)
+      puts Content.format_casgn(fullname, type)
     end
 
-    def content_attr(line, fnm = line.split.last)
-      @mlc[fnm] = 0
-      name, sep, scope = fnm.split(/([#.])/).reverse
-      puts "#{scope&.light_blue}#{sep&.light_blue}#{name.bold} #{'0'.green}"
+    def dump_file(filename)
+      Content.heading(filename)
+      pp CodeStats.method_line_count(filename)
+      CodeContent.generate(filename) { |line| puts line }
     end
 
-    def content_def(line, fnm = line.split.last)
-      name, sep, @scope = fnm.split(/([#.])/).reverse
-      print "#{@scope&.light_blue}#{sep&.light_blue}#{name.bold}"
-      puts @mlc.key?(fnm) ? " #{@mlc[fnm].to_s.green}" : ' ??'.red
+    def display_file(filename, responds)
+      Content.heading(filename)
+      @colorizer = ContentColorizer.new(
+        CodeStats.method_line_count(filename), responds
+      )
+      CodeContent.generate(filename) { |line| content_display(line.chomp) }
     end
 
-    # :reek:UtilityFunction
-    def color_duck(name)
-      :gray if name.match?(/\A(?:\*|(?:[@$]{1,2})?[a-z_]\w*)#/)
+    def content_attr(line)
+      fnm = line.split.last
+      @colorizer.record_attr(fnm)
+      _, label = Content.format_member(fnm)
+      puts "#{label} #{'0'.green}"
     end
 
-    # :reek:ManualDispatch and :reek:UtilityFunction
-    def color_kernel(name, mth = name.strip[1..].to_sym)
-      RESERVED_WORDS.include?(mth) || Kernel.respond_to?(mth) ? :cyan : nil
+    def content_def(line)
+      fnm = line.split.last
+      scope, label = Content.format_member(fnm)
+      count = @colorizer.enter_def(scope, fnm)
+      puts "#{label} #{count ? count.to_s.green : '??'.red}"
     end
 
-    # :reek:DuplicateMethodCall @casgn[const]
-    # :reek:TooManyStatements
-    # :reek:UncommunicativeVariableName
-    def constant_type(const, type = nil)
-      return @casgn[const] unless @scope
-
-      scopes = @scope.split('::')
-      until scopes.empty?
-        return type if (type = @casgn["#{scopes.join('::')}::#{const}"])
-
-        scopes.pop
-      end
-      @casgn[const]
+    def content_display(line)
+      key = MTHD.detect { |_, pat| pat.match?(line) }&.first || :content_main
+      send(key, line)
     end
 
-    # :reek:ControlParameter
-    def color_here_casgn(name)
-      const, mth = name.split('.')
-      return nil unless mth && (type = constant_type(const))
-      return :magenta unless (kls = TYPES[type])
+    def content_end(_ = nil) = @colorizer.leave_scope
 
-      color kls.public_method_defined?(mth.to_sym) ? :green : nil
+    def content_methods(line)
+      name = line.strip
+      puts "  #{name.colorize(color_code(name))}"
     end
 
-    # :reek:ControlParameter
-    def color(name) = name || (@red = :red)
-    def color_code(name) = color(CLRS.first_truthy_value { send(it, name) })
+    def color_code(name)
+      color = @colorizer.resolve(name)
+      @red = true if color == :red
+      color
+    end
+
     def content_main(name) = puts name.colorize(color_code(name))
-
-    def content_methods(line, name = line.strip, color = color_code(name))
-      puts "  #{name.colorize(color)}"
-    end
   end
 end
