@@ -110,6 +110,7 @@ Gem::Specification.new do |s|
     lib/wile/autoloads/readme.rb
     lib/wile/autoloads/responds.rb
     lib/wile/autoloads/test.rb
+    lib/wile/autoloads/thread_pool.rb
     lib/wile/help.rb
     lib/wile/requires.rb
     lib/wile/run.rb

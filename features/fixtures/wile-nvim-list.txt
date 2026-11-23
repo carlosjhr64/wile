@@ -39,6 +39,7 @@ lib/wile/autoloads/project.rb
 lib/wile/autoloads/readme.rb
 lib/wile/autoloads/responds.rb
 lib/wile/autoloads/test.rb
+lib/wile/autoloads/thread_pool.rb
 lib/wile/tasks/build.rb
 lib/wile/tasks/bump.rb
 lib/wile/tasks/compare.rb
