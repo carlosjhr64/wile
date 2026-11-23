@@ -4,30 +4,13 @@
 
 # Wile namespace.
 module Wile
-  # GemUtils class provides methods that uses Ruby's gem command-line tool.
-  # :reek:MissingSafeMethod build!, clean!, push!, ready!
-  # :reek:TooManyMethods
+  # Runs Ruby's gem command-line tool for the current project.
+  # :reek:MissingSafeMethod
   class GemUtils
     using UtilitiesRefinements
 
     def initialize(info = Info.info)
       @info = info
-    end
-
-    def project
-      @project ||= @info.project.tap(&:weird_filename!)
-    end
-
-    def version
-      @version ||= @info.version.tap(&:weird_filename!)
-    end
-
-    def gemspec
-      "#{project}.gemspec"
-    end
-
-    def gempkg
-      "#{project}-#{version}.gem"
     end
 
     def ready!(minutes = 5)
@@ -42,46 +25,45 @@ module Wile
       File.exist?(gemspec) && (Time.now - File.mtime(gemspec) < minutes * 60)
     end
 
-    def clean?
-      !File.exist?(gempkg)
-    end
+    def gemspec = "#{project}.gemspec"
 
     def clean!
       raise 'found gem file in working directory' unless clean?
     end
 
+    def clean? = !File.exist?(gempkg)
+
     def build!
       gemspec.weird_filename!
-      gem!('build', gemspec)
+      GemUtils.gem!('build', gemspec)
       gempkg
     end
 
-    def rm_pkg
-      File.unlink gempkg
+    def project = @project ||= @info.project.tap(&:weird_filename!)
+
+    def installed? = Utilities.gem_installed?(project, version:)
+
+    def version = @version ||= @info.version.tap(&:weird_filename!)
+
+    def gempkg = "#{project}-#{version}.gem"
+
+    def uninstall!
+      GemUtils.gem!('uninstall', project, '--version', version, '--executables')
+    end
+
+    def rm_pkg = File.unlink(gempkg)
+
+    def self.gem!(*)
+      Utilities.run('gem', *, echo: true) { |_, msg| raise msg }
+    end
+
+    def install!
+      GemUtils.gem!('install', '--no-document', '--local', "./#{gempkg}")
     end
 
     def push!(pkg = gempkg)
       pkg.weird_filename!
-      gem!('push', pkg)
-    end
-
-    def install!
-      gem!('install', '--no-document', '--local', "./#{gempkg}")
-    end
-
-    def installed?
-      Utilities.gem_installed?(project, version:)
-    end
-
-    def uninstall!
-      gem!('uninstall', project, '--version', version, '--executables')
-    end
-
-    private
-
-    # :reek:UtilityFunction
-    def gem!(*)
-      Utilities.run('gem', *, echo: true) { |_, msg| raise msg }
+      GemUtils.gem!('push', pkg)
     end
   end
 end
