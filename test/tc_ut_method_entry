@@ -5,14 +5,14 @@ require_relative 'test_helper'
 require_relative '../lib/wile'
 require_relative '../lib/wile/run'
 
-# Unit tests for Wile::MethodEntry.
+# Unit tests for Wile::Methods::MethodEntry.
 class TestUtMethodEntry < Test::Unit::TestCase
   def setup
     Wile.autoloads
   end
 
   def test_initialize_empty
-    entry = Wile::MethodEntry.new(mock_cdt('a.rb'), 'A#foo')
+    entry = Wile::Methods::MethodEntry.new(mock_cdt('a.rb'), 'A#foo')
     assert_equal 'a.rb', entry.filename
     assert_equal [], entry.dependencies
     assert_equal [], entry.dependants
@@ -21,13 +21,13 @@ class TestUtMethodEntry < Test::Unit::TestCase
 
   def test_initialize_with_self_deps
     cdt = mock_cdt('a.rb', deps: ['A#baz'], dpts: ['A#qux'])
-    entry = Wile::MethodEntry.new(cdt, 'A#foo')
+    entry = Wile::Methods::MethodEntry.new(cdt, 'A#foo')
     assert_equal ['a.rb'], entry.dependencies
     assert_equal ['a.rb'], entry.dependants
   end
 
   def test_initialize_for_attr
-    entry = Wile::MethodEntry.new(mock_cdt('a.rb'))
+    entry = Wile::Methods::MethodEntry.new(mock_cdt('a.rb'))
     assert_equal 'a.rb', entry.filename
     assert_equal [], entry.dependencies
     assert_equal [], entry.dependants
@@ -35,8 +35,8 @@ class TestUtMethodEntry < Test::Unit::TestCase
   end
 
   def test_add_dependency
-    caller_entry = Wile::MethodEntry.new(mock_cdt('a.rb'), 'A#foo')
-    callee_entry = Wile::MethodEntry.new(mock_cdt('b.rb'), 'B#bar')
+    caller_entry = Wile::Methods::MethodEntry.new(mock_cdt('a.rb'), 'A#foo')
+    callee_entry = Wile::Methods::MethodEntry.new(mock_cdt('b.rb'), 'B#bar')
     caller_entry.add_dependency(callee_entry)
     assert_equal ['b.rb'], caller_entry.dependencies
     assert_equal ['a.rb'], callee_entry.dependants

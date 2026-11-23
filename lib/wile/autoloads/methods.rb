@@ -6,6 +6,27 @@ module Wile
   class Methods
     using WileRefinements
 
+    # Tracks method definition metadata and file dependencies:
+    # * filename: path of the file where the method is defined
+    # * dependencies: files containing methods this method invokes
+    # * dependants: files containing methods that invoke this method
+    # * external: outgoing calls unresolved in filename, stdlib, or Kernel
+    MethodEntry = Struct.new(:filename, :dependencies, :dependants,
+                             :external) do
+      def add_dependency(other)
+        dependencies << other.filename
+        other.dependants << filename
+      end
+
+      def initialize(cdt, name = nil)
+        super(cdt.filename, [], [], name ? cdt.external(name) : [])
+        return unless name
+
+        dependencies << filename unless cdt.dependencies(name).empty?
+        dependants << filename unless cdt.dependants(name).empty?
+      end
+    end
+
     attr_reader :implicit_methods, :known_constants, :methods,
                 :undefined_methods
 

@@ -103,7 +103,6 @@ Gem::Specification.new do |s|
     lib/wile/autoloads/git.rb
     lib/wile/autoloads/info.rb
     lib/wile/autoloads/manpage.rb
-    lib/wile/autoloads/method_entry.rb
     lib/wile/autoloads/methods.rb
     lib/wile/autoloads/nvim_files.rb
     lib/wile/autoloads/options_dictionary.rb

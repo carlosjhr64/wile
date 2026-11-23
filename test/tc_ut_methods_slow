@@ -40,7 +40,7 @@ class TestUtMethods < Test::Unit::TestCase
   end
 
   def test_undefined_methods_include_nonexistent_methods
-    entry = Wile::MethodEntry.new(mock_cdt, 'Fake#test')
+    entry = Wile::Methods::MethodEntry.new(mock_cdt, 'Fake#test')
     @methods.send(:add_undefined_methods, 'Wile::Tasks#fake', entry)
     assert_true @methods.undefined_methods.include?(
       'CodeData.not_a_method_anywhere'
