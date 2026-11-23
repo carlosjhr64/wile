@@ -51,6 +51,7 @@ ConstantPathNode
 ConstantReadNode
 Content
 ContentColorizer
+ContentEmitter
 Copier
 DEFAULT_FILE
 DEF_METHOD
@@ -549,7 +550,9 @@ email
 emit_attrs
 emit_call
 emit_casgn
+emit_receiver_call
 emit_struct
+emitter
 empty
 end_with
 ensure_commands
@@ -754,6 +757,7 @@ last
 last_line
 latest_version
 launch
+leave_def
 leave_scope
 len
 length
@@ -779,7 +783,6 @@ lstrip
 m
 macro
 magenta
-main
 maj
 major
 majors
@@ -1020,6 +1023,7 @@ readlines
 readme
 ready
 receiver
+receiver_
 recognized
 record_attr
 record_call
@@ -1135,6 +1139,7 @@ shifted
 show
 show_section
 singleton_class
+singleton_scope
 size
 size_of
 skip_duck
@@ -1256,6 +1261,7 @@ using
 utilities
 utilities_check
 val
+val_
 valid_encoding
 validate
 validator
