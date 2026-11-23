@@ -24,10 +24,8 @@ BootstrapSystemCommands
 Builder
 Bumper
 CALL_NAME
-CASGN
 CASGN_CONST
 CASGN_TYPES
-CATEGORY
 CLEAN_DIRS
 CLRS
 COMMON_CLASSES
@@ -144,12 +142,11 @@ LIST_USAGE
 LOCAL_DIR
 LexiconUpdater
 LoadError
+MATCHERS
 METHODS_USAGE
 METHOD_CALL
-METHOD_NAME
 MKDIR_USAGE
 MODES
-MODULE_NAME
 MTHD
 MaintGenerateCons
 Manpage
@@ -222,7 +219,6 @@ RubyLister
 Run
 RuntimeError
 SCOPES
-SCOPE_END
 SCRIPT
 SHA256
 SLOW_TESTS
@@ -230,12 +226,14 @@ SORTS
 SPECIALS
 SUPPORTED_SHELLS
 SYM_OP
+ScopeTracker
 ScriptError
 SelfNode
 Set
 Shellwords
 Specification
 StandardError
+StatsScanner
 Status
 String
 Struct
@@ -441,7 +439,6 @@ content_display
 content_dump
 content_end
 content_files
-content_initialize
 content_main
 content_methods
 context
@@ -613,6 +610,7 @@ filtered_p2c
 find
 find_all_by_name
 find_method
+finish_method
 first
 first_line
 first_truthy_value
@@ -689,6 +687,7 @@ handle_error
 handle_runtime_error
 handle_software_error
 handle_usage_error
+handler
 hash
 hash_node
 heading
@@ -762,8 +761,6 @@ leave_def
 leave_scope
 len
 length
-level_pops
-level_push
 lexicon
 lib
 lib_to_tc
@@ -937,6 +934,7 @@ pipe
 pkg
 plugin
 pop
+pop_to
 popen
 populate
 populate_dependants
@@ -983,6 +981,7 @@ public_methods
 publish
 publish_and_archive
 push
+push_struct_scope
 puts
 puts_code
 puts_dictionary
@@ -1056,6 +1055,7 @@ require_in_path
 require_relative
 res
 reset
+reset_method
 resolve
 resolve_format
 resolve_gem_which
@@ -1154,7 +1154,6 @@ snake_case
 sort
 sort_by
 source
-source_set
 spawn_workers
 spec
 special_call
@@ -1174,6 +1173,7 @@ stdlib_key
 stdrb
 stdso
 stop
+store_method
 str
 strftime
 strict
@@ -1229,6 +1229,7 @@ top
 top_trigrams
 total
 trace
+tracker
 tri
 truthy
 try_swap
@@ -1249,6 +1250,7 @@ unused
 upcase
 update
 update_block
+update_category
 update_console
 update_copyright
 update_ruby_build
@@ -1313,7 +1315,6 @@ visit_module_node
 visit_refine
 visit_singleton_class_node
 vrs
-vset
 warn
 warn_missing
 warn_missing_version
