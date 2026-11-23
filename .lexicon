@@ -1,5 +1,6 @@
 0
 ALLOWED
+ANSI_SGR
 API_URL
 ARCH
 ARGV
@@ -226,6 +227,7 @@ SLOW_TESTS
 SORTS
 SPECIALS
 SUPPORTED_SHELLS
+SYM_OP
 ScriptError
 SelfNode
 Set
@@ -622,6 +624,7 @@ foreach
 format
 format_casgn
 format_cmd
+format_columns
 format_dep
 format_deps
 format_description
@@ -633,6 +636,7 @@ format_move
 format_os
 format_os_list
 format_requirements
+format_row
 formatter
 found
 freeze
@@ -791,6 +795,7 @@ maxdepth
 md
 md_path
 mdt
+measure_items
 merge
 message
 method
@@ -841,6 +846,7 @@ mutex
 name
 name2scope
 name_loc
+name_regexp
 name_split
 named
 names
@@ -849,7 +855,6 @@ neighbor_pairs
 new
 next_index
 nil
-nme
 no_verify
 node_
 normal
@@ -1045,7 +1050,6 @@ resolve_local_method
 resolve_os_which
 resolver
 resp
-respond_to
 responds
 response
 result
@@ -1179,6 +1183,7 @@ sysexit
 system
 system_commands_check
 tag
+tail
 tap
 target
 target_cmd
@@ -1305,6 +1310,7 @@ wileignore
 with_object
 with_scope
 word
+word_regexp
 write
 write_cons
 write_version
