@@ -1,0 +1,53 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require_relative 'test_helper'
+require 'prism'
+
+# Scans Prism AST nodes for system calls.
+class SystemCallScanner < Prism::Visitor
+  def initialize
+    super
+    @lines = []
+  end
+
+  def scan(source)
+    Prism.parse(source).value.accept(self)
+    @lines
+  end
+
+  def self.system_call?(node)
+    return false unless node.name == :system
+
+    recv = node.receiver
+    !recv || recv.slice == 'Kernel'
+  end
+
+  def visit_call_node(node)
+    @lines << node.location.start_line if SystemCallScanner.system_call?(node)
+    super
+  end
+end
+
+# Fail-less lint checks for Wile's code expectations.
+class TestLints < Test::Unit::TestCase
+  SYSTEM_CALL = /system(?:\(|\s+)["'][a-z]/
+
+  def test_system_calls = quiet? || ruby_files.each { check_system_calls(it) }
+
+  private
+
+  def check_system_calls(filename)
+    source = File.read(filename)
+    lines = source.lines
+    SystemCallScanner.new.scan(source).each do |num|
+      alert_system_call(filename, num, lines[num - 1].chomp)
+    end
+  end
+
+  def alert_system_call(filename, num, line)
+    return if SYSTEM_CALL.match?(line) || line.end_with?('# permit')
+
+    puts "System call: #{filename}:#{num}:#{line}".yellow
+  end
+end
