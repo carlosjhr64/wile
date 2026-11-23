@@ -24,7 +24,9 @@ end
 
 # When we run command
 When(/(?:When )?we run command/) do
-  @stdout, @stderr, @status = Open3.capture3("#{@command} #{@options}")
+  run = -> { Open3.capture3("#{@command} #{@options}") }
+  @stdout, @stderr, @status =
+    defined?(Bundler) ? Bundler.with_unbundled_env(&run) : run.call
   [@stdout, @stderr].each(&:chomp!)
 end
 
