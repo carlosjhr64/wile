@@ -11,10 +11,6 @@ module Wile
       puts JSON.pretty_generate data.index
     end
 
-    def self.index(data)
-      data.names.each { print_dependencies(it, data) }
-    end
-
     def self.isolate(data)
       data.names.each do |name|
         puts name if data.dependencies(name).empty? &&
@@ -33,6 +29,10 @@ module Wile
       end
 
       puts 'OK'.green
+    end
+
+    def self.index(data)
+      data.names.each { print_dependencies(it, data) }
     end
 
     # category: private

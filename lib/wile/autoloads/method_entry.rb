@@ -25,17 +25,17 @@ module Wile
   #   }
   MethodEntry = Struct.new(:filename, :dependencies, :dependants,
                            :external) do
+    def add_dependency(other)
+      dependencies << other.filename
+      other.dependants << filename
+    end
+
     def initialize(cdt, name = nil)
       super(cdt.filename, [], [], name ? cdt.external(name) : [])
       return unless name
 
       dependencies << filename unless cdt.dependencies(name).empty?
       dependants << filename unless cdt.dependants(name).empty?
-    end
-
-    def add_dependency(other)
-      dependencies << other.filename
-      other.dependants << filename
     end
   end
 end

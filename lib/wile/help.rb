@@ -4,12 +4,6 @@
 module Wile
   # Scrape help documentation from task files.
   module Help
-    def self.[](task)
-      help = String.new
-      scrape_help(task) { help << it }
-      help.empty? ? nil : help
-    end
-
     def self.task_file(task)
       custom = File.expand_path(".tasks/#{task}.rb")
       file = File.file?(custom) ? custom : "#{__dir__}/tasks/#{task}.rb"
@@ -27,6 +21,12 @@ module Wile
 
         yield(line[2..] || '')
       end
+    end
+
+    def self.[](task)
+      help = String.new
+      scrape_help(task) { help << it }
+      help.empty? ? nil : help
     end
 
     def self.usage(task)

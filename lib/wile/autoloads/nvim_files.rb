@@ -2,7 +2,7 @@
 
 # Wile namespace.
 module Wile
-  # Project module provides methods to manage project files.
+  # Orders project files for opening in Neovim.
   class NvimFiles
     REQ_RGX = /'(\w([-\w]*)+)'/
     private_constant :REQ_RGX
@@ -21,15 +21,21 @@ module Wile
 
     private
 
+    def nvim_lib_files
+      Git.files.select { it.start_with?('lib/') && it.end_with?('.rb') }
+         .sort_by { [it.count('/'), it] }
+    end
+
     def nvim_bin_files
       return [] unless File.directory?('bin')
 
       Git.files.select { it.start_with?('bin/') && File.executable?(it) }.sort
     end
 
-    def nvim_lib_files
-      Git.files.select { it.start_with?('lib/') && it.end_with?('.rb') }
-         .sort_by { [it.count('/'), it] }
+    def nvim_ranks(lib, prb = "lib/#{@project}.rb")
+      rgx = %r{'(#{@project}(/\w[-\w]*)+)'}
+      ranks = file_ranks(prb, rgx, /require_relative|auto/)
+      ([prb] + (ranks.map { "lib/#{it}.rb" } & lib)).sort_by { it.count('/') }
     end
 
     def more_ranks(lib, rqs = "lib/#{@project}/requires.rb")
@@ -37,12 +43,6 @@ module Wile
 
       (file_ranks(rqs, REQ_RGX).map { "lib/#{@project}/#{it}.rb" } & lib)
         .sort_by { it.count('/') }
-    end
-
-    def nvim_ranks(lib, prb = "lib/#{@project}.rb")
-      rgx = %r{'(#{@project}(/\w[-\w]*)+)'}
-      ranks = file_ranks(prb, rgx, /require_relative|auto/)
-      ([prb] + (ranks.map { "lib/#{it}.rb" } & lib)).sort_by { it.count('/') }
     end
 
     def file_ranks(filename, rgx, pattern = /require_relative/)
