@@ -5,14 +5,16 @@ require_relative 'test_helper'
 require_relative '../lib/wile'
 require_relative '../lib/wile/run'
 
-# Unit tests for Wile::GemInfo.
+# Unit tests for Wile::Dependencies::GemInfo.
 class TestUtGemInfo < Test::Unit::TestCase
   def setup
     Wile.autoloads
   end
 
   def test_attributes
-    info = Wile::GemInfo.new('colorize', '1.1.0', :gem, '/path', 'colorize')
+    info = Wile::Dependencies::GemInfo.new(
+      'colorize', '1.1.0', :gem, '/path', 'colorize'
+    )
     assert_equal 'colorize', info.name
     assert_equal '1.1.0', info.version
     assert_equal :gem, info.type
@@ -21,9 +23,10 @@ class TestUtGemInfo < Test::Unit::TestCase
   end
 
   def test_spaceship_by_name_and_version
-    a1 = Wile::GemInfo.new('alpha', '1.0.0', :gem, '/a1', 'alpha')
-    a2 = Wile::GemInfo.new('alpha', '2.0.0', :gem, '/a2', 'alpha')
-    b1 = Wile::GemInfo.new('beta', '1.0.0', :gem, '/b1', 'beta')
+    klass = Wile::Dependencies::GemInfo
+    a1 = klass.new('alpha', '1.0.0', :gem, '/a1', 'alpha')
+    a2 = klass.new('alpha', '2.0.0', :gem, '/a2', 'alpha')
+    b1 = klass.new('beta', '1.0.0', :gem, '/b1', 'beta')
     assert_equal(-1, a1 <=> b1)
     assert_equal 1, b1 <=> a1
     assert_equal(-1, a1 <=> a2)

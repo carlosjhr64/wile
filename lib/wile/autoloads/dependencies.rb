@@ -34,9 +34,9 @@ module Wile
 
     def self.parse_gem_path(path, name)
       if (mdt = %r{/gems/([-\w]+)-(\d+\.\d+\.\d+)}.match(path))
-        GemInfo.new(mdt[1], mdt[2], :gem, path, name)
+        Dependencies::GemInfo.new(mdt[1], mdt[2], :gem, path, name)
       elsif (type, md = DependencyResolver.lib_type(path))
-        GemInfo.new(md[1], nil, type, path, name)
+        Dependencies::GemInfo.new(md[1], nil, type, path, name)
       end
     end
 
@@ -44,7 +44,7 @@ module Wile
       gem = name.split('/').first
       warn "Missing gem: #{gem}".red if
         @verbose && @cache[:missing_gems].add?(gem)
-      GemInfo.new(nil, nil, nil, nil, gem)
+      Dependencies::GemInfo.new(nil, nil, nil, nil, gem)
     end
 
     def self.warn_missing_version(cmd)
@@ -67,12 +67,12 @@ module Wile
 
       version = @cmd_ver.version(cmd)
       DependencyResolver.warn_missing_version(cmd) if @verbose && !version
-      GemInfo.new(cmd, version, :os, path, cmd)
+      Dependencies::GemInfo.new(cmd, version, :os, path, cmd)
     end
 
     def missing_os(cmd)
       warn "Missing command: #{cmd}".red if @verbose
-      GemInfo.new(nil, nil, nil, nil, cmd)
+      Dependencies::GemInfo.new(nil, nil, nil, nil, cmd)
     end
   end
 
@@ -98,6 +98,13 @@ module Wile
                    cmd_ver: CommandVersion.new)
       @info = info
       @resolver = DependencyResolver.new(verbose, cmd_ver)
+    end
+
+    # Stores gem or OS command dependency metadata.
+    GemInfo = Struct.new(:name, :version, :type, :filename, :require) do
+      def <=>(other)
+        (cmp = name <=> other.name).zero? ? version <=> other.version : cmp
+      end
     end
 
     def geminfo(libs)

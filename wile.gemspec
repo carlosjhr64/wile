@@ -97,7 +97,6 @@ Gem::Specification.new do |s|
     lib/wile/autoloads/command_version.rb
     lib/wile/autoloads/content.rb
     lib/wile/autoloads/dependencies.rb
-    lib/wile/autoloads/gem_info.rb
     lib/wile/autoloads/gem_utils.rb
     lib/wile/autoloads/gemspec.rb
     lib/wile/autoloads/git.rb
