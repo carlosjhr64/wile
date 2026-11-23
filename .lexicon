@@ -363,7 +363,6 @@ catch
 category
 category_set
 cdt
-cf
 cfg
 cfile
 cfile2pfile
@@ -440,8 +439,10 @@ content_main
 content_methods
 context
 continue
+convert_erb
 copy
 copy2project
+copy_template
 correct
 count
 counts
@@ -615,7 +616,6 @@ float_node
 floor
 flush
 fmt
-fn
 fnm
 force
 foreach
@@ -708,6 +708,7 @@ install
 install_fish
 install_gem
 install_gems
+install_git_files
 install_neovim
 install_plugins
 installed
@@ -829,6 +830,7 @@ module_function
 module_name
 more
 more_ranks
+move_git_file
 move_score
 moved
 msg
@@ -958,6 +960,7 @@ prompt_install
 prompt_target_ruby_install
 protected
 prune
+prune_git
 public
 public_method_defined
 public_methods
@@ -1125,6 +1128,7 @@ singleton_class
 size
 size_of
 skip_duck
+skip_existing
 skip_to_fence
 skipped_receiver
 slice
@@ -1137,6 +1141,7 @@ source_set
 spec
 special_call
 split
+src
 standard_library
 start
 start_with
