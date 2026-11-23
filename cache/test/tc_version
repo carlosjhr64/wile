@@ -46,7 +46,8 @@ class TestVersion < Test::Unit::TestCase
       File.file?(f) && File.executable?(f)
     end)
 
-    out = IO.popen([executable, '--version'], err: File::NULL, &:read)&.strip
+    out = IO.popen([executable, '--version'], # permit
+                   err: File::NULL, &:read)&.strip
     assert_equal(version, out)
   end
 

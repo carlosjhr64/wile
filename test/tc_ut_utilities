@@ -35,10 +35,9 @@ class TestUtUtilities < Test::Unit::TestCase
   def test_run_success_and_env
     assert_nothing_raised do
       Wile::Utilities.run!('true')
-      Wile::Utilities.run!(
-        'ruby', '-e', 'exit(ENV["WILE_TEST"] == "ok" ? 0 : 1)',
-        env: { 'WILE_TEST' => 'ok' }
-      )
+      Wile::Utilities.run!('ruby',
+                           '-e', 'exit(ENV["WILE_TEST"] == "ok" ? 0 : 1)',
+                           env: { 'WILE_TEST' => 'ok' })
     end
   end
 
@@ -75,7 +74,7 @@ class TestUtUtilities < Test::Unit::TestCase
   def test_run_infers_noperm
     Tempfile.create('nonexec') do |file|
       File.chmod(0o644, file.path)
-      err, status = capture_exit { Wile::Utilities.run!(file.path) }
+      err, status = capture_exit { Wile::Utilities.run!(file.path) } # permit
       assert_equal EX_NOPERM, status
       assert_match(/\(exit 127\)\./, err)
     end

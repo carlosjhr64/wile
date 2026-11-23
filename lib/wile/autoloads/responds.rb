@@ -18,7 +18,7 @@ module Wile
 
     def initialize
       @cache = {}
-      IO.popen(ONELINER, 'r+') do |io|
+      IO.popen(ONELINER, 'r+') do |io| # permit
         @io = io
         yield self
       end
