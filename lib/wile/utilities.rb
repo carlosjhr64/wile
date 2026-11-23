@@ -24,7 +24,7 @@ module Wile
     end
 
     def missing_packages(packages)
-      packages.reject { |pkg| package_installed?(pkg) }
+      packages.reject { package_installed?(it) }
     end
 
     def check_path_notice(dir)
@@ -54,7 +54,7 @@ module Wile
     end
 
     def missing_commands(commands)
-      commands.reject { |cmd| command_available?(cmd) }
+      commands.reject { command_available?(it) }
     end
 
     def verify_utilities!(utilities)
@@ -193,7 +193,7 @@ module Wile
     end
 
     def missing_root_files(root_files = ROOT_FILES)
-      root_files.reject { |file| File.file?(file) }
+      root_files.reject { File.file?(it) }
     end
 
     # --- Version Probing ---
@@ -206,11 +206,13 @@ module Wile
     end
 
     def fisher_version
+      return nil unless command_available?('fish')
+
       `fish -c 'fisher --version' 2>/dev/null`[/\d+\.\d+/]
     end
 
     def gem_installed?(gem_name, version: nil, env: {})
-      args = ['gem', 'list', '-i', "^#{gem_name}$"]
+      args = ['gem', 'list', '-i', "^#{Regexp.escape(gem_name)}$"]
       args.push('-v', version) if version
       system(env, *args, out: File::NULL, err: File::NULL) # permit
     end
