@@ -4,50 +4,68 @@
 require_relative 'test_helper'
 require 'prism'
 
-# Scans Prism AST nodes for system calls.
-class SystemCallScanner < Prism::Visitor
-  def initialize
-    super
-    @lines = []
+# Scans Prism AST nodes for configured method calls.
+class CallScanner < Prism::Visitor
+  def initialize(calls)
+    super()
+    @calls = calls
+    @found = []
   end
 
   def scan(source)
     Prism.parse(source).value.accept(self)
-    @lines
+    @found
   end
 
-  def self.system_call?(node)
-    return false unless node.name == :system
+  def self.match_call?(node, entry)
+    pat, name = entry
+    return false unless node.name == name
 
-    recv = node.receiver
-    !recv || recv.slice == 'Kernel'
+    recv = node.receiver&.slice
+    pat.is_a?(Regexp) ? pat.match?(recv) : pat == recv
+  end
+
+  def self.label(node)
+    [node.receiver&.slice, node.name].compact.join('.')
   end
 
   def visit_call_node(node)
-    @lines << node.location.start_line if SystemCallScanner.system_call?(node)
+    match = @calls.find { CallScanner.match_call?(node, it) }
+    @found << [match[2], CallScanner.label(node), node.location.start_line] if
+      match
     super
   end
 end
 
 # Fail-less lint checks for Wile's code expectations.
 class TestLints < Test::Unit::TestCase
-  SYSTEM_CALL = /system(?:\(|\s+)["'][a-z]/
+  CALLS = [
+    [nil, :system, /system(?:\(|\s+)["'][a-z]/],
+    ['Kernel', :system, /Kernel\.system(?:\(|\s+)["'][a-z]/],
+    [nil, :spawn, /spawn(?:\(|\s+)["'][a-z]/],
+    ['Kernel', :spawn, /Kernel\.spawn(?:\(|\s+)["'][a-z]/],
+    ['IO', :popen, /IO\.popen(?:\(|\s+)\[?["'][a-z]/],
+    # Custom calls:
+    [/\bUtilities\z/, :run, /Utilities\.run(?:\(|\s+)["'][a-z]/],
+    [/\bUtilities\z/, :run!, /Utilities\.run!(?:\(|\s+)["'][a-z]/]
+  ].freeze
 
-  def test_system_calls = quiet? || ruby_files.each { check_system_calls(it) }
+  def test_calls = quiet? || ruby_files.each { check_calls(it) }
 
   private
 
-  def check_system_calls(filename)
+  def check_calls(filename)
     source = File.read(filename)
     lines = source.lines
-    SystemCallScanner.new.scan(source).each do |num|
-      alert_system_call(filename, num, lines[num - 1].chomp)
+    CallScanner.new(CALLS).scan(source).each do |pattern, label, num|
+      alert_call("#{filename}:#{num}", [pattern, label], lines[num - 1].chomp)
     end
   end
 
-  def alert_system_call(filename, num, line)
-    return if SYSTEM_CALL.match?(line) || line.end_with?('# permit')
+  def alert_call(loc, match, line)
+    pattern, label = match
+    return if pattern.match?(line) || line.end_with?('# permit')
 
-    puts "System call: #{filename}:#{num}:#{line}".yellow
+    puts "#{label}: #{loc}:#{line}".yellow
   end
 end
