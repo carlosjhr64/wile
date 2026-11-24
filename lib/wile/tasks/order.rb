@@ -45,17 +45,17 @@ module Wile
       @optimized = nil
     end
 
-    def self.delta(from, dest)
-      arrow = from < dest ? '↓' : '↑' # UTF-8
-      "#{arrow}#{(from - dest).abs}"
-    end
-
     def run
       return run_subcommand if SPECIALS.include?(@sort)
 
       optimize
       report
       raise unless @optimized == @names
+    end
+
+    def self.delta(from, dest)
+      arrow = from < dest ? '↓' : '↑' # UTF-8
+      "#{arrow}#{(from - dest).abs}"
     end
 
     private

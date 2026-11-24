@@ -33,12 +33,12 @@ module Wile
       @options = options
     end
 
-    def self.format_gems(gems)
-      gems.map { "gem '#{it.name}'" }.uniq
-    end
-
     def write
       @options&.dump? ? puts(content) : File.write(@file, content)
+    end
+
+    def self.format_gems(gems)
+      gems.map { "gem '#{it.name}'" }.uniq
     end
 
     private

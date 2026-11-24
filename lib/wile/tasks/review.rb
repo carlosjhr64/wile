@@ -33,6 +33,14 @@ module Wile
 
     AVAILABLE_CHECKS = %i[content order reek rubocop].freeze
 
+    def self.review_files(target)
+      all_files = NvimFiles.new.nvim_files.select { it.start_with?('lib/') }
+      return all_files unless target
+      return [target] if File.file?(target)
+
+      match_target(all_files, target)
+    end
+
     def self.match_target(all_files, target)
       matched = if File.directory?(target)
                   Dir.glob(File.join(target, '**/*.rb'))
@@ -42,14 +50,6 @@ module Wile
       raise "no match for #{target}" if matched.empty?
 
       matched
-    end
-
-    def self.review_files(target)
-      all_files = NvimFiles.new.nvim_files.select { it.start_with?('lib/') }
-      return all_files unless target
-      return [target] if File.file?(target)
-
-      match_target(all_files, target)
     end
 
     def initialize(options, files)

@@ -104,12 +104,6 @@ module Wile
 
     private
 
-    def reset_method
-      @state[:dlevel] = 0
-      @state[:name] = nil
-      @state[:source] = CodeStats.source
-    end
-
     def method_name(match)
       rcvr = match[:rcvr]
       return if !rcvr && /^\s*def\s+\S+\./.match?(@state[:line])
@@ -117,6 +111,19 @@ module Wile
       name = @tracker.method_name(rcvr, match[:name])
       source = CodeStats.source(@state[:source][-1..])
       store_method(name, match[:pad].length, source)
+    end
+
+    def reset_method
+      @state[:dlevel] = 0
+      @state[:name] = nil
+      @state[:source] = CodeStats.source
+    end
+
+    def store_method(name, dlevel, source)
+      source.category(@tracker.category)
+      @state.merge!(dlevel:, name:, source:)
+      @state[:hash][name] = @func[source]
+      reset_method if ENDLESS_DEF.match?(@state[:line])
     end
 
     def msh_populate
@@ -132,13 +139,6 @@ module Wile
 
       @state[:line] = line
       @state[:source] << line
-    end
-
-    def store_method(name, dlevel, source)
-      source.category(@tracker.category)
-      @state.merge!(dlevel:, name:, source:)
-      @state[:hash][name] = @func[source]
-      reset_method if ENDLESS_DEF.match?(@state[:line])
     end
 
     def finish_method

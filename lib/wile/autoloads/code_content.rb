@@ -44,6 +44,12 @@ module Wile
       super
     end
 
+    def visit_local_variable_write_node(node_)
+      @emitter.track_class_var(node_.name, node_.value)
+      super
+    end
+    alias visit_optional_parameter_node visit_local_variable_write_node
+
     def visit_module_node(node_)
       @emitter.with_scope(node_.constant_path.slice.delete_prefix('::')) do
         super
@@ -74,12 +80,6 @@ module Wile
     def visit_constant_path_write_node(node_)
       emit_casgn(node_.target.slice.delete_prefix('::'), node_)
     end
-
-    def visit_local_variable_write_node(node_)
-      @emitter.track_class_var(node_.name, node_.value)
-      super
-    end
-    alias visit_optional_parameter_node visit_local_variable_write_node
 
     private
 
@@ -200,6 +200,11 @@ module Wile
       @block['end']
     end
 
+    def emit_new_call(name)
+      emit_call("#{@dot}new")
+      emit_call("##{name}")
+    end
+
     def emit_receiver_call(receiver_, name)
       slice = receiver_.slice
       return emit_call("#{slice.delete_prefix('::')}.#{name}") if
@@ -208,11 +213,6 @@ module Wile
       return emit_new_call(name) if slice == 'new'
 
       emit_call("#{slice[DUCK_NAME] || '*'}##{name}")
-    end
-
-    def emit_new_call(name)
-      emit_call("#{@dot}new")
-      emit_call("##{name}")
     end
   end
   CodeContent.private_constant :Emitter

@@ -28,17 +28,17 @@ module Wile
     end
     private_class_method :record_history
 
+    def self.files(dir)
+      prefix = "#{dir.delete_prefix('./').delete_suffix('/')}/"
+      find(dir).map { it.delete_prefix(prefix) }
+    end
+
     def self.find(dir)
       files = Git.files
       return files if %w[. ./].include?(dir)
 
       prefix = "#{dir.delete_prefix('./').delete_suffix('/')}/"
       files.select { it.start_with?(prefix) }
-    end
-
-    def self.files(dir)
-      prefix = "#{dir.delete_prefix('./').delete_suffix('/')}/"
-      find(dir).map { it.delete_prefix(prefix) }
     end
 
     def self.pfiles = Git.files

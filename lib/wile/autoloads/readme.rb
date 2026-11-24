@@ -75,15 +75,15 @@ module Wile
       @found = false
     end
 
-    def self.run_console(cmd)
-      output = `./bin/#{cmd}`
-      output.end_with?("\n") ? output : "#{output}\n"
-    end
-
     def update
       process_lines
       warn_missing unless @found
       @updated
+    end
+
+    def self.run_console(cmd)
+      output = `./bin/#{cmd}`
+      output.end_with?("\n") ? output : "#{output}\n"
     end
 
     private
@@ -97,19 +97,11 @@ module Wile
       index = append_line(index) while index < @lines.length
     end
 
-    def append_line(index)
-      @updated << @lines[index]
-      next_index = index + 1
-      console_start?(index) ? update_block(next_index) : next_index
-    end
-
-    def console_start?(index)
-      @lines[index]&.chomp == '```console' &&
-        target_cmd?(@lines[index + 1])
-    end
-
-    def target_cmd?(line)
-      line&.start_with?("$ #{@project} ") && line.chomp.end_with?(' #>>')
+    def replace_block(cmd_index)
+      cmd = @lines[cmd_index].chomp[2..-5]
+      @updated << "$ #{cmd} #>>\n"
+      @updated << self.class.run_console(cmd)
+      skip_to_fence(cmd_index + 1)
     end
 
     def update_block(cmd_index)
@@ -117,11 +109,10 @@ module Wile
       replace_block(cmd_index)
     end
 
-    def replace_block(cmd_index)
-      cmd = @lines[cmd_index].chomp[2..-5]
-      @updated << "$ #{cmd} #>>\n"
-      @updated << self.class.run_console(cmd)
-      skip_to_fence(cmd_index + 1)
+    def append_line(index)
+      @updated << @lines[index]
+      next_index = index + 1
+      console_start?(index) ? update_block(next_index) : next_index
     end
 
     def skip_to_fence(index)
@@ -131,6 +122,15 @@ module Wile
 
     def fence?(index)
       @lines[index]&.start_with?('```') || index >= @lines.length
+    end
+
+    def console_start?(index)
+      @lines[index]&.chomp == '```console' &&
+        target_cmd?(@lines[index + 1])
+    end
+
+    def target_cmd?(line)
+      line&.start_with?("$ #{@project} ") && line.chomp.end_with?(' #>>')
     end
   end
   Readme.private_constant :ConsoleBlocks

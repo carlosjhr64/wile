@@ -24,6 +24,8 @@ module Wile
       files.select { it.start_with?('bin/') }.map { File.basename(it) }
     end
 
+    def ros = @deps[:ros]
+
     def rungems = @deps[:rungems]
 
     def update! = File.write(File.join(@info.dirname, @info.gemspec), @gemspec)
@@ -45,8 +47,6 @@ module Wile
       @gemspec = Renderer.render(self, Readme.new(info))
     end
 
-    def ros = @deps[:ros]
-
     def ruby_requirement(version)
       Renderer.ruby_requirement(ruby_floor(version))
     end
@@ -67,6 +67,15 @@ module Wile
   # Renders a Gem::Specification file string from Gemspec metadata.
   # rubocop:disable-next Style/ClassAndModuleChildren
   class Gemspec::Renderer
+    def self.ruby_requirement(floor)
+      major = floor[/\d+/] || '4'
+      if floor.split('.').size >= 3
+        "'~> #{major}.0', '>= #{floor}'"
+      else
+        "'~> #{floor}'"
+      end
+    end
+
     def self.format_info(info)
       project = info.project
       user = info.username
@@ -79,6 +88,17 @@ module Wile
       ].join("\n")
     end
 
+    def self.render(spec, readme)
+      [
+        "Gem::Specification.new do |s|\n",
+        format_info(spec.info),
+        format_description(readme),
+        format_files(spec.files, spec.executables),
+        format_requirements(spec),
+        "end\n"
+      ].join
+    end
+
     def self.format_description(readme)
       <<-GEMSPEC
   ## DESCRIPTION ##
@@ -89,17 +109,6 @@ module Wile
     #{readme.description.gsub("\n", "\n    ")}
   DESCRIPTION
       GEMSPEC
-    end
-
-    def self.render(spec, readme)
-      [
-        "Gem::Specification.new do |s|\n",
-        format_info(spec.info),
-        format_description(readme),
-        format_files(spec.files, spec.executables),
-        format_requirements(spec),
-        "end\n"
-      ].join
     end
 
     def self.format_files(files, executables)
@@ -148,15 +157,6 @@ module Wile
               "s.requirements << '#{name}: #{version || '-'}'"
             end
       "  #{req}\n"
-    end
-
-    def self.ruby_requirement(floor)
-      major = floor[/\d+/] || '4'
-      if floor.split('.').size >= 3
-        "'~> #{major}.0', '>= #{floor}'"
-      else
-        "'~> #{floor}'"
-      end
     end
   end
   Gemspec.private_constant :Renderer

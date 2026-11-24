@@ -11,12 +11,6 @@ module Wile
 
     def red? = @red
 
-    def self.format_casgn(fullname, type)
-      prefix, sep, name = fullname.rpartition('::')
-      color = Colorizer.known_type?(type) ? :green : :magenta
-      "#{"#{prefix}#{sep}".light_blue}#{name.bold} #{type.colorize(color)}"
-    end
-
     def initialize(filenames, options)
       @red = false
       @colorizer = nil
@@ -32,22 +26,29 @@ module Wile
       [scope, "#{scope&.light_blue}#{sep&.light_blue}#{name.bold}"]
     end
 
+    def self.format_casgn(fullname, type)
+      prefix, sep, name = fullname.rpartition('::')
+      color = Colorizer.known_type?(type) ? :green : :magenta
+      "#{"#{prefix}#{sep}".light_blue}#{name.bold} #{type.colorize(color)}"
+    end
+
     def self.heading(file) = print "\n#{'#'.gray} #{file.bold}\n\n"
 
     private
 
     def dump_files(filenames) = filenames.each { dump_file(it) }
 
-    def content_casgn(line)
-      _, fullname, type = line.split
-      @colorizer.record_casgn(fullname, type)
-      puts Content.format_casgn(fullname, type)
-    end
-
     def dump_file(filename)
       Content.heading(filename)
       pp CodeStats.method_line_count(filename)
       CodeContent.generate(filename) { |line| puts line }
+    end
+
+    def content_attr(line)
+      fnm = line.split.last
+      @colorizer.record_attr(fnm)
+      _, label = Content.format_member(fnm)
+      puts "#{label} #{'0'.green}"
     end
 
     def display_file(filename, responds)
@@ -58,11 +59,10 @@ module Wile
       CodeContent.generate(filename) { |line| content_display(line.chomp) }
     end
 
-    def content_attr(line)
-      fnm = line.split.last
-      @colorizer.record_attr(fnm)
-      _, label = Content.format_member(fnm)
-      puts "#{label} #{'0'.green}"
+    def content_casgn(line)
+      _, fullname, type = line.split
+      @colorizer.record_casgn(fullname, type)
+      puts Content.format_casgn(fullname, type)
     end
 
     def content_def(line)
@@ -112,6 +112,8 @@ module Wile
 
     private_constant :RESERVED_WORDS, :CLRS
 
+    def self.known_type?(type) = TYPES.key?(type)
+
     def enter_def(scope, fnm)
       @scope = scope
       @mlc[fnm]
@@ -144,8 +146,6 @@ module Wile
       mth = name.strip[1..].to_sym
       RESERVED_WORDS.include?(mth) || Kernel.methods.include?(mth)
     end
-
-    def self.known_type?(type) = TYPES.key?(type)
 
     private
 
