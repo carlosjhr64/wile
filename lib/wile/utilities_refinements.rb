@@ -31,8 +31,8 @@ module Wile
       end
 
       def weird_filename!
-        return self if valid_encoding? &&
-                       split('/').reject(&:empty?).all? { ALLOWED.match?(it) }
+        parts = valid_encoding? ? split('/').reject(&:empty?) : []
+        return self if parts.any? && parts.all? { ALLOWED.match?(it) }
 
         raise "Weird filename: #{self}"
       end
