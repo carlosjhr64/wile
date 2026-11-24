@@ -65,6 +65,7 @@ DictionaryUpdater
 Digest
 Dir
 DisplayLists
+ENDLESS_DEF
 ENV
 EPIPE
 ERB

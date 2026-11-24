@@ -86,7 +86,8 @@ module Wile
       /^(?<pad>\s*)(?:(?<scope>[A-Z]\w*)\s*=\s*Struct\.new\b|
        [A-Z]\w*\s*=[^=~<>])/x => :casgn
     }.freeze
-    private_constant :MATCHERS
+    ENDLESS_DEF = /\A\s*def\s+[^\s(]+(?:\([^)]*\))?\s+=\s/
+    private_constant :MATCHERS, :ENDLESS_DEF
 
     def initialize(lines, func, tracker)
       @lines = lines
@@ -135,10 +136,9 @@ module Wile
 
     def store_method(name, dlevel, source)
       source.category(@tracker.category)
-      @state[:dlevel] = dlevel
-      @state[:name] = name
-      @state[:source] = source
+      @state.merge!(dlevel:, name:, source:)
       @state[:hash][name] = @func[source]
+      reset_method if ENDLESS_DEF.match?(@state[:line])
     end
 
     def finish_method
