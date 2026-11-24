@@ -63,74 +63,74 @@ module Wile
         warn 'Warning: README does not have Copyright'.yellow
       end
     end
+  end
 
-    # Helper class to update active console blocks in README lines.
-    class ConsoleBlocks
-      def initialize(lines, project)
-        @lines = lines
-        @project = project
-        @updated = []
-        @found = false
-      end
-
-      def self.run_console(cmd)
-        output = `./bin/#{cmd}`
-        output.end_with?("\n") ? output : "#{output}\n"
-      end
-
-      def update
-        process_lines
-        warn_missing unless @found
-        @updated
-      end
-
-      private
-
-      def warn_missing
-        warn 'Warning: README does not have an active console output'.yellow
-      end
-
-      def process_lines
-        index = 0
-        index = append_line(index) while index < @lines.length
-      end
-
-      def append_line(index)
-        @updated << @lines[index]
-        next_index = index + 1
-        console_start?(index) ? update_block(next_index) : next_index
-      end
-
-      def console_start?(index)
-        @lines[index]&.chomp == '```console' &&
-          target_cmd?(@lines[index + 1])
-      end
-
-      def target_cmd?(line)
-        line&.start_with?("$ #{@project} ") && line.chomp.end_with?(' #>>')
-      end
-
-      def update_block(cmd_index)
-        @found = true
-        replace_block(cmd_index)
-      end
-
-      def replace_block(cmd_index)
-        cmd = @lines[cmd_index].chomp[2..-5]
-        @updated << "$ #{cmd} #>>\n"
-        @updated << ConsoleBlocks.run_console(cmd)
-        skip_to_fence(cmd_index + 1)
-      end
-
-      def skip_to_fence(index)
-        index += 1 until fence?(index)
-        index
-      end
-
-      def fence?(index)
-        @lines[index]&.start_with?('```') || index >= @lines.length
-      end
+  # Helper class to update active console blocks in README lines.
+  # rubocop:disable-next Style/ClassAndModuleChildren
+  class Readme::ConsoleBlocks
+    def initialize(lines, project)
+      @lines = lines
+      @project = project
+      @updated = []
+      @found = false
     end
-    private_constant :ConsoleBlocks
+
+    def self.run_console(cmd)
+      output = `./bin/#{cmd}`
+      output.end_with?("\n") ? output : "#{output}\n"
+    end
+
+    def update
+      process_lines
+      warn_missing unless @found
+      @updated
+    end
+
+    private
+
+    def warn_missing
+      warn 'Warning: README does not have an active console output'.yellow
+    end
+
+    def process_lines
+      index = 0
+      index = append_line(index) while index < @lines.length
+    end
+
+    def append_line(index)
+      @updated << @lines[index]
+      next_index = index + 1
+      console_start?(index) ? update_block(next_index) : next_index
+    end
+
+    def console_start?(index)
+      @lines[index]&.chomp == '```console' &&
+        target_cmd?(@lines[index + 1])
+    end
+
+    def target_cmd?(line)
+      line&.start_with?("$ #{@project} ") && line.chomp.end_with?(' #>>')
+    end
+
+    def update_block(cmd_index)
+      @found = true
+      replace_block(cmd_index)
+    end
+
+    def replace_block(cmd_index)
+      cmd = @lines[cmd_index].chomp[2..-5]
+      @updated << "$ #{cmd} #>>\n"
+      @updated << self.class.run_console(cmd)
+      skip_to_fence(cmd_index + 1)
+    end
+
+    def skip_to_fence(index)
+      index += 1 until fence?(index)
+      index
+    end
+
+    def fence?(index)
+      @lines[index]&.start_with?('```') || index >= @lines.length
+    end
   end
 end
