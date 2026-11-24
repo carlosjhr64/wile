@@ -7,12 +7,19 @@ require_relative '../lib/wile/run'
 
 # Unit tests for Wile::Methods::MethodEntry.
 class TestUtMethodEntry < Test::Unit::TestCase
+  MockCdt = Struct.new(:filename, :deps, :dpts, :ext) do
+    def dependencies(_name) = deps
+    def dependants(_name) = dpts
+    def external(_name) = ext
+  end
+  private_constant :MockCdt
+
   def setup
     Wile.autoloads
   end
 
   def test_initialize_empty
-    entry = Wile::Methods::MethodEntry.new(mock_cdt('a.rb'), 'A#foo')
+    entry = Wile::Methods::MethodEntry.new(self.class.mock_cdt('a.rb'), 'A#foo')
     assert_equal 'a.rb', entry.filename
     assert_equal [], entry.dependencies
     assert_equal [], entry.dependants
@@ -20,14 +27,14 @@ class TestUtMethodEntry < Test::Unit::TestCase
   end
 
   def test_initialize_with_self_deps
-    cdt = mock_cdt('a.rb', deps: ['A#baz'], dpts: ['A#qux'])
+    cdt = self.class.mock_cdt('a.rb', deps: ['A#baz'], dpts: ['A#qux'])
     entry = Wile::Methods::MethodEntry.new(cdt, 'A#foo')
     assert_equal ['a.rb'], entry.dependencies
     assert_equal ['a.rb'], entry.dependants
   end
 
   def test_initialize_for_attr
-    entry = Wile::Methods::MethodEntry.new(mock_cdt('a.rb'))
+    entry = Wile::Methods::MethodEntry.new(self.class.mock_cdt('a.rb'))
     assert_equal 'a.rb', entry.filename
     assert_equal [], entry.dependencies
     assert_equal [], entry.dependants
@@ -35,21 +42,15 @@ class TestUtMethodEntry < Test::Unit::TestCase
   end
 
   def test_add_dependency
-    caller_entry = Wile::Methods::MethodEntry.new(mock_cdt('a.rb'), 'A#foo')
-    callee_entry = Wile::Methods::MethodEntry.new(mock_cdt('b.rb'), 'B#bar')
+    kls = self.class
+    caller_entry = Wile::Methods::MethodEntry.new(kls.mock_cdt('a.rb'), 'A#foo')
+    callee_entry = Wile::Methods::MethodEntry.new(kls.mock_cdt('b.rb'), 'B#bar')
     caller_entry.add_dependency(callee_entry)
     assert_equal ['b.rb'], caller_entry.dependencies
     assert_equal ['a.rb'], callee_entry.dependants
   end
 
-  private
-
-  # :reek:UtilityFunction
-  def mock_cdt(file, deps: [], dpts: [], ext: ['B#bar'])
-    Struct.new(:filename, :deps, :dpts, :ext) do
-      def dependencies(_name) = deps
-      def dependants(_name) = dpts
-      def external(_name) = ext
-    end.new(file, deps, dpts, ext)
+  def self.mock_cdt(file, deps: [], dpts: [], ext: ['B#bar'])
+    MockCdt.new(file, deps, dpts, ext)
   end
 end

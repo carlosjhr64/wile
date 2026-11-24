@@ -7,9 +7,17 @@ require_relative '../lib/wile/run'
 
 # Unit tests for Wile::Methods.
 class TestUtMethods < Test::Unit::TestCase
+  class << self
+    attr_reader :methods
+
+    def startup
+      Wile.autoloads
+      @methods = Wile::Methods.new
+    end
+  end
+
   def setup
-    Wile.autoloads
-    @methods = Wile::Methods.new
+    @methods = self.class.methods
   end
 
   def test_known_constants_include_constant_assignments
@@ -45,6 +53,8 @@ class TestUtMethods < Test::Unit::TestCase
     assert_true @methods.undefined_methods.include?(
       'CodeData.not_a_method_anywhere'
     )
+  ensure
+    @methods.undefined_methods.delete('CodeData.not_a_method_anywhere')
   end
 
   private

@@ -2,6 +2,7 @@
 # frozen_string_literal: true
 
 require 'fileutils'
+require 'tmpdir'
 require_relative 'test_helper'
 require_relative '../lib/wile'
 require_relative '../lib/wile/usage_error'
@@ -100,7 +101,10 @@ class TestUtUsage < Test::Unit::TestCase
       Wile::Usage.new(opt, 'msg', 'invalid_string_validator')
     end
   end
+end
 
+# Unit tests for Wile::UsageError.
+class TestUtUsageError < Test::Unit::TestCase
   def test_usage_error_initialize_prepends_help_for_task_key
     error = Wile::UsageError.new('list: too many arguments')
     assert_includes error.message, '## wile list ##'
@@ -113,12 +117,15 @@ class TestUtUsage < Test::Unit::TestCase
   end
 
   def test_usage_error_initialize_undocumented_key_passes_through
-    path = '.tasks/test_undocumented.rb'
-    File.write(path, "# No help header\nputs 123\n")
-    error = Wile::UsageError.new('test_undocumented: custom error')
-    assert_equal 'test_undocumented: custom error', error.message
-  ensure
-    FileUtils.rm_f(path)
+    Dir.mktmpdir do |dir|
+      FileUtils.mkdir(File.join(dir, '.tasks'))
+      File.write(File.join(dir, '.tasks/test_undocumented.rb'),
+                 "# No help header\nputs 123\n")
+      error = Dir.chdir(dir) do
+        Wile::UsageError.new('test_undocumented: custom error')
+      end
+      assert_equal 'test_undocumented: custom error', error.message
+    end
   end
 
   def test_usage_error_initialize_inherits_error_info_message

@@ -32,4 +32,11 @@ class TestUtGemInfo < Test::Unit::TestCase
     assert_equal(-1, a1 <=> a2)
     assert_equal 0, a1 <=> a1.dup
   end
+
+  def test_spaceship_with_nil_name
+    klass = Wile::Dependencies::GemInfo
+    named = klass.new('alpha', '1.0.0', :gem, '/a', 'alpha')
+    missing = klass.new(nil, nil, nil, nil, 'missing')
+    assert_nothing_raised { missing <=> named }
+  end
 end

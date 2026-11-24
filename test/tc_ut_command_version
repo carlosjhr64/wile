@@ -66,7 +66,7 @@ class TestUtCommandVersion < Test::Unit::TestCase
   def test_guess
     assert_match(/\A\d+\.\d+/, @cv.guess('git'))
     assert_match(/\A\d+\.\d+/, @cv.guess('clear'))
-    assert_match(/\A\d+\.\d+/, @cv.guess('pandoc'))
+    assert_match(/\A\d+\.\d+/, @cv.guess('ruby'))
     assert_match(/\A[12]\d{3}\z/, @cv.guess('kill'))
     assert_nil @cv.guess('nonexistent_cmd_xyz')
   end
@@ -123,5 +123,29 @@ class TestUtCommandVersion < Test::Unit::TestCase
     yield
   ensure
     ENV['HOME'] = orig
+  end
+end
+
+# Unit tests for Wile::CommandVersion with injected probes.
+class TestUtCommandVersionProbe < Test::Unit::TestCase
+  def setup = Wile.autoloads
+
+  def test_probe_injection
+    cv = Wile::CommandVersion.new('unused.tsv', probe: fake_probe)
+    assert_equal '1.2', cv['tool']
+    assert_nil cv['boom']
+    assert_equal '9.9', cv.guess('fallback')
+    assert_nil cv.guess('boom')
+  end
+
+  private
+
+  def fake_probe
+    probe = Object.new
+    def probe.parse_tsv(_) = { 'tool' => 'tool -v', 'boom' => 'boom -v' }.freeze
+    def probe.probing_string(cmd) = cmd.start_with?('boom') ? raise('x') : '1.2'
+    def probe.guessing_flag(cmd) = cmd == 'boom' ? raise('x') : nil
+    def probe.man(cmd) = cmd == 'fallback' ? '9.9' : nil
+    probe
   end
 end

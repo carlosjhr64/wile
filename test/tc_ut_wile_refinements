@@ -3,12 +3,11 @@
 
 require_relative 'test_helper'
 require 'stringio'
-require 'tempfile'
+require 'tmpdir'
 require_relative '../lib/wile'
 require_relative '../lib/wile/wile_refinements'
 
-# Unit tests for Wile::WileRefinements.
-# rubocop:disable-next Metrics/ClassLength
+# Unit tests for Wile::WileRefinements (Array, Enumerable, File, Object).
 class TestUtWileRefinements < Test::Unit::TestCase
   using Wile::WileRefinements
 
@@ -49,10 +48,8 @@ class TestUtWileRefinements < Test::Unit::TestCase
     ENV['TERM'] = orig if orig
   end
 
-  # :reek:FeatureEnvy
   def test_enumerable_first_truthy_value
-    numbers = [1, 2, 3, 4]
-    found = numbers.first_truthy_value { |num| num > 2 ? num * 10 : nil }
+    found = [1, 2, 3, 4].first_truthy_value { |num| num > 2 ? num * 10 : nil }
     assert_equal 30, found
   end
 
@@ -61,23 +58,19 @@ class TestUtWileRefinements < Test::Unit::TestCase
     assert_nil none
   end
 
-  # :reek:FeatureEnvy :reek:TooManyStatements
   def test_file_match_bang
-    Tempfile.create('test_match') do |file|
-      file.puts('version = 1.2.3')
-      file.flush
-      path = file.path
+    Dir.mktmpdir do |dir|
+      path = File.join(dir, 'match.txt')
+      File.write(path, "version = 1.2.3\n")
       assert_equal '1.2.3', File.match!(path, /\d+\.\d+\.\d+/)[0]
       assert_raise(RuntimeError) { File.match!(path, /nonexistent/) }
     end
   end
 
-  # :reek:FeatureEnvy :reek:TooManyStatements
   def test_file_sub_bang
-    Tempfile.create('test_sub') do |file|
-      file.puts('name: old_name')
-      file.flush
-      path = file.path
+    Dir.mktmpdir do |dir|
+      path = File.join(dir, 'sub.txt')
+      File.write(path, "name: old_name\n")
       File.sub!(path, /old_name/, 'new_name')
       assert_equal "name: new_name\n", File.read(path)
     end
@@ -87,9 +80,15 @@ class TestUtWileRefinements < Test::Unit::TestCase
     result = 5.as { |val| val * 3 }
     assert_equal 15, result
   end
+end
+
+# Unit tests for Wile::WileRefinements String helpers.
+class TestUtWileRefinementsString < Test::Unit::TestCase
+  using Wile::WileRefinements
 
   def test_string_camel_case
     assert_equal 'helloWorldTest', 'hello_world_test'.camel_case
+    assert_equal '', ''.camel_case
   end
 
   def test_string_pascal_case

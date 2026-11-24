@@ -64,13 +64,12 @@ class TestUtGemspec < Test::Unit::TestCase
 
   def test_ruby_floor_and_requirement
     assert_equal '4.0.0', @gemspec.send(:ruby_floor, '4.0.7')
-    assert_equal "'~> 4.0', '>= 4.0.0'",
-                 @gemspec.send(:ruby_requirement, '4.0.7')
+    assert_equal "'~> 4.0', '>= 4.0.0'", @gemspec.ruby_requirement('4.0.7')
     Dir.mktmpdir do |tmp|
       spec = allocated_gemspec(tmp)
       File.write(File.join(tmp, '.ruby-version-floor'), "4.0\n")
       assert_equal '4.0', spec.send(:ruby_floor, '4.0.7')
-      assert_equal "'~> 4.0'", spec.send(:ruby_requirement, '4.0.7')
+      assert_equal "'~> 4.0'", spec.ruby_requirement('4.0.7')
     end
   end
 

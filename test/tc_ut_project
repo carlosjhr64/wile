@@ -20,6 +20,7 @@ class TestUtProject < Test::Unit::TestCase
     assert_includes files, 'project.rb'
     assert_includes files, 'info.rb'
     assert_equal files.size, found.size
+    assert_equal files, Wile::Project.files('lib/wile/autoloads/')
   end
 
   def test_pfiles

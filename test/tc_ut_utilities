@@ -80,6 +80,23 @@ class TestUtUtilities < Test::Unit::TestCase
     end
   end
 
+  def test_which_and_missing_commands
+    assert_not_nil Wile::Utilities.which('ruby')
+    assert_nil Wile::Utilities.which('nonexistent_cmd_xyz_123')
+    assert_true Wile::Utilities.command_available?('ruby')
+    assert_false Wile::Utilities.command_available?('nonexistent_cmd_xyz_123')
+    assert_equal ['nonexistent_cmd_xyz_123'],
+                 Wile::Utilities.missing_commands(%w[ruby
+                                                     nonexistent_cmd_xyz_123])
+  end
+
+  def test_version_ok_and_gem_installed
+    assert_true Wile::Utilities.version_ok?('4.0.7', '4.0')
+    assert_false Wile::Utilities.version_ok?('3.4.0', '4.0')
+    assert_true Wile::Utilities.gem_installed?('colorize')
+    assert_false Wile::Utilities.gem_installed?('color.ze')
+  end
+
   private
 
   def capture_exit(&)

@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+require 'stringio'
 require 'tmpdir'
 require_relative 'test_helper'
 require_relative '../lib/wile'
@@ -57,6 +58,7 @@ class TestUtReadme < Test::Unit::TestCase
       info = INFO_STRUCT.new('sample', '2.0.0', 2026, 'NewAuthor', file)
       readme = Wile::Readme.new(info)
       updated = with_quiet_io { readme.update }
+      assert_include updated, '# Sample Project 2.0.0'
       assert_include updated, 'Copyright (c) 2026 NewAuthor'
       with_quiet_io { readme.update! }
       assert_equal updated, File.read(file)
@@ -122,16 +124,12 @@ class TestUtReadme < Test::Unit::TestCase
   end
 
   def capture_stderr
-    orig_err = $stderr.dup
-    pipe_r, pipe_w = IO.pipe
-    $stderr.reopen(pipe_w)
+    orig_err = $stderr
+    $stderr = StringIO.new
     yield
-    $stderr.reopen(orig_err)
-    pipe_w.close
-    pipe_r.read
+    $stderr.string
   ensure
-    $stderr.reopen(orig_err)
-    orig_err.close
+    $stderr = orig_err
   end
 
   def with_quiet_io

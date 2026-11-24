@@ -2,6 +2,7 @@
 # frozen_string_literal: true
 
 require 'fileutils'
+require 'tmpdir'
 require_relative 'test_helper'
 require_relative '../lib/wile'
 require_relative '../lib/wile/help'
@@ -40,11 +41,7 @@ class TestUtHelp < Test::Unit::TestCase
   end
 
   def test_class_brackets_undocumented_task_returns_nil
-    path = '.tasks/test_undocumented.rb'
-    File.write(path, "# No help header\nputs 123\n")
-    assert_nil Wile::Help[:test_undocumented]
-  ensure
-    FileUtils.rm_f(path)
+    with_undocumented_task { assert_nil Wile::Help[:test_undocumented] }
   end
 
   def test_class_brackets_raises_argument_error_on_nonexistent_task
@@ -58,11 +55,10 @@ class TestUtHelp < Test::Unit::TestCase
   end
 
   def test_class_usage_undocumented_task_fallback
-    path = '.tasks/test_undocumented.rb'
-    File.write(path, "# No help header\nputs 123\n")
-    assert_equal 'wile test_undocumented', Wile::Help.usage(:test_undocumented)
-  ensure
-    FileUtils.rm_f(path)
+    with_undocumented_task do
+      assert_equal 'wile test_undocumented',
+                   Wile::Help.usage(:test_undocumented)
+    end
   end
 
   def test_help_parser_csv_conversion
@@ -93,5 +89,16 @@ class TestUtHelp < Test::Unit::TestCase
     assert_kind_of Float, opts.interval
     assert_equal 2.0, opts.timeout
     assert_kind_of Float, opts.timeout
+  end
+
+  private
+
+  def with_undocumented_task(&)
+    Dir.mktmpdir do |dir|
+      FileUtils.mkdir(File.join(dir, '.tasks'))
+      File.write(File.join(dir, '.tasks/test_undocumented.rb'),
+                 "# No help header\nputs 123\n")
+      Dir.chdir(dir, &)
+    end
   end
 end

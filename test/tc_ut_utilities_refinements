@@ -32,5 +32,7 @@ class TestUtUtilitiesRefinements < Test::Unit::TestCase
     assert_raise(RuntimeError) { '-flag'.weird_filename! }
     assert_raise(RuntimeError) { 'dir/-flag'.weird_filename! }
     assert_raise(RuntimeError) { "bad\xFFname".weird_filename! }
+    assert_raise(RuntimeError) { ''.weird_filename! }
+    assert_raise(RuntimeError) { '///'.weird_filename! }
   end
 end
