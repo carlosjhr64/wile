@@ -103,10 +103,10 @@ module Wile
       <<-GEMSPEC
   ## DESCRIPTION ##
   s.summary  = <<~SUMMARY
-    #{readme.summary.gsub("\n", "\n    ")}
+    #{readme.summary.gsub(/\n(?=.)/, "\n    ")}
   SUMMARY
   s.description = <<~DESCRIPTION
-    #{readme.description.gsub("\n", "\n    ")}
+    #{readme.description.gsub(/\n(?=.)/, "\n    ")}
   DESCRIPTION
       GEMSPEC
     end

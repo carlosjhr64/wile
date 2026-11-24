@@ -15,7 +15,7 @@ Gem::Specification.new do |s|
   s.description = <<~DESCRIPTION
     `Wile` is a prescriptive task dispatcher for Ruby gem projects,
     built around a living project template.
-    
+
     It scaffolds new projects from the template, keeps existing ones
     aligned with it, and automates the rest of the workflow -- gemspec
     upkeep, testing, and release. There is no configuration file: your
