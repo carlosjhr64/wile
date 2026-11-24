@@ -25,7 +25,8 @@ module Wile
   end
 
   # Copies matching template files from cache into the project.
-  class Copier
+  # rubocop:disable-next Style/ClassAndModuleChildren
+  class Tasks::Copier
     def initialize(cache, match, options)
       @cache = cache
       @match = match
@@ -47,4 +48,5 @@ module Wile
       @match ? p2c.select { |pfile, _| pfile.match?(@match) } : p2c
     end
   end
+  Tasks.private_constant :Copier
 end

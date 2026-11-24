@@ -19,7 +19,8 @@ module Wile
   end
 
   # Greps project Ruby files for NOTE comments.
-  class NoteLister
+  # rubocop:disable-next Style/ClassAndModuleChildren
+  class Tasks::NoteLister
     using UtilitiesRefinements
 
     def initialize(match = nil)
@@ -32,7 +33,7 @@ module Wile
     end
 
     def display
-      selected_files.each { NoteLister.display_file(it) }
+      selected_files.each { self.class.display_file(it) }
     end
 
     private
@@ -44,4 +45,5 @@ module Wile
       files.grep(Regexp.union(@match.map { Regexp.new(it) }))
     end
   end
+  Tasks.private_constant :NoteLister
 end

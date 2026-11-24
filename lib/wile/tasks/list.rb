@@ -24,7 +24,8 @@ module Wile
   end
 
   # Formats and displays matching Wile tasks.
-  class TaskLister
+  # rubocop:disable-next Style/ClassAndModuleChildren
+  class Tasks::TaskLister
     FORMATS = {
       'USAGE' => :puts_usage,
       'DICTIONARY' => :puts_dictionary,
@@ -54,12 +55,12 @@ module Wile
     private
 
     def puts_dictionary(task)
-      _cmd, name, _args, comment = TaskLister.parse_usage(task)
+      _cmd, name, _args, comment = self.class.parse_usage(task)
       puts "+ #{name}: #{comment || '-'}"
     end
 
     def puts_usage(task)
-      cmd, name, args, comment = TaskLister.parse_usage(task)
+      cmd, name, args, comment = self.class.parse_usage(task)
       puts(comment ? "# #{comment.capitalize}:".gray : '# ---'.gray)
       puts ["  #{cmd}", name.blue.bold, args].compact.join('  ')
     end
@@ -93,4 +94,5 @@ module Wile
       puts task
     end
   end
+  Tasks.private_constant :TaskLister
 end

@@ -21,7 +21,8 @@ module Wile
   end
 
   # Checks and updates the project .dictionary file.
-  class DictionaryUpdater
+  # rubocop:disable-next Style/ClassAndModuleChildren
+  class Tasks::DictionaryUpdater
     def initialize(options)
       @options = options
     end
@@ -42,7 +43,7 @@ module Wile
     def ok?
       return true if system 'test/tc_dictionary --verbose=silent'
 
-      DictionaryUpdater.diff
+      self.class.diff
       return false unless update?
 
       FileUtils.cp 'tmp/.dictionary', '.dictionary'
@@ -54,4 +55,5 @@ module Wile
         (@options.yes? || Utilities.confirm?('Update dictionary?'))
     end
   end
+  Tasks.private_constant :DictionaryUpdater
 end

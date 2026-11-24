@@ -23,7 +23,8 @@ module Wile
   end
 
   # Lists or opens matching project files in Neovim.
-  class NvimLauncher
+  # rubocop:disable-next Style/ClassAndModuleChildren
+  class Tasks::NvimLauncher
     def initialize(match, options)
       @match = match
       @options = options
@@ -55,4 +56,5 @@ module Wile
       exec('nvim', *files)
     end
   end
+  Tasks.private_constant :NvimLauncher
 end

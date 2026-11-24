@@ -24,7 +24,8 @@ module Wile
   end
 
   # Compares installed gems across rbenv Ruby versions and installs missing.
-  class GemChecker
+  # rubocop:disable-next Style/ClassAndModuleChildren
+  class Tasks::GemChecker
     def self.rbenv_versions_prefix
       prefix = File.join(Utilities.rbenv_root, 'versions')
       gemcmd = `rbenv which gem 2>/dev/null`.strip
@@ -36,7 +37,7 @@ module Wile
 
     def initialize(options)
       @options = options
-      @prefix = GemChecker.rbenv_versions_prefix
+      @prefix = self.class.rbenv_versions_prefix
     end
 
     def self.gem_majors(str)
@@ -96,7 +97,7 @@ module Wile
 
     def run
       inventory = build_inventory
-      missing = GemChecker.missing(inventory)
+      missing = self.class.missing(inventory)
       return puts 'OK'.green if missing.empty?
 
       prompt_and_install(missing, inventory.keys - [RUBY_VERSION])
@@ -112,11 +113,11 @@ module Wile
 
     private
 
-    def prompt_and_install(missing, searched)
-      GemChecker.report(missing, searched)
+    def prompt_and_install(missing, searched, kls = self.class)
+      kls.report(missing, searched)
       Utilities.confirm?('Would you like to install them all?') ||
         raise('Aborted.')
-      missing.each_key { |name, major| GemChecker.install_gem(name, major) }
+      missing.each_key { |name, major| kls.install_gem(name, major) }
       puts 'OK'.green
     end
 
@@ -124,7 +125,7 @@ module Wile
       target_versions.each_with_object({}) do |ver, inventory|
         gemcmd = File.join(@prefix, ver, 'bin/gem')
         if File.executable?(gemcmd)
-          inventory[ver] = GemChecker.collect_gems(gemcmd)
+          inventory[ver] = self.class.collect_gems(gemcmd)
         end
       end
     end
@@ -133,8 +134,9 @@ module Wile
       versions = `rbenv versions --bare --skip-aliases`.lines(chomp: true)
       return (versions + [RUBY_VERSION]).uniq if @options.all?
 
-      prev = GemChecker.previous_version(versions)
+      prev = self.class.previous_version(versions)
       [RUBY_VERSION, prev].compact.uniq
     end
   end
+  Tasks.private_constant :GemChecker
 end

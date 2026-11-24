@@ -31,7 +31,8 @@ module Wile
   end
 
   # Runs method-order optimization or CodeDataFunction subcommands.
-  class OrderRunner
+  # rubocop:disable-next Style/ClassAndModuleChildren
+  class Tasks::OrderRunner
     SPECIALS = %i[dump index isolate total qc].freeze
     MODES = (OrderOptimizer::SORTS + SPECIALS).freeze
 
@@ -75,8 +76,9 @@ module Wile
     end
 
     def format_move(name, old, idx)
-      moved = OrderRunner.delta(@names.index(name), idx)
-      shifted = OrderRunner.delta(idx, @optimized.index(old))
+      kls = self.class
+      moved = kls.delta(@names.index(name), idx)
+      shifted = kls.delta(idx, @optimized.index(old))
       "#{name.red}\t#{moved}\t#{old} #{shifted}"
     end
 
@@ -87,4 +89,5 @@ module Wile
       puts format_move(name, old, idx)
     end
   end
+  Tasks.private_constant :OrderRunner
 end

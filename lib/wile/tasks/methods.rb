@@ -27,7 +27,8 @@ module Wile
   end
 
   # Displays categorized method lists.
-  class DisplayLists
+  # rubocop:disable-next Style/ClassAndModuleChildren
+  class Tasks::DisplayLists
     using WileRefinements
 
     LISTS = %i[
@@ -83,7 +84,7 @@ module Wile
 
     def undefined
       list = @methods.undefined_methods.select { match?(it) }.sort
-      list.map! { DisplayLists.label_undefined(it) }
+      list.map! { self.class.label_undefined(it) }
       display_list(list, '## Undefined ##'.blue)
     end
 
@@ -149,4 +150,5 @@ module Wile
       puts
     end
   end
+  Tasks.private_constant :DisplayLists
 end

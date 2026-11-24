@@ -28,7 +28,8 @@ module Wile
   end
 
   # Updates README, gemspec, and manpage files and reports git diffs.
-  class Updater
+  # rubocop:disable-next Style/ClassAndModuleChildren
+  class Tasks::Updater
     UPDATERS = {
       'README' => Readme,
       'gemspec' => Gemspec,
@@ -61,4 +62,5 @@ module Wile
       paths
     end
   end
+  Tasks.private_constant :Updater
 end

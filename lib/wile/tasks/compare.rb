@@ -23,7 +23,8 @@ module Wile
   end
 
   # Compares project files against the Wile template cache.
-  class Comparer
+  # rubocop:disable-next Style/ClassAndModuleChildren
+  class Tasks::Comparer
     using WileRefinements
     using UtilitiesRefinements
 
@@ -65,7 +66,7 @@ module Wile
     def p2c_and_missing
       p2c, pfiles = Cache.new.as { [it.p2c_hash, it.pfiles] }
       found = (keys = p2c.keys) & pfiles
-      [p2c.slice(*found), Comparer.missing_files(keys, found)]
+      [p2c.slice(*found), self.class.missing_files(keys, found)]
     end
 
     def diff_flags
@@ -134,4 +135,5 @@ module Wile
       end
     end
   end
+  Tasks.private_constant :Comparer
 end

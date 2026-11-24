@@ -25,7 +25,8 @@ module Wile
   end
 
   # Builds and writes a project Gemfile from gemspec dependencies.
-  class GemfileWriter
+  # rubocop:disable-next Style/ClassAndModuleChildren
+  class Tasks::GemfileWriter
     def initialize(gemspec = Gemspec.new, file = 'Gemfile', options = nil)
       @gemspec = gemspec
       @file = file
@@ -43,8 +44,9 @@ module Wile
     private
 
     def content
-      run = GemfileWriter.format_gems(@gemspec.rungems)
-      dev = GemfileWriter.format_gems(@gemspec.devgems) - run
+      kls = self.class
+      run = kls.format_gems(@gemspec.rungems)
+      dev = kls.format_gems(@gemspec.devgems) - run
       [
         "source 'https://rubygems.org'",
         '## runtime ##',
@@ -54,4 +56,5 @@ module Wile
       ].join("\n") << "\n"
     end
   end
+  Tasks.private_constant :GemfileWriter
 end

@@ -22,7 +22,8 @@ module Wile
   end
 
   # Builds and installs the current project gem locally.
-  class Installer
+  # rubocop:disable-next Style/ClassAndModuleChildren
+  class Tasks::Installer
     def initialize(options, gmu = GemUtils.new, git = Git)
       @options = options
       @gmu = gmu
@@ -48,4 +49,5 @@ module Wile
       @gmu.install! && @gmu.rm_pkg
     end
   end
+  Tasks.private_constant :Installer
 end

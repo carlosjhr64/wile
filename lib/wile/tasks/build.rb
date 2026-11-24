@@ -21,7 +21,8 @@ module Wile
   end
 
   # Verifies project state and builds the gem package.
-  class Builder
+  # rubocop:disable-next Style/ClassAndModuleChildren
+  class Tasks::Builder
     def initialize(options, gmu = GemUtils.new, git = Git)
       @options = options
       @gmu = gmu
@@ -41,4 +42,5 @@ module Wile
       @gmu.ready!
     end
   end
+  Tasks.private_constant :Builder
 end

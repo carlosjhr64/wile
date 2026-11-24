@@ -22,7 +22,8 @@ module Wile
   end
 
   # Orchestrates gem publication, archiving, and git tagging.
-  class Publisher
+  # rubocop:disable-next Style/ClassAndModuleChildren
+  class Tasks::Publisher
     def initialize(version, gmu = GemUtils.new)
       @version = version
       @gmu = gmu
@@ -62,4 +63,5 @@ module Wile
       Git.push!
     end
   end
+  Tasks.private_constant :Publisher
 end

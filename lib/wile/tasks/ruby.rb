@@ -22,7 +22,8 @@ module Wile
   end
 
   # Lists and filters project Ruby files.
-  class RubyLister
+  # rubocop:disable-next Style/ClassAndModuleChildren
+  class Tasks::RubyLister
     def initialize(match = [])
       @match = match
     end
@@ -33,4 +34,5 @@ module Wile
       end
     end
   end
+  Tasks.private_constant :RubyLister
 end

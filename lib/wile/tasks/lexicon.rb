@@ -21,7 +21,8 @@ module Wile
   end
 
   # Checks and updates the project .lexicon file.
-  class LexiconUpdater
+  # rubocop:disable-next Style/ClassAndModuleChildren
+  class Tasks::LexiconUpdater
     def initialize(options)
       @options = options
     end
@@ -42,7 +43,7 @@ module Wile
     def ok?
       return true if system 'test/tc_lexicon --verbose=silent'
 
-      LexiconUpdater.diff
+      self.class.diff
       return false unless update?
 
       FileUtils.cp 'tmp/.lexicon', '.lexicon'
@@ -54,4 +55,5 @@ module Wile
         (@options.yes? || Utilities.confirm?('Update lexicon?'))
     end
   end
+  Tasks.private_constant :LexiconUpdater
 end

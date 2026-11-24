@@ -28,7 +28,8 @@ module Wile
   end
 
   # Lists project unit tests and Wile template quality gates.
-  class TestLister
+  # rubocop:disable-next Style/ClassAndModuleChildren
+  class Tasks::TestLister
     SCOPES = %w[project wile all].freeze
 
     def initialize(args, options)
@@ -70,7 +71,7 @@ module Wile
     def load_groups
       cached = Cache.new.p2c_hash.keys.grep(%r{^test/tc_})
       existing = Dir.glob('test/tc_*')
-      project = TestLister.order_custom(existing - cached)
+      project = self.class.order_custom(existing - cached)
       wile = (cached & existing).sort
       [filter_matching(project), filter_matching(wile)]
     end
@@ -109,4 +110,5 @@ module Wile
       puts heading, tests if tests.any?
     end
   end
+  Tasks.private_constant :TestLister
 end

@@ -25,7 +25,8 @@ module Wile
   end
 
   # Runs project test suites and reports elapsed time.
-  class TestRunner
+  # rubocop:disable-next Style/ClassAndModuleChildren
+  class Tasks::TestRunner
     def initialize(options, filematch = nil, methodmatch = nil)
       @options = options
       @filematch = filematch
@@ -52,4 +53,5 @@ module Wile
                  quiet: @options.quiet?)
     end
   end
+  Tasks.private_constant :TestRunner
 end

@@ -21,7 +21,8 @@ module Wile
   end
 
   # Computes and writes bumped project versions.
-  class Bumper
+  # rubocop:disable-next Style/ClassAndModuleChildren
+  class Tasks::Bumper
     using WileRefinements
 
     BUMPS = {
@@ -42,7 +43,7 @@ module Wile
     end
 
     def bump
-      write_version(Bumper.bumped(@info.version, @type, @info.now))
+      write_version(self.class.bumped(@info.version, @type, @info.now))
     end
 
     private
@@ -56,4 +57,5 @@ module Wile
       end
     end
   end
+  Tasks.private_constant :Bumper
 end

@@ -22,7 +22,8 @@ module Wile
   end
 
   # Displays TODO.md or greps project Ruby files for TODO comments.
-  class TodoLister
+  # rubocop:disable-next Style/ClassAndModuleChildren
+  class Tasks::TodoLister
     using UtilitiesRefinements
 
     def initialize(match = nil)
@@ -38,7 +39,7 @@ module Wile
       return system('colora', '--on=^#\\sTODO', '--off=^#', 'TODO.md') if
         File.file?('TODO.md') && !@match
 
-      selected_files.each { TodoLister.display_file(it) }
+      selected_files.each { self.class.display_file(it) }
     end
 
     private
@@ -50,4 +51,5 @@ module Wile
       files.grep(Regexp.union(@match.map { Regexp.new(it) }))
     end
   end
+  Tasks.private_constant :TodoLister
 end

@@ -195,9 +195,10 @@ class TestUtTasksExtra < Test::Unit::TestCase
   include UtTasksHelpers
 
   def test_review_files
-    assert_equal ['lib/wile.rb'], Wile::Review.review_files('lib/wile.rb')
-    assert_raise(RuntimeError) { Wile::Review.review_files('nonexistent_xyz') }
-    rev = Wile::Review.allocate
+    kls = Wile::Tasks.const_get(:Review)
+    assert_equal ['lib/wile.rb'], kls.review_files('lib/wile.rb')
+    assert_raise(RuntimeError) { kls.review_files('nonexistent_xyz') }
+    rev = kls.allocate
     rev.instance_variable_set(:@files, ['lib/wile.rb'])
     rev.instance_variable_set(:@index, 0)
     rev.send(:review_response_cases, 'R')
@@ -205,7 +206,7 @@ class TestUtTasksExtra < Test::Unit::TestCase
   end
 
   def test_review_choice
-    rev = Wile::Review.allocate
+    rev = Wile::Tasks.const_get(:Review).allocate
     rev.instance_variable_set(:@options, fake_options([]))
     old_stdin = $stdin
     $stdin = StringIO.new("q\n")
@@ -216,15 +217,15 @@ class TestUtTasksExtra < Test::Unit::TestCase
   end
 
   def test_gemcheck_logic
+    kls = Wile::Tasks.const_get(:GemChecker)
     inventory = { RUBY_VERSION => { 'rake' => [12] },
                   '3.4.0' => { 'rake' => [12, 13], 'pry' => [0] } }
-    missing = Wile::GemChecker.missing(inventory)
+    missing = kls.missing(inventory)
     assert_equal %w[3.4.0], missing[['rake', 13]]
     assert_equal %w[3.4.0], missing[['pry', 0]]
-    assert_equal [0, 1], Wile::GemChecker.gem_majors('(1.2.3, 0.9.0)')
-    vers = %w[3.2.0 3.3.0 3.4.0 4.0.0]
-    assert_equal '3.4.0', Wile::GemChecker.previous_version(vers, '4.0.0')
-    out = capture_stdout { Wile::GemChecker.report(missing, ['3.4.0']) }
+    assert_equal [0, 1], kls.gem_majors('(1.2.3, 0.9.0)')
+    assert_equal '3.4.0', kls.previous_version(%w[3.2.0 3.4.0 4.0.0], '4.0.0')
+    out = capture_stdout { kls.report(missing, ['3.4.0']) }
     assert_match(/pry \(~> 0\):\s+3\.4\.0/, out.uncolorize)
   end
 
@@ -252,11 +253,12 @@ class TestUtTasksExtra < Test::Unit::TestCase
   end
 
   def test_bump_flow
+    kls = Wile::Tasks.const_get(:Bumper)
     now = Time.new(2026, 11, 14)
-    assert_equal '0.5.261114', Wile::Bumper.bumped('0.5.260101', nil, now)
-    assert_equal '0.5.261114', Wile::Bumper.bumped('0.5.260101', 'build', now)
-    assert_equal '0.6.261114', Wile::Bumper.bumped('0.5.260101', 'minor', now)
-    assert_equal '1.0.261114', Wile::Bumper.bumped('0.5.260101', 'major', now)
+    assert_equal '0.5.261114', kls.bumped('0.5.260101', nil, now)
+    assert_equal '0.5.261114', kls.bumped('0.5.260101', 'build', now)
+    assert_equal '0.6.261114', kls.bumped('0.5.260101', 'minor', now)
+    assert_equal '1.0.261114', kls.bumped('0.5.260101', 'major', now)
     Dir.mktmpdir { |dir| verify_bump_in_dir(dir, now) }
   end
 

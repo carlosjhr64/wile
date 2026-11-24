@@ -19,7 +19,8 @@ module Wile
   end
 
   # Formats and prints runtime, development, and OS dependency sections.
-  class DependencyReport
+  # rubocop:disable-next Style/ClassAndModuleChildren
+  class Tasks::DependencyReport
     def initialize(dpc = Dependencies.new)
       @dpc = dpc
     end
@@ -40,7 +41,7 @@ module Wile
 
     def display_section(title, list)
       puts title.blue
-      list.sort.each { DependencyReport.display_entry(it) }
+      list.sort.each { self.class.display_entry(it) }
     end
 
     def sections
@@ -53,4 +54,5 @@ module Wile
       }
     end
   end
+  Tasks.private_constant :DependencyReport
 end

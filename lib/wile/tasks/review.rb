@@ -22,12 +22,13 @@ module Wile
         raise "NOINPUT: Missing root files: #{missing.join(', ')}"
       end
       target ||= Usage.new(options, *REVIEW_USAGE).args&.first
-      Review.new(options, target:).run
+      Review.new(options, Review.review_files(target)).run
     end
   end
 
   # This class is used to run review.
-  class Review
+  # rubocop:disable-next Style/ClassAndModuleChildren
+  class Tasks::Review
     using UtilitiesRefinements
 
     AVAILABLE_CHECKS = %i[content order reek rubocop].freeze
@@ -51,14 +52,14 @@ module Wile
       match_target(all_files, target)
     end
 
-    def initialize(options, target: nil, files: Review.review_files(target))
+    def initialize(options, files)
       @files = files
       @files.weird_filename!
       raise 'No files to review' if @files.empty?
 
       @index = 0
       @options = options
-      @checks = Review.parse_checks(options.only)
+      @checks = self.class.parse_checks(options.only)
     end
 
     def self.parse_checks(only)
@@ -152,4 +153,5 @@ module Wile
       system("wile order #{sw}") && system("wile order #{sw} bprm")
     end
   end
+  Tasks.private_constant :Review
 end

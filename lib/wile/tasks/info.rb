@@ -19,7 +19,8 @@ module Wile
   end
 
   # Displays project metadata, README description, and gemspec sections.
-  class InfoDisplay
+  # rubocop:disable-next Style/ClassAndModuleChildren
+  class Tasks::InfoDisplay
     def initialize(info = Info.info)
       @info = info
     end
@@ -39,7 +40,7 @@ module Wile
     private
 
     def puts_gems(heading, gems)
-      puts_section(heading, gems.map { InfoDisplay.gem_label(it) })
+      puts_section(heading, gems.map { self.class.gem_label(it) })
     end
 
     def puts_section(heading, items)
@@ -72,4 +73,5 @@ module Wile
       nil
     end
   end
+  Tasks.private_constant :InfoDisplay
 end
