@@ -1,0 +1,51 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'stringio'
+require_relative 'test_helper'
+require_relative '../lib/wile'
+require_relative '../lib/wile/run'
+
+# Unit tests for Wile::OrderOptimizer.
+class TestUtOrderOptimizer < Test::Unit::TestCase
+  def setup = Wile.autoloads
+
+  def test_invalid_sort_raises
+    assert_raise(RuntimeError) do
+      Wile::OrderOptimizer.new([1, 2], sort: :bogus) { 0 }
+    end
+  end
+
+  def test_all_sorts_improve_reversed_order
+    Wile::OrderOptimizer::SORTS.each do |sort|
+      opt = Wile::OrderOptimizer.new([3, 1, 4, 2], sort:) { inversions(it) }
+      capture_stderr { opt.optimize }
+      assert_equal [1, 2, 3, 4], opt.to_a, "Sort #{sort} failed"
+    end
+  end
+
+  def test_handles_empty_and_single_element
+    [[], [1]].each do |arr|
+      opt = Wile::OrderOptimizer.new(arr.dup, sort: :bprm) { 0 }
+      capture_stderr { opt.optimize }
+      assert_equal arr, opt.to_a
+    end
+  end
+
+  private
+
+  def inversions(arr)
+    arr.each_with_index.sum do |val, idx|
+      arr[(idx + 1)..].count { it < val }
+    end
+  end
+
+  def capture_stderr
+    orig = $stderr
+    $stderr = StringIO.new
+    yield
+    $stderr.string
+  ensure
+    $stderr = orig
+  end
+end

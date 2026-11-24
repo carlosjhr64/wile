@@ -1,0 +1,87 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'stringio'
+require 'tmpdir'
+require_relative 'test_helper'
+require_relative '../lib/wile'
+require_relative '../lib/wile/run'
+
+# Unit tests for Wile::CodeDataFunction.
+class TestUtCodeDataFunction < Test::Unit::TestCase
+  SAMPLE = <<~RUBY
+    module Demo
+      def alpha
+        beta
+      end
+
+      def beta
+        1
+      end
+
+      def lone
+        2
+      end
+    end
+  RUBY
+
+  def setup = Wile.autoloads
+
+  def test_isolate_and_index
+    with_data(SAMPLE) do |data|
+      out = capture_stdout { Wile::CodeDataFunction.isolate(data) }
+      assert_equal "Demo#lone\n", out
+      idx = capture_stdout { Wile::CodeDataFunction.index(data) }
+      assert_match(/Demo#alpha-Demo#beta:\t1/, idx)
+    end
+  end
+
+  def test_dump_and_total
+    with_data(SAMPLE) do |data|
+      dump = capture_stdout { Wile::CodeDataFunction.dump(data) }.uncolorize
+      assert_includes dump, 'Data:'
+      assert_includes dump, 'Index:'
+      total = capture_io { Wile::CodeDataFunction.total(data) }
+      assert_match(/\A\d+\n\z/, total)
+    end
+  end
+
+  def test_qc_ok_and_failure
+    with_data(SAMPLE) do |data|
+      out = capture_stdout { Wile::CodeDataFunction.qc(data) }.uncolorize
+      assert_equal "OK\n", out
+      data.dependencies('Demo#beta') << 'Demo#alpha'
+      data.dependants('Demo#alpha') << 'Demo#beta'
+      assert_raise(RuntimeError) do
+        capture_io { Wile::CodeDataFunction.qc(data) }
+      end
+    end
+  end
+
+  private
+
+  def with_data(source)
+    Dir.mktmpdir do |dir|
+      path = File.join(dir, 'demo.rb')
+      File.write(path, source)
+      yield Wile::CodeData.new(path)
+    end
+  end
+
+  def capture_stdout
+    orig = $stdout
+    $stdout = StringIO.new
+    yield
+    $stdout.string
+  ensure
+    $stdout = orig
+  end
+
+  def capture_io(&)
+    orig_err = $stderr
+    $stderr = StringIO.new
+    capture_stdout(&)
+  ensure
+    $stderr = orig_err
+  end
+end

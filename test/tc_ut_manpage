@@ -1,0 +1,37 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'tmpdir'
+require_relative 'test_helper'
+require_relative '../lib/wile'
+require_relative '../lib/wile/run'
+
+# Unit tests for Wile::Manpage.
+class TestUtManpage < Test::Unit::TestCase
+  def setup = Wile.autoloads
+
+  def test_exist_in_project_root
+    manpage = Wile::Manpage.new(Wile::Info.new)
+    assert_true manpage.exist?
+  end
+
+  def test_exist_respects_info_dirname
+    Dir.mktmpdir do |dir|
+      project = File.basename(dir)
+      FileUtils.mkdir(File.join(dir, 'man'))
+      File.write(File.join(dir, 'man', "#{project}.md"), "# #{project}\n")
+      manpage = Wile::Manpage.new(Wile::Info.new(dirname: dir))
+      assert_true manpage.exist?
+    end
+  end
+
+  def test_update_returns_nil_when_missing
+    Dir.mktmpdir do |dir|
+      Dir.chdir(dir) do
+        manpage = Wile::Manpage.new(Wile::Info.new(dirname: dir))
+        assert_false manpage.exist?
+        assert_nil manpage.update!
+      end
+    end
+  end
+end

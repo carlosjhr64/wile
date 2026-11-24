@@ -1,0 +1,67 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'tmpdir'
+require_relative 'test_helper'
+require_relative '../lib/wile'
+require_relative '../lib/wile/run'
+
+# Unit tests for Wile::CodeStats.
+class TestUtCodeStats < Test::Unit::TestCase
+  SAMPLE = <<~RUBY
+    module Demo
+      def self.build
+        1
+      end
+
+      def run
+        2
+        3
+      end
+
+      private
+
+      def helper
+        4
+      end
+    end
+  RUBY
+
+  def setup = Wile.autoloads
+
+  def test_method_line_count
+    with_source(SAMPLE) do |path|
+      counts = Wile::CodeStats.method_line_count(path)
+      assert_equal({ 'Demo.build' => 2, 'Demo#run' => 3, 'Demo#helper' => 2 },
+                   counts)
+    end
+  end
+
+  def test_method_source_and_categories
+    with_source(SAMPLE) do |path|
+      sources = Wile::CodeStats.method_source(path)
+      assert_equal 'Demo.public', sources['Demo#run'].category
+      assert_equal 'Demo.private', sources['Demo#helper'].category
+      assert_equal 3, sources['Demo#run'].size
+    end
+  end
+
+  def test_endless_method_source_does_not_bleed
+    src = "class Foo\n  def one = 1\n\n  def two\n    2\n  end\nend\n"
+    with_source(src) do |path|
+      sources = Wile::CodeStats.method_source(path)
+      assert_equal 1, sources['Foo#one'].size
+      assert_equal 2, sources['Foo#two'].size
+    end
+  end
+
+  private
+
+  def with_source(source)
+    Dir.mktmpdir do |dir|
+      path = File.join(dir, 'sample.rb')
+      File.write(path, source)
+      yield path
+    end
+  end
+end

@@ -1,0 +1,70 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'stringio'
+require 'tmpdir'
+require_relative 'test_helper'
+require_relative '../lib/wile'
+require_relative '../lib/wile/run'
+
+# Unit tests for Wile::CodeDataValuation.
+class TestUtCodeDataValuation < Test::Unit::TestCase
+  SAMPLE = <<~RUBY
+    module Demo
+      def alpha
+        beta
+      end
+
+      def beta
+        1
+      end
+
+      private
+
+      def helper
+        2
+      end
+    end
+  RUBY
+
+  def setup = Wile.autoloads
+
+  def test_total_valid_and_section_mismatch
+    with_data(SAMPLE) do |data|
+      val = Wile::CodeDataValuation.new(data)
+      score = val.total(data.names)
+      assert_kind_of Integer, score
+      assert_operator score, :>=, 0
+      reordered = %w[Demo#helper Demo#alpha Demo#beta]
+      assert_equal Float::INFINITY, val.total(reordered)
+    end
+  end
+
+  def test_trace_emits_to_stderr
+    with_data(SAMPLE) do |data|
+      val = Wile::CodeDataValuation.new(data, trace: true)
+      err = capture_stderr { val.total(data.names) }.uncolorize
+      assert_includes err, 'Alphabetical:'
+      assert_includes err, 'Demo#alpha:'
+    end
+  end
+
+  private
+
+  def with_data(source)
+    Dir.mktmpdir do |dir|
+      path = File.join(dir, 'demo.rb')
+      File.write(path, source)
+      yield Wile::CodeData.new(path)
+    end
+  end
+
+  def capture_stderr
+    orig = $stderr
+    $stderr = StringIO.new
+    yield
+    $stderr.string
+  ensure
+    $stderr = orig
+  end
+end

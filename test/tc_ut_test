@@ -1,0 +1,48 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'stringio'
+require_relative 'test_helper'
+require_relative '../lib/wile'
+require_relative '../lib/wile/run'
+
+# Unit tests for Wile::Test.
+class TestUtTest < Test::Unit::TestCase
+  def setup = Wile.autoloads
+
+  def test_list_matches_and_raises_on_no_match
+    out = capture_stdout { Wile::Test.test!('tc_ut_sysexits', list: true) }
+    assert_equal "test/tc_ut_sysexits\n", out
+    assert_raise(RuntimeError) do
+      Wile::Test.test!('nonexistent_test_xyz', list: true)
+    end
+  end
+
+  def test_options_and_prioritized_files
+    opts = Wile::Test.send(:options, 'foo', true)
+    assert_includes opts, '--progress-style=fault-only'
+    assert_includes opts, '--name=/foo/'
+
+    ordered = Wile::Test.send(:prioritized_files,
+                              %w[test/tc_a test/tc_b_slow test/tc_c])
+    assert_equal %w[test/tc_b_slow test/tc_a test/tc_c], ordered
+  end
+
+  def test_batch_and_sequential_single_suite
+    assert_nothing_raised do
+      capture_stdout { Wile::Test.test!('tc_ut_sysexits', quiet: true) }
+      Wile::Test.test!('tc_ut_sysexits', batch: true, quiet: true)
+    end
+  end
+
+  private
+
+  def capture_stdout
+    orig = $stdout
+    $stdout = StringIO.new
+    yield
+    $stdout.string
+  ensure
+    $stdout = orig
+  end
+end

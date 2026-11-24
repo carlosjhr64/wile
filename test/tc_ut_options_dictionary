@@ -1,0 +1,44 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'stringio'
+require_relative 'test_helper'
+require_relative '../lib/wile'
+require_relative '../lib/wile/run'
+
+# Unit tests for Wile::OptionsDictionary.
+class TestUtOptionsDictionary < Test::Unit::TestCase
+  def setup = Wile.autoloads
+
+  def test_all_option_types_have_patterns
+    dict = Wile::OptionsDictionary
+    dict::OPTIONS.each do |name, entry|
+      type = entry[:type]
+      next unless type
+
+      assert_includes dict::PATTERNS.keys, type, "Missing pattern for #{name}"
+    end
+  end
+
+  def test_reports_flag_and_typed_options
+    out = capture_stdout do
+      Wile::OptionsDictionary.new({ 'all' => true, 'format' => 'JSON',
+                                    'unknown' => true })
+    end
+    assert_includes out, '--all'
+    assert_includes out, '--format=JSON'
+    assert_includes out, 'Pattern:     WORD'
+    assert_not_includes out, '--unknown'
+  end
+
+  private
+
+  def capture_stdout
+    orig = $stdout
+    $stdout = StringIO.new
+    yield
+    $stdout.string
+  ensure
+    $stdout = orig
+  end
+end

@@ -1,0 +1,58 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'stringio'
+require 'tmpdir'
+require_relative 'test_helper'
+require_relative '../lib/wile'
+require_relative '../lib/wile/run'
+
+# Unit tests for Wile::Content.
+class TestUtContent < Test::Unit::TestCase
+  Opts = Struct.new(:raw)
+  private_constant :Opts
+
+  def setup = Wile.autoloads
+
+  def test_raw_mode_dumps_stats_and_content
+    with_source("class Foo\n  def bar = 1\nend\n") do |path|
+      out = capture_stdout { Wile::Content.new([path], Opts.new(true)) }
+      assert_includes out.uncolorize, 'Foo#bar'
+      assert_includes out.uncolorize, 'def Foo#bar'
+    end
+  end
+
+  def test_colorized_mode_detects_unresolved_calls
+    clean = "class Foo\n  def bar\n    baz\n  end\n  def baz = 1\nend\n"
+    broken = "class Foo\n  def bar\n    totally_unknown_xyz\n  end\nend\n"
+    assert_false run_colorized(clean).red?
+    assert_true run_colorized(broken).red?
+  end
+
+  private
+
+  def run_colorized(source)
+    content = nil
+    with_source(source) do |path|
+      capture_stdout { content = Wile::Content.new([path], Opts.new(false)) }
+    end
+    content
+  end
+
+  def with_source(source)
+    Dir.mktmpdir do |dir|
+      path = File.join(dir, 'foo.rb')
+      File.write(path, source)
+      yield path
+    end
+  end
+
+  def capture_stdout
+    orig = $stdout
+    $stdout = StringIO.new
+    yield
+    $stdout.string
+  ensure
+    $stdout = orig
+  end
+end

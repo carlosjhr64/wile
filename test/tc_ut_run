@@ -1,0 +1,78 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'stringio'
+require_relative 'test_helper'
+require_relative '../lib/wile'
+require_relative '../lib/wile/requires'
+require_relative '../lib/wile/run'
+
+# Unit tests for Wile::Run.
+class TestUtRun < Test::Unit::TestCase
+  include Wile::Sysexits
+
+  Opts = Struct.new(:task, :args, :extra) do
+    def to_h
+      base = { 'task' => task, 'args' => args }
+      extra ? base.merge(extra) : base
+    end
+  end
+  private_constant :Opts
+
+  def test_autoloads_registers_expected_constants
+    Wile.autoloads
+    %i[Cache CodeData Dependencies Gemspec Info OrderOptimizer ThreadPool]
+      .each { assert_true Wile.const_defined?(it, false), it }
+  end
+
+  def test_no_task_with_option_dispatches_options_dictionary
+    out = capture_stdout { Wile::Run.new(Opts.new(nil, nil, { 'all' => true })) }
+    assert_includes out, '--all'
+  end
+
+  def test_unknown_task_exits_with_ex_usage
+    err, status = capture_exit { Wile::Run.new(Opts.new('no_such_task_xyz')) }
+    assert_equal EX_USAGE, status
+    assert_includes err, "No tasks matched 'no_such_task_xyz'"
+  end
+
+  def test_error_handlers_map_exit_codes
+    run = Wile::Run.allocate
+    run.instance_variable_set(:@error, RuntimeError.new('DATAERR: bad data'))
+    err, status = capture_exit { run.send(:handle_error) }
+    assert_equal EX_DATAERR, status
+    assert_includes err, 'bad data'
+  end
+
+  def test_epipe_exits_ok_and_software_error_exits_ex_software
+    run = Wile::Run.allocate
+    run.instance_variable_set(:@error, Errno::EPIPE.new)
+    _, ok_status = capture_exit { run.send(:handle_error) }
+    assert_equal EX_OK, ok_status
+
+    run.instance_variable_set(:@error, ZeroDivisionError.new('boom'))
+    err, sw_status = capture_exit { run.send(:handle_error) }
+    assert_equal EX_SOFTWARE, sw_status
+    assert_includes err, 'boom'
+  end
+
+  private
+
+  def capture_stdout
+    orig = $stdout
+    $stdout = StringIO.new
+    yield
+    $stdout.string
+  ensure
+    $stdout = orig
+  end
+
+  def capture_exit(&)
+    orig = $stderr
+    $stderr = StringIO.new
+    err = assert_raise(SystemExit, &)
+    [$stderr.string, err.status]
+  ensure
+    $stderr = orig
+  end
+end

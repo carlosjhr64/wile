@@ -1,0 +1,76 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'tmpdir'
+require_relative 'test_helper'
+require_relative '../lib/wile'
+require_relative '../lib/wile/run'
+
+# Unit tests for Wile::CodeContent.
+class TestUtCodeContent < Test::Unit::TestCase
+  SAMPLE = <<~RUBY
+    module Demo
+      CONST = [1, 2]
+      attr_reader :val
+
+      def self.build
+        new.run
+      end
+
+      def run
+        helper
+      end
+
+      def helper = CONST.size
+    end
+  RUBY
+
+  def setup = Wile.autoloads
+
+  def test_generate_emits_defs_attrs_constants_and_calls
+    lines = generate_lines(SAMPLE)
+    assert_includes lines, 'casgn Demo::CONST array'
+    assert_includes lines, '#attr_reader Demo#val'
+    assert_includes lines, 'def Demo.build'
+    assert_includes lines, '  .new'
+    assert_includes lines, '  #run'
+    assert_includes lines, 'def Demo#run'
+    assert_includes lines, '  #helper'
+    assert_includes lines, '  CONST.size'
+  end
+
+  def test_generate_deduplicates_calls_within_def
+    src = "class Foo\n  def bar\n    baz\n    baz\n  end\nend\n"
+    lines = generate_lines(src)
+    assert_equal 1, lines.count('  #baz')
+  end
+
+  STRUCT_SAMPLE = <<~RUBY
+    class Foo
+      Item = Struct.new(:a) { def hi = a }
+      class << self
+        def ping = 1
+      end
+    end
+  RUBY
+
+  def test_generate_handles_struct_and_singleton_class
+    lines = generate_lines(STRUCT_SAMPLE)
+    assert_includes lines, 'casgn Foo::Item Struct'
+    assert_includes lines, '#attr_accessor Foo::Item#a'
+    assert_includes lines, 'def Foo::Item#hi'
+    assert_includes lines, 'def Foo.ping'
+  end
+
+  private
+
+  def generate_lines(source)
+    Dir.mktmpdir do |dir|
+      path = File.join(dir, 'sample.rb')
+      File.write(path, source)
+      lines = []
+      Wile::CodeContent.generate(path) { |line| lines << line }
+      lines
+    end
+  end
+end

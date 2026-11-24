@@ -1,0 +1,21 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require_relative 'test_helper'
+require_relative '../lib/wile'
+
+# Unit tests for lib/wile.rb.
+class TestUtWile < Test::Unit::TestCase
+  def test_root_and_version
+    assert_true File.directory?(Wile::ROOT)
+    assert_true File.file?(File.join(Wile::ROOT, '.version'))
+    assert_equal File.read(File.join(Wile::ROOT, '.version')).strip,
+                 Wile::VERSION
+  end
+
+  def test_autoloaded_core_constants
+    %i[Run Sysexits Utilities UtilitiesRefinements WileRefinements].each do |c|
+      assert_true Wile.const_defined?(c, false), c
+    end
+  end
+end

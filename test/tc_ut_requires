@@ -1,0 +1,16 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require_relative 'test_helper'
+require_relative '../lib/wile'
+require_relative '../lib/wile/requires'
+
+# Unit tests for lib/wile/requires.rb.
+class TestUtRequires < Test::Unit::TestCase
+  def test_core_constants_loaded
+    assert_true Wile.const_defined?(:Help, false)
+    assert_true Wile.const_defined?(:UsageError, false)
+    assert_true Wile.const_defined?(:Usage, false)
+    assert_true Wile.const_defined?(:Tasks, false)
+  end
+end

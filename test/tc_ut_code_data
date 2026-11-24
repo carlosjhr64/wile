@@ -1,0 +1,65 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'tmpdir'
+require_relative 'test_helper'
+require_relative '../lib/wile'
+require_relative '../lib/wile/run'
+
+# Unit tests for Wile::CodeData.
+class TestUtCodeData < Test::Unit::TestCase
+  SAMPLE = <<~RUBY
+    module Demo
+      CONST = 42
+      attr_reader :name
+
+      def greet
+        helper
+        External.ping
+      end
+
+      private
+
+      def helper
+        CONST.to_s
+      end
+    end
+  RUBY
+
+  def setup = Wile.autoloads
+
+  def test_names_sizes_and_categories
+    with_code_data(SAMPLE) do |cd|
+      assert_equal %w[Demo#greet Demo#helper], cd.names
+      assert_equal 3, cd.size('Demo#greet')
+      assert_equal 'Demo.public', cd.category('Demo#greet')
+      assert_equal 'Demo.private', cd.category('Demo#helper')
+    end
+  end
+
+  def test_dependencies_dependants_and_index
+    with_code_data(SAMPLE) do |cd|
+      assert_equal ['Demo#helper'], cd.dependencies('Demo#greet')
+      assert_equal ['Demo#greet'], cd.dependants('Demo#helper')
+      assert_equal 1, cd.dependency_index('Demo#greet', 'Demo#helper')
+      assert_includes cd.external('Demo#greet'), 'External.ping'
+    end
+  end
+
+  def test_attrs_and_constants
+    with_code_data(SAMPLE) do |cd|
+      assert_includes cd.attrs, 'Demo#name'
+      assert_includes cd.constants, 'Demo::CONST'
+    end
+  end
+
+  private
+
+  def with_code_data(source)
+    Dir.mktmpdir do |dir|
+      path = File.join(dir, 'demo.rb')
+      File.write(path, source)
+      yield Wile::CodeData.new(path)
+    end
+  end
+end

@@ -1,0 +1,21 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require_relative 'test_helper'
+require_relative '../lib/wile'
+require_relative '../lib/wile/run'
+
+# Unit tests for Wile::NvimFiles.
+class TestUtNvimFiles < Test::Unit::TestCase
+  def setup = Wile.autoloads
+
+  def test_nvim_files_ordering
+    files = Wile::NvimFiles.new('wile').nvim_files
+    assert_equal 'README.md', files.first
+    assert_includes files, 'bin/wile'
+    assert_includes files, 'lib/wile.rb'
+    assert_operator files.index('lib/wile.rb'), :<,
+                    files.index('lib/wile/run.rb')
+    assert_equal files.uniq, files
+  end
+end
