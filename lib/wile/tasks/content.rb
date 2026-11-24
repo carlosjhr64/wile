@@ -15,7 +15,7 @@ module Wile
     def content(options)
       files = content_files(options)
       return content_dump(files) if options.dump?
-      raise 'STOP:' if Content.new(files, options).red?
+      raise 'STOP: unresolved calls' if Content.new(files, options).red?
     end
 
     private
