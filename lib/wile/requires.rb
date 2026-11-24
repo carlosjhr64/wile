@@ -2,5 +2,6 @@
 
 ## List of Local Libraries:
 require_relative 'help'
+require_relative 'usage_error'
 require_relative 'usage'
 require_relative 'tasks'

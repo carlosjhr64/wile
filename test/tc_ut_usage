@@ -4,6 +4,7 @@
 require 'fileutils'
 require_relative 'test_helper'
 require_relative '../lib/wile'
+require_relative '../lib/wile/usage_error'
 require_relative '../lib/wile/usage'
 require_relative '../lib/wile/help'
 

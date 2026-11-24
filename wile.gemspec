@@ -144,6 +144,7 @@ Gem::Specification.new do |s|
     lib/wile/tasks/todo.rb
     lib/wile/tasks/update.rb
     lib/wile/usage.rb
+    lib/wile/usage_error.rb
     lib/wile/utilities.rb
     lib/wile/utilities_refinements.rb
     lib/wile/wile_refinements.rb
