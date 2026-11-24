@@ -31,7 +31,7 @@ module Wile
     # Stores gem or OS command dependency metadata.
     GemInfo = Struct.new(:name, :version, :type, :filename, :require) do
       def <=>(other)
-        (cmp = name <=> other.name).zero? ? version <=> other.version : cmp
+        [name.to_s, version.to_s] <=> [other.name.to_s, other.version.to_s]
       end
     end
 

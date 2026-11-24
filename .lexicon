@@ -391,7 +391,6 @@ close_write
 cmd
 cmd_index
 cmd_ver
-cmp
 code
 code_data
 code_msg
