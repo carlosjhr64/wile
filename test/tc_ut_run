@@ -26,7 +26,8 @@ class TestUtRun < Test::Unit::TestCase
   end
 
   def test_no_task_with_option_dispatches_options_dictionary
-    out = capture_stdout { Wile::Run.new(Opts.new(nil, nil, { 'all' => true })) }
+    opts = Opts.new(nil, nil, { 'all' => true })
+    out = capture_stdout { Wile::Run.new(opts) }
     assert_includes out, '--all'
   end
 
