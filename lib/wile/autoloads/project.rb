@@ -37,7 +37,8 @@ module Wile
     end
 
     def self.files(dir)
-      find(dir).map { it.delete_prefix("#{dir.delete_prefix('./')}/") }
+      prefix = "#{dir.delete_prefix('./').delete_suffix('/')}/"
+      find(dir).map { it.delete_prefix(prefix) }
     end
 
     def self.pfiles = Git.files
