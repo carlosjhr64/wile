@@ -149,4 +149,5 @@ module Wile
       end
     end
   end
+  CodeData.private_constant :Parser
 end

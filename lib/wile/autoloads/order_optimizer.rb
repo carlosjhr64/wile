@@ -181,4 +181,5 @@ module Wile
       true
     end
   end
+  OrderOptimizer.private_constant :State
 end

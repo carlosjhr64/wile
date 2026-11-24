@@ -6,7 +6,7 @@ module Wile
   class CodeStats
     # :reek:UtilityFunction
     def method_stats(filename, &func)
-      Scanner.new(File.readlines(filename), func).scan
+      Scanner.new(File.readlines(filename), func, ScopeTracker.new).scan
     end
 
     def self.method_line_count(filename) = new.method_stats(filename, &:size)
@@ -88,10 +88,10 @@ module Wile
     }.freeze
     private_constant :MATCHERS
 
-    def initialize(lines, func)
+    def initialize(lines, func, tracker)
       @lines = lines
       @func = func
-      @tracker = CodeStats::ScopeTracker.new
+      @tracker = tracker
       @state = { hash: {}, dlevel: 0, name: nil, line: nil,
                  source: CodeStats.source }
     end
@@ -181,4 +181,5 @@ module Wile
       @tracker.push(len, '.') if sclass
     end
   end
+  CodeStats.private_constant :ScopeTracker, :Scanner
 end

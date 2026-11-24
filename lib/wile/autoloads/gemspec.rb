@@ -159,4 +159,5 @@ module Wile
       end
     end
   end
+  Gemspec.private_constant :Renderer
 end

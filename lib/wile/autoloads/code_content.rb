@@ -135,7 +135,7 @@ module Wile
     end
 
     def emit_casgn(full, val_)
-      type = CodeContent::Emitter.casgn_type(val_)
+      type = self.class.casgn_type(val_)
       @block["casgn #{full} #{type}"]
       type
     end
@@ -202,4 +202,5 @@ module Wile
       end
     end
   end
+  CodeContent.private_constant :Emitter
 end

@@ -133,10 +133,11 @@ module Wile
     def self.duck?(name) = name.match?(/\A(?:\*|(?:[@$]{1,2})?[a-z_]\w*)#/)
 
     def resolve(name)
-      return :gray if Content::Colorizer.duck?(name)
+      kls = self.class
+      return :gray if kls.duck?(name)
 
       CLRS.first_truthy_value { send(it, name) } ||
-        (Content::Colorizer.kernel?(name) ? :cyan : :red)
+        (kls.kernel?(name) ? :cyan : :red)
     end
 
     def self.kernel?(name)
@@ -190,4 +191,5 @@ module Wile
       :light_blue if targets.any? { @responds.ok?(it) }
     end
   end
+  Content.private_constant :Colorizer
 end

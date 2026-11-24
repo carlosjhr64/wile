@@ -126,7 +126,7 @@ module Wile
     def self.parse_gem_path(path, name)
       if (mdt = %r{/gems/([-\w]+)-(\d+\.\d+\.\d+)}.match(path))
         Dependencies::GemInfo.new(mdt[1], mdt[2], :gem, path, name)
-      elsif (type, md = Dependencies::Resolver.lib_type(path))
+      elsif (type, md = lib_type(path))
         Dependencies::GemInfo.new(md[1], nil, type, path, name)
       end
     end
@@ -150,14 +150,14 @@ module Wile
 
     def resolve_gem_which(name)
       path = `gem which -q #{name.sw}`.strip
-      Dependencies::Resolver.parse_gem_path(path, name) || missing_gem(name)
+      self.class.parse_gem_path(path, name) || missing_gem(name)
     end
 
     def resolve_os_which(cmd)
       return missing_os(cmd) unless (path = Utilities.which(cmd))
 
       version = @cmd_ver.version(cmd)
-      Dependencies::Resolver.warn_missing_version(cmd) if @verbose && !version
+      self.class.warn_missing_version(cmd) if @verbose && !version
       Dependencies::GemInfo.new(cmd, version, :os, path, cmd)
     end
 
@@ -166,4 +166,5 @@ module Wile
       Dependencies::GemInfo.new(nil, nil, nil, nil, cmd)
     end
   end
+  Dependencies.private_constant :Resolver
 end

@@ -115,4 +115,5 @@ module Wile
       end.freeze
     end
   end
+  CommandVersion.private_constant :Probe
 end

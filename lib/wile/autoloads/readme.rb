@@ -133,4 +133,5 @@ module Wile
       @lines[index]&.start_with?('```') || index >= @lines.length
     end
   end
+  Readme.private_constant :ConsoleBlocks
 end
