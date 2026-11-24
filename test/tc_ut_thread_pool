@@ -30,4 +30,17 @@ class TestUtThreadPool < Test::Unit::TestCase
     pool = Wile::ThreadPool.new(workers: 0)
     assert_equal [1, 3], pool.reject([1, 2, 3], &:even?).sort
   end
+
+  def test_respects_worker_bound
+    mutex = Mutex.new
+    active = 0
+    peak = 0
+    Wile::ThreadPool.new(workers: 2).reject((1..6).to_a) do
+      mutex.synchronize { peak = [peak, active += 1].max }
+      sleep 0.01
+      mutex.synchronize { active -= 1 }
+      true
+    end
+    assert_operator peak, :<=, 2
+  end
 end

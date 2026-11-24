@@ -65,7 +65,7 @@ class TestUtDependencies < Test::Unit::TestCase
     assert_equal 'diff', match[1]
   end
 
-  def test_record_dep_with_commas
+  def test_record_gems_and_os_with_commas
     scrapes = Wile::Dependencies.send(:const_get, :DEPENDENCY_SCRAPES)
     match = scrapes[0][0].match('# wile: os `diff,apt-get`')
     assert_equal 'diff,apt-get', match[1]
