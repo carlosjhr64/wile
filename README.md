@@ -12,27 +12,25 @@ It scaffolds new projects from the template, keeps existing ones
 aligned with it, and automates the rest of the workflow -- gemspec
 upkeep, testing, and release. There is no configuration file: your
 clone is the configuration, to take as-is or edit and install
-locally. It targets Linux, fish, and tmux.
+locally.
 
 ## INSTALL
 
-* Wile runs only on Linux
+* Built for Linux (GNU tools; bootstrap scripts require Debian/Ubuntu)
 * Required Ruby version: `>= 4.0`
 
-`Wile` is not published to RubyGems. Because project structure, template
-conventions, and environment expectations are hardcoded directly into
-the Ruby source and `cache/` template, the code itself *is* the configuration.
+The recommended way to use `wile` is from a local git clone. Because
+project structure, template conventions, and tasks live directly in the
+Ruby source and `cache/` template, cloning lets you customize `wile` to
+fit your workflow and reinstall it locally (`wile install`) whenever you
+add or adjust a feature.
 
-The minimum Ruby version that should work on
-the first bootstrap script is less than 4, just try it and see.
-The goal is to automate the installation of `rbenv` and
-get your ruby at Wile's current version.
+The bootstrap scripts automate setting up `rbenv`, Ruby, gems, `fish`,
+system commands, and Neovim. The first script (`bootstrap_ruby_rbenv`)
+does not require Ruby `>= 4.0` -- its job is to install `rbenv` and
+bring Ruby up to Wile's version. Run any bootstrap script with `--help`
+first to see what it will do:
 
-On each bootstrap, run it with the `--help` flag to
-understand what the script is going to attempt to do.
-
-To use `wile`, clone the repository from GitHub, review and customize the code
-and `cache/` templates to fit your own workflow, and install it locally:
 ```console
 $ git clone --depth 1 https://github.com/carlosjhr64/wile.git
 $ cd wile
@@ -43,20 +41,19 @@ $ ./bin/bootstrap_fisher_plugins
 $ ./bin/bootstrap_system_commands
 $ ./bin/bootstrap_install_neovim
 ```
-At this point you should be good to go.
-I have a terminal dedicated to run `fish`, but
-at the point above after installing fish, or
-any time after..
-You can run `fish` and be in the fishshell.
-Anyways(you're in the fishshell), proceed:
+
+Once `fish` is installed, start a `fish` shell (or open a terminal
+running `fish`), install `wile`, and scaffold your first project:
+
 ```console
-$ goto wile # takes you to the wile diretory
+$ goto wile # takes you to the wile directory
 $ wile install
-$ cd .. # a resonable place you might set up a new project
-$ RBENV_VERSION=4.0.7 wile mkdir awesome # Use the .ruby-version set in wile
+$ cd .. # a reasonable place to set up a new project
+$ RBENV_VERSION=4.0.7 wile mkdir awesome # use wile's .ruby-version
 $ goto awesome
 ```
-There you'll see the skeleton of your new Awesome project.
+
+There you'll see the skeleton of your new `awesome` project.
 
 ## HELP
 

@@ -20,7 +20,7 @@ Gem::Specification.new do |s|
     aligned with it, and automates the rest of the workflow -- gemspec
     upkeep, testing, and release. There is no configuration file: your
     clone is the configuration, to take as-is or edit and install
-    locally. It targets Linux, fish, and tmux.
+    locally.
   DESCRIPTION
   ## FILES ##
   s.require_paths = ['lib']
