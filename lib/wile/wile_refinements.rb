@@ -119,7 +119,7 @@ module Wile
 
       def snake_case(str = '_') = name_split.map(&:downcase).join(str)
 
-      def camel_case = pascal_case.tap { it[0] = it[0].downcase }
+      def camel_case = pascal_case.sub(/\A./, &:downcase)
 
       def kebab_case = snake_case('-')
 
