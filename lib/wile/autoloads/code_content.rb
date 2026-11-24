@@ -75,6 +75,12 @@ module Wile
       emit_casgn(node_.target.slice.delete_prefix('::'), node_)
     end
 
+    def visit_local_variable_write_node(node_)
+      @emitter.track_class_var(node_.name, node_.value)
+      super
+    end
+    alias visit_optional_parameter_node visit_local_variable_write_node
+
     private
 
     def emit_casgn(full, node_)
@@ -115,7 +121,11 @@ module Wile
       @block = block
       @dot = '#'
       @scope = []
-      @seen = [Set.new]
+      @frames = [[Set.new, Set['self.class']]]
+    end
+
+    def track_class_var(name, val_)
+      @frames.last.last << name.to_s if val_.slice == 'self.class'
     end
 
     def with_scope(*names)
@@ -164,7 +174,7 @@ module Wile
 
     def def_body(method_name, receiver_)
       @dot = '.' if receiver_ || singleton_scope?
-      @seen.push(Set.new)
+      @frames.push([Set.new, Set['self.class']])
       @block["def #{def_scope(receiver_)}#{@dot}#{method_name}"]
       yield
     ensure
@@ -172,8 +182,8 @@ module Wile
     end
 
     def emit_call(name)
-      prefix = @seen.size > 1 ? '  ' : ''
-      @block["#{prefix}#{name}"] if @seen.last.add?(name)
+      prefix = @frames.size > 1 ? '  ' : ''
+      @block["#{prefix}#{name}"] if @frames.last.first.add?(name)
     end
 
     def handle_call(receiver_, name)
@@ -186,20 +196,23 @@ module Wile
 
     def leave_def
       @dot = '#'
-      @seen.pop
+      @frames.pop
       @block['end']
     end
 
     def emit_receiver_call(receiver_, name)
       slice = receiver_.slice
-      if CONST_NODES.include?(receiver_.class)
-        emit_call("#{slice.delete_prefix('::')}.#{name}")
-      elsif slice == 'new'
-        emit_call("#{@dot}new")
-        emit_call("##{name}")
-      else
-        emit_call("#{slice[DUCK_NAME] || '*'}##{name}")
-      end
+      return emit_call("#{slice.delete_prefix('::')}.#{name}") if
+        CONST_NODES.include?(receiver_.class)
+      return emit_call(".#{name}") if @frames.last.last.include?(slice)
+      return emit_new_call(name) if slice == 'new'
+
+      emit_call("#{slice[DUCK_NAME] || '*'}##{name}")
+    end
+
+    def emit_new_call(name)
+      emit_call("#{@dot}new")
+      emit_call("##{name}")
     end
   end
   CodeContent.private_constant :Emitter

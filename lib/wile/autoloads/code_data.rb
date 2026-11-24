@@ -95,7 +95,7 @@ module Wile
     def resolve_local_method(call_name)
       candidates = if call_name == '.new' then ["#{@prefix}#initialize"]
                    else
-                     ["#{@prefix}#{call_name}",
+                     ["#{@prefix}#{call_name}", "#{@prefix}::#{call_name}",
                       "#{@prefix.split('::').first}::#{call_name}", call_name]
                    end
       candidates.find { @code_data.data.key?(it) }

@@ -62,6 +62,24 @@ class TestUtCodeContent < Test::Unit::TestCase
     assert_includes lines, 'def Foo.ping'
   end
 
+  SELF_CLASS_SAMPLE = <<~RUBY
+    class Foo
+      def a = self.class.ping
+      def b(kls = self.class) = kls.pong
+      def c
+        cls = self.class
+        cls.baz
+      end
+    end
+  RUBY
+
+  def test_generate_resolves_self_class_and_aliased_vars
+    lines = generate_lines(SELF_CLASS_SAMPLE)
+    assert_includes lines, '  .ping'
+    assert_includes lines, '  .pong'
+    assert_includes lines, '  .baz'
+  end
+
   private
 
   def generate_lines(source)
