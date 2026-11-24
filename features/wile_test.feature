@@ -13,7 +13,7 @@ Feature: Testing wile test task
     * Then stdout includes "test/tc_cucumber"
 
   Scenario: test with filematch and --list
-    * Given option "test usage --list"
+    * Given option "test usage$ --list"
     * When we run command
     * Then exit status is "0"
     * Then stderr is ""
@@ -23,7 +23,8 @@ Feature: Testing wile test task
     * Given option "test usage initialize -q"
     * When we run command
     * Then exit status is "0"
-    * Then stdout includes "18 tests, 19 assertions"
+    * Then stdout includes "12 tests, 12 assertions"
+    * Then stdout includes "6 tests, 7 assertions"
     * Then stdout includes "OK"
 
   Scenario: test with non-matching filematch

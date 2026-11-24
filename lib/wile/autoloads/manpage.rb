@@ -10,8 +10,9 @@ module Wile
     def initialize(info = Info.info)
       @info = info
       @project = @info.project
-      @md_path = "man/#{@project}.md"
-      @roff_path = "man/#{@project}.1"
+      path = File.join(@info.dirname, 'man', @project)
+      @md_path = "#{path}.md"
+      @roff_path = "#{path}.1"
     end
 
     def exist? = File.file?(@md_path)
