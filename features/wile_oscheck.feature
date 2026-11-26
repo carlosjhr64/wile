@@ -16,8 +16,8 @@ Feature: Testing wile oscheck task
   Scenario: oscheck with all option
     * Given option "oscheck --all"
     * When we run command
-    * Then exit status is "1"
-    * Then stderr is ""
+    * Then exit status is "2"
+    * Then stderr includes "commands not found"
     * Then stdout includes "ruby:"
     * Then stdout includes "git:"
     * Then stdout includes "-"

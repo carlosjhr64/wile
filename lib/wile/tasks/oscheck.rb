@@ -4,7 +4,7 @@
 # Checks for system commands and reports their installed versions.
 # By default, only displays found commands.
 # Options:
-#   --all # report all commands including missing ones (exits 1 on missing)
+#   --all # report all commands including missing ones (exits 2 on missing)
 # Usage:
 #   wile oscheck [--all] # check system command versions
 module Wile
@@ -20,7 +20,7 @@ module Wile
 
     def oscheck(options)
       Usage.new(options, *OSCHECK_USAGE)
-      raise if oscheck_do(options.all?)
+      raise 'STOP: commands not found' if oscheck_do(options.all?)
     end
 
     private

@@ -546,14 +546,14 @@ By default, Wile reports only commands that are installed on the host:
 
 Passing `--all` audits all known commands, displaying installed commands with
 their detected versions and missing commands with `-` in red. If any commands
-are missing in `--all` mode, Wile exits with status 1 (`EX_FAIL`):
+are missing in `--all` mode, Wile exits with status 2 (`EX_STOP`):
 
-    $ wile oscheck --all        # Audit all known commands (exit 1 if missing)
+    $ wile oscheck --all        # Audit all known commands (exit 2 if missing)
 
 Options:
 
-- `--all`: Audit all known commands, including missing commands, and exit 1
-  (`EX_FAIL`) if any command is missing.
+- `--all`: Audit all known commands, including missing commands, and exit 2
+  (`EX_STOP`) if any command is missing.
 
 ## PUBLISH
 

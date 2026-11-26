@@ -809,18 +809,18 @@ Passing \f[V]--all\f[R] audits all known commands, displaying installed
 commands with their detected versions and missing commands with
 \f[V]-\f[R] in red.
 If any commands are missing in \f[V]--all\f[R] mode, Wile exits with
-status 1 (\f[V]EX_FAIL\f[R]):
+status 2 (\f[V]EX_STOP\f[R]):
 .IP
 .nf
 \f[C]
-$ wile oscheck --all        # Audit all known commands (exit 1 if missing)
+$ wile oscheck --all        # Audit all known commands (exit 2 if missing)
 \f[R]
 .fi
 .PP
 Options:
 .IP \[bu] 2
 \f[V]--all\f[R]: Audit all known commands, including missing commands,
-and exit 1 (\f[V]EX_FAIL\f[R]) if any command is missing.
+and exit 2 (\f[V]EX_STOP\f[R]) if any command is missing.
 .SH PUBLISH
 .PP
 Wile verifies project readiness, builds and pushes a new gem version to
