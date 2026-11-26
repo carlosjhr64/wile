@@ -116,7 +116,7 @@ module Wile
     def prompt_and_install(missing, searched, kls = self.class)
       kls.report(missing, searched)
       Utilities.confirm?('Would you like to install them all?') ||
-        raise('Aborted.')
+        raise('NO: Aborted.')
       missing.each_key { |name, major| kls.install_gem(name, major) }
       puts 'OK'.green
     end
